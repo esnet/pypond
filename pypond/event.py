@@ -306,7 +306,7 @@ class TimeRangeEvent(EventBase):
         {time: t, data: {key: value, ...}}
 
         This is actually like json.loads(s) - produces the
-        actual data structure."""
+        actual vanilla data structure."""
         raise NotImplementedError
 
     def to_string(self):
@@ -415,4 +415,100 @@ class IndexedEvent(EventBase):
         """
         Create an indexed event.
         """
+        raise NotImplementedError
+
+    def to_json(self):
+        """
+        Returns the Event as a JSON object, essentially:
+        {time: t, data: {key: value, ...}}
+
+        This is actually like json.loads(s) - produces the
+        actual vanilla data structure."""
+        raise NotImplementedError
+
+    def to_string(self):
+        """
+        Retruns the Event as a string, useful for serialization.
+        It's a JSON string of the whole object.
+
+        In JS land, this is synonymous with __str__ or __unicode__
+        """
+        raise NotImplementedError
+
+    def to_point(self):
+        """
+        Returns a flat array starting with the timestamp, followed by the values.
+        Doesn't include the groupByKey (key).
+        """
+        raise NotImplementedError
+
+    def timerange_as_utc_string(self):
+        """The timerange of this data, in UTC time, as a string."""
+        raise NotImplementedError
+
+    def timerange_as_local_string(self):
+        """The timerange of this data, in Local time, as a string."""
+        raise NotImplementedError
+
+    def timestamp(self):
+        """The timestamp of this data"""
+        raise NotImplementedError
+
+    def timerange(self):
+        """The TimeRange of this data."""
+        raise NotImplementedError
+
+    def begin(self):
+        """The begin time of this Event, which will be just the timestamp"""
+        raise NotImplementedError
+
+    def end(self):
+        """The end time of this Event, which will be just the timestamp"""
+        raise NotImplementedError
+
+    def data(self):
+        """Direct access to the event data. The result will be an Immutable.Map."""
+        raise NotImplementedError
+
+    def key(self):
+        """Access the event groupBy key"""
+        raise NotImplementedError
+
+    # data setters, returns new object
+
+    def set_data(self, data):
+        """Sets the data portion of the event and returns a new Event."""
+        raise NotImplementedError
+
+    def set_key(self, key):
+        """
+        Sets the groupBy Key and returns a new Event
+        """
+        raise NotImplementedError
+
+    def get(self, field_spec='value'):
+        """
+        Get specific data out of the Event. The data will be converted
+        to a js object. You can use a fieldSpec to address deep data.
+        A fieldSpec could be "a.b"
+
+        The field spec can have an arbitrary number of "parts."
+
+        Peter orginally did this:
+        const value = fieldSpec.split(".").reduce((o, i) => o[i], eventData);
+        """
+        raise NotImplementedError
+
+    def value(self, field_spec):
+        """
+        Alias for get()
+        """
+        raise NotImplementedError
+
+    def index(self):
+        """Returns the Index associated with the data in this Event."""
+        raise NotImplementedError
+
+    def index_as_string(self):
+        """Returns the Index as a string, same as event.index().toString()"""
         raise NotImplementedError
