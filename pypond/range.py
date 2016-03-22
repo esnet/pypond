@@ -1,0 +1,167 @@
+"""
+Implementation of Pond TimeRange classes.
+
+http://software.es.net/pond/#/timerange
+"""
+
+
+class TimeRange(object):  # pylint: disable=too-many-public-methods
+    """
+    Builds a new TimeRange which may be of several different formats:
+    - Another TimeRange (copy constructor)
+    - A python tuple, list or pyrsistent.PVector object containing two
+      python datetime objects or ms timestamps.
+    - Two arguments, begin and end, each of which may be a datetime object,
+      or a ms timestamp.
+    """
+    def __init__(self, instance_or_being, end=None):
+        """
+        Construct the object using the aforementioned arg combinations.
+        """
+
+        # Make sure that end is not previous in time (see error in
+        # static methods below).
+
+        raise NotImplementedError
+
+    def range(self):
+        """
+        Returns the internal range, which is an Immutable List containing
+        begin and end keys
+        """
+        raise NotImplementedError
+
+    def to_json(self):
+        """
+        Returns the TimeRange as JSON, which will be a Javascript array
+        of two ms timestamps.
+        """
+        raise NotImplementedError
+
+    def to_string(self):
+        """Returns the TimeRange as a string, useful for serialization."""
+        raise NotImplementedError
+
+    def to_local_string(self):
+        """Returns the TimeRange as a string expressed in local time."""
+        raise NotImplementedError
+
+    def to_utc_string(self):
+        """Returns the TimeRange as a string expressed in UTC time."""
+        raise NotImplementedError
+
+    def humanize(self):
+        """
+        Returns a human friendly version of the TimeRange, e.g.
+        "Aug 1, 2014 05:19:59 am to Aug 1, 2014 07:41:06 am"
+        """
+        raise NotImplementedError
+
+    def relative_string(self):
+        """
+        Returns a human friendly version of the TimeRange, e.g.
+        e.g. "a few seconds ago to a month ago"
+        """
+        raise NotImplementedError
+
+    def begin(self):
+        """Returns the begin time of the TimeRange."""
+        raise NotImplementedError
+
+    def end(self):
+        """Returns the end time of the TimeRange."""
+        raise NotImplementedError
+
+    def set_begin(self, dtime):
+        """
+        Sets a new begin time on the TimeRange. The result will be
+        a new TimeRange.
+        """
+        raise NotImplementedError
+
+    def set_end(self, dtime):
+        """
+        Sets a new end time on the TimeRange. The result will be a new TimeRange.
+        """
+        raise NotImplementedError
+
+    def equals(self, other):
+        """
+        Returns if the two TimeRanges can be considered equal,
+        in that they have the same times.
+        """
+        raise NotImplementedError
+
+    def contains(self, other):
+        """Returns true if other is completely inside this."""
+        raise NotImplementedError
+
+    def within(self, other):
+        """
+        Returns true if this TimeRange is completely within the supplied
+        other TimeRange.
+        """
+        raise NotImplementedError
+
+    def overlaps(self, other):
+        """Returns true if the passed in other TimeRange overlaps this time Range."""
+        raise NotImplementedError
+
+    def disjoint(self, other):
+        """
+        Returns true if the passed in other Range in no way
+        overlaps this time Range.
+        """
+        raise NotImplementedError
+
+    def extents(self, other):
+        """
+        Returns a new Timerange which covers the extents of this and
+        other combined.
+        """
+        raise NotImplementedError
+
+    def intersection(self, other):
+        """
+        Returns a new TimeRange which represents the intersection
+        (overlapping) part of this and other.
+        """
+        raise NotImplementedError
+
+    def duration(self):
+        """Return epoch milliseconds."""
+        raise NotImplementedError
+
+    def humanize_duration(self):
+        """Humanize the duration."""
+        raise NotImplementedError
+
+    # Static class methods to create canned TimeRanges
+
+    """
+    These methods are currently bugged in the JS. Should be like:
+
+        const endTime = moment();
+        const beginTime = beginTime.clone().subtract(24, "hours");
+        return new TimeRange(beginTime, endTime);
+    """
+
+    @staticmethod
+    def last_day():
+        """time range spanning last 24 hours"""
+        raise NotImplementedError
+
+    @staticmethod
+    def last_seven_days():
+        """time range spanning last 7 days"""
+        raise NotImplementedError
+
+    @staticmethod
+    def last_thirty_days():
+        """time range spanning last 30 days"""
+        raise NotImplementedError
+
+    @staticmethod
+    def last_ninety_days():
+        """time range spanning last 90 days"""
+        raise NotImplementedError
