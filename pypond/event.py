@@ -9,7 +9,30 @@ class EventBase(object):
     """
     Common code for the event classes.
     """
-    pass
+    @staticmethod
+    def timestamp_from_arg(arg):
+        """extract timestamp from a constructor arg."""
+        pass
+
+    @staticmethod
+    def timerange_from_arg(arg):
+        """extract timerange from a constructor arg."""
+        pass
+
+    @staticmethod
+    def index_from_arg(arg):
+        """extract index from a constructor arg."""
+        pass
+
+    @staticmethod
+    def data_from_arg(arg):
+        """extract data from a constructor arg and make immutable."""
+        pass
+
+    @staticmethod
+    def key_from_arg(arg):
+        """extract key from a constructor arg."""
+        pass
 
 
 class Event(EventBase):  # pylint: disable=too-many-public-methods
@@ -51,6 +74,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def to_string(self):
         """
         Retruns the Event as a string, useful for serialization.
+        It's a JSON string of the whole object.
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
@@ -123,6 +147,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         pass
 
     def stringify(self):
+        """Produce a json string of the internal data."""
         pass
 
     def __str__(self):
@@ -161,18 +186,27 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         pass
 
-    # merge methods
+    # merge methods (deal in lists of events)
 
     @staticmethod
-    def merge_events(events):  # XXX: these merge methods deal in lists of events
+    def merge_events(events):
+        """
+        Merge a list of regular Event objects.
+        """
         pass
 
     @staticmethod
-    def merge_timerange_events(events):  # XXX: these merge methods deal in lists of events
+    def merge_timerange_events(events):
+        """
+        Merge a list of TimeRangeEvent objects.
+        """
         pass
 
     @staticmethod
-    def merge_indexed_events(events):  # XXX: these merge methods deal in lists of events
+    def merge_indexed_events(events):
+        """
+        Merge a list of IndexedEvent objects.
+        """
         pass
 
     @staticmethod
@@ -196,10 +230,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def sum(events, field_spec):
+        """Reducer with sum."""
         pass
 
     @staticmethod
     def avg(events, field_spec):
+        """Reducer with avg."""
         pass
 
     # map, reduce, etc
@@ -235,6 +271,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def map_reduce(events, field_spec, reducer):
+        """map and reduce"""
         pass
 
 
