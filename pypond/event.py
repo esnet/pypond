@@ -12,27 +12,27 @@ class EventBase(object):
     @staticmethod
     def timestamp_from_arg(arg):
         """extract timestamp from a constructor arg."""
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def timerange_from_arg(arg):
         """extract timerange from a constructor arg."""
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def index_from_arg(arg):
         """extract index from a constructor arg."""
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def data_from_arg(arg):
         """extract data from a constructor arg and make immutable."""
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def key_from_arg(arg):
         """extract key from a constructor arg."""
-        pass
+        raise NotImplementedError
 
 
 class Event(EventBase):  # pylint: disable=too-many-public-methods
@@ -57,8 +57,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     """
     def __init__(self):
         """
+        Create a regular event.
         """
-        pass
+        raise NotImplementedError
 
     # Query/accessor methods
 
@@ -69,7 +70,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         This is actually like json.loads(s) - produces the
         actual data structure."""
-        pass
+        raise NotImplementedError
 
     def to_string(self):
         """
@@ -78,54 +79,54 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        pass
+        raise NotImplementedError
 
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         Doesn't include the groupByKey (key).
         """
-        pass
+        raise NotImplementedError
 
     def timestamp_as_utc_string(self):
         """The timestamp of this data, in UTC time, as a string."""
-        pass
+        raise NotImplementedError
 
     def timestamp_as_local_string(self):
         """The timestamp of this data, in Local time, as a string."""
-        pass
+        raise NotImplementedError
 
     def timestamp(self):
         """The timestamp of this data"""
-        pass
+        raise NotImplementedError
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp"""
-        pass
+        raise NotImplementedError
 
     def end(self):
         """The end time of this Event, which will be just the timestamp"""
-        pass
+        raise NotImplementedError
 
     def data(self):
         """Direct access to the event data. The result will be an Immutable.Map."""
-        pass
+        raise NotImplementedError
 
     def key(self):
         """Access the event groupBy key"""
-        pass
+        raise NotImplementedError
 
     # data setters, returns new object
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
-        pass
+        raise NotImplementedError
 
     def set_key(self, key):
         """
         Sets the groupBy Key and returns a new Event
         """
-        pass
+        raise NotImplementedError
 
     def get(self, field_spec='value'):
         """
@@ -138,21 +139,21 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         Peter orginally did this:
         const value = fieldSpec.split(".").reduce((o, i) => o[i], eventData);
         """
-        pass
+        raise NotImplementedError
 
     def value(self, field_spec):
         """
         Alias for get()
         """
-        pass
+        raise NotImplementedError
 
     def stringify(self):
         """Produce a json string of the internal data."""
-        pass
+        raise NotImplementedError
 
     def __str__(self):
         """call to_string()"""
-        pass
+        raise NotImplementedError
 
     # Static class methods
 
@@ -162,7 +163,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         Different name for is() which is an invalid method name.
         Different that __eq__ - see Object.is() JS documentation.
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def is_valid_value(event, field_spec='value'):
@@ -170,7 +171,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         The same as Event.value() only it will return false if the
         value is either undefined, NaN or Null.
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def selector(event, field_spec):
@@ -184,7 +185,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         The function returns a new event.
         """
-        pass
+        raise NotImplementedError
 
     # merge methods (deal in lists of events)
 
@@ -193,21 +194,21 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         Merge a list of regular Event objects.
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def merge_timerange_events(events):
         """
         Merge a list of TimeRangeEvent objects.
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def merge_indexed_events(events):
         """
         Merge a list of IndexedEvent objects.
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def merge(events):
@@ -215,7 +216,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         This is an entry point that will grok the what kind of events
         are in the list and call one of the previous three methods.
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def combine(events, field_spec, reducer):
@@ -224,19 +225,19 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         to form a new event. Doesn't currently work on IndexedEvents
         or TimeRangeEvents.
         """
-        pass
+        raise NotImplementedError
 
     # these call combine with appropriate reducer
 
     @staticmethod
     def sum(events, field_spec):
         """Reducer with sum."""
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def avg(events, field_spec):
         """Reducer with avg."""
-        pass
+        raise NotImplementedError
 
     # map, reduce, etc
 
@@ -244,7 +245,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def map(events, field_spec):
         """
         Maps a list of events according to the selection
-        specification passed in. The spec maybe a single
+        specification raise NotImplementedErrored in. The spec maybe a single
         field name, a list of field names, or a function
         that takes an event and returns a key/value pair.
 
@@ -255,7 +256,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Mapper result:  { in: [1, 3], out: [2, 4]}
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def reduce(mapped, reducer):
@@ -267,12 +268,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                 return calcValue;
             }
         """
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def map_reduce(events, field_spec, reducer):
         """map and reduce"""
-        pass
+        raise NotImplementedError
 
 
 class TimeRangeEvent(EventBase):
@@ -293,8 +294,9 @@ class TimeRangeEvent(EventBase):
     """
     def __init__(self):
         """
+        Create a time range event.
         """
-        pass
+        raise NotImplementedError
 
 
 class IndexedEvent(EventBase):
@@ -315,5 +317,6 @@ class IndexedEvent(EventBase):
     """
     def __init__(self):
         """
+        Create an indexed event.
         """
-        pass
+        raise NotImplementedError
