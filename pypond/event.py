@@ -394,6 +394,10 @@ class TimeRangeEvent(EventBase):
         """Humanize the timerange."""
         raise NotImplementedError
 
+    def __str__(self):
+        """call to_string()"""
+        raise NotImplementedError
+
 
 class IndexedEvent(EventBase):
     """
@@ -511,4 +515,8 @@ class IndexedEvent(EventBase):
 
     def index_as_string(self):
         """Returns the Index as a string, same as event.index().toString()"""
+        raise NotImplementedError
+
+    def __str__(self):
+        """call to_string()"""
         raise NotImplementedError
