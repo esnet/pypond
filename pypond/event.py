@@ -3,6 +3,13 @@ Implementation of the Pond Event classes.
 
 http://software.es.net/pond/#/events
 """
+import copy
+from datetime import datetime, date
+
+from pyrsistent import pmap
+
+from .exceptions import EventException
+from .util import dt_from_ms, dt_from_dt, dt_from_d, is_pmap
 
 
 class EventBase(object):
@@ -12,7 +19,14 @@ class EventBase(object):
     @staticmethod
     def timestamp_from_arg(arg):
         """extract timestamp from a constructor arg."""
-        raise NotImplementedError
+        if isinstance(arg, int):
+            return dt_from_ms(arg)
+        elif isinstance(arg, datetime):
+            return dt_from_dt(arg)
+        elif isinstance(arg, date):
+            return dt_from_d(arg)
+        else:
+            raise EventException('Unable to get datetime from {a} - should be a datetime object or an integer in epoch ms.'.format(a=arg))  # pylint: disable=line-too-long
 
     @staticmethod
     def timerange_from_arg(arg):
@@ -27,39 +41,74 @@ class EventBase(object):
     @staticmethod
     def data_from_arg(arg):
         """extract data from a constructor arg and make immutable."""
-        raise NotImplementedError
+        if isinstance(arg, dict):
+            return pmap(arg)
+        elif isinstance(arg, pmap):
+            return copy.copy(arg)
+        elif isinstance(arg, int) or isinstance(arg, float) or isinstance(arg, str):
+            return pmap({'value': arg})
+        else:
+            raise EventException('Could not interpret data from {a}'.format(a=arg))
 
     @staticmethod
     def key_from_arg(arg):
         """extract key from a constructor arg."""
-        raise NotImplementedError
+        if isinstance(arg, str):
+            return arg
+        elif arg is None:
+            return ''
+        else:
+            raise EventException('Could not get key from {a} - should be a string or None'.format(a=arg))  # pylint: disable=line-too-long
 
 
 class Event(EventBase):  # pylint: disable=too-many-public-methods
     """
-    A 'regular' event. Associates a timestamp with some data.
+    A generic event
 
-        constructor(arg1, arg2, arg3) {
-        if (arg1 instanceof Event) {
-            const other = arg1;
-            this._d = other._d;
-            return;
-        }
-        if (arg1 instanceof Immutable.Map &&
-            arg1.has("time") && arg1.has("data") && arg1.has("key")) {
-            this._d = arg1;
-            return;
-        }
-        const time = timestampFromArg(arg1);
-        const data = dataFromArg(arg2);
-        const key = keyFromArg(arg3);
-        this._d = new Immutable.Map({time, data, key});
+    This represents a data object at a single timestamp, supplied
+    at initialization.
+
+    The timestamp may be a python date object, datetime object, or
+    ms since UNIX epoch. It is stored internally as a datetime object.
+
+    The data may be any type.
+
+    Asking the Event object for the timestamp returns an integer copy
+    of the number of ms since the UNIX epoch. There's no method on
+    the Event object to mutate the Event timestamp after it is created.
     """
-    def __init__(self):
+    def __init__(self, instance_or_time, data=None, key=None):
         """
-        Create a regular event.
+        The creation of an Event is done by combining two parts:
+        the timestamp (or time range, or Index...) and the data.
+
+        To construct you specify the timestamp as either:
+            - a python date or datetime object
+            - millisecond timestamp: the number of ms since the UNIX epoch
+
+        To specify the data you can supply either:
+            - a python dict
+            - a pyrsistent.PMap, or
+            - a simple type such as an integer. In the case of the simple type
+              this is a shorthand for supplying {"value": v}.
         """
-        raise NotImplementedError
+        # pylint doesn't like self._d but be consistent w/original code.
+        # pylint: disable=invalid-name
+
+        if isinstance(instance_or_time, Event):
+            self._d = instance_or_time._d  # pylint: disable=protected-access
+            return
+
+        if is_pmap(instance_or_time) and 'time' in instance_or_time \
+                and 'data' in instance_or_time and 'key' in instance_or_time:
+            self._d = instance_or_time
+            return
+
+        time = self.timestamp_from_arg(instance_or_time)
+        data = self.data_from_arg(data)
+        key = self.key_from_arg(key)
+
+        self._d = pmap(dict(time=time, data=data, key=key))
 
     # Query/accessor methods
 
@@ -114,7 +163,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     def key(self):
         """Access the event groupBy key"""
-        raise NotImplementedError
+        return self._d.get('key')
 
     # data setters, returns new object
 
