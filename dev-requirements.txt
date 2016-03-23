@@ -1,0 +1,4 @@
+# install a couple of dev packages and the source in develop mode
+pylint
+nose
+-e .
