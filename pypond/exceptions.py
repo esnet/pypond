@@ -1,5 +1,5 @@
 """
-Exception and warning classes.
+Custom exception and warning classes.
 """
 
 
@@ -31,3 +31,6 @@ class UtilityException(Exception):
 class UtilityWarning(Warning):
     """Custom Utility warning"""
     pass
+
+
+NAIVE_MESSAGE = 'non-naive (aware) datetime objects required'
