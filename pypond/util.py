@@ -4,11 +4,28 @@ Various utilities for the pypond code
 
 import datetime
 
+import pytz
+
 from pyrsistent import PMap
 
-# date conversion
+from pypond.exceptions import UtilityException
 
-EPOCH = datetime.datetime.utcfromtimestamp(0)
+# datetime conversion and utils
+
+EPOCH = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.UTC)
+
+
+def dt_is_aware(dtime):
+    """see if a datetime object is aware"""
+    if dtime.tzinfo is not None and dtime.tzinfo.utcoffset(dtime) is not None:
+        return True
+
+    return False
+
+
+def aware_utcnow():
+    """return an aware utcnow() datetime."""
+    return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
 
 
 def ms_from_dt(dtime):
