@@ -127,7 +127,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
-        Doesn't include the groupByKey (key).
         """
         return [self._get_epoch_ms()] + [x for x in self.data().values()]
 
@@ -159,12 +158,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
-        raise NotImplementedError
-
-    def set_key(self, key):
-        """
-        Sets the groupBy Key and returns a new Event
-        """
         raise NotImplementedError
 
     def get(self, field_spec='value'):
