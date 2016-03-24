@@ -49,16 +49,6 @@ class EventBase(object):
         else:
             raise EventException('Could not interpret data from {a}'.format(a=arg))
 
-    @staticmethod
-    def key_from_arg(arg):
-        """extract key from a constructor arg."""
-        if isinstance(arg, str):
-            return arg
-        elif arg is None:
-            return ''
-        else:
-            raise EventException('Could not get key from {a} - should be a string or None'.format(a=arg))  # pylint: disable=line-too-long
-
 
 class Event(EventBase):  # pylint: disable=too-many-public-methods
     """
@@ -76,7 +66,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     of the number of ms since the UNIX epoch. There's no method on
     the Event object to mutate the Event timestamp after it is created.
     """
-    def __init__(self, instance_or_time, data=None, key=None):
+    def __init__(self, instance_or_time, data=None):
         """
         The creation of an Event is done by combining two parts:
         the timestamp (or time range, or Index...) and the data.
@@ -99,15 +89,14 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             return
 
         if is_pmap(instance_or_time) and 'time' in instance_or_time \
-                and 'data' in instance_or_time and 'key' in instance_or_time:
+                and 'data' in instance_or_time:
             self._d = instance_or_time
             return
 
         time = self.timestamp_from_arg(instance_or_time)
         data = self.data_from_arg(data)
-        key = self.key_from_arg(key)
 
-        self._d = pmap(dict(time=time, data=data, key=key))
+        self._d = pmap(dict(time=time, data=data))
 
     # Query/accessor methods
 
@@ -124,7 +113,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         return dict(
             time=self._get_epoch_ms(),
             data=thaw(self.data()),
-            key=self.key(),
         )
 
     def to_string(self):
@@ -166,10 +154,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def data(self):
         """Direct access to the event data. The result will be a pysistent.PMap."""
         return self._d.get('data')
-
-    def key(self):
-        """Access the event groupBy key"""
-        return self._d.get('key')
 
     # data setters, returns new object
 
