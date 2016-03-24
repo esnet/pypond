@@ -5,11 +5,12 @@ http://software.es.net/pond/#/events
 """
 import copy
 from datetime import datetime, date
+import json
 
-from pyrsistent import pmap
+from pyrsistent import pmap, thaw
 
 from .exceptions import EventException
-from .util import dt_from_ms, dt_from_dt, dt_from_d, is_pmap
+from .util import dt_from_ms, dt_from_dt, dt_from_d, ms_from_dt, is_pmap
 
 
 class EventBase(object):
@@ -112,6 +113,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     # Query/accessor methods
 
+    def _get_epoch_ms(self):
+        return ms_from_dt(self.timestamp())
+
     def to_json(self):
         """
         Returns the Event as a JSON object, essentially:
@@ -119,7 +123,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         This is actually like json.loads(s) - produces the
         actual data structure."""
-        raise NotImplementedError
+        return dict(
+            time=self._get_epoch_ms(),
+            data=thaw(self.data()),
+            key=self.key(),
+        )
 
     def to_string(self):
         """
@@ -128,14 +136,14 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        raise NotImplementedError
+        return json.dumps(self.to_json())
 
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         Doesn't include the groupByKey (key).
         """
-        raise NotImplementedError
+        return [self._get_epoch_ms()] + [x for x in self.data().values()]
 
     def timestamp_as_utc_string(self):
         """The timestamp of this data, in UTC time, as a string."""
@@ -147,19 +155,19 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     def timestamp(self):
         """The timestamp of this data"""
-        raise NotImplementedError
+        return self._d.get('time')
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp"""
-        raise NotImplementedError
+        return self.timestamp()
 
     def end(self):
         """The end time of this Event, which will be just the timestamp"""
-        raise NotImplementedError
+        return self.timestamp()
 
     def data(self):
-        """Direct access to the event data. The result will be an Immutable.Map."""
-        raise NotImplementedError
+        """Direct access to the event data. The result will be a pysistent.PMap."""
+        return self._d.get('data')
 
     def key(self):
         """Access the event groupBy key"""
@@ -198,11 +206,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     def stringify(self):
         """Produce a json string of the internal data."""
-        raise NotImplementedError
+        return json.dumps(thaw(self.data()))
 
     def __str__(self):
         """call to_string()"""
-        raise NotImplementedError
+        return self.to_string()
 
     # Static class methods
 

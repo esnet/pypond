@@ -8,10 +8,17 @@ from pyrsistent import PMap
 
 # date conversion
 
+EPOCH = datetime.datetime.utcfromtimestamp(0)
+
+
+def ms_from_dt(dtime):
+    """Turn a datetime object into ms since epoch."""
+    return int((dtime - EPOCH).total_seconds() * 1000)
+
 
 def dt_from_ms(msec):
     """generate a datetime object from epoch milliseconds"""
-    return datetime.datetime(1970, 1, 1) + datetime.timedelta(milliseconds=msec)
+    return EPOCH + datetime.timedelta(milliseconds=msec)
 
 
 def dt_from_dt(dtime):
