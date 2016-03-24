@@ -4,13 +4,13 @@ Implementation of the Pond Event classes.
 http://software.es.net/pond/#/events
 """
 import copy
-from datetime import datetime, date
+import datetime
 import json
 
 from pyrsistent import pmap, thaw
 
 from .exceptions import EventException
-from .util import dt_from_ms, dt_from_dt, dt_from_d, ms_from_dt, is_pmap
+from .util import dt_from_ms, dt_from_dt, ms_from_dt, is_pmap
 
 
 class EventBase(object):
@@ -22,10 +22,8 @@ class EventBase(object):
         """extract timestamp from a constructor arg."""
         if isinstance(arg, int):
             return dt_from_ms(arg)
-        elif isinstance(arg, datetime):
+        elif isinstance(arg, datetime.datetime):
             return dt_from_dt(arg)
-        elif isinstance(arg, date):
-            return dt_from_d(arg)
         else:
             raise EventException('Unable to get datetime from {a} - should be a datetime object or an integer in epoch ms.'.format(a=arg))  # pylint: disable=line-too-long
 
