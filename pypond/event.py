@@ -7,7 +7,8 @@ import copy
 import datetime
 import json
 
-from pyrsistent import pmap, thaw
+# using freeze/thaw more bulletproof than pmap/pvector since data is free-form
+from pyrsistent import thaw, freeze
 
 from .exceptions import EventException, NAIVE_MESSAGE
 from .util import dt_from_ms, ms_from_dt, dt_is_aware, format_dt, sanitize_dt, is_pmap
@@ -44,11 +45,12 @@ class EventBase(object):
     def data_from_arg(arg):
         """extract data from a constructor arg and make immutable."""
         if isinstance(arg, dict):
-            return pmap(arg)
-        elif isinstance(arg, pmap):
+            return freeze(arg)
+        elif is_pmap(arg):
             return copy.copy(arg)
         elif isinstance(arg, int) or isinstance(arg, float) or isinstance(arg, str):
-            return pmap({'value': arg})
+            # could be pmap() but just freeze() to be consistent
+            return freeze({'value': arg})
         else:
             raise EventException('Could not interpret data from {a}'.format(a=arg))
 
@@ -99,7 +101,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         time = self.timestamp_from_arg(instance_or_time)
         data = self.data_from_arg(data)
 
-        self._d = pmap(dict(time=time, data=data))
+        self._d = freeze(dict(time=time, data=data))
 
     # Query/accessor methods
 
@@ -170,17 +172,14 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         A fieldSpec could be "a.b"
 
         The field spec can have an arbitrary number of "parts."
-
-        Peter orginally did this:
-        const value = fieldSpec.split(".").reduce((o, i) => o[i], eventData);
         """
-        raise NotImplementedError
+        return reduce(dict.get, field_spec.split('.'), thaw(self.data()))
 
-    def value(self, field_spec):
+    def value(self, field_spec='value'):
         """
         Alias for get()
         """
-        raise NotImplementedError
+        return self.get(field_spec)
 
     def stringify(self):
         """Produce a json string of the internal data."""

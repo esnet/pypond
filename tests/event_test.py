@@ -11,6 +11,17 @@ from pypond.event import Event
 from pypond.exceptions import EventException
 from pypond.util import aware_utcnow
 
+DEEP_EVENT_DATA = {
+    'NorthRoute': {
+        'in': 123,
+        'out': 456
+    },
+    'SouthRoute': {
+        'in': 654,
+        'out': 223
+    }
+}
+
 
 class TestEventCreation(unittest.TestCase):
     """
@@ -71,6 +82,15 @@ class TestEventCreation(unittest.TestCase):
         self._base_checks(event, data)
         # check that msec value translation.
         self.assertEqual(msec, event.to_json().get('time'))
+
+    def test_regular_with_deep_data(self):
+        """create a regular Event with deep data and test get/field_spec query."""
+        event = self._create_event(self.aware_ts, DEEP_EVENT_DATA)
+
+        # check using field.spec notation
+        self.assertEqual(event.get('NorthRoute.out'), DEEP_EVENT_DATA.get('NorthRoute').get('out'))
+        # test alias function as well
+        self.assertEqual(event.value('SouthRoute.in'), DEEP_EVENT_DATA.get('SouthRoute').get('in'))
 
     # access tests
 
