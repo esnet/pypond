@@ -3,6 +3,7 @@ Various utilities for the pypond code.
 """
 
 import datetime
+import math
 import warnings
 
 import pytz
@@ -102,3 +103,15 @@ def format_dt(dtime, localize=False):
 def is_pmap(pmap):
     """Check this here so people don't mistake pmap and PMap."""
     return isinstance(pmap, PMap)
+
+
+def is_nan(val):
+    """Test if a value is NaN"""
+    try:
+        float(val)
+        if math.isnan(val):
+            return True
+    except ValueError:
+        pass
+
+    return False

@@ -11,7 +11,15 @@ import json
 from pyrsistent import thaw, freeze
 
 from .exceptions import EventException, NAIVE_MESSAGE
-from .util import dt_from_ms, ms_from_dt, dt_is_aware, format_dt, sanitize_dt, is_pmap
+from .util import (
+    dt_from_ms,
+    dt_is_aware,
+    format_dt,
+    is_nan,
+    is_pmap,
+    ms_from_dt,
+    sanitize_dt,
+)
 
 
 class EventBase(object):
@@ -207,7 +215,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         The same as Event.value() only it will return false if the
         value is either undefined, NaN or Null.
         """
-        raise NotImplementedError
+        val = event.value(field_spec)
+
+        return not bool(val is None or val == '' or is_nan(val))
 
     @staticmethod
     def selector(event, field_spec):

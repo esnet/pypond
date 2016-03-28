@@ -155,6 +155,21 @@ class TestEventStaticMethods(BaseTestEvent):
         ev3 = Event(freeze(dict(time=self.aware_ts, data=ev1.data())))
         self.assertFalse(Event.same(ev1, ev3))
 
+    def test_event_valid(self):
+        """test Event.is_valid_value()"""
+        dct = dict(
+            good='good',
+            none=None,
+            nan=float('NaN'),
+            empty_string='',  # presume this is undefined
+        )
+        event = Event(self.aware_ts, dct)
+
+        self.assertTrue(Event.is_valid_value(event, 'good'))
+        self.assertFalse(Event.is_valid_value(event, 'none'))
+        self.assertFalse(Event.is_valid_value(event, 'nan'))
+        self.assertFalse(Event.is_valid_value(event, 'empty_string'))
+
 
 if __name__ == '__main__':
     unittest.main()
