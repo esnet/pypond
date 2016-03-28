@@ -8,6 +8,8 @@ import unittest
 from pyrsistent import pmap
 
 from pypond.event import Event
+from pypond.exceptions import EventException
+from pypond.util import aware_utcnow
 
 
 class TestEventCreation(unittest.TestCase):
@@ -19,6 +21,7 @@ class TestEventCreation(unittest.TestCase):
         # make a canned event
         self.msec = 1458768183949
         self.data = {'a': 3, 'b': 6, 'c': 9}
+        self.aware_ts = aware_utcnow()
 
         self.canned_event = self._create_event(self.msec, self.data)
 
@@ -27,31 +30,37 @@ class TestEventCreation(unittest.TestCase):
     def _create_event(self, arg1, arg2=None):  # pylint: disable=no-self-use
         return Event(arg1, arg2)
 
-    def _base_checks(self, event, data):
+    def _base_checks(self, event, data, dtime=None):
         """canned checks to repeat."""
         self.assertEqual(event.data(), pmap(data))
+
+        if dtime:
+            self.assertEqual(event.timestamp(), dtime)
 
     # test methods
 
     # creation tests
 
     def test_regular_with_dt_data_key(self):
-        """create a regular Event from datetime, dict and key"""
-        ts = datetime.datetime.utcnow()
-        data = {'a': 3, 'b': 6}
+        """create a regular Event from datetime, dict."""
 
-        event = self._create_event(ts, data)
-        self._base_checks(event, data)
+        data = {'a': 3, 'b': 6}
+        event = self._create_event(self.aware_ts, data)
+        self._base_checks(event, data, dtime=self.aware_ts)
+
+        # Now try to creat one with a naive datetime
+        ts = datetime.datetime.utcnow()
+        with self.assertRaises(EventException):
+            self._create_event(ts, data)
 
     def test_regular_with_event_copy(self):
         """create a regular event with copy constructor/existing event."""
-        ts = datetime.datetime.utcnow()
         data = {'a': 3, 'b': 6}
 
-        event = self._create_event(ts, data)
+        event = self._create_event(self.aware_ts, data)
 
         event2 = Event(event)
-        self._base_checks(event2, data)
+        self._base_checks(event2, data, dtime=self.aware_ts)
 
     def test_regular_with_ms_arg(self):
         """create a regular event with ms arg"""

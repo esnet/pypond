@@ -6,6 +6,7 @@ import datetime
 import warnings
 
 import pytz
+import tzlocal
 
 from pyrsistent import PMap
 
@@ -14,6 +15,7 @@ from pypond.exceptions import UtilityException, UtilityWarning
 # datetime conversion and utils
 
 EPOCH = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.UTC)
+LOCAL_TZ = tzlocal.get_localzone()
 
 
 def dt_is_aware(dtime):
@@ -62,13 +64,6 @@ def ms_from_dt(dtime):
     return int((dtime - EPOCH).total_seconds() * 1000)
 
 
-def dt_from_dt(dtime):
-    """generate a new datetime object from an existing one"""
-    _check_dt(dtime)
-
-    return dtime + datetime.timedelta(seconds=0)
-
-
 def sanitize_dt(dtime, testing=False):
     """
     Make sure the datetime object is in UTC/etc.
@@ -86,7 +81,20 @@ def sanitize_dt(dtime, testing=False):
             warnings.warn(msg, UtilityWarning, stacklevel=2)
         return dtime.astimezone(pytz.UTC)
     else:
-        return dtime
+        # create new object just to do it.
+        return dtime + datetime.timedelta(seconds=0)
+
+
+def format_dt(dtime, localize=False):
+    """Format for human readable output."""
+    _check_dt(dtime)
+
+    base_format = '%c %Z %z'
+
+    if not localize:
+        return dtime.strftime(base_format)
+    else:
+        return dtime.astimezone(LOCAL_TZ).strftime(base_format)
 
 # test types
 

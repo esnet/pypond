@@ -8,7 +8,6 @@ import pytz
 
 from pypond.util import (
     aware_utcnow,
-    dt_from_dt,
     dt_from_ms,
     dt_is_aware,
     EPOCH,
@@ -56,23 +55,13 @@ class TestTime(unittest.TestCase):
         with self.assertRaises(UtilityException):
             ms_from_dt(self.naive)
 
-    def test_dt_from_dt(self):
-        """Test dt -> dt helper function."""
-        dtime = aware_utcnow()
-        new_dtime = dt_from_dt(dtime)
-        self.assertEqual(dtime, new_dtime)
-        self.assertTrue(dt_is_aware(new_dtime))
-
-        # test sanity check stopping naive datetime objects
-        with self.assertRaises(UtilityException):
-            dt_from_dt(self.naive)
-
     def test_sanitize_dt(self):
         """Test datetime sanitizing to UTC."""
 
         # aware utc should just go in and out.
         utc = aware_utcnow()
         sanitized_utc = sanitize_dt(utc)
+        self.assertTrue(dt_is_aware(sanitized_utc))
         self.assertEqual(utc, sanitized_utc)
 
         # Sanitize a time zone aware localtime to UTC. The

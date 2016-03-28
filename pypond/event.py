@@ -9,8 +9,8 @@ import json
 
 from pyrsistent import pmap, thaw
 
-from .exceptions import EventException
-from .util import dt_from_ms, dt_from_dt, ms_from_dt, is_pmap
+from .exceptions import EventException, NAIVE_MESSAGE
+from .util import dt_from_ms, ms_from_dt, dt_is_aware, format_dt, sanitize_dt, is_pmap
 
 
 class EventBase(object):
@@ -23,7 +23,10 @@ class EventBase(object):
         if isinstance(arg, int):
             return dt_from_ms(arg)
         elif isinstance(arg, datetime.datetime):
-            return dt_from_dt(arg)
+            if not dt_is_aware(arg):
+                raise EventException(NAIVE_MESSAGE)
+
+            return sanitize_dt(arg)
         else:
             raise EventException('Unable to get datetime from {a} - should be a datetime object or an integer in epoch ms.'.format(a=arg))  # pylint: disable=line-too-long
 
@@ -132,11 +135,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     def timestamp_as_utc_string(self):
         """The timestamp of this data, in UTC time, as a string."""
-        raise NotImplementedError
+        return format_dt(self.timestamp())
 
     def timestamp_as_local_string(self):
         """The timestamp of this data, in Local time, as a string."""
-        raise NotImplementedError
+        return format_dt(self.timestamp(), localize=True)
 
     def timestamp(self):
         """The timestamp of this data"""
