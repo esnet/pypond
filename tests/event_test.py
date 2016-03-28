@@ -1,6 +1,7 @@
 """
 Tests for the Event class
 """
+import copy
 import datetime
 import json
 import unittest
@@ -137,6 +138,22 @@ class TestRegularEventAccess(BaseTestEvent):
         self.assertTrue(isinstance(point, list))
         self.assertEqual(point[0], self.msec)
         self.assertEqual(set(point[1:]), set(self.data.values()))
+
+
+class TestEventStaticMethods(BaseTestEvent):
+    """
+    Check the Event class static methods (equality operators),
+    merge/create new events, map/reduce, sum, etc etc.
+    """
+    def test_event_same(self):
+        """test Event.same() static method."""
+        ev1 = copy.copy(self.canned_event)
+        ev2 = copy.copy(self.canned_event)
+        self.assertTrue(Event.same(ev1, ev2))
+
+        # make a new one with same data but new timestamp.
+        ev3 = Event(freeze(dict(time=self.aware_ts, data=ev1.data())))
+        self.assertFalse(Event.same(ev1, ev3))
 
 
 if __name__ == '__main__':

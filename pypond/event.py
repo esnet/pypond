@@ -195,9 +195,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def same(event1, event2):
         """
         Different name for is() which is an invalid method name.
-        Different that __eq__ - see Object.is() JS documentation.
+        Different than __eq__ - see Object.is() JS documentation.
         """
-        raise NotImplementedError
+        # pylint: disable=protected-access
+        return bool(is_pmap(event1._d) and is_pmap(event2._d) and
+                    event1._d == event2._d)
 
     @staticmethod
     def is_valid_value(event, field_spec='value'):
@@ -265,12 +267,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def sum(events, field_spec):
-        """Reducer with sum."""
+        """combine() with sum."""
         raise NotImplementedError
 
     @staticmethod
     def avg(events, field_spec):
-        """Reducer with avg."""
+        """combine() with avg."""
         raise NotImplementedError
 
     # map, reduce, etc
