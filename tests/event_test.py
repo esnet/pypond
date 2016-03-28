@@ -5,7 +5,8 @@ import datetime
 import json
 import unittest
 
-from pyrsistent import pmap
+# prefer freeze over the data type specific functions
+from pyrsistent import freeze
 
 from pypond.event import Event
 from pypond.exceptions import EventException
@@ -23,11 +24,10 @@ DEEP_EVENT_DATA = {
 }
 
 
-class TestEventCreation(unittest.TestCase):
+class BaseTestEvent(unittest.TestCase):
     """
-    Test variations of Event object creation.
+    Base for Event class tests.
     """
-
     def setUp(self):
         # make a canned event
         self.msec = 1458768183949
@@ -43,14 +43,16 @@ class TestEventCreation(unittest.TestCase):
 
     def _base_checks(self, event, data, dtime=None):
         """canned checks to repeat."""
-        self.assertEqual(event.data(), pmap(data))
+        self.assertEqual(event.data(), freeze(data))
 
         if dtime:
             self.assertEqual(event.timestamp(), dtime)
 
-    # test methods
 
-    # creation tests
+class TestRegularEventCreation(BaseTestEvent):
+    """
+    Test variations of Event object creation.
+    """
 
     def test_regular_with_dt_data_key(self):
         """create a regular Event from datetime, dict."""
@@ -83,6 +85,15 @@ class TestEventCreation(unittest.TestCase):
         # check that msec value translation.
         self.assertEqual(msec, event.to_json().get('time'))
 
+
+class TestRegularEventAccess(BaseTestEvent):
+    """
+    Tests that work the access and mutator methods for the regular
+    Event class
+    """
+
+    # access tests
+
     def test_regular_with_deep_data(self):
         """create a regular Event with deep data and test get/field_spec query."""
         event = self._create_event(self.aware_ts, DEEP_EVENT_DATA)
@@ -92,7 +103,20 @@ class TestEventCreation(unittest.TestCase):
         # test alias function as well
         self.assertEqual(event.value('SouthRoute.in'), DEEP_EVENT_DATA.get('SouthRoute').get('in'))
 
-    # access tests
+    def test_regular_deep_set_new_data(self):
+        """create a regular Event with deep data and set new data/receive new object."""
+        event = self._create_event(self.aware_ts, DEEP_EVENT_DATA)
+
+        west_route = {'WestRoute': {'in': 567, 'out': 890}}
+
+        new_event = event.set_data(west_route)
+        # should just be one new key now
+        self.assertEqual(len(new_event.data()), 1)
+        self.assertEqual(set(['WestRoute']), set(new_event.data().keys()))
+        # test values
+        self.assertEqual(new_event.data().get('WestRoute').get('out'), 890)
+        # original event must still the same
+        self.assertEqual(event.data(), freeze(DEEP_EVENT_DATA))
 
     def test_to_json_and_stringify(self):
         """test output from to_json() and stringify() methods"""

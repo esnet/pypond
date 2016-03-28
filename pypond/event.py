@@ -49,7 +49,6 @@ class EventBase(object):
         elif is_pmap(arg):
             return copy.copy(arg)
         elif isinstance(arg, int) or isinstance(arg, float) or isinstance(arg, str):
-            # could be pmap() but just freeze() to be consistent
             return freeze({'value': arg})
         else:
             raise EventException('Could not interpret data from {a}'.format(a=arg))
@@ -163,7 +162,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
-        raise NotImplementedError
+        new_d = self._d.set('data', self.data_from_arg(data))
+        return Event(new_d)
 
     def get(self, field_spec='value'):
         """
