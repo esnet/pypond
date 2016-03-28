@@ -109,9 +109,9 @@ def is_nan(val):
     """Test if a value is NaN"""
     try:
         float(val)
-        if math.isnan(val):
+        if math.isnan(float(val)):
             return True
-    except ValueError:
+    except (ValueError, TypeError):
         pass
 
     return False

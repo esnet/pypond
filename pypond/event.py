@@ -227,11 +227,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         The fieldSpec currently can be:
             * A single field name
-            * An array of field names
+            * An list of field names
 
         The function returns a new event.
         """
-        raise NotImplementedError
+        new_dict = dict()
+
+        if isinstance(field_spec, str):
+            new_dict[field_spec] = event.get(field_spec)
+        elif isinstance(field_spec, list):
+            for i in field_spec:
+                if isinstance(i, str):
+                    new_dict[i] = event.get(i)
+        else:
+            return event
+
+        return event.set_data(new_dict)
 
     # merge methods (deal in lists of events)
 
@@ -240,7 +251,25 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         Merge a list of regular Event objects.
         """
-        raise NotImplementedError
+        ts_ref = events[0].timestamp()
+        new_data = dict()
+
+        for i in events:
+            if not isinstance(i, Event):
+                raise EventException('Events being merged must have the same type.')
+
+            if ts_ref != i.timestamp():
+                raise EventException('Events being merged need the same timestamp.')
+
+            i_data = thaw(i.data())
+
+            for k, v in i_data.items():
+                if k in new_data:
+                    raise EventException(
+                        'Events being merged may not have the same key: {k}'.format(k=k))
+                new_data[k] = v
+
+        return Event(ts_ref, new_data)
 
     @staticmethod
     def merge_timerange_events(events):
@@ -262,7 +291,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         This is an entry point that will grok the what kind of events
         are in the list and call one of the previous three methods.
         """
-        raise NotImplementedError
+        if not isinstance(events, list):
+            # need to be a list
+            return
+        elif len(events) < 1:
+            # nothing to process
+            return
+        elif len(events) == 1:
+            # just one, return it.
+            return events[0]
+
+        if isinstance(events[0], Event):
+            return Event.merge_events(events)
+        elif isinstance(events[0], TimeRangeEvent):
+            raise NotImplementedError
+        elif isinstance(events[0], IndexedEvent):
+            raise NotImplementedError
 
     @staticmethod
     def combine(events, field_spec, reducer):

@@ -7,7 +7,7 @@ import json
 import unittest
 
 # prefer freeze over the data type specific functions
-from pyrsistent import freeze
+from pyrsistent import freeze, thaw
 
 from pypond.event import Event
 from pypond.exceptions import EventException
@@ -159,6 +159,7 @@ class TestEventStaticMethods(BaseTestEvent):
         """test Event.is_valid_value()"""
         dct = dict(
             good='good',
+            also_good=[],
             none=None,
             nan=float('NaN'),
             empty_string='',  # presume this is undefined
@@ -166,10 +167,52 @@ class TestEventStaticMethods(BaseTestEvent):
         event = Event(self.aware_ts, dct)
 
         self.assertTrue(Event.is_valid_value(event, 'good'))
+        self.assertTrue(Event.is_valid_value(event, 'also_good'))
         self.assertFalse(Event.is_valid_value(event, 'none'))
         self.assertFalse(Event.is_valid_value(event, 'nan'))
         self.assertFalse(Event.is_valid_value(event, 'empty_string'))
 
+    def test_event_selector(self):
+        """test Event.selector()"""
+
+        new_deep = dict({'WestRoute': {'in': 567, 'out': 890}}, **DEEP_EVENT_DATA)
+
+        event = self._create_event(self.aware_ts, new_deep)
+
+        ev2 = Event.selector(event, 'NorthRoute')
+        self.assertEqual(len(ev2.data().keys()), 1)
+        self.assertIsNotNone(ev2.data().get('NorthRoute'))
+
+        ev3 = Event.selector(event, ['WestRoute', 'SouthRoute'])
+        self.assertEqual(len(ev3.data().keys()), 2)
+        self.assertIsNotNone(ev3.data().get('SouthRoute'))
+        self.assertIsNotNone(ev3.data().get('WestRoute'))
+
+    def test_event_merge(self):
+        """Test Event.merge()/merge_events()"""
+        # same timestamp, different keys
+
+        # good ones, same ts, different payloads
+        pay1 = dict(foo='bar', baz='quux')
+        ev1 = Event(self.aware_ts, pay1)
+
+        pay2 = dict(foo2='bar', baz2='quux')
+        ev2 = Event(self.aware_ts, pay2)
+
+        merged = Event.merge([ev1, ev2])
+        self.assertEqual(set(thaw(merged.data())), set(dict(pay1, **pay2)))
+
+        # bad, different ts, different payloads
+        ev3 = Event(self.aware_ts, pay1)
+        ev4 = Event(self.aware_ts + datetime.timedelta(minutes=1), pay2)
+        with self.assertRaises(EventException):
+            merged = Event.merge([ev3, ev4])
+
+        # bad, same ts, same payloads
+        ev5 = Event(self.aware_ts, pay1)
+        ev6 = Event(self.aware_ts, pay1)
+        with self.assertRaises(EventException):
+            merged = Event.merge([ev5, ev6])
 
 if __name__ == '__main__':
     unittest.main()
