@@ -255,7 +255,8 @@ class TestEventMapReduceCombine(BaseTestEvent):
     def test_event_map_function_arg_and_reduce(self):  # pylint: disable=invalid-name
         """Test Event.map() with a custom function and Event.reduce()"""
         def map_sum(event):  # pylint: disable=missing-docstring
-            return 'sum', event.get('in') + event.get('out')
+            # return 'sum', event.get('in') + event.get('out')
+            return dict(sum=event.get('in') + event.get('out'))
         result = Event.map(self._get_event_series(), map_sum)
         self.assertEqual(set(result), set({'sum': [13, 17, 21, 26]}))
 
@@ -274,6 +275,34 @@ class TestEventMapReduceCombine(BaseTestEvent):
         """test simple map/reduce."""
         result = Event.map_reduce(self._get_event_series(), ['in', 'out'], Functions.avg)
         self.assertEqual(set(result), set({'in': 5.0, 'out': 14.25}))
+
+    def test_sum_events_with_combine(self):
+        """test summing multiple events together via combine on the back end."""
+
+        # combine them all
+        events = [
+            self._create_event(self.aware_ts, {'a': 5, 'b': 6, 'c': 7}),
+            self._create_event(self.aware_ts, {'a': 2, 'b': 3, 'c': 4}),
+            self._create_event(self.aware_ts, {'a': 1, 'b': 2, 'c': 3}),
+
+        ]
+
+        result = Event.sum(events)
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertEqual(result[0].get('b'), 11)
+        self.assertEqual(result[0].get('c'), 14)
+
+        # combine single field
+        result = Event.sum(events, 'a')
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertIsNone(result[0].get('b'))
+        self.assertIsNone(result[0].get('c'))
+
+        # grab multiple fields
+        result = Event.sum(events, ['a', 'c'])
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertIsNone(result[0].get('b'))
+        self.assertEqual(result[0].get('c'), 14)
 
 if __name__ == '__main__':
     unittest.main()

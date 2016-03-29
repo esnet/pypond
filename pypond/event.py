@@ -11,6 +11,7 @@ import json
 from pyrsistent import thaw, freeze
 
 from .exceptions import EventException, NAIVE_MESSAGE
+from .functions import Functions
 from .util import (
     dt_from_ms,
     dt_is_aware,
@@ -321,19 +322,57 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         to form a new event. Doesn't currently work on IndexedEvents
         or TimeRangeEvents.
         """
-        raise NotImplementedError
+        if len(events) < 1:
+            return None
+
+        def combine_mapper(event):
+            """mapper function to make ts::k => value dicts"""
+            map_event = dict()
+
+            field_names = list()
+
+            if field_spec is None:
+                field_names = thaw(event.data()).keys()
+            elif isinstance(field_spec, str):
+                field_names = [field_spec]
+            elif isinstance(field_spec, list):
+                field_names = field_spec
+
+            for i in field_names:
+                map_event['{ts}::{fn}'.format(ts=ms_from_dt(event.timestamp()),
+                                              fn=i)] = event.get(i)
+
+            # return {ts::k => val, ts::k2 => val, ts::k3 => val}
+            return map_event
+
+        # dict w/ts::k => [val, val, val]
+        mapped = Event.map(events, combine_mapper)
+
+        event_data = dict()
+
+        for k, v in Event.reduce(mapped, reducer).items():
+            # ts::k with single reduced value
+            tstamp, field = k.split('::')
+            tstamp = int(tstamp)
+            if tstamp not in event_data:
+                event_data[tstamp] = dict()
+            event_data[tstamp][field] = v
+
+        # event_data 2 level dict {'1459283734515': {'a': 8, 'c': 14, 'b': 11}}
+
+        return [Event(x[0], x[1]) for x in event_data.items()]
 
     # these call combine with appropriate reducer
 
     @staticmethod
-    def sum(events, field_spec):
+    def sum(events, field_spec=None):
         """combine() with sum."""
-        raise NotImplementedError
+        return Event.combine(events, field_spec, Functions.sum)
 
     @staticmethod
-    def avg(events, field_spec):
+    def avg(events, field_spec=None):
         """combine() with avg."""
-        raise NotImplementedError
+        return Event.combine(events, field_spec, Functions.avg)
 
     # map, reduce, etc
 
@@ -370,9 +409,10 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                     result[spec].append(evt.get(spec))
         elif is_function(field_spec):
             for evt in events:
-                k, v = field_spec(evt)
-                key_check(k)
-                result[k].append(v)
+                pairs = field_spec(evt)
+                for k, v in pairs.items():
+                    key_check(k)
+                    result[k].append(v)
         else:
             # type not found or None or none - map everything
             for evt in events:
