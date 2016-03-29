@@ -173,17 +173,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         new_d = self._d.set('data', self.data_from_arg(data))
         return Event(new_d)
 
-    def get(self, field_spec='value'):
+    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b"
+        A fieldSpec could be "a.b" or it could be ['a', 'b'].
 
         The field spec can have an arbitrary number of "parts."
         """
-        return reduce(dict.get, field_spec.split('.'), thaw(self.data()))
+        if isinstance(field_spec, str):
+            path = field_spec.split('.')  # pylint: disable=no-member
+        elif isinstance(field_spec, list):
+            path = field_spec
 
-    def value(self, field_spec='value'):
+        return reduce(dict.get, path, thaw(self.data()))
+
+    def value(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Alias for get()
         """

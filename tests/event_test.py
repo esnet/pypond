@@ -95,14 +95,21 @@ class TestRegularEventAccess(BaseTestEvent):
 
     # access tests
 
-    def test_regular_with_deep_data(self):
+    def test_regular_with_deep_data_get(self):
         """create a regular Event with deep data and test get/field_spec query."""
         event = self._create_event(self.aware_ts, DEEP_EVENT_DATA)
 
-        # check using field.spec notation
+        # check using field.spec.notation
         self.assertEqual(event.get('NorthRoute.out'), DEEP_EVENT_DATA.get('NorthRoute').get('out'))
         # test alias function as well
         self.assertEqual(event.value('SouthRoute.in'), DEEP_EVENT_DATA.get('SouthRoute').get('in'))
+
+        # same tests but using new array method.
+        self.assertEqual(event.get(['NorthRoute', 'out']),
+                         DEEP_EVENT_DATA.get('NorthRoute').get('out'))
+        # test alias function as well
+        self.assertEqual(event.value(['SouthRoute', 'in']),
+                         DEEP_EVENT_DATA.get('SouthRoute').get('in'))
 
     def test_regular_deep_set_new_data(self):
         """create a regular Event with deep data and set new data/receive new object."""
