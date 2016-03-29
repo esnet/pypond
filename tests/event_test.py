@@ -209,17 +209,62 @@ class TestEventStaticMethods(BaseTestEvent):
         merged = Event.merge([ev1, ev2])
         self.assertEqual(set(thaw(merged.data())), set(dict(pay1, **pay2)))
 
-        # bad, different ts, different payloads
+        # bad, different ts (error), different payloads
         ev3 = Event(self.aware_ts, pay1)
         ev4 = Event(self.aware_ts + datetime.timedelta(minutes=1), pay2)
         with self.assertRaises(EventException):
             merged = Event.merge([ev3, ev4])
 
-        # bad, same ts, same payloads
+        # bad, same ts, same payloads (error)
         ev5 = Event(self.aware_ts, pay1)
         ev6 = Event(self.aware_ts, pay1)
         with self.assertRaises(EventException):
             merged = Event.merge([ev5, ev6])
+
+
+class TestEventMapReduceCombine(BaseTestEvent):
+    """Test the map, reduce, and combine transforms."""
+
+    def _get_event_series(self):
+        """Generate a series of events to play with"""
+        events = [
+            self._create_event(self.aware_ts,
+                               {'name': "source1", 'in': 2, 'out': 11}),
+            self._create_event(self.aware_ts + datetime.timedelta(seconds=30),
+                               {'name': "source1", 'in': 4, 'out': 13}),
+            self._create_event(self.aware_ts + datetime.timedelta(seconds=60),
+                               {'name': "source1", 'in': 6, 'out': 15}),
+            self._create_event(self.aware_ts + datetime.timedelta(seconds=90),
+                               {'name': "source1", 'in': 8, 'out': 18})
+        ]
+
+        return events
+
+    def test_event_map_single_key(self):
+        """Test Event.map() with single field key"""
+
+        result = Event.map(self._get_event_series(), 'in')
+        self.assertEqual(set(result), set({'in': [2, 4, 6, 8]}))
+
+    def test_event_map_multi_key(self):
+        """Test Event.map() with multiple field keys."""
+        result = Event.map(self._get_event_series(), ['in', 'out'])
+        self.assertEqual(set(result), set({'out': [11, 13, 15, 18], 'in': [2, 4, 6, 8]}))
+
+    def test_event_map_function_arg(self):
+        """Test Event.map() with a custom function."""
+        def map_sum(event):  # pylint: disable=missing-docstring
+            return 'sum', event.get('in') + event.get('out')
+        result = Event.map(self._get_event_series(), map_sum)
+        self.assertEqual(set(result), set({'sum': [13, 17, 21, 26]}))
+
+    def test_event_map_no_key_map_all(self):
+        """Test Event.map() with no field key - it will map everything"""
+        result = Event.map(self._get_event_series())
+        self.assertEqual(set(result),
+                         set({'in': [2, 4, 6, 8],
+                              'name': ['source1', 'source1', 'source1', 'source1'],
+                              'out': [11, 13, 15, 18]}))
 
 if __name__ == '__main__':
     unittest.main()

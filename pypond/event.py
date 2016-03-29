@@ -15,6 +15,7 @@ from .util import (
     dt_from_ms,
     dt_is_aware,
     format_dt,
+    is_function,
     is_nan,
     is_pmap,
     ms_from_dt,
@@ -337,7 +338,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     # map, reduce, etc
 
     @staticmethod
-    def map(events, field_spec):
+    def map(events, field_spec=None):
         """
         Maps a list of events according to the selection
         specification raise NotImplementedErrored in. The spec maybe a single
@@ -351,7 +352,35 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Mapper result:  { in: [1, 3], out: [2, 4]}
         """
-        raise NotImplementedError
+        result = dict()
+
+        def key_check(k):
+            """add needed keys to result"""
+            if k not in result:
+                result[k] = list()
+
+        if isinstance(field_spec, str):
+            for evt in events:
+                key_check(field_spec)
+                result[field_spec].append(evt.get(field_spec))
+        elif isinstance(field_spec, list):
+            for spec in field_spec:
+                for evt in events:
+                    key_check(spec)
+                    result[spec].append(evt.get(spec))
+        elif is_function(field_spec):
+            for evt in events:
+                k, v = field_spec(evt)
+                key_check(k)
+                result[k].append(v)
+        else:
+            # type not found or None or none - map everything
+            for evt in events:
+                for k, v in thaw(evt.data()).items():
+                    key_check(k)
+                    result[k].append(v)
+
+        return result
 
     @staticmethod
     def reduce(mapped, reducer):

@@ -4,6 +4,7 @@ Various utilities for the pypond code.
 
 import datetime
 import math
+import types
 import warnings
 
 import pytz
@@ -115,3 +116,8 @@ def is_nan(val):
         pass
 
     return False
+
+
+def is_function(func):
+    """Test if a value is a function."""
+    return isinstance(func, types.FunctionType)
