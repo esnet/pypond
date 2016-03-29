@@ -12,6 +12,7 @@ from pyrsistent import freeze, thaw
 from pypond.event import Event
 from pypond.exceptions import EventException
 from pypond.util import aware_utcnow
+from pypond.functions import Functions
 
 DEEP_EVENT_DATA = {
     'NorthRoute': {
@@ -251,12 +252,15 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.map(self._get_event_series(), ['in', 'out'])
         self.assertEqual(set(result), set({'out': [11, 13, 15, 18], 'in': [2, 4, 6, 8]}))
 
-    def test_event_map_function_arg(self):
-        """Test Event.map() with a custom function."""
+    def test_event_map_function_arg_and_reduce(self):  # pylint: disable=invalid-name
+        """Test Event.map() with a custom function and Event.reduce()"""
         def map_sum(event):  # pylint: disable=missing-docstring
             return 'sum', event.get('in') + event.get('out')
         result = Event.map(self._get_event_series(), map_sum)
         self.assertEqual(set(result), set({'sum': [13, 17, 21, 26]}))
+
+        res = Event.reduce(result, Functions.avg)
+        self.assertEqual(set(res), set({'sum': 19.25}))
 
     def test_event_map_no_key_map_all(self):
         """Test Event.map() with no field key - it will map everything"""

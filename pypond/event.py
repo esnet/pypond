@@ -392,7 +392,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                 return calcValue;
             }
         """
-        raise NotImplementedError
+        result = dict()
+
+        for k, v in mapped.items():
+            result[k] = reducer(v)
+
+        return result
 
     @staticmethod
     def map_reduce(events, field_spec, reducer):
