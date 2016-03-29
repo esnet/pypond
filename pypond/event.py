@@ -402,7 +402,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     @staticmethod
     def map_reduce(events, field_spec, reducer):
         """map and reduce"""
-        raise NotImplementedError
+        return Event.reduce(Event.map(events, field_spec), reducer)
 
 
 class TimeRangeEvent(EventBase):

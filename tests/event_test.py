@@ -270,5 +270,10 @@ class TestEventMapReduceCombine(BaseTestEvent):
                               'name': ['source1', 'source1', 'source1', 'source1'],
                               'out': [11, 13, 15, 18]}))
 
+    def test_simple_map_reduce(self):
+        """test simple map/reduce."""
+        result = Event.map_reduce(self._get_event_series(), ['in', 'out'], Functions.avg)
+        self.assertEqual(set(result), set({'in': 5.0, 'out': 14.25}))
+
 if __name__ == '__main__':
     unittest.main()
