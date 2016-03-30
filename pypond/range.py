@@ -15,6 +15,8 @@ from .util import (
     dt_is_aware,
     format_dt,
     humanize_dt,
+    humanize_dt_ago,
+    humanize_duration,
     is_pvector,
     ms_from_dt,
 )
@@ -134,8 +136,6 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """
         Returns a human friendly version of the TimeRange, e.g.
         "Aug 1, 2014 05:19:59 am to Aug 1, 2014 07:41:06 am"
-
-        '%b %-d, %Y %I:%M:%S %p'
         """
         return '{b} to {e}'.format(b=humanize_dt(self.begin()), e=humanize_dt(self.end()))
 
@@ -144,7 +144,8 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns a human friendly version of the TimeRange, e.g.
         e.g. "a few seconds ago to a month ago"
         """
-        raise NotImplementedError
+        return '{b} to {e}'.format(b=humanize_dt_ago(self.begin()),
+                                   e=humanize_dt_ago(self.end()))
 
     def begin(self):
         """Returns the begin time of the TimeRange."""
@@ -234,7 +235,7 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
 
     def humanize_duration(self):
         """Humanize the duration."""
-        raise NotImplementedError
+        return humanize_duration(self.end() - self.begin())
 
     # Static class methods to create canned TimeRanges
 

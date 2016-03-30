@@ -27,7 +27,9 @@ setup(
     url='https://github.com/esnet/pypond',
     packages=['pypond'],
     scripts=[],
-    install_requires=['pyrsistent==0.11.12', 'pytz==2016.3', 'tzlocal==1.2.2'],
+    install_requires=[
+        'pyrsistent==0.11.12', 'pytz==2016.3', 'tzlocal==1.2.2', 'humanize==0.5.1'
+    ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

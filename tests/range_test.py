@@ -21,6 +21,8 @@ class BaseTestTimeRange(unittest.TestCase):
         self.test_end_ms = ms_from_dt(self.test_end_ts)
         self.test_begin_ms = ms_from_dt(self.test_begin_ts)
 
+        self.canned_range = self._create_time_range(self.test_begin_ts, self.test_end_ts)
+
     def _create_time_range(self, arg1, arg2=None):  # pylint: disable=no-self-use
         """create a time range object"""
         return TimeRange(arg1, arg2)

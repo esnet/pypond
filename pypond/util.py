@@ -7,6 +7,7 @@ import math
 import types
 import warnings
 
+import humanize
 import pytz
 import tzlocal
 
@@ -101,8 +102,21 @@ def format_dt(dtime, localize=False):
 
 
 def humanize_dt(dtime):
-    """format display for humanize maneuvers."""
-    return dtime.strftime(HUMAN_FORMAT)
+    """format time format display for humanize maneuvers."""
+    return dtime.astimezone(LOCAL_TZ).strftime(HUMAN_FORMAT)
+
+
+def humanize_dt_ago(dtime):
+    """format to "23 minutes ago" style format."""
+    # and here we went through all the trouble to make everything
+    # UTC and offset-aware. Le sigh. The underlying lib uses datetime.now()
+    # as the comparison reference, so we need naive localtime.
+    return humanize.naturaltime(dtime.astimezone(LOCAL_TZ).replace(tzinfo=None))
+
+
+def humanize_duration(delta):
+    """format for a single duration value - takes datatime.timedelta as arg"""
+    return humanize.naturaldelta(delta)
 
 # test types
 
