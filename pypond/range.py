@@ -10,6 +10,7 @@ from pyrsistent import freeze
 
 from .exceptions import TimeRangeException, NAIVE_MESSAGE
 from .util import (
+    aware_utcnow,
     dt_from_ms,
     dt_is_aware,
     format_dt,
@@ -17,7 +18,6 @@ from .util import (
     is_pvector,
     ms_from_dt,
 )
-
 
 
 class TimeRangeBase(object):
@@ -189,36 +189,48 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns true if this TimeRange is completely within the supplied
         other TimeRange.
         """
-        raise NotImplementedError
+        return bool(self.begin() >= other.begin() and self.end() <= other.end())
 
     def overlaps(self, other):
         """Returns true if the passed in other TimeRange overlaps this time Range."""
-        raise NotImplementedError
+        return bool(
+            (self.contains(other.begin()) and not self.contains(other.end())) or
+            (self.contains(other.end()) and not self.contains(other.begin()))
+        )
 
     def disjoint(self, other):
         """
         Returns true if the passed in other Range in no way
         overlaps this time Range.
         """
-        raise NotImplementedError
+        return bool((self.end() < other.begin()) or (self.begin() > other.end()))
 
     def extents(self, other):
         """
         Returns a new Timerange which covers the extents of this and
         other combined.
         """
-        raise NotImplementedError
+        beg = self.begin() if self.begin() < other.begin() else other.begin()
+        end = self.end() if self.end() > other.end() else other.end()
+
+        return TimeRange(beg, end)
 
     def intersection(self, other):
         """
         Returns a new TimeRange which represents the intersection
         (overlapping) part of this and other.
         """
-        raise NotImplementedError
+        if self.disjoint(other):
+            return None
+
+        beg = self.begin() if self.begin() > other.begin() else other.begin()
+        end = self.end() if self.end() < other.end() else other.end()
+
+        return TimeRange(beg, end)
 
     def duration(self):
         """Return epoch milliseconds."""
-        raise NotImplementedError
+        return ms_from_dt(self.end()) - ms_from_dt(self.begin())
 
     def humanize_duration(self):
         """Humanize the duration."""
@@ -226,30 +238,37 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
 
     # Static class methods to create canned TimeRanges
 
-    """
-    These methods are currently bugged in the JS. Should be like:
-
-        const endTime = moment();
-        const beginTime = beginTime.clone().subtract(24, "hours");
-        return new TimeRange(beginTime, endTime);
-    """
-
     @staticmethod
     def last_day():
         """time range spanning last 24 hours"""
-        raise NotImplementedError
+        end = aware_utcnow()
+        beg = end - datetime.timedelta(hours=24)
+        return TimeRange(beg, end)
 
     @staticmethod
     def last_seven_days():
         """time range spanning last 7 days"""
-        raise NotImplementedError
+        end = aware_utcnow()
+        beg = end - datetime.timedelta(days=7)
+        return TimeRange(beg, end)
 
     @staticmethod
     def last_thirty_days():
         """time range spanning last 30 days"""
-        raise NotImplementedError
+        end = aware_utcnow()
+        beg = end - datetime.timedelta(days=30)
+        return TimeRange(beg, end)
+
+    @staticmethod
+    def last_month():
+        """time range spanning last month."""
+        end = aware_utcnow()
+        beg = end - datetime.timedelta(month=1)
+        return TimeRange(beg, end)
 
     @staticmethod
     def last_ninety_days():
         """time range spanning last 90 days"""
-        raise NotImplementedError
+        end = aware_utcnow()
+        beg = end - datetime.timedelta(days=90)
+        return TimeRange(beg, end)
