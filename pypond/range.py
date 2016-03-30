@@ -3,9 +3,59 @@ Implementation of Pond TimeRange classes.
 
 http://software.es.net/pond/#/timerange
 """
+import datetime
+
+from pyrsistent import freeze
+
+from .util import is_pvector, dt_from_ms, dt_is_aware
+from .exceptions import TimeRangeException, NAIVE_MESSAGE
 
 
-class TimeRange(object):  # pylint: disable=too-many-public-methods
+class TimeRangeBase(object):
+    """Base for TimeRange"""
+
+    @staticmethod
+    def sanitize_list_input(list_type):
+        """
+        Validate input when a pvector, list or tuple is passed in
+        as a constructor arg.
+        """
+        # two elements
+        if len(list_type) != 2:
+            raise TimeRangeException('list/tuple/vector input must have two elements.')
+        # datetime or int
+        if not isinstance(list_type[0], (int, datetime.datetime)) or not \
+                isinstance(list_type[1], (int, datetime.datetime)):
+            raise TimeRangeException('list/tuple/vector elements must be ints or datetime objects.')
+        # make sure both elements are the same type
+        try:
+            list_type[0] > list_type[1]
+        except TypeError:
+            raise TimeRangeException('both list/tuple/vector elements must be the same type.')
+
+        # if we already have datetimes, we're good to go
+        if isinstance(list_type[0], datetime.datetime):
+            return freeze(list(list_type))
+        else:
+            # we must have ints then - convert
+            return freeze([dt_from_ms(list_type[0]), dt_from_ms(list_type[1])])
+
+    @staticmethod
+    def validate_range(range_obj):
+        """
+        Make sure the datetimes are aware and that that the end is not
+        chronologically before the begin.
+        """
+        if not dt_is_aware(range_obj[0]) or not dt_is_aware(range_obj[1]):
+            raise TimeRangeException(NAIVE_MESSAGE)
+
+        if range_obj[0] > range_obj[1]:
+            msg = 'Invalid range - end {e} is earlier in time than begin {b}'.format(
+                e=range_obj[1], b=range_obj[0])
+            raise TimeRangeException(msg)
+
+
+class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     """
     Builds a new TimeRange which may be of several different formats:
     - Another TimeRange (copy constructor)
@@ -14,15 +64,33 @@ class TimeRange(object):  # pylint: disable=too-many-public-methods
     - Two arguments, begin and end, each of which may be a datetime object,
       or a ms timestamp.
     """
-    def __init__(self, instance_or_being, end=None):
+    def __init__(self, instance_or_begin, end=None):
         """
         Construct the object using the aforementioned arg combinations.
         """
 
-        # Make sure that end is not previous in time (see error in
-        # static methods below).
+        if isinstance(instance_or_begin, TimeRange):
+            # copy constructor
+            self._range = instance_or_begin._range  # pylint: disable=protected-access
+        elif isinstance(instance_or_begin, list) \
+                or isinstance(instance_or_begin, tuple) \
+                or is_pvector(instance_or_begin):
+            # a list, vector or tuple - check input first
+            self._range = self.sanitize_list_input(instance_or_begin)
+        else:
+            # two args epoch ms or datetime
+            if isinstance(instance_or_begin, int) and \
+                    isinstance(end, int):
+                self._range = freeze([dt_from_ms(instance_or_begin), dt_from_ms(end)])
+            elif isinstance(instance_or_begin, datetime.datetime) and \
+                    isinstance(end, datetime.datetime):
+                self._range = freeze([instance_or_begin, end])
+            else:
+                msg = 'both args must be datetime objects or int ms since epoch'
+                raise TimeRangeException(msg)
 
-        raise NotImplementedError
+        # Make sure that end is not earlier in time etc
+        self.validate_range(self._range)
 
     def range(self):
         """

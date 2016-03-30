@@ -18,6 +18,21 @@ class EventWarning(Warning):
     pass
 
 
+class TimeRangeException(Exception):
+    """Custom TimeRange exception"""
+    def __init__(self, value):
+        # pylint: disable=super-init-not-called
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class TimeRangeWarning(Warning):
+    """Custom TimeRange warning"""
+    pass
+
+
 class UtilityException(Exception):
     """Custom Utility exception"""
     def __init__(self, value):

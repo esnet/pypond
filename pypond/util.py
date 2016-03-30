@@ -10,7 +10,7 @@ import warnings
 import pytz
 import tzlocal
 
-from pyrsistent import PMap
+from pyrsistent import PMap, PVector
 
 from pypond.exceptions import UtilityException, UtilityWarning
 
@@ -104,6 +104,11 @@ def format_dt(dtime, localize=False):
 def is_pmap(pmap):
     """Check this here so people don't mistake pmap and PMap."""
     return isinstance(pmap, PMap)
+
+
+def is_pvector(pvector):
+    """Check this here so people don't mistake PVector and pvector."""
+    return isinstance(pvector, PVector)
 
 
 def is_nan(val):
