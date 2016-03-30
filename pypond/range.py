@@ -4,11 +4,20 @@ Implementation of Pond TimeRange classes.
 http://software.es.net/pond/#/timerange
 """
 import datetime
+import json
 
 from pyrsistent import freeze
 
-from .util import is_pvector, dt_from_ms, dt_is_aware
 from .exceptions import TimeRangeException, NAIVE_MESSAGE
+from .util import (
+    dt_from_ms,
+    dt_is_aware,
+    format_dt,
+    humanize_dt,
+    is_pvector,
+    ms_from_dt,
+)
+
 
 
 class TimeRangeBase(object):
@@ -97,33 +106,38 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns the internal range, which is an Immutable List containing
         begin and end keys
         """
-        raise NotImplementedError
+        return self._range
 
     def to_json(self):
         """
         Returns the TimeRange as JSON, which will be a Javascript array
         of two ms timestamps.
         """
-        raise NotImplementedError
+        return [ms_from_dt(self.begin()), ms_from_dt(self.end())]
 
     def to_string(self):
         """Returns the TimeRange as a string, useful for serialization."""
-        raise NotImplementedError
+        return json.dumps(self.to_json())
 
     def to_local_string(self):
         """Returns the TimeRange as a string expressed in local time."""
-        raise NotImplementedError
+        return '[{b}, {e}]'.format(
+            b=format_dt(self.begin(), localize=True),
+            e=format_dt(self.end(), localize=True))
 
     def to_utc_string(self):
         """Returns the TimeRange as a string expressed in UTC time."""
-        raise NotImplementedError
+        return '[{b}, {e}]'.format(b=format_dt(self.begin()),
+                                   e=format_dt(self.end()))
 
     def humanize(self):
         """
         Returns a human friendly version of the TimeRange, e.g.
         "Aug 1, 2014 05:19:59 am to Aug 1, 2014 07:41:06 am"
+
+        '%b %-d, %Y %I:%M:%S %p'
         """
-        raise NotImplementedError
+        return '{b} to {e}'.format(b=humanize_dt(self.begin()), e=humanize_dt(self.end()))
 
     def relative_string(self):
         """
@@ -134,35 +148,41 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
 
     def begin(self):
         """Returns the begin time of the TimeRange."""
-        raise NotImplementedError
+        return self._range[0]
 
     def end(self):
         """Returns the end time of the TimeRange."""
-        raise NotImplementedError
+        return self._range[1]
 
     def set_begin(self, dtime):
         """
         Sets a new begin time on the TimeRange. The result will be
         a new TimeRange.
         """
-        raise NotImplementedError
+        return TimeRange(self._range.set(0, dtime))
 
     def set_end(self, dtime):
         """
         Sets a new end time on the TimeRange. The result will be a new TimeRange.
         """
-        raise NotImplementedError
+        return TimeRange(self._range.set(1, dtime))
 
     def equals(self, other):
         """
         Returns if the two TimeRanges can be considered equal,
         in that they have the same times.
         """
-        raise NotImplementedError
+        return bool(self.begin() == other.begin() and self.end() == other.end())
 
     def contains(self, other):
         """Returns true if other is completely inside this."""
-        raise NotImplementedError
+        if isinstance(other, datetime.datetime):
+            return bool(self.begin() <= other and self.end() >= other)
+        elif isinstance(other, TimeRange):
+            return bool(self.begin() <= other.begin() and
+                        self.end() >= other.end())
+
+        return False
 
     def within(self, other):
         """

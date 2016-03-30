@@ -18,6 +18,7 @@ from pypond.exceptions import UtilityException, UtilityWarning
 
 EPOCH = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.UTC)
 LOCAL_TZ = tzlocal.get_localzone()
+HUMAN_FORMAT = '%b %-d, %Y %I:%M:%S %p'
 
 
 def dt_is_aware(dtime):
@@ -97,6 +98,11 @@ def format_dt(dtime, localize=False):
         return dtime.strftime(base_format)
     else:
         return dtime.astimezone(LOCAL_TZ).strftime(base_format)
+
+
+def humanize_dt(dtime):
+    """format display for humanize maneuvers."""
+    return dtime.strftime(HUMAN_FORMAT)
 
 # test types
 

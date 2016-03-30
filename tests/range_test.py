@@ -16,7 +16,14 @@ class BaseTestTimeRange(unittest.TestCase):
     Base for range tests.
     """
     def setUp(self):
-        pass
+        self.test_end_ts = aware_utcnow()
+        self.test_begin_ts = self.test_end_ts - datetime.timedelta(hours=12)
+        self.test_end_ms = ms_from_dt(self.test_end_ts)
+        self.test_begin_ms = ms_from_dt(self.test_begin_ts)
+
+    def _create_time_range(self, arg1, arg2=None):  # pylint: disable=no-self-use
+        """create a time range object"""
+        return TimeRange(arg1, arg2)
 
 
 class TestTimeRangeCreation(BaseTestTimeRange):
@@ -31,44 +38,43 @@ class TestTimeRangeCreation(BaseTestTimeRange):
         u_end = datetime.datetime.utcnow()
 
         with self.assertRaises(TimeRangeException):
-            TimeRange(u_begin, u_end)
+            self._create_time_range(u_begin, u_end)
         with self.assertRaises(TimeRangeException):
-            TimeRange([u_begin, u_end])
+            self._create_time_range([u_begin, u_end])
 
         # invalid types - pass in floats
         end = time.time() * 1000
         begin = end - 10000
 
         with self.assertRaises(TimeRangeException):
-            TimeRange(begin, end)
+            self._create_time_range(begin, end)
         with self.assertRaises(TimeRangeException):
-            TimeRange([begin, end])
+            self._create_time_range([begin, end])
 
         # type mismatch
         with self.assertRaises(TimeRangeException):
-            TimeRange((int(begin), aware_utcnow()))
+            self._create_time_range((int(begin), aware_utcnow()))
         with self.assertRaises(TimeRangeException):
-            TimeRange(int(begin), aware_utcnow())
+            self._create_time_range(int(begin), aware_utcnow())
 
         with self.assertRaises(TimeRangeException):
-            TimeRange([aware_utcnow() - datetime.timedelta(hours=12), int(end)])
+            self._create_time_range([aware_utcnow() - datetime.timedelta(hours=12), int(end)])
         with self.assertRaises(TimeRangeException):
-            TimeRange(aware_utcnow() - datetime.timedelta(hours=12), int(end))
+            self._create_time_range(aware_utcnow() - datetime.timedelta(hours=12), int(end))
 
         # end time before begin time
         bad_begin = aware_utcnow()
         bad_end = aware_utcnow() - datetime.timedelta(hours=12)
 
         with self.assertRaises(TimeRangeException):
-            TimeRange(bad_begin, bad_end)
+            self._create_time_range(bad_begin, bad_end)
         with self.assertRaises(TimeRangeException):
-            TimeRange([bad_begin, bad_end])
+            self._create_time_range([bad_begin, bad_end])
 
         with self.assertRaises(TimeRangeException):
-            TimeRange(ms_from_dt(bad_begin), ms_from_dt(bad_end))
-
+            self._create_time_range(ms_from_dt(bad_begin), ms_from_dt(bad_end))
         with self.assertRaises(TimeRangeException):
-            TimeRange((ms_from_dt(bad_begin), ms_from_dt(bad_end)))
+            self._create_time_range((ms_from_dt(bad_begin), ms_from_dt(bad_end)))
 
 if __name__ == '__main__':
     unittest.main()
