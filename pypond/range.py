@@ -19,11 +19,26 @@ from .util import (
     humanize_duration,
     is_pvector,
     ms_from_dt,
+    sanitize_dt,
 )
 
 
 class TimeRangeBase(object):
     """Base for TimeRange"""
+
+    @staticmethod
+    def awareness_check(dtime):
+        """
+        Check input to make sure datetimes are aware. Presumes an interable
+        contaning datetimes, but will fail over via duck typing.
+        """
+        try:
+            for i in dtime:
+                if not dt_is_aware(i):
+                    raise TimeRangeException(NAIVE_MESSAGE)
+        except TypeError:
+            if not dt_is_aware(dtime):
+                raise TimeRangeException(NAIVE_MESSAGE)
 
     @staticmethod
     def sanitize_list_input(list_type):
@@ -44,9 +59,10 @@ class TimeRangeBase(object):
         except TypeError:
             raise TimeRangeException('both list/tuple/vector elements must be the same type.')
 
-        # if we already have datetimes, we're good to go
+        # datetimes - check and sanitize
         if isinstance(list_type[0], datetime.datetime):
-            return freeze(list(list_type))
+            TimeRangeBase.awareness_check(list_type)
+            return freeze([sanitize_dt(list_type[0]), sanitize_dt(list_type[1])])
         else:
             # we must have ints then - convert
             return freeze([dt_from_ms(list_type[0]), dt_from_ms(list_type[1])])
@@ -57,9 +73,6 @@ class TimeRangeBase(object):
         Make sure the datetimes are aware and that that the end is not
         chronologically before the begin.
         """
-        if not dt_is_aware(range_obj[0]) or not dt_is_aware(range_obj[1]):
-            raise TimeRangeException(NAIVE_MESSAGE)
-
         if range_obj[0] > range_obj[1]:
             msg = 'Invalid range - end {e} is earlier in time than begin {b}'.format(
                 e=range_obj[1], b=range_obj[0])
@@ -89,13 +102,14 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
             # a list, vector or tuple - check input first
             self._range = self.sanitize_list_input(instance_or_begin)
         else:
-            # two args epoch ms or datetime
+            # two args - epoch ms or datetime
             if isinstance(instance_or_begin, int) and \
                     isinstance(end, int):
                 self._range = freeze([dt_from_ms(instance_or_begin), dt_from_ms(end)])
             elif isinstance(instance_or_begin, datetime.datetime) and \
                     isinstance(end, datetime.datetime):
-                self._range = freeze([instance_or_begin, end])
+                self.awareness_check([instance_or_begin, end])
+                self._range = freeze([sanitize_dt(instance_or_begin), sanitize_dt(end)])
             else:
                 msg = 'both args must be datetime objects or int ms since epoch'
                 raise TimeRangeException(msg)

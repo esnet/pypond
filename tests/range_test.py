@@ -35,6 +35,8 @@ class TestTimeRangeCreation(BaseTestTimeRange):
     def test_invalid_constructor_args(self):
         """test invalid constructor args"""
 
+        # test both (two, args) and ([list, arg]) inputs to work different logic
+
         # unaware datetime input
         u_begin = datetime.datetime.utcnow() - datetime.timedelta(hours=12)
         u_end = datetime.datetime.utcnow()
