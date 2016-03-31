@@ -31,8 +31,8 @@ def dt_is_aware(dtime):
 
 
 def aware_utcnow():
-    """return an aware utcnow() datetime."""
-    return datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
+    """return an aware utcnow() datetime rounded to milliseconds."""
+    return to_milliseconds(datetime.datetime.utcnow().replace(tzinfo=pytz.UTC))
 
 
 def dt_from_ms(msec):
@@ -44,6 +44,16 @@ def dt_from_ms(msec):
 # Introduction of naive datetime objects should be stopped by a check
 # in an individual class (ie: Event, etc) and the class specific
 # exception should be raised. This is to prevent that being overlooked.
+
+def to_milliseconds(dtime):
+    """Check to see if a datetime object has granularity smaller
+    than millisecond (ie: microseconds) and massage back to ms if so."""
+    if dtime.microsecond % 1000 != 0:
+        msec = ms_from_dt(dtime)
+        return dt_from_ms(msec)
+    else:
+        return dtime
+
 
 def _check_dt(dtime, utc_check=True):
     """
@@ -64,6 +74,11 @@ def _check_dt(dtime, utc_check=True):
 def ms_from_dt(dtime):
     """Turn a datetime object into ms since epoch."""
     _check_dt(dtime)
+
+    # diff = dtime - EPOCH
+    # millis = diff.days * 24 * 60 * 60 * 1000
+    # millis += diff.seconds * 1000
+    # millis += diff.microseconds / 1000
 
     return int((dtime - EPOCH).total_seconds() * 1000)
 

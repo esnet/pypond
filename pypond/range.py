@@ -251,6 +251,9 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """Humanize the duration."""
         return humanize_duration(self.end() - self.begin())
 
+    def __str__(self):
+        return self.to_string()
+
     # Static class methods to create canned TimeRanges
 
     @staticmethod

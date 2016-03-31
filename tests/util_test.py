@@ -28,6 +28,26 @@ class TestTime(unittest.TestCase):
         self.ms_reference = 1458768183949  # Wed, 23 Mar 2016 21:23:03.949 GMT
         self.naive = datetime.datetime.utcnow()
 
+    def test_round_trip(self):
+        """Test ms -> dt -> ms and dt -> ms -> dt"""
+
+        # ms -> dt -> ms
+        to_dt = dt_from_ms(self.ms_reference)
+        from_dt = ms_from_dt(to_dt)
+        self.assertEquals(from_dt, self.ms_reference)
+
+        # dt -> ms -> dt to test rounding in aware_utcnow()
+        now = aware_utcnow()
+        to_ms = ms_from_dt(now)
+        back_to_dt = dt_from_ms(to_ms)
+        self.assertEquals(now, back_to_dt)
+
+        # dt from unixtime -> ms -> dt
+        utc = datetime.datetime.utcfromtimestamp(1459442035).replace(tzinfo=pytz.UTC)
+        utcms = ms_from_dt(utc)
+        back_to_utc = dt_from_ms(utcms)
+        self.assertEquals(utc, back_to_utc)
+
     def test_aware(self):
         """Verify test_aware function."""
         self.assertFalse(dt_is_aware(self.naive))
