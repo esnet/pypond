@@ -47,7 +47,15 @@ def dt_from_ms(msec):
 
 def to_milliseconds(dtime):
     """Check to see if a datetime object has granularity smaller
-    than millisecond (ie: microseconds) and massage back to ms if so."""
+    than millisecond (ie: microseconds) and massage back to ms if so.
+
+    Doing this round-trip seems kludgy and inefficient, but doing this:
+
+    return dtime.replace(millisecond=round(dt.millisecond, -3))
+
+    produced inconsistent results and I'm not going to start treating
+    numbers like strings.
+    """
     if dtime.microsecond % 1000 != 0:
         msec = ms_from_dt(dtime)
         return dt_from_ms(msec)
