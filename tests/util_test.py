@@ -76,7 +76,7 @@ class TestTime(unittest.TestCase):
             ms_from_dt(self.naive)
 
     def test_sanitize_dt(self):
-        """Test datetime sanitizing to UTC."""
+        """Test datetime timezone conversion to UTC."""
 
         # aware utc should just go in and out.
         utc = aware_utcnow()
@@ -89,14 +89,32 @@ class TestTime(unittest.TestCase):
 
         # Use .localize and not datetime.replace to generate
         # the local date because that doesn't handle DST correctly.
-        pacific = pytz.timezone('US/Pacific')
-        local = pacific.localize(datetime.datetime.now())
+        def get_unrounded_local():
+            """get an unrounded local time deal."""
+            pacific = pytz.timezone('US/Pacific')
+            local = pacific.localize(datetime.datetime.now())
+            if local.microsecond % 1000 != 0:
+                return local
+            else:
+                # unlikely
+                return get_unrounded_local()
+
+        local = get_unrounded_local()
 
         # testing mode to suppress warnings
         local_utc = sanitize_dt(local, testing=True)
 
-        # objects should be equal
-        self.assertEqual(local_utc, local)
+        # objects will not be equal since sanitize is rounding to milliseconds
+        self.assertNotEqual(local_utc, local)
+
+        # this is a terrible way to round to milliseconds, but in this
+        # case, we are trying to leave the time zone difference intact
+        # whereas pypond.util wants to force everything to UTC.
+        # But in general DO NOT DO THIS. -MMG
+
+        msec = '{ms}000'.format(ms=str(local.microsecond)[0:3])
+        local = local.replace(microsecond=int(msec))
+
         # double check that delta is zero
         local_utc_delta = local_utc - local
         self.assertEqual(int(local_utc_delta.total_seconds()), 0)

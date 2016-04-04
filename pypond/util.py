@@ -53,8 +53,8 @@ def to_milliseconds(dtime):
 
     return dtime.replace(millisecond=round(dt.millisecond, -3))
 
-    produced inconsistent results and I'm not going to start treating
-    numbers like strings.
+    produced inconsistent results because of the roundingand I'm not
+    going to start treating numbers like strings.
     """
     if dtime.microsecond % 1000 != 0:
         msec = ms_from_dt(dtime)
@@ -93,7 +93,8 @@ def ms_from_dt(dtime):
 
 def sanitize_dt(dtime, testing=False):
     """
-    Make sure the datetime object is in UTC/etc.
+    Make sure the datetime object is in UTC/etc. Also round incoming
+    datetime objects to milliseconds.
 
     Allow disabling warnings when testing. Warning primarily exists
     to herd users into not passing in non-UTC tz datetime objects.
@@ -106,10 +107,10 @@ def sanitize_dt(dtime, testing=False):
             msg += ' - coercing to UTC {dt}'.format(dt=dtime.astimezone(pytz.UTC))
             msg += ' - consider using datetime with UTC or ms since epoch instead'
             warnings.warn(msg, UtilityWarning, stacklevel=2)
-        return dtime.astimezone(pytz.UTC)
+        return to_milliseconds(dtime.astimezone(pytz.UTC))
     else:
         # create new object just to do it.
-        return dtime + datetime.timedelta(seconds=0)
+        return to_milliseconds(dtime + datetime.timedelta(seconds=0))
 
 
 def format_dt(dtime, localize=False):
