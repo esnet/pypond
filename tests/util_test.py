@@ -115,6 +115,8 @@ class TestTime(unittest.TestCase):
         msec = '{ms}000'.format(ms=str(local.microsecond)[0:3])
         local = local.replace(microsecond=int(msec))
 
+        self.assertEqual(local_utc, local)
+
         # double check that delta is zero
         local_utc_delta = local_utc - local
         self.assertEqual(int(local_utc_delta.total_seconds()), 0)

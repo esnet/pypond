@@ -113,6 +113,18 @@ def sanitize_dt(dtime, testing=False):
         return to_milliseconds(dtime + datetime.timedelta(seconds=0))
 
 
+def monthdelta(date, delta):
+    """because we wish datetime.timedelta had a month kwarg.
+
+    http://stackoverflow.com/a/3425124/3916180
+    """
+    month, year = (date.month+delta) % 12, date.year + ((date.month)+delta-1) // 12
+    if not month:
+        month = 12
+    day = min(date.day, [31, 29 if year % 4 == 0 and not year % 400 == 0 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])  # pylint: disable=line-too-long
+    return date.replace(day=day, month=month, year=year)
+
+
 def format_dt(dtime, localize=False):
     """Format for human readable output."""
     _check_dt(dtime)

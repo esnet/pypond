@@ -11,7 +11,7 @@ import pytz
 
 from pypond.range import TimeRange
 from pypond.exceptions import TimeRangeException
-from pypond.util import aware_utcnow, ms_from_dt, to_milliseconds
+from pypond.util import aware_utcnow, ms_from_dt, to_milliseconds, EPOCH
 
 
 class BaseTestTimeRange(unittest.TestCase):
@@ -105,6 +105,37 @@ class TestTimeRangeCreation(BaseTestTimeRange):
         # use utility rounding function
         self.assertEqual(internal_round.begin(), to_milliseconds(unrounded_start))
         self.assertEqual(internal_round.end(), to_milliseconds(unrounded_end))
+
+    def test_json_and_stringoutput(self):
+        """verify the json (vanilla data structure) and string output is right"""
+        rang = self.canned_range
+
+        self.assertEqual(rang.to_json(), [self.test_begin_ms, self.test_end_ms])
+        self.assertEqual(rang.to_string(), '[{b}, {e}]'.format(b=self.test_begin_ms,
+                                                               e=self.test_end_ms))
+
+    def test_human_friendly_strings(self):
+        """test human friendly outputs."""
+
+        rang = TimeRange(EPOCH, EPOCH + datetime.timedelta(hours=24))
+
+        # Hmmm, this is going to vary depending on where it is run.
+        # self.assertEqual(rang.humanize(), 'Dec 31, 1969 04:00:00 PM to Jan 1, 1970 04:00:00 PM')
+
+        rang = TimeRange.last_day()
+        self.assertEqual(rang.relative_string(), 'a day ago to now')
+
+        rang = TimeRange.last_seven_days()
+        self.assertEqual(rang.relative_string(), '7 days ago to now')
+
+        rang = TimeRange.last_thirty_days()
+        self.assertEqual(rang.relative_string(), '30 days ago to now')
+
+        rang = TimeRange.last_month()
+        self.assertEqual(rang.relative_string(), 'a month ago to now')
+
+        rang = TimeRange.last_ninety_days()
+        self.assertEqual(rang.relative_string(), '2 months ago to now')
 
     def test_invalid_constructor_args(self):
         """test invalid constructor args"""

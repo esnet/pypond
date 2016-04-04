@@ -18,6 +18,7 @@ from .util import (
     humanize_dt_ago,
     humanize_duration,
     is_pvector,
+    monthdelta,
     ms_from_dt,
     sanitize_dt,
 )
@@ -150,6 +151,8 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """
         Returns a human friendly version of the TimeRange, e.g.
         "Aug 1, 2014 05:19:59 am to Aug 1, 2014 07:41:06 am"
+
+        This displays in local time, so don't freak out.
         """
         return '{b} to {e}'.format(b=humanize_dt(self.begin()), e=humanize_dt(self.end()))
 
@@ -281,7 +284,7 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def last_month():
         """time range spanning last month."""
         end = aware_utcnow()
-        beg = end - datetime.timedelta(month=1)
+        beg = monthdelta(end, -1)
         return TimeRange(beg, end)
 
     @staticmethod
