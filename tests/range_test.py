@@ -106,37 +106,6 @@ class TestTimeRangeCreation(BaseTestTimeRange):
         self.assertEqual(internal_round.begin(), to_milliseconds(unrounded_start))
         self.assertEqual(internal_round.end(), to_milliseconds(unrounded_end))
 
-    def test_json_and_stringoutput(self):
-        """verify the json (vanilla data structure) and string output is right"""
-        rang = self.canned_range
-
-        self.assertEqual(rang.to_json(), [self.test_begin_ms, self.test_end_ms])
-        self.assertEqual(rang.to_string(), '[{b}, {e}]'.format(b=self.test_begin_ms,
-                                                               e=self.test_end_ms))
-
-    def test_human_friendly_strings(self):
-        """test human friendly outputs."""
-
-        rang = TimeRange(EPOCH, EPOCH + datetime.timedelta(hours=24))
-
-        # Hmmm, this is going to vary depending on where it is run.
-        # self.assertEqual(rang.humanize(), 'Dec 31, 1969 04:00:00 PM to Jan 1, 1970 04:00:00 PM')
-
-        rang = TimeRange.last_day()
-        self.assertEqual(rang.relative_string(), 'a day ago to now')
-
-        rang = TimeRange.last_seven_days()
-        self.assertEqual(rang.relative_string(), '7 days ago to now')
-
-        rang = TimeRange.last_thirty_days()
-        self.assertEqual(rang.relative_string(), '30 days ago to now')
-
-        rang = TimeRange.last_month()
-        self.assertEqual(rang.relative_string(), 'a month ago to now')
-
-        rang = TimeRange.last_ninety_days()
-        self.assertEqual(rang.relative_string(), '2 months ago to now')
-
     def test_invalid_constructor_args(self):
         """test invalid constructor args"""
 
@@ -184,6 +153,109 @@ class TestTimeRangeCreation(BaseTestTimeRange):
             self._create_time_range(ms_from_dt(bad_begin), ms_from_dt(bad_end))
         with self.assertRaises(TimeRangeException):
             self._create_time_range((ms_from_dt(bad_begin), ms_from_dt(bad_end)))
+
+
+class TestTimeRangeOutput(BaseTestTimeRange):
+    """
+    Tests to check output from the time range objects
+    """
+    def test_json_and_stringoutput(self):
+        """verify the json (vanilla data structure) and string output is right"""
+        rang = self.canned_range
+
+        self.assertEqual(rang.to_json(), [self.test_begin_ms, self.test_end_ms])
+        self.assertEqual(rang.to_string(), '[{b}, {e}]'.format(b=self.test_begin_ms,
+                                                               e=self.test_end_ms))
+
+    def test_human_friendly_strings(self):
+        """test human friendly outputs."""
+
+        rang = TimeRange(EPOCH, EPOCH + datetime.timedelta(hours=24))
+
+        # Hmmm, this is going to vary depending on where it is run.
+        # self.assertEqual(rang.humanize(), 'Dec 31, 1969 04:00:00 PM to Jan 1, 1970 04:00:00 PM')
+
+        rang = TimeRange.last_day()
+        self.assertEqual(rang.relative_string(), 'a day ago to now')
+
+        rang = TimeRange.last_seven_days()
+        self.assertEqual(rang.relative_string(), '7 days ago to now')
+
+        rang = TimeRange.last_thirty_days()
+        self.assertEqual(rang.relative_string(), '30 days ago to now')
+
+        rang = TimeRange.last_month()
+        self.assertEqual(rang.relative_string(), 'a month ago to now')
+
+        rang = TimeRange.last_ninety_days()
+        self.assertEqual(rang.relative_string(), '2 months ago to now')
+
+
+class TestTimeRangeComparison(BaseTestTimeRange):
+    """
+    Test mutating and comparing TimeRange objects. Crib the values from
+    the original javascript tests to make sure we're comparing the same stuff.
+    """
+    def test_equality(self):
+        """compare time ranges to check equality."""
+        pass
+
+    def test_overlap_non_overlap(self):
+        """compare overlap to a non-overlapping range"""
+        pass
+
+    def test_overlap_overlap(self):
+        """compare overlap to an overlapping range"""
+        pass
+
+    def test_contain_complete_contain(self):
+        """compare for containment to a completely contained range."""
+        pass
+
+    def test_containment_to_overlap(self):
+        """compare for containment to an overlapping range."""
+        pass
+
+    def test_compare_before_time(self):
+        """compare to a time before the range."""
+        pass
+
+    def test_compare_during_range(self):
+        """compare to a time during the time."""
+        pass
+
+    def test_compare_after_range(self):
+        """compare to a time after the range."""
+        pass
+
+    def test_non_intersection(self):
+        """compare if the ranges don't intersect."""
+        pass
+
+    def test_new_from_intersection(self):
+        """new range if the ranges intersect."""
+        pass
+
+    def test_new_from_surround(self):
+        """new range if one range surrounds another."""
+        pass
+
+
+class TestTimeRangeMutation(BaseTestTimeRange):
+    """
+    Test mutating TimeRange objects.
+    """
+    def test_mutation_new_range(self):
+        """mutate to new range"""
+
+        rang = self.canned_range
+
+        new_end = self.test_end_ts - datetime.timedelta(hours=1)
+        new_range = rang.set_end(new_end)
+
+        self.assertEqual(rang.begin(), new_range.begin())
+        self.assertNotEqual(rang.end(), new_range.end())
+        self.assertEqual(new_range.end(), new_end)
 
 if __name__ == '__main__':
     unittest.main()
