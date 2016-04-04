@@ -196,49 +196,124 @@ class TestTimeRangeComparison(BaseTestTimeRange):
     Test mutating and comparing TimeRange objects. Crib the values from
     the original javascript tests to make sure we're comparing the same stuff.
     """
+
+    def _strp(self, dstr):  # pylint: disable=no-self-use
+        fmt = '%Y-%m-%d %H:%M'
+        return datetime.datetime.strptime(dstr, fmt)
+
     def test_equality(self):
         """compare time ranges to check equality."""
-        pass
+        taa = self._strp("2010-01-01 12:00")
+        tbb = self._strp("2010-02-01 12:00")
+        print taa, tbb
+        tcc = self._strp("2010-01-01 12:00")
+        tdd = self._strp("2010-02-01 12:00")
+        print tcc, tdd
+        # range2 = new TimeRange(tc, td);
+        tee = self._strp("2012-03-01 12:00")
+        tff = self._strp("2012-04-02 12:00")
+        print tee, tff
 
     def test_overlap_non_overlap(self):
         """compare overlap to a non-overlapping range"""
-        pass
+        taa = self._strp("2010-01-01 12:00")
+        tbb = self._strp("2010-02-01 12:00")
+        print taa, tbb
+        tcc = self._strp("2010-03-01 12:00")
+        tdd = self._strp("2010-04-01 12:00")
+        print tcc, tdd
 
     def test_overlap_overlap(self):
         """compare overlap to an overlapping range"""
-        pass
+        taa = self._strp("2010-01-01 12:00")
+        tbb = self._strp("2010-09-01 12:00")
+        print taa, tbb
+        tcc = self._strp("2010-08-01 12:00")
+        tdd = self._strp("2010-11-01 12:00")
+        print tcc, tdd
 
     def test_contain_complete_contain(self):
         """compare for containment to a completely contained range."""
-        pass
+        taa = self._strp("2010-01-01 12:00")
+        tbb = self._strp("2010-09-01 12:00")
+        print taa, tbb
+        tcc = self._strp("2010-03-01 12:00")
+        tdd = self._strp("2010-06-01 12:00")
+        print tcc, tdd
 
     def test_containment_to_overlap(self):
         """compare for containment to an overlapping range."""
-        pass
+        taa = self._strp("2010-01-01 12:00")
+        tbb = self._strp("2010-09-01 12:00")
+        print taa, tbb
+        tcc = self._strp("2010-06-01 12:00")
+        tdd = self._strp("2010-12-01 12:00")
+        print tcc, tdd
 
     def test_compare_before_time(self):
         """compare to a time before the range."""
-        pass
+        taa = self._strp("2010-06-01 12:00")
+        tbb = self._strp("2010-08-01 12:00")
+        print taa, tbb
+
+        before = self._strp("2010-01-15 12:00")
+        print before
 
     def test_compare_during_range(self):
         """compare to a time during the time."""
-        pass
+        taa = self._strp("2010-06-01 12:00")
+        tbb = self._strp("2010-08-01 12:00")
+        print taa, tbb
+
+        during = self._strp("2010-07-15 12:00")
+        print during
 
     def test_compare_after_range(self):
         """compare to a time after the range."""
-        pass
+        taa = self._strp("2010-06-01 12:00")
+        tbb = self._strp("2010-08-01 12:00")
+        print taa, tbb
+
+        after = self._strp("2010-12-15 12:00")
+        print after
 
     def test_non_intersection(self):
         """compare if the ranges don't intersect."""
-        pass
+        # Two non-overlapping ranges: intersect() returns undefined
+        begin_time = self._strp("2010-01-01 12:00")
+        end_time = self._strp("2010-06-01 12:00")
+        print begin_time, end_time
+        # range = new TimeRange(beginTime, endTime);
+        begin_time_outside = self._strp("2010-07-15 12:00")
+        end_time_outside = self._strp("2010-08-15 12:00")
+        print begin_time_outside, end_time_outside
+        # rangeOutside = new TimeRange(beginTimeOutside, endTimeOutside);
 
     def test_new_from_intersection(self):
         """new range if the ranges intersect."""
-        pass
+        # Two overlapping ranges: intersect() returns
+        #    01 -------06       range
+        #           05-----07   rangeOverlap
+        #           05-06       intersection
+        begin_time = self._strp("2010-01-01 12:00")
+        end_time = self._strp("2010-06-01 12:00")
+        print begin_time, end_time
+        begin_time_overlap = self._strp("2010-05-01 12:00")
+        end_time_overlap = self._strp("2010-07-01 12:00")
+        print begin_time_overlap, end_time_overlap
 
     def test_new_from_surround(self):
         """new range if one range surrounds another."""
-        pass
+        # One range fully inside the other intersect() returns the smaller range
+        #    01 -------06    range
+        #       02--04       rangeInside
+        #       02--04       intersection
+        begin_time = self._strp("2010-01-01 12:00")
+        end_time = self._strp("2010-06-01 12:00")
+        print begin_time, end_time
+        begin_time_inside = self._strp("2010-02-01 12:00")
+        end_time_inside = self._strp("2010-04-01 12:00")
+        print begin_time_inside, end_time_inside
 
 
 class TestTimeRangeMutation(BaseTestTimeRange):
