@@ -290,7 +290,24 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         Merge a list of TimeRangeEvent objects.
         """
-        raise NotImplementedError
+
+        ts_ref = events[0].timerange()
+        new_data = dict()
+
+        for i in events:
+            if not isinstance(i, TimeRangeEvent):
+                raise EventException('Events being merged must have the same type.')
+
+            if i.timerange() != ts_ref:
+                raise EventException('Events being merged need the same timestamp.')
+
+            for k, v in i.data().items():
+                if i in new_data:
+                    raise EventException(
+                        'Events being merged can not have the same key {key}'.format(key=k))
+                new_data[k] = v
+
+        return TimeRangeEvent(ts_ref, new_data)
 
     @staticmethod
     def merge_indexed_events(events):
@@ -318,7 +335,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         if isinstance(events[0], Event):
             return Event.merge_events(events)
         elif isinstance(events[0], TimeRangeEvent):
-            raise NotImplementedError
+            return Event.merge_timerange_events(events)
         elif isinstance(events[0], IndexedEvent):
             raise NotImplementedError
 
@@ -527,15 +544,15 @@ class TimeRangeEvent(EventBase):
 
     def timerange_as_utc_string(self):
         """The timerange of this data, in UTC time, as a string."""
-        raise NotImplementedError
+        return self.timerange().to_utc_string()
 
     def timerange_as_local_string(self):
         """The timerange of this data, in Local time, as a string."""
-        raise NotImplementedError
+        return self.timerange().to_local_string()
 
     def timestamp(self):
         """The timestamp of this data"""
-        raise NotImplementedError
+        return self.begin()
 
     def timerange(self):
         """The TimeRange of this data."""
@@ -543,56 +560,49 @@ class TimeRangeEvent(EventBase):
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp"""
-        raise NotImplementedError
+        return self.timerange().begin()
 
     def end(self):
         """The end time of this Event, which will be just the timestamp"""
-        raise NotImplementedError
+        return self.timerange().end()
 
     def data(self):
         """Direct access to the event data. The result will be an Immutable.Map."""
         return self._d.get('data')
 
-    def key(self):
-        """Access the event groupBy key"""
-        raise NotImplementedError
-
     # data setters, returns new object
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
-        raise NotImplementedError
-
-    def set_key(self, key):
-        """
-        Sets the groupBy Key and returns a new Event
-        """
-        raise NotImplementedError
+        _dnew = self._d.set('data', self.data_from_arg(data))
+        return TimeRangeEvent(_dnew)
 
     def get(self, field_spec='value'):
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b"
+        A fieldSpec could be "a.b" or it could be ['a', 'b'].
 
         The field spec can have an arbitrary number of "parts."
-
-        Peter orginally did this:
-        const value = fieldSpec.split(".").reduce((o, i) => o[i], eventData);
         """
-        raise NotImplementedError
+        if isinstance(field_spec, str):
+            path = field_spec.split('.')  # pylint: disable=no-member
+        elif isinstance(field_spec, list):
+            path = field_spec
+
+        return reduce(dict.get, path, thaw(self.data()))
 
     def value(self, field_spec):
         """
         Alias for get()
         """
-        raise NotImplementedError
+        return self.get(field_spec)
 
     # Humanize
 
     def humanize_duration(self):
         """Humanize the timerange."""
-        raise NotImplementedError
+        return self.timerange().humanize_duration()
 
     def __str__(self):
         """call to_string()"""

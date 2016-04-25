@@ -10,7 +10,8 @@ import unittest
 from pyrsistent import freeze, thaw
 
 from pypond.event import Event, TimeRangeEvent
-from pypond.exceptions import EventException, TimeRangeException
+from pypond.range import TimeRange
+from pypond.exceptions import EventException
 from pypond.util import aware_utcnow, ms_from_dt
 from pypond.functions import Functions
 
@@ -49,6 +50,20 @@ class BaseTestEvent(unittest.TestCase):
 
         if dtime:
             self.assertEqual(event.timestamp(), dtime)
+
+    def _test_deep_get(self, event):
+        """Check deep data get() operations."""
+        # check using field.spec.notation
+        self.assertEqual(event.get('NorthRoute.out'), DEEP_EVENT_DATA.get('NorthRoute').get('out'))
+        # test alias function as well
+        self.assertEqual(event.value('SouthRoute.in'), DEEP_EVENT_DATA.get('SouthRoute').get('in'))
+
+        # same tests but using new array method.
+        self.assertEqual(event.get(['NorthRoute', 'out']),
+                         DEEP_EVENT_DATA.get('NorthRoute').get('out'))
+        # test alias function as well
+        self.assertEqual(event.value(['SouthRoute', 'in']),
+                         DEEP_EVENT_DATA.get('SouthRoute').get('in'))
 
 
 class TestRegularEventCreation(BaseTestEvent):
@@ -100,17 +115,7 @@ class TestRegularEventAccess(BaseTestEvent):
         """create a regular Event with deep data and test get/field_spec query."""
         event = self._create_event(self.aware_ts, DEEP_EVENT_DATA)
 
-        # check using field.spec.notation
-        self.assertEqual(event.get('NorthRoute.out'), DEEP_EVENT_DATA.get('NorthRoute').get('out'))
-        # test alias function as well
-        self.assertEqual(event.value('SouthRoute.in'), DEEP_EVENT_DATA.get('SouthRoute').get('in'))
-
-        # same tests but using new array method.
-        self.assertEqual(event.get(['NorthRoute', 'out']),
-                         DEEP_EVENT_DATA.get('NorthRoute').get('out'))
-        # test alias function as well
-        self.assertEqual(event.value(['SouthRoute', 'in']),
-                         DEEP_EVENT_DATA.get('SouthRoute').get('in'))
+        self._test_deep_get(event)
 
     def test_regular_deep_set_new_data(self):
         """create a regular Event with deep data and set new data/receive new object."""
@@ -317,6 +322,8 @@ class TestTimeRangeEvent(BaseTestEvent):
         self.test_end_ms = ms_from_dt(self.test_end_ts)
         self.test_begin_ms = ms_from_dt(self.test_begin_ts)
 
+        self.canned_time_range = TimeRangeEvent((self.test_begin_ms, self.test_end_ms), 11)
+
     def test_constructor(self):
         """test creating TimeRangeEvents and basic accessors."""
 
@@ -344,6 +351,43 @@ class TestTimeRangeEvent(BaseTestEvent):
         with self.assertRaises(EventException):
             TimeRangeEvent(self.canned_event)
 
+    def test_time_range_event_merge(self):
+        """Test merging."""
+
+        t_range = TimeRange(self.test_begin_ts, self.test_end_ts)
+        tr1 = TimeRangeEvent(t_range, dict(a=5, b=6))
+        tr2 = TimeRangeEvent(t_range, dict(c=2))
+
+        merged = Event.merge([tr1, tr2])
+
+        self.assertEqual(merged.get('a'), 5)
+        self.assertEqual(merged.get('b'), 6)
+        self.assertEqual(merged.get('c'), 2)
+
+    def test_ts_getters(self):
+        """Test the accessors for the underlying TimeRange."""
+        ctr = self.canned_time_range
+        self.assertEqual(ctr.begin(), self.test_begin_ts)
+        self.assertEqual(ctr.end(), self.test_end_ts)
+        self.assertEqual(ctr.begin(), ctr.timestamp())
+        self.assertEqual(ctr.humanize_duration(), '12 hours')
+
+    def test_deep_get(self):
+        """Test the deep field_spec gets."""
+
+        tre = TimeRangeEvent((self.test_begin_ms, self.test_end_ms), DEEP_EVENT_DATA)
+
+        self._test_deep_get(tre)
+
+    def test_data_setters(self):
+        """Test the mutators."""
+        ctr = self.canned_time_range
+
+        new_value = 22
+
+        new_range = ctr.set_data(new_value)
+        self.assertEqual(new_range.data(), dict(value=new_value))
+        self.assertEqual(new_range.to_point()[1][0], new_value)
 
 if __name__ == '__main__':
     unittest.main()
