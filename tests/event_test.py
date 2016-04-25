@@ -340,6 +340,10 @@ class TestTimeRangeEvent(BaseTestEvent):
         self.assertEqual(tr4.to_json().get('data'), dict(value=2323))
         self.assertEqual(tr4.to_point()[1][0], 2323)
 
+        # bad copy arg
+        with self.assertRaises(EventException):
+            TimeRangeEvent(self.canned_event)
+
 
 if __name__ == '__main__':
     unittest.main()
