@@ -389,7 +389,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
          3am    1    2
          4am    3    4
 
-        Mapper result:  { in: [1, 3], out: [2, 4]}
+        Mapper result:  {in: [1, 3], out: [2, 4]}
         """
         result = dict()
 

@@ -53,7 +53,7 @@ def to_milliseconds(dtime):
 
     return dtime.replace(millisecond=round(dt.millisecond, -3))
 
-    produced inconsistent results because of the roundingand I'm not
+    produced inconsistent results because of the rounding and I'm not
     going to start treating numbers like strings.
     """
     if dtime.microsecond % 1000 != 0:
@@ -116,9 +116,9 @@ def sanitize_dt(dtime, testing=False):
 def monthdelta(date, delta):
     """because we wish datetime.timedelta had a month kwarg.
 
-    http://stackoverflow.com/a/3425124/3916180
+    Courtesy of: http://stackoverflow.com/a/3425124/3916180
     """
-    month, year = (date.month+delta) % 12, date.year + ((date.month)+delta-1) // 12
+    month, year = (date.month + delta) % 12, date.year + ((date.month) + delta - 1) // 12
     if not month:
         month = 12
     day = min(date.day, [31, 29 if year % 4 == 0 and not year % 400 == 0 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])  # pylint: disable=line-too-long
