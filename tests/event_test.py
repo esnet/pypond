@@ -9,9 +9,9 @@ import unittest
 # prefer freeze over the data type specific functions
 from pyrsistent import freeze, thaw
 
-from pypond.event import Event
-from pypond.exceptions import EventException
-from pypond.util import aware_utcnow
+from pypond.event import Event, TimeRangeEvent
+from pypond.exceptions import EventException, TimeRangeException
+from pypond.util import aware_utcnow, ms_from_dt
 from pypond.functions import Functions
 
 DEEP_EVENT_DATA = {
@@ -303,6 +303,43 @@ class TestEventMapReduceCombine(BaseTestEvent):
         self.assertEqual(result[0].get('a'), 8)
         self.assertIsNone(result[0].get('b'))
         self.assertEqual(result[0].get('c'), 14)
+
+
+class TestTimeRangeEvent(BaseTestEvent):
+    """
+    Tests for the TimeRangeEvent class.
+    """
+    def setUp(self):
+        super(TestTimeRangeEvent, self).setUp()
+
+        self.test_end_ts = aware_utcnow()
+        self.test_begin_ts = self.test_end_ts - datetime.timedelta(hours=12)
+        self.test_end_ms = ms_from_dt(self.test_end_ts)
+        self.test_begin_ms = ms_from_dt(self.test_begin_ts)
+
+    def test_constructor(self):
+        """test creating TimeRangeEvents and basic accessors."""
+
+        # create with ms timestamps/tuple
+        tr1 = TimeRangeEvent((self.test_begin_ms, self.test_end_ms), 23)
+        self.assertEqual(tr1.data(), dict(value=23))
+        self.assertEqual(tr1.to_point()[1][0], 23)
+
+        # create with datetime/list
+        tr2 = TimeRangeEvent([self.test_begin_ts, self.test_end_ts], 2323)
+        self.assertEqual(tr2.to_json().get('data'), dict(value=2323))
+        self.assertEqual(tr2.to_point()[1][0], 2323)
+
+        # copy constructor
+        tr3 = TimeRangeEvent(tr1)
+        self.assertEqual(tr3.data(), dict(value=23))
+        self.assertEqual(tr3.to_point()[1][0], 23)
+
+        # borrow a pmap from another instance
+        tr4 = TimeRangeEvent(tr2._d)  # pylint: disable=protected-access
+        self.assertEqual(tr4.to_json().get('data'), dict(value=2323))
+        self.assertEqual(tr4.to_point()[1][0], 2323)
+
 
 if __name__ == '__main__':
     unittest.main()

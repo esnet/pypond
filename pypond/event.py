@@ -11,6 +11,7 @@ import json
 from pyrsistent import thaw, freeze
 
 from .exceptions import EventException, NAIVE_MESSAGE
+from .range import TimeRange
 from .functions import Functions
 from .util import (
     dt_from_ms,
@@ -19,6 +20,7 @@ from .util import (
     is_function,
     is_nan,
     is_pmap,
+    is_pvector,
     ms_from_dt,
     sanitize_dt,
 )
@@ -44,7 +46,12 @@ class EventBase(object):
     @staticmethod
     def timerange_from_arg(arg):
         """extract timerange from a constructor arg."""
-        raise NotImplementedError
+        if isinstance(arg, TimeRange):
+            return arg
+        elif isinstance(arg, (list, tuple)) or is_pvector(arg):
+            return TimeRange(arg)
+        else:
+            raise EventException('Unable to create TimeRange out of arg {arg}'.format(arg=arg))
 
     @staticmethod
     def index_from_arg(arg):
@@ -447,25 +454,43 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
 class TimeRangeEvent(EventBase):
     """
-    Associates a TimeRange with some data.
+    The creation of an TimeRangeEvent is done by combining two parts:
+    the timerange and the data.
 
-        constructor(arg1, arg2, arg3) {
-        if (arg1 instanceof TimeRangeEvent) {
-            const other = arg1;
-            this._d = other._d;
-            return;
-        }
-        const range = timeRangeFromArg(arg1);
-        const data = dataFromArg(arg2);
-        const key = keyFromArg(arg3);
-        this._d = new Immutable.Map({range, data, key});
+    To construct you specify a TimeRange, along with the data.
+
+    The first arg can be:
+        - a TimeRangeEvent instance (copy ctor)
+        - a pyrsistent.PMap, or
+        - A python tuple, list or pyrsistent.PVector object containing two
+            python datetime objects or ms timestamps - the args for the
+            TimeRange object.
+
+    To specify the data you can supply either:
+        - a python dict
+        - a pyrsistent.PMap, or
+        - a simple type such as an integer. In the case of the simple type
+            this is a shorthand for supplying {"value": v}.
     }
     """
-    def __init__(self):
+    def __init__(self, instance_or_args, arg2=None):
         """
         Create a time range event.
         """
-        raise NotImplementedError
+        # pylint doesn't like self._d but be consistent w/original code.
+        # pylint: disable=invalid-name
+
+        if isinstance(instance_or_args, TimeRangeEvent):
+            self._d = instance_or_args._d  # pylint: disable=protected-access
+            return
+        elif is_pmap(instance_or_args):
+            self._d = instance_or_args
+            return
+
+        rng = self.timerange_from_arg(instance_or_args)
+        data = self.data_from_arg(arg2)
+
+        self._d = freeze(dict(range=rng, data=data))
 
         # Query/accessor methods
 
@@ -476,7 +501,10 @@ class TimeRangeEvent(EventBase):
 
         This is actually like json.loads(s) - produces the
         actual vanilla data structure."""
-        raise NotImplementedError
+        return dict(
+            timerange=self.timerange().to_json(),
+            data=thaw(self.data()),
+        )
 
     def to_string(self):
         """
@@ -485,14 +513,17 @@ class TimeRangeEvent(EventBase):
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        raise NotImplementedError
+        return json.dumps(self.to_json())
 
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         Doesn't include the groupByKey (key).
         """
-        raise NotImplementedError
+        return [
+            self.timerange().to_json(),
+            thaw(self.data()).values()
+        ]
 
     def timerange_as_utc_string(self):
         """The timerange of this data, in UTC time, as a string."""
@@ -508,7 +539,7 @@ class TimeRangeEvent(EventBase):
 
     def timerange(self):
         """The TimeRange of this data."""
-        raise NotImplementedError
+        return self._d.get('range')
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp"""
@@ -520,7 +551,7 @@ class TimeRangeEvent(EventBase):
 
     def data(self):
         """Direct access to the event data. The result will be an Immutable.Map."""
-        raise NotImplementedError
+        return self._d.get('data')
 
     def key(self):
         """Access the event groupBy key"""
@@ -565,7 +596,7 @@ class TimeRangeEvent(EventBase):
 
     def __str__(self):
         """call to_string()"""
-        raise NotImplementedError
+        return self.to_string()
 
 
 class IndexedEvent(EventBase):
