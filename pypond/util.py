@@ -19,7 +19,7 @@ from pypond.exceptions import UtilityException, UtilityWarning
 
 EPOCH = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=pytz.UTC)
 LOCAL_TZ = tzlocal.get_localzone()
-HUMAN_FORMAT = '%b %-d, %Y %I:%M:%S %p'
+HUMAN_FORMAT = '%a, %d %b %Y %H:%M:%S %Z'
 
 
 def dt_is_aware(dtime):
@@ -135,6 +135,7 @@ def format_dt(dtime, localize=False):
     _check_dt(dtime)
 
     base_format = '%c %Z %z'
+    base_format = HUMAN_FORMAT
 
     if not localize:
         return dtime.strftime(base_format)
