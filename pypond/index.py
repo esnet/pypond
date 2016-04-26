@@ -4,8 +4,73 @@ Implementation of Pond Index class.
 http://software.es.net/pond/#/index
 """
 
+import re
 
-class Index(object):
+from pypond.exceptions import IndexException
+from pypond.range import TimeRange
+from pypond.util import dt_from_ms, localtime_from_ms
+
+
+class IndexBase(object):
+    """Base / static util methods for Index class."""
+
+    units = dict(
+        s=dict(label='seconds', length=1),
+        m=dict(label='minutes', length=60),
+        h=dict(label='hours', length=3600),
+        d=dict(label='days', length=86400),
+    )
+
+    @staticmethod
+    def range_from_index_string(s, is_utc=True):  # pylint: disable=invalid-name
+        """
+        Generate the time range from the idx string.
+        """
+        parts = s.split('-')
+        num_parts = len(parts)
+
+        begin_time = None
+        end_time = None
+
+        if num_parts == 3:
+            pass
+        elif num_parts == 2:
+
+            range_re = re.match('([0-9]+)([smhd])', s)
+
+            if range_re:
+
+                try:
+                    pos = int(parts[1])
+                    num = int(range_re.group(1))
+                except ValueError:
+                    msg = 'unable to parse valid integers from {s}'.format(s=s)
+                    msg += 'tried elements {pos} and {num}'.format(
+                        pos=parts[1], num=range_re.group(1))
+                    raise IndexException(msg)
+
+                unit = range_re.group(2)
+                length = num * IndexBase.units[unit].get('length') * 1000
+
+                begin_time = dt_from_ms(pos * length) if is_utc else \
+                    localtime_from_ms(pos * length)
+
+                end_time = dt_from_ms((pos + 1) * length) if is_utc else \
+                    localtime_from_ms((pos + 1) * length)
+
+            else:
+                print 'month'
+
+        elif num_parts == 1:
+            pass
+
+        if begin_time and end_time:
+            return TimeRange(begin_time, end_time)
+        else:
+            return None
+
+
+class Index(IndexBase):
     """
     An index that represents as a string a range of time. That range may either
     be in UTC or local time. UTC is the default.
@@ -18,9 +83,12 @@ class Index(object):
     toNiceString(format) (e.g. March, 2015).
     """
 
-    def __init__(self, s, utc):
+    def __init__(self, s, utc=True):
         """Create the Index."""
-        raise NotImplementedError
+
+        self._utc = utc
+        self._string = s
+        self._timerange = self.range_from_index_string(self._string, self._utc)
 
     def to_json(self):
         """
@@ -53,7 +121,7 @@ class Index(object):
 
     def as_timerange(self):
         """Returns the Index as a TimeRange"""
-        raise NotImplementedError
+        return self._timerange
 
     def begin(self):
         """Returns start date of the index."""

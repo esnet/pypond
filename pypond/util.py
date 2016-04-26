@@ -40,6 +40,11 @@ def dt_from_ms(msec):
     return EPOCH + datetime.timedelta(milliseconds=msec)
 
 
+def localtime_from_ms(msec):
+    """generate an aware localtime datetime object from ms"""
+    return datetime.datetime.fromtimestamp(msec / 1000.0).replace(tzinfo=LOCAL_TZ)
+
+
 # The awareness check on these functions is a dev bulletproofing maneuver.
 # Introduction of naive datetime objects should be stopped by a check
 # in an individual class (ie: Event, etc) and the class specific
