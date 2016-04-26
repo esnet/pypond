@@ -134,7 +134,7 @@ def format_dt(dtime, localize=False):
     """Format for human readable output."""
     _check_dt(dtime)
 
-    base_format = '%c %Z %z'
+    # base_format = '%c %Z %z'
     base_format = HUMAN_FORMAT
 
     if not localize:
