@@ -4,6 +4,7 @@ Implementation of Pond Index class.
 http://software.es.net/pond/#/index
 """
 
+import copy
 import datetime
 import re
 
@@ -215,23 +216,35 @@ class Index(object):
     # Static class methods
 
     @staticmethod
-    def get_index_string(win, date):
-        """ TBA """
-        raise NotImplementedError
+    def window_duration(win):
+        """duration in ms given a window duration string."""
+        pass
 
     @staticmethod
-    def get_bucket(win, date, key):
-        """ TBA """
-        raise NotImplementedError
+    def window_position_from_date(win, date):
+        """window position from date."""
+        pass
+
+    @staticmethod
+    def get_index_string(win, date):
+        """return the index string"""
+        pos = Index.window_position_from_date(win, date)
+        return '{win}-{pos}'.format(win=win, pos=pos)
 
     @staticmethod
     def get_index_string_list(win, timerange):
         """ TBA """
-        raise NotImplementedError
+        pos1 = Index.window_position_from_date(win, timerange.begin())
+        pos2 = Index.window_position_from_date(win, timerange.end())
 
-    @staticmethod
-    def get_bucket_list(win, timerange, key):
-        """ TBA """
-        raise NotImplementedError
+        idx_list = list()
+
+        if pos1 <= pos2:
+            pos = copy.copy(pos1)
+            while pos <= pos2:
+                idx_list.append('{win}-{pos}'.format(win=win, pos=pos))
+                pos += 1
+
+        return idx_list
 
 
