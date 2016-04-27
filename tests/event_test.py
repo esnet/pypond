@@ -9,11 +9,12 @@ import unittest
 # prefer freeze over the data type specific functions
 from pyrsistent import freeze, thaw
 
-from pypond.event import Event, TimeRangeEvent
-from pypond.range import TimeRange
+from pypond.event import Event, TimeRangeEvent, IndexedEvent
 from pypond.exceptions import EventException
-from pypond.util import aware_utcnow, ms_from_dt
 from pypond.functions import Functions
+from pypond.index import Index
+from pypond.range import TimeRange
+from pypond.util import aware_utcnow, ms_from_dt
 
 DEEP_EVENT_DATA = {
     'NorthRoute': {
@@ -308,6 +309,49 @@ class TestEventMapReduceCombine(BaseTestEvent):
         self.assertEqual(result[0].get('a'), 8)
         self.assertIsNone(result[0].get('b'))
         self.assertEqual(result[0].get('c'), 14)
+
+
+class TestIndexedEvent(BaseTestEvent):
+    """
+    Tests for the IndexedEvent class
+    """
+    def test_indexed_event_create(self):
+        """test indexed event creation."""
+
+        # creation with args
+        ie1 = IndexedEvent('1d-12355', {'value': 42})
+        self.assertEquals(
+            ie1.timerange_as_utc_string(),
+            '[Thu, 30 Oct 2003 00:00:00 UTC, Fri, 31 Oct 2003 00:00:00 UTC]')
+        self.assertEquals(ie1.get('value'), 42)
+
+        # creation with Index
+        idx = Index('1d-12355')
+        ie2 = IndexedEvent(idx, dict(value=42))
+
+        self.assertEqual(
+            ie2.timerange_as_utc_string(),
+            '[Thu, 30 Oct 2003 00:00:00 UTC, Fri, 31 Oct 2003 00:00:00 UTC]')
+        self.assertEquals(ie1.get('value'), 42)
+
+    def test_indexed_event_merge(self):
+        """test merging indexed events."""
+
+        index = '1h-396206'
+        event1 = IndexedEvent(index, {'a': 5, 'b': 6})
+        event2 = IndexedEvent(index, {'c': 2})
+        merged = Event.merge([event1, event2])
+
+        self.assertEquals(merged.get('a'), 5)
+        self.assertEquals(merged.get('b'), 6)
+        self.assertEquals(merged.get('c'), 2)
+
+    def test_i_event_deep_get(self):
+        """test.deep.get"""
+
+        idxe = IndexedEvent('1d-12355', DEEP_EVENT_DATA)
+
+        self._test_deep_get(idxe)
 
 
 class TestTimeRangeEvent(BaseTestEvent):

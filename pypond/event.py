@@ -12,6 +12,7 @@ from pyrsistent import thaw, freeze
 
 from .exceptions import EventException, NAIVE_MESSAGE
 from .range import TimeRange
+from .index import Index
 from .functions import Functions
 from .util import (
     dt_from_ms,
@@ -54,9 +55,16 @@ class EventBase(object):
             raise EventException('Unable to create TimeRange out of arg {arg}'.format(arg=arg))
 
     @staticmethod
-    def index_from_arg(arg):
+    def index_from_args(instance_or_index, utc=True):
         """extract index from a constructor arg."""
-        raise NotImplementedError
+        if isinstance(instance_or_index, str):
+            return Index(instance_or_index, utc)
+        elif isinstance(instance_or_index, Index):
+            return instance_or_index
+        else:
+            msg = 'can not get index from {arg} - must be a string or Index'.format(
+                arg=instance_or_index)
+            raise EventException(msg)
 
     @staticmethod
     def data_from_arg(arg):
@@ -314,7 +322,24 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         Merge a list of IndexedEvent objects.
         """
-        raise NotImplementedError
+        idx_ref = events[0].index_as_string()
+        new_data = dict()
+
+        for i in events:
+            if not isinstance(i, IndexedEvent):
+                raise EventException('Events being merged must have the same type.')
+
+            if idx_ref != i.index_as_string():
+                raise EventException('Events being merged need the same index.')
+
+            for k, v in i.to_json().get('data').items():
+                if k in new_data:
+                    raise EventException(
+                        'Events being merged can not have the same key {key}'.format(key=k))
+
+                new_data[k] = v
+
+        return IndexedEvent(idx_ref, new_data)
 
     @staticmethod
     def merge(events):
@@ -337,7 +362,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         elif isinstance(events[0], TimeRangeEvent):
             return Event.merge_timerange_events(events)
         elif isinstance(events[0], IndexedEvent):
-            raise NotImplementedError
+            return Event.merge_indexed_events(events)
 
     @staticmethod
     def combine(events, field_spec, reducer):
@@ -404,7 +429,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def map(events, field_spec=None):
         """
         Maps a list of events according to the selection
-        specification raise NotImplementedErrored in. The spec maybe a single
+        specification in. The spec may be a single
         field name, a list of field names, or a function
         that takes an event and returns a key/value pair.
 
@@ -577,7 +602,7 @@ class TimeRangeEvent(EventBase):
         _dnew = self._d.set('data', self.data_from_arg(data))
         return TimeRangeEvent(_dnew)
 
-    def get(self, field_spec='value'):
+    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
@@ -613,23 +638,36 @@ class IndexedEvent(EventBase):
     """
     Associates a time range specified as an index.
 
-        constructor(arg1, arg2, arg3, arg4) {
-        if (arg1 instanceof IndexedEvent) {
-            const other = arg1;
-            this._d = other._d;
-            return;
-        }
-        const index = indexFromArgs(arg1, arg3);
-        const data = dataFromArg(arg2);
-        const key = keyFromArg(arg4);
-        this._d = new Immutable.Map({index, data, key});
-    }
+    The creation of an IndexedEvent is done by combining two parts:
+    the Index and the data.
+
+    To construct you specify an Index, along with the data.
+
+    The index may be an Index, or a string.
+
+    To specify the data you can supply either:
+        - a python dict containing key values pairs
+        - an pyrsistent.pmap, or
+        - a simple type such as an integer. In the case of the simple type
+          this is a shorthand for supplying {"value": v}.
     """
-    def __init__(self):
+    def __init__(self, instance_or_begin, data=None, utc=True):
         """
         Create an indexed event.
         """
-        raise NotImplementedError
+        # pylint doesn't like self._d but be consistent w/original code.
+        # pylint: disable=invalid-name
+        if isinstance(instance_or_begin, IndexedEvent):
+            self._d = instance_or_begin._d  # pylint: disable=protected-access
+            return
+        elif is_pmap(instance_or_begin):
+            self._d = instance_or_begin
+            return
+
+        index = self.index_from_args(instance_or_begin, utc)
+        data = self.data_from_arg(data)
+
+        self._d = freeze(dict(index=index, data=data))
 
     def to_json(self):
         """
@@ -638,7 +676,10 @@ class IndexedEvent(EventBase):
 
         This is actually like json.loads(s) - produces the
         actual vanilla data structure."""
-        raise NotImplementedError
+        return dict(
+            index=self.index_as_string(),
+            data=thaw(self.data())
+        )
 
     def to_string(self):
         """
@@ -647,86 +688,82 @@ class IndexedEvent(EventBase):
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        raise NotImplementedError
+        return json.dumps(self.to_json())
 
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         Doesn't include the groupByKey (key).
         """
-        raise NotImplementedError
-
-    def timerange_as_utc_string(self):
-        """The timerange of this data, in UTC time, as a string."""
-        raise NotImplementedError
-
-    def timerange_as_local_string(self):
-        """The timerange of this data, in Local time, as a string."""
-        raise NotImplementedError
-
-    def timestamp(self):
-        """The timestamp of this data"""
-        raise NotImplementedError
-
-    def timerange(self):
-        """The TimeRange of this data."""
-        raise NotImplementedError
-
-    def begin(self):
-        """The begin time of this Event, which will be just the timestamp"""
-        raise NotImplementedError
-
-    def end(self):
-        """The end time of this Event, which will be just the timestamp"""
-        raise NotImplementedError
+        return [
+            self.index_as_string(),
+            thaw(self.data()).values()
+        ]
 
     def data(self):
         """Direct access to the event data. The result will be an Immutable.Map."""
-        raise NotImplementedError
+        return self._d.get('data')
 
-    def key(self):
-        """Access the event groupBy key"""
-        raise NotImplementedError
+    def index(self):
+        """Returns the Index associated with the data in this Event."""
+        return self._d.get('index')
+
+    def timerange(self):
+        """The TimeRange of this data."""
+        return self.index().as_timerange()
+
+    def timerange_as_utc_string(self):
+        """The timerange of this data, in UTC time, as a string."""
+        return self.timerange().to_utc_string()
+
+    def timerange_as_local_string(self):
+        """The timerange of this data, in Local time, as a string."""
+        return self.timerange().to_local_string()
+
+    def begin(self):
+        """The begin time of this Event, which will be just the timestamp"""
+        return self.timerange().begin()
+
+    def end(self):
+        """The end time of this Event, which will be just the timestamp"""
+        return self.timerange().end()
+
+    def timestamp(self):
+        """The timestamp of this data"""
+        return self.begin()
+
+    def index_as_string(self):
+        """Returns the Index as a string, same as event.index().toString()"""
+        return self.index().as_string()
+
+    def __str__(self):
+        """call to_string()"""
+        return self.to_string()
 
     # data setters, returns new object
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
-        raise NotImplementedError
+        new_d = self._d.set('data', self.data_from_arg(data))
+        return IndexedEvent(new_d)
 
-    def set_key(self, key):
-        """
-        Sets the groupBy Key and returns a new Event
-        """
-        raise NotImplementedError
-
-    def get(self, field_spec='value'):
+    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b"
+        A fieldSpec could be "a.b" or it could be ['a', 'b'].
 
         The field spec can have an arbitrary number of "parts."
-
-        Peter orginally did this:
-        const value = fieldSpec.split(".").reduce((o, i) => o[i], eventData);
         """
-        raise NotImplementedError
+        if isinstance(field_spec, str):
+            path = field_spec.split('.')  # pylint: disable=no-member
+        elif isinstance(field_spec, list):
+            path = field_spec
+
+        return reduce(dict.get, path, thaw(self.data()))
 
     def value(self, field_spec):
         """
         Alias for get()
         """
-        raise NotImplementedError
-
-    def index(self):
-        """Returns the Index associated with the data in this Event."""
-        raise NotImplementedError
-
-    def index_as_string(self):
-        """Returns the Index as a string, same as event.index().toString()"""
-        raise NotImplementedError
-
-    def __str__(self):
-        """call to_string()"""
-        raise NotImplementedError
+        return self.get(field_spec)
