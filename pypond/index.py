@@ -15,6 +15,7 @@ from pypond.util import (
     dt_from_ms,
     localtime_from_ms,
     monthdelta,
+    ms_from_dt,
 )
 
 
@@ -218,17 +219,36 @@ class Index(object):
     @staticmethod
     def window_duration(win):
         """duration in ms given a window duration string."""
-        pass
+        range_re = re.match('([0-9]+)([smhd])', win)
+
+        if range_re:
+            try:
+                num = int(range_re.group(1))
+            except TypeError:
+                msg = 'could not parse integer from {arg}'.format(arg=win)
+                raise IndexException(msg)
+
+            unit = range_re.group(2)
+
+            return num * UNITS[unit].get('length') * 1000
+
+        else:
+            return None
+
+    # XXX(mmg): need test cases for these methods and verification
+    # no examples of use from JS source.
 
     @staticmethod
-    def window_position_from_date(win, date):
-        """window position from date."""
-        pass
+    def window_position_from_date(win, dtime):
+        """window position from datetime object."""
+        duration = Index.window_duration(win)
+        ddms = ms_from_dt(dtime)
+        return int(ddms / duration)
 
     @staticmethod
-    def get_index_string(win, date):
+    def get_index_string(win, dtime):
         """return the index string"""
-        pos = Index.window_position_from_date(win, date)
+        pos = Index.window_position_from_date(win, dtime)
         return '{win}-{pos}'.format(win=win, pos=pos)
 
     @staticmethod

@@ -76,6 +76,15 @@ class TestIndexCreation(BaseTestIndex):
             day_idx.as_timerange().to_utc_string(),
             '[Wed, 17 Sep 2014 00:00:00 UTC, Wed, 17 Sep 2014 23:59:59 UTC]')
 
+    def test_window_duration(self):
+        """test window duration utility method - index window to ms."""
+
+        self.assertEquals(Index.window_duration(self._30_sec_index), 30000)
+
+        self.assertEquals(Index.window_duration(self._5_min_index), 300000)
+
+        self.assertEquals(Index.window_duration(self._year_index), None)
+
     def test_nice_string(self):
         """test the nice string method."""
 
