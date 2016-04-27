@@ -26,7 +26,7 @@ class TestIndexCreation(BaseTestIndex):
     Test variations of Event object creation.
     """
     def test_create(self):
-        """"Test index constructor args/etc."""
+        """test index constructor args and underlying TimeRange."""
 
         # a daily index
         daily_idx = Index(self._daily_index)
@@ -72,7 +72,29 @@ class TestIndexCreation(BaseTestIndex):
 
         # day index
         day_idx = Index(self._day_index)
-        print day_idx.as_timerange().to_utc_string()
+        self.assertEquals(
+            day_idx.as_timerange().to_utc_string(),
+            '[Wed, 17 Sep 2014 00:00:00 UTC, Wed, 17 Sep 2014 23:59:59 UTC]')
+
+    def test_nice_string(self):
+        """test the nice string method."""
+
+        # year index
+        year_idx = Index(self._year_index)
+        self.assertEquals(year_idx.to_nice_string(), '2014')
+
+        # month index
+        month_idx = Index(self._month_index)
+        self.assertEquals(month_idx.to_nice_string(), 'September')
+
+        # day index w/ and w/out formatting
+        day_idx = Index(self._day_index)
+        self.assertEquals(day_idx.to_nice_string(), 'September 17 2014')
+        self.assertEquals(day_idx.to_nice_string('%-d %b %Y'), '17 Sep 2014')
+
+        # index index
+        idx_idx = Index(self._30_sec_index)
+        self.assertEquals(idx_idx.to_nice_string(), self._30_sec_index)
 
 if __name__ == '__main__':
     unittest.main()

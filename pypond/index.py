@@ -17,117 +17,15 @@ from pypond.util import (
 )
 
 
-class IndexBase(object):
-    """Base / static util methods for Index class."""
-
-    units = dict(
-        s=dict(label='seconds', length=1),
-        m=dict(label='minutes', length=60),
-        h=dict(label='hours', length=3600),
-        d=dict(label='days', length=86400),
-    )
-
-    @staticmethod
-    def range_from_index_string(s, is_utc=True):  # pylint: disable=invalid-name, too-many-locals
-        """
-        Generate the time range from the idx string.
-
-        This function will take an index, which may be of two forms:
-            2015-07-14  (day)
-            2015-07     (month)
-            2015        (year)
-        or:
-            1d-278      (range, in n x days, hours, minutes or seconds)
-
-        and return a TimeRange for that time. The TimeRange may be considered to be
-        local time or UTC time, depending on the utc flag passed in.
-        """
-        parts = s.split('-')
-        num_parts = len(parts)
-
-        begin_time = None
-        end_time = None
-
-        local = False if is_utc else True
-
-        if num_parts == 3:
-            # 2015-07-14  (day)
-            try:
-                year = int(parts[0])
-                month = int(parts[1])
-                day = int(parts[2])
-            except ValueError:
-                msg = 'unable to parse integer year/month/day from {arg}'.format(arg=parts)
-
-            dtargs = dict(year=year, month=month, day=day)
-
-            begin_time = aware_dt_from_args(dtargs, localize=local)
-
-            end_time = (begin_time + datetime.timedelta(days=1)) - datetime.timedelta(seconds=1)
-
-        elif num_parts == 2:
-
-            range_re = re.match('([0-9]+)([smhd])', s)
-
-            if range_re:
-                # 1d-278      (range, in n x days, hours, minutes or seconds)
-
-                try:
-                    pos = int(parts[1])  # 1d-278 : 278
-                    num = int(range_re.group(1))  # 1d-278 : 1
-                except ValueError:
-                    msg = 'unable to parse valid integers from {s}'.format(s=s)
-                    msg += 'tried elements {pos} and {num}'.format(
-                        pos=parts[1], num=range_re.group(1))
-                    raise IndexException(msg)
-
-                unit = range_re.group(2)  # 1d-278 : d
-                # num day/hr/etc units * seconds in that unit * 1000
-                length = num * IndexBase.units[unit].get('length') * 1000
-
-                # pos * length = ms since epoch
-                begin_time = dt_from_ms(pos * length) if is_utc else \
-                    localtime_from_ms(pos * length)
-
-                # (pos + 1) * length is one hour/day/minute/etc later
-                end_time = dt_from_ms((pos + 1) * length) if is_utc else \
-                    localtime_from_ms((pos + 1) * length)
-
-            else:
-                # 2015-07     (month)
-                try:
-                    year = int(parts[0])
-                    month = int(parts[1])
-                except ValueError:
-                    msg = 'unable to parse integer year/month from {arg}'.format(arg=parts)
-
-                dtargs = dict(year=year, month=month, day=1)
-
-                begin_time = aware_dt_from_args(dtargs, localize=local)
-
-                end_time = monthdelta(begin_time, 1) - datetime.timedelta(seconds=1)
-
-        elif num_parts == 1:
-            # 2015        (year)
-            try:
-                year = int(parts[0])
-            except ValueError:
-                msg = 'unable to parse integer year from {arg}'.format(arg=parts[0])
-                raise IndexException(msg)
-
-            dtargs = dict(year=year, month=1, day=1)
-
-            begin_time = aware_dt_from_args(dtargs, localize=local)
-
-            end_time = begin_time.replace(year=year + 1) - datetime.timedelta(seconds=1)
-
-        if begin_time and end_time:
-            return TimeRange(begin_time, end_time)
-        else:
-            return None
+UNITS = dict(
+    s=dict(label='seconds', length=1),
+    m=dict(label='minutes', length=60),
+    h=dict(label='hours', length=3600),
+    d=dict(label='days', length=86400),
+)
 
 
-class Index(IndexBase):
+class Index(object):
     """
     An index that represents as a string a range of time. That range may either
     be in UTC or local time. UTC is the default.
@@ -145,7 +43,14 @@ class Index(IndexBase):
 
         self._utc = utc
         self._string = s
+        # keep track of what kind of index it is to simplify other things.
+        self._index_type = None
+
         self._timerange = self.range_from_index_string(self._string, self._utc)
+
+        if self._index_type is None:
+            raise IndexException('could not determine timerange/index type from {arg}'.format(
+                arg=s))
 
     def to_json(self):
         """
@@ -154,7 +59,7 @@ class Index(IndexBase):
 
         This is actually like json.loads(s) - produces the
         actual data structure."""
-        raise NotImplementedError
+        return self._string
 
     def to_string(self):
         """
@@ -162,19 +67,30 @@ class Index(IndexBase):
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        raise NotImplementedError
+        return self._string
 
-    def to_nice_string(self, fmt):
+    def to_nice_string(self, fmt=None):
         """
         for the calendar range style Indexes, this lets you return
         that calendar range as a human readable format, e.g. "June, 2014".
         The format specified is a Moment.format.
         """
-        raise NotImplementedError
+
+        if fmt is not None and self._index_type in ('day', 'month', 'year'):
+            return self.begin().strftime(fmt)
+
+        if self._index_type == 'day':
+            return self.begin().strftime('%B %-d %Y')
+        elif self._index_type == 'index':
+            return self._string
+        elif self._index_type == 'month':
+            return self.begin().strftime('%B')
+        elif self._index_type == 'year':
+            return self.begin().strftime('%Y')
 
     def as_string(self):
         """Alias for to_string()"""
-        raise NotImplementedError
+        return self.to_string()
 
     def as_timerange(self):
         """Returns the Index as a TimeRange"""
@@ -182,15 +98,119 @@ class Index(IndexBase):
 
     def begin(self):
         """Returns start date of the index."""
-        raise NotImplementedError
+        return self.as_timerange().begin()
 
     def end(self):
         """Returns end data of the index."""
-        raise NotImplementedError
+        return self.as_timerange().end()
 
     def __str__(self):
         """call to_string()"""
-        raise NotImplementedError
+        return self.to_string()
+
+    # utility methods
+
+    def range_from_index_string(self, idx_str, is_utc=True):  # pylint: disable=too-many-locals, too-many-statements
+        """
+        Generate the time range from the idx string.
+
+        This function will take an index, which may be of two forms:
+            2015-07-14  (day)
+            2015-07     (month)
+            2015        (year)
+        or:
+            1d-278      (range, in n x days, hours, minutes or seconds)
+
+        and return a TimeRange for that time. The TimeRange may be considered to be
+        local time or UTC time, depending on the utc flag passed in.
+        """
+        parts = idx_str.split('-')
+        num_parts = len(parts)
+
+        begin_time = None
+        end_time = None
+
+        local = False if is_utc else True
+
+        if num_parts == 3:
+            # 2015-07-14  (day)
+            self._index_type = 'day'
+            try:
+                year = int(parts[0])
+                month = int(parts[1])
+                day = int(parts[2])
+            except ValueError:
+                msg = 'unable to parse integer year/month/day from {arg}'.format(arg=parts)
+
+            dtargs = dict(year=year, month=month, day=day)
+
+            begin_time = aware_dt_from_args(dtargs, localize=local)
+
+            end_time = (begin_time + datetime.timedelta(days=1)) - datetime.timedelta(seconds=1)
+
+        elif num_parts == 2:
+
+            range_re = re.match('([0-9]+)([smhd])', idx_str)
+
+            if range_re:
+                # 1d-278      (range, in n x days, hours, minutes or seconds)
+                self._index_type = 'index'
+
+                try:
+                    pos = int(parts[1])  # 1d-278 : 278
+                    num = int(range_re.group(1))  # 1d-278 : 1
+                except ValueError:
+                    msg = 'unable to parse valid integers from {s}'.format(s=idx_str)
+                    msg += 'tried elements {pos} and {num}'.format(
+                        pos=parts[1], num=range_re.group(1))
+                    raise IndexException(msg)
+
+                unit = range_re.group(2)  # 1d-278 : d
+                # num day/hr/etc units * seconds in that unit * 1000
+                length = num * UNITS[unit].get('length') * 1000
+
+                # pos * length = ms since epoch
+                begin_time = dt_from_ms(pos * length) if is_utc else \
+                    localtime_from_ms(pos * length)
+
+                # (pos + 1) * length is one hour/day/minute/etc later
+                end_time = dt_from_ms((pos + 1) * length) if is_utc else \
+                    localtime_from_ms((pos + 1) * length)
+
+            else:
+                # 2015-07     (month)
+                self._index_type = 'month'
+                try:
+                    year = int(parts[0])
+                    month = int(parts[1])
+                except ValueError:
+                    msg = 'unable to parse integer year/month from {arg}'.format(arg=parts)
+
+                dtargs = dict(year=year, month=month, day=1)
+
+                begin_time = aware_dt_from_args(dtargs, localize=local)
+
+                end_time = monthdelta(begin_time, 1) - datetime.timedelta(seconds=1)
+
+        elif num_parts == 1:
+            # 2015        (year)
+            self._index_type = 'year'
+            try:
+                year = int(parts[0])
+            except ValueError:
+                msg = 'unable to parse integer year from {arg}'.format(arg=parts[0])
+                raise IndexException(msg)
+
+            dtargs = dict(year=year, month=1, day=1)
+
+            begin_time = aware_dt_from_args(dtargs, localize=local)
+
+            end_time = begin_time.replace(year=year + 1) - datetime.timedelta(seconds=1)
+
+        if begin_time and end_time:
+            return TimeRange(begin_time, end_time)
+        else:
+            return None
 
     # Static class methods
 
@@ -213,3 +233,5 @@ class Index(IndexBase):
     def get_bucket_list(win, timerange, key):
         """ TBA """
         raise NotImplementedError
+
+
