@@ -4,11 +4,17 @@ Implementation of Pond Index class.
 http://software.es.net/pond/#/index
 """
 
+import datetime
 import re
 
 from pypond.exceptions import IndexException
 from pypond.range import TimeRange
-from pypond.util import dt_from_ms, localtime_from_ms
+from pypond.util import (
+    aware_dt_from_args,
+    dt_from_ms,
+    localtime_from_ms,
+    monthdelta,
+)
 
 
 class IndexBase(object):
@@ -22,9 +28,19 @@ class IndexBase(object):
     )
 
     @staticmethod
-    def range_from_index_string(s, is_utc=True):  # pylint: disable=invalid-name
+    def range_from_index_string(s, is_utc=True):  # pylint: disable=invalid-name, too-many-locals
         """
         Generate the time range from the idx string.
+
+        This function will take an index, which may be of two forms:
+            2015-07-14  (day)
+            2015-07     (month)
+            2015        (year)
+        or:
+            1d-278      (range, in n x days, hours, minutes or seconds)
+
+        and return a TimeRange for that time. The TimeRange may be considered to be
+        local time or UTC time, depending on the utc flag passed in.
         """
         parts = s.split('-')
         num_parts = len(parts)
@@ -32,37 +48,78 @@ class IndexBase(object):
         begin_time = None
         end_time = None
 
+        local = False if is_utc else True
+
         if num_parts == 3:
-            pass
+            # 2015-07-14  (day)
+            try:
+                year = int(parts[0])
+                month = int(parts[1])
+                day = int(parts[2])
+            except ValueError:
+                msg = 'unable to parse integer year/month/day from {arg}'.format(arg=parts)
+
+            dtargs = dict(year=year, month=month, day=day)
+
+            begin_time = aware_dt_from_args(dtargs, localize=local)
+
+            end_time = (begin_time + datetime.timedelta(days=1)) - datetime.timedelta(seconds=1)
+
         elif num_parts == 2:
 
             range_re = re.match('([0-9]+)([smhd])', s)
 
             if range_re:
+                # 1d-278      (range, in n x days, hours, minutes or seconds)
 
                 try:
-                    pos = int(parts[1])
-                    num = int(range_re.group(1))
+                    pos = int(parts[1])  # 1d-278 : 278
+                    num = int(range_re.group(1))  # 1d-278 : 1
                 except ValueError:
                     msg = 'unable to parse valid integers from {s}'.format(s=s)
                     msg += 'tried elements {pos} and {num}'.format(
                         pos=parts[1], num=range_re.group(1))
                     raise IndexException(msg)
 
-                unit = range_re.group(2)
+                unit = range_re.group(2)  # 1d-278 : d
+                # num day/hr/etc units * seconds in that unit * 1000
                 length = num * IndexBase.units[unit].get('length') * 1000
 
+                # pos * length = ms since epoch
                 begin_time = dt_from_ms(pos * length) if is_utc else \
                     localtime_from_ms(pos * length)
 
+                # (pos + 1) * length is one hour/day/minute/etc later
                 end_time = dt_from_ms((pos + 1) * length) if is_utc else \
                     localtime_from_ms((pos + 1) * length)
 
             else:
-                print 'month'
+                # 2015-07     (month)
+                try:
+                    year = int(parts[0])
+                    month = int(parts[1])
+                except ValueError:
+                    msg = 'unable to parse integer year/month from {arg}'.format(arg=parts)
+
+                dtargs = dict(year=year, month=month, day=1)
+
+                begin_time = aware_dt_from_args(dtargs, localize=local)
+
+                end_time = monthdelta(begin_time, 1) - datetime.timedelta(seconds=1)
 
         elif num_parts == 1:
-            pass
+            # 2015        (year)
+            try:
+                year = int(parts[0])
+            except ValueError:
+                msg = 'unable to parse integer year from {arg}'.format(arg=parts[0])
+                raise IndexException(msg)
+
+            dtargs = dict(year=year, month=1, day=1)
+
+            begin_time = aware_dt_from_args(dtargs, localize=local)
+
+            end_time = begin_time.replace(year=year + 1) - datetime.timedelta(seconds=1)
 
         if begin_time and end_time:
             return TimeRange(begin_time, end_time)

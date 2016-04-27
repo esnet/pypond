@@ -45,6 +45,20 @@ def localtime_from_ms(msec):
     return datetime.datetime.fromtimestamp(msec / 1000.0).replace(tzinfo=LOCAL_TZ)
 
 
+def aware_dt_from_args(dtargs, localize=False):
+    """generate an aware datetime object using datetime.datetime kwargs."""
+
+    if not isinstance(dtargs, dict):
+        raise UtilityException('dtargs must be a dict')
+
+    if localize:
+        tz_info = LOCAL_TZ
+    else:
+        tz_info = pytz.UTC  # pylint: disable=redefined-variable-type
+
+    return datetime.datetime(**dtargs).replace(tzinfo=tz_info)
+
+
 # The awareness check on these functions is a dev bulletproofing maneuver.
 # Introduction of naive datetime objects should be stopped by a check
 # in an individual class (ie: Event, etc) and the class specific
