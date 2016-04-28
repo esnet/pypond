@@ -310,7 +310,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                 raise EventException('Events being merged need the same timestamp.')
 
             for k, v in i.data().items():
-                if i in new_data:
+                if k in new_data:
                     raise EventException(
                         'Events being merged can not have the same key {key}'.format(key=k))
                 new_data[k] = v
