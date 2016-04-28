@@ -2,15 +2,19 @@
 Tests for the util module.
 """
 import datetime
+import time
 import unittest
 
 import pytz
 
 from pypond.util import (
+    aware_dt_from_args,
     aware_utcnow,
     dt_from_ms,
     dt_is_aware,
     EPOCH,
+    localtime_from_ms,
+    monthdelta,
     ms_from_dt,
     sanitize_dt,
 )
@@ -124,6 +128,20 @@ class TestTime(unittest.TestCase):
         # test sanity check stopping naive datetime objects
         with self.assertRaises(UtilityException):
             sanitize_dt(self.naive)
+
+    def test_bad_args(self):
+        """Trigger errors for coverage."""
+        with self.assertRaises(UtilityException):
+            aware_dt_from_args(('year', 2015))
+
+        with self.assertRaises(UtilityException):
+            ms_from_dt(localtime_from_ms(time.time() * 1000))
+
+    def test_misc(self):
+        """random things for coverage."""
+        # work logic in monthdelta
+        dtime = datetime.datetime(year=2015, month=12, day=1)
+        self.assertEquals(monthdelta(dtime, 0), dtime)
 
 if __name__ == '__main__':
     unittest.main()
