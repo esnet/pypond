@@ -3,15 +3,24 @@ Tests for the TimeRange class
 """
 
 import datetime
-import unittest
+import re
 import time
+import unittest
 
 from pyrsistent import freeze
 import pytz
 
 from pypond.range import TimeRange
 from pypond.exceptions import TimeRangeException
-from pypond.util import aware_utcnow, ms_from_dt, to_milliseconds, EPOCH
+from pypond.util import (
+    aware_utcnow,
+    EPOCH,
+    HUMAN_FORMAT,
+    is_pvector,
+    LOCAL_TZ,
+    ms_from_dt,
+    to_milliseconds,
+)
 
 
 class BaseTestTimeRange(unittest.TestCase):
@@ -154,6 +163,16 @@ class TestTimeRangeCreation(BaseTestTimeRange):
         with self.assertRaises(TimeRangeException):
             self._create_time_range((ms_from_dt(bad_begin), ms_from_dt(bad_end)))
 
+        # wrong number of args
+        with self.assertRaises(TimeRangeException):
+            TimeRange((begin, end, end))
+
+    def test_awareness_check(self):
+        """work the duck typing failover in the awareness check."""
+        dtime = datetime.datetime.now()
+        with self.assertRaises(TimeRangeException):
+            TimeRange.awareness_check(dtime)
+
 
 class TestTimeRangeOutput(BaseTestTimeRange):
     """
@@ -189,6 +208,43 @@ class TestTimeRangeOutput(BaseTestTimeRange):
 
         rang = TimeRange.last_ninety_days()
         self.assertEqual(rang.relative_string(), '2 months ago to now')
+
+    def test_accessors(self):
+        """test various data accessors, primarily for coverage."""
+
+        # check the underlying immutable vector
+        rng = self.canned_range.range()
+        self.assertTrue(is_pvector(rng))
+        self.assertEquals(rng[0], self.test_begin_ts)
+
+        # check the local string accessor
+        i = 0
+        l_string = self.canned_range.to_local_string()
+        date_1 = ''
+
+        for match in re.finditer(',', l_string):
+            i += 1
+            if i >= 2:
+                date_1 = l_string[1:match.start()]
+                break
+
+        start_dt_as_local = self.test_begin_ts.astimezone(LOCAL_TZ).strftime(HUMAN_FORMAT)
+
+        self.assertEquals(date_1, start_dt_as_local)
+
+        # humanize check
+        human = self.canned_range.humanize()
+        self.assertEquals(human.split(' to ')[0], start_dt_as_local)
+
+        # duration checks
+        self.assertEquals(self.canned_range.duration(), 43200000)
+
+        self.assertEquals(self.canned_range.humanize_duration(), '12 hours')
+
+        # __str__
+        to_str = str(self.canned_range)
+        ms_bounds = '[{b}, {e}]'.format(b=self.test_begin_ms, e=self.test_end_ms)
+        self.assertEquals(to_str, ms_bounds)
 
 
 class TestTimeRangeComparisons(BaseTestTimeRange):
@@ -298,6 +354,37 @@ class TestTimeRangeComparisons(BaseTestTimeRange):
 
         self.assertFalse(range1.contains(after))
 
+    def test_contains_badarg(self):
+        """pass ms to contains - this is for coverage."""
+        self.assertFalse(self.canned_range.contains(self.test_begin_ms))
+
+    def test_within(self):
+        """test within() test."""
+        taa = self._strp("2010-06-01 12:00")
+        tbb = self._strp("2010-07-01 12:00")
+        range1 = TimeRange(taa, tbb)
+
+        tcc = self._strp("2010-05-01 12:00")
+        tdd = self._strp("2010-08-01 12:00")
+        range2 = TimeRange(tcc, tdd)
+
+        self.assertTrue(range1.within(range2))
+        self.assertFalse(range2.within(range1))
+
+    def test_extents(self):
+        """test extents() factory."""
+        taa = self._strp("2010-05-01 12:00")
+        tbb = self._strp("2010-07-01 12:00")
+        range1 = TimeRange(taa, tbb)
+
+        tcc = self._strp("2010-06-01 12:00")
+        tdd = self._strp("2010-08-01 12:00")
+        range2 = TimeRange(tcc, tdd)
+
+        range_ext = range1.extents(range2)
+        self.assertTrue(range_ext.begin(), taa)
+        self.assertTrue(range_ext.end(), tdd)
+
     def test_non_intersection(self):
         """compare if the ranges don't intersect."""
         # Two non-overlapping ranges: intersect() returns undefined
@@ -350,6 +437,20 @@ class TestTimeRangeMutation(BaseTestTimeRange):
     """
     Test mutating TimeRange objects.
     """
+    def test_set_end_and_begin(self):
+        """test the begin/end mutators"""
+
+        can = self.canned_range
+        new_begin = self.test_begin_ts - datetime.timedelta(hours=24)
+        new_end = self.test_end_ts + datetime.timedelta(hours=24)
+
+        rng1 = can.set_begin(new_begin)
+        self.assertEquals(rng1.begin(), new_begin)
+
+        rng2 = rng1.set_end(new_end)
+        self.assertEquals(rng2.end(), new_end)
+        self.assertEquals(rng2.begin(), new_begin)
+
     def test_mutation_new_range(self):
         """mutate to new range"""
 
