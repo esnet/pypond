@@ -4,6 +4,7 @@ Tests for the Event class
 import copy
 import datetime
 import json
+import re
 import unittest
 
 # prefer freeze over the data type specific functions
@@ -14,7 +15,14 @@ from pypond.exceptions import EventException
 from pypond.functions import Functions
 from pypond.index import Index
 from pypond.range import TimeRange
-from pypond.util import aware_utcnow, ms_from_dt
+from pypond.util import (
+    aware_utcnow,
+    dt_from_ms,
+    HUMAN_FORMAT,
+    localtime_from_ms,
+    LOCAL_TZ,
+    ms_from_dt,
+)
 
 DEEP_EVENT_DATA = {
     'NorthRoute': {
@@ -103,6 +111,11 @@ class TestRegularEventCreation(BaseTestEvent):
         # check that msec value translation.
         self.assertEqual(msec, event.to_json().get('time'))
 
+    def test_bad_args(self):
+        """Test with bad timestamp."""
+        with self.assertRaises(EventException):
+            Event(str(self.msec), self.data)
+
 
 class TestRegularEventAccess(BaseTestEvent):
     """
@@ -153,6 +166,27 @@ class TestRegularEventAccess(BaseTestEvent):
         self.assertEqual(point[0], self.msec)
         self.assertEqual(set(point[1:]), set(self.data.values()))
 
+    def test_other_accessors(self):
+        """check other accessor methods() - primarily for coverage."""
+
+        # date string formatting
+        self.assertEquals(
+            self.canned_event.timestamp_as_utc_string(),
+            dt_from_ms(self.msec).strftime(HUMAN_FORMAT))
+
+        self.assertEquals(
+            self.canned_event.timestamp_as_local_string(),
+            localtime_from_ms(self.msec).strftime(HUMAN_FORMAT))
+
+        # underlying datetime objects
+        self.assertEquals(
+            self.canned_event.begin(),
+            dt_from_ms(self.msec))
+
+        self.assertEquals(
+            self.canned_event.begin(),
+            self.canned_event.end())
+
 
 class TestEventStaticMethods(BaseTestEvent):
     """
@@ -202,6 +236,10 @@ class TestEventStaticMethods(BaseTestEvent):
         self.assertIsNotNone(ev3.data().get('SouthRoute'))
         self.assertIsNotNone(ev3.data().get('WestRoute'))
 
+        # bad args for coverage
+        ev4 = Event.selector(event, 2)
+        self.assertEqual(event, ev4)
+
     def test_event_merge(self):
         """Test Event.merge()/merge_events()"""
         # same timestamp, different keys
@@ -227,6 +265,11 @@ class TestEventStaticMethods(BaseTestEvent):
         ev6 = Event(self.aware_ts, pay1)
         with self.assertRaises(EventException):
             merged = Event.merge([ev5, ev6])
+
+        # type mismach for coverage
+        idxe = IndexedEvent('1999', pay1)
+        with self.assertRaises(EventException):
+            Event.merge([ev1, idxe])
 
 
 class TestEventMapReduceCombine(BaseTestEvent):
@@ -310,6 +353,15 @@ class TestEventMapReduceCombine(BaseTestEvent):
         self.assertIsNone(result[0].get('b'))
         self.assertEqual(result[0].get('c'), 14)
 
+        # average
+        result = Event.avg(
+            events + [self._create_event(self.aware_ts, {'a': 1, 'b': 1, 'c': 2})],
+            'c')
+        self.assertEquals(result[0].get('c'), 4)
+
+        # bad arg
+        self.assertIsNone(Event.sum([]))
+
 
 class TestIndexedEvent(BaseTestEvent):
     """
@@ -334,17 +386,96 @@ class TestIndexedEvent(BaseTestEvent):
             '[Thu, 30 Oct 2003 00:00:00 UTC, Fri, 31 Oct 2003 00:00:00 UTC]')
         self.assertEquals(ie1.get('value'), 42)
 
+        # copy ctor
+        ie3 = IndexedEvent(ie1)
+        self.assertEquals(
+            ie3.timerange_as_utc_string(),
+            '[Thu, 30 Oct 2003 00:00:00 UTC, Fri, 31 Oct 2003 00:00:00 UTC]')
+        self.assertEquals(ie3.get('value'), 42)
+
+        # pass in the immutable guts
+        ie4 = IndexedEvent(ie3._d)  # pylint: disable=protected-access
+        self.assertEquals(
+            ie4.timerange_as_utc_string(),
+            '[Thu, 30 Oct 2003 00:00:00 UTC, Fri, 31 Oct 2003 00:00:00 UTC]')
+        self.assertEquals(ie4.get('value'), 42)
+
+    def test_accessor_methods(self):
+        """test accessors for coverage."""
+        idx = '1d-12355'
+        val = 42
+
+        ie1 = IndexedEvent(idx, {'value': val})
+
+        self.assertEquals(
+            ie1.to_string(),
+            '{"index": "1d-12355", "data": {"value": 42}}')
+        self.assertEquals(
+            str(ie1),
+            '{"index": "1d-12355", "data": {"value": 42}}')
+
+        self.assertEquals(
+            ie1.to_point(),
+            ['1d-12355', [42]])
+
+        self.assertEquals(
+            ie1.timerange_as_utc_string(),
+            '[Thu, 30 Oct 2003 00:00:00 UTC, Fri, 31 Oct 2003 00:00:00 UTC]')
+
+        # check the local string accessor
+        i = 0
+        l_string = ie1.timerange_as_local_string()
+        date_1 = ''
+
+        for match in re.finditer(',', l_string):
+            i += 1
+            if i >= 2:
+                date_1 = l_string[1:match.start()]
+                break
+
+        start_dt_as_local = ie1.begin().astimezone(LOCAL_TZ).strftime(HUMAN_FORMAT)
+
+        self.assertEquals(date_1, start_dt_as_local)
+
+        # begin/end()
+        self.assertEquals(
+            ie1.end() - ie1.begin(),
+            datetime.timedelta(days=1))
+        self.assertEquals(
+            ie1.end() - ie1.timestamp(),
+            datetime.timedelta(days=1))
+
     def test_indexed_event_merge(self):
         """test merging indexed events."""
 
         index = '1h-396206'
         event1 = IndexedEvent(index, {'a': 5, 'b': 6})
-        event2 = IndexedEvent(index, {'c': 2})
+        event2 = IndexedEvent(index, freeze({'c': 2}))  # pmap for coverage
         merged = Event.merge([event1, event2])
 
         self.assertEquals(merged.get('a'), 5)
         self.assertEquals(merged.get('b'), 6)
         self.assertEquals(merged.get('c'), 2)
+
+        # bad merges
+        # type mismatch
+        with self.assertRaises(EventException):
+            Event.merge([event1, self.canned_event])
+
+        # different index
+        event3 = IndexedEvent('1h-396207', dict(d=9))
+        with self.assertRaises(EventException):
+            Event.merge([event1, event3])
+
+        # key collision
+        event4 = IndexedEvent(index, dict(b=9))
+        with self.assertRaises(EventException):
+            Event.merge([event1, event4])
+
+        # wrong length/etc
+        self.assertIsNone(Event.merge({}))
+        self.assertIsNone(Event.merge([]))
+        self.assertEquals(Event.merge([event4]), event4)
 
     def test_i_event_deep_get(self):
         """test.deep.get"""
@@ -352,6 +483,22 @@ class TestIndexedEvent(BaseTestEvent):
         idxe = IndexedEvent('1d-12355', DEEP_EVENT_DATA)
 
         self._test_deep_get(idxe)
+
+    def test_bad_args(self):
+        """test various bad args."""
+        with self.assertRaises(EventException):
+            IndexedEvent(234, DEEP_EVENT_DATA)
+
+        with self.assertRaises(EventException):
+            IndexedEvent('2015', [23])
+
+    def test_mutator(self):
+        """mutate the data."""
+
+        ie1 = IndexedEvent('1d-12355', {'value': 42})
+
+        ie2 = ie1.set_data(55)
+        self.assertEqual(ie2.get(), 55)
 
 
 class TestTimeRangeEvent(BaseTestEvent):
@@ -408,6 +555,23 @@ class TestTimeRangeEvent(BaseTestEvent):
         self.assertEqual(merged.get('b'), 6)
         self.assertEqual(merged.get('c'), 2)
 
+        # bad merges
+        # type mismatch
+        with self.assertRaises(EventException):
+            Event.merge([tr1, self.canned_event])
+
+        # timestamp mismatch
+        bad_range = TimeRange(self.test_begin_ts + datetime.timedelta(seconds=1),
+                              self.test_end_ts)
+        tr3 = TimeRangeEvent(bad_range, dict(d=9))
+        with self.assertRaises(EventException):
+            Event.merge([tr1, tr3])
+
+        # key collision
+        tr4 = TimeRangeEvent(t_range, dict(c=4))
+        with self.assertRaises(EventException):
+            Event.merge([merged, tr4])
+
     def test_ts_getters(self):
         """Test the accessors for the underlying TimeRange."""
         ctr = self.canned_time_range
@@ -415,6 +579,21 @@ class TestTimeRangeEvent(BaseTestEvent):
         self.assertEqual(ctr.end(), self.test_end_ts)
         self.assertEqual(ctr.begin(), ctr.timestamp())
         self.assertEqual(ctr.humanize_duration(), '12 hours')
+
+    def test_accessors(self):
+        """work various accessors for coverage."""
+        jso = self.canned_time_range.to_json()
+        self.assertEqual(jso.get('timerange')[0], self.test_begin_ms)
+        self.assertEqual(jso.get('timerange')[1], self.test_end_ms)
+
+        self.assertEquals(self.canned_time_range.to_string(), json.dumps(jso))
+        self.assertEquals(str(self.canned_time_range), json.dumps(jso))
+
+        self.assertEquals(self.canned_time_range.timerange_as_utc_string().find(
+            self.test_begin_ts.strftime(HUMAN_FORMAT)), 1)
+
+        self.assertEquals(self.canned_time_range.timerange_as_local_string().find(
+            localtime_from_ms(self.test_begin_ms).strftime(HUMAN_FORMAT)), 1)
 
     def test_deep_get(self):
         """Test the deep field_spec gets."""
