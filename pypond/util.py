@@ -42,7 +42,7 @@ def dt_from_ms(msec):
 
 def localtime_from_ms(msec):
     """generate an aware localtime datetime object from ms"""
-    return datetime.datetime.fromtimestamp(msec / 1000.0).replace(tzinfo=LOCAL_TZ)
+    return datetime.datetime.fromtimestamp(msec / 1000.0, LOCAL_TZ)
 
 
 def aware_dt_from_args(dtargs, localize=False):

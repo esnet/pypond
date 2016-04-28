@@ -4,9 +4,10 @@ Tests for the Index class
 
 import datetime
 import unittest
+import warnings
 
 from pypond.index import Index
-from pypond.exceptions import IndexException
+from pypond.exceptions import IndexException, UtilityWarning
 from pypond.util import aware_dt_from_args
 
 
@@ -80,6 +81,21 @@ class TestIndexCreation(BaseTestIndex):
         self.assertEquals(
             day_idx.as_timerange().to_utc_string(),
             '[Wed, 17 Sep 2014 00:00:00 UTC, Wed, 17 Sep 2014 23:59:59 UTC]')
+
+    def test_local_times(self):
+        """non-utc dates are evil, but we apparently support them."""
+
+        # even though local times == satan, the sanitizer should
+        # still coerce it into utc.
+        hour_utc = Index(self._hourly_index, utc=True)
+
+        # make sure those local time warnings triggered - one for begin and end.
+        with warnings.catch_warnings(record=True) as wrn:
+            hour_local = Index(self._hourly_index, utc=False)
+            self.assertEquals(len(wrn), 2)
+            self.assertTrue(issubclass(wrn[0].category, UtilityWarning))
+
+        self.assertEquals(hour_utc.begin(), hour_local.begin())
 
     def test_bad_args(self):
         """pass bogus args."""
