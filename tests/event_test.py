@@ -362,6 +362,28 @@ class TestEventMapReduceCombine(BaseTestEvent):
         # bad arg
         self.assertIsNone(Event.sum([]))
 
+        # work the extra reducer functions in Functions module
+        result = Event.combine(events, 'c', Functions.max)
+        self.assertEqual(result[0].get('c'), 7)
+
+        result = Event.combine(events, 'c', Functions.min)
+        self.assertEqual(result[0].get('c'), 3)
+
+        result = Event.combine(events, 'c', Functions.count)
+        self.assertEqual(result[0].get('c'), 3)
+
+        result = Event.combine(events, 'c', Functions.first)
+        self.assertEqual(result[0].get('c'), 7)
+
+        result = Event.combine(events, 'c', Functions.last)
+        self.assertEqual(result[0].get('c'), 3)
+
+        result = Event.combine(events, 'c', Functions.difference)
+        self.assertEqual(result[0].get('c'), 4)
+
+        self.assertIsNone(Functions.first([]))
+        self.assertIsNone(Functions.last([]))
+
 
 class TestIndexedEvent(BaseTestEvent):
     """
