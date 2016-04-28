@@ -2,12 +2,15 @@
 Tests for the Index class
 """
 
+import datetime
 import unittest
 
 from pypond.index import Index
+from pypond.exceptions import IndexException
+from pypond.util import aware_dt_from_args
 
 
-class BaseTestIndex(unittest.TestCase):
+class BaseTestIndex(unittest.TestCase):  # pylint: disable=too-many-instance-attributes
     """Base for index tests."""
     def setUp(self):
         """setup"""
@@ -19,6 +22,8 @@ class BaseTestIndex(unittest.TestCase):
         self._year_index = '2014'
         self._month_index = '2014-09'
         self._day_index = '2014-09-17'
+
+        self._canned_index = Index(self._day_index)
 
 
 class TestIndexCreation(BaseTestIndex):
@@ -75,6 +80,38 @@ class TestIndexCreation(BaseTestIndex):
         self.assertEquals(
             day_idx.as_timerange().to_utc_string(),
             '[Wed, 17 Sep 2014 00:00:00 UTC, Wed, 17 Sep 2014 23:59:59 UTC]')
+
+    def test_bad_args(self):
+        """pass bogus args."""
+
+        with self.assertRaises(IndexException):
+            Index('12-34-56-78')
+
+        with self.assertRaises(IndexException):
+            Index('12-34-5a')
+
+        with self.assertRaises(IndexException):
+            Index('1d-234a')
+
+        with self.assertRaises(IndexException):
+            Index('198o')
+
+        with self.assertRaises(IndexException):
+            Index('2015-9@')
+
+    def test_index_accessors(self):
+        """test the various accessor methods - mostly for coverage."""
+
+        # various accessors
+        self.assertEquals(self._canned_index.to_json(), self._day_index)
+        self.assertEquals(self._canned_index.to_string(), self._day_index)
+        self.assertEquals(str(self._canned_index), self._day_index)
+
+        # make sure end is what it should be
+        beg = aware_dt_from_args(dict(year=2014, month=9, day=17))
+        end = beg + datetime.timedelta(hours=23, minutes=59, seconds=59)
+
+        self.assertEquals(self._canned_index.end(), end)
 
     def test_window_duration(self):
         """test window duration utility method - index window to ms."""

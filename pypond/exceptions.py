@@ -9,7 +9,7 @@ class EventException(Exception):
         # pylint: disable=super-init-not-called
         self.value = value
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return repr(self.value)
 
 
@@ -24,7 +24,7 @@ class TimeRangeException(Exception):
         # pylint: disable=super-init-not-called
         self.value = value
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return repr(self.value)
 
 
@@ -39,7 +39,7 @@ class IndexException(Exception):
         # pylint: disable=super-init-not-called
         self.value = value
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return repr(self.value)
 
 
@@ -54,7 +54,7 @@ class UtilityException(Exception):
         # pylint: disable=super-init-not-called
         self.value = value
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return repr(self.value)
 
 

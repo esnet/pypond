@@ -143,6 +143,7 @@ class Index(object):
                 day = int(parts[2])
             except ValueError:
                 msg = 'unable to parse integer year/month/day from {arg}'.format(arg=parts)
+                raise IndexException(msg)
 
             dtargs = dict(year=year, month=month, day=day)
 
@@ -163,7 +164,7 @@ class Index(object):
                     num = int(range_re.group(1))  # 1d-278 : 1
                 except ValueError:
                     msg = 'unable to parse valid integers from {s}'.format(s=idx_str)
-                    msg += 'tried elements {pos} and {num}'.format(
+                    msg += ' tried elements {pos} and {num}'.format(
                         pos=parts[1], num=range_re.group(1))
                     raise IndexException(msg)
 
@@ -187,6 +188,7 @@ class Index(object):
                     month = int(parts[1])
                 except ValueError:
                     msg = 'unable to parse integer year/month from {arg}'.format(arg=parts)
+                    raise IndexException(msg)
 
                 dtargs = dict(year=year, month=month, day=1)
 
@@ -222,11 +224,8 @@ class Index(object):
         range_re = re.match('([0-9]+)([smhd])', win)
 
         if range_re:
-            try:
-                num = int(range_re.group(1))
-            except TypeError:
-                msg = 'could not parse integer from {arg}'.format(arg=win)
-                raise IndexException(msg)
+            # normally would try/except, but the regex ensures it'll be a number
+            num = int(range_re.group(1))
 
             unit = range_re.group(2)
 
@@ -266,5 +265,3 @@ class Index(object):
                 pos += 1
 
         return idx_list
-
-
