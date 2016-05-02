@@ -7,8 +7,9 @@ http://software.es.net/pond/#/index
 import copy
 import datetime
 import re
+import warnings
 
-from pypond.exceptions import IndexException
+from pypond.exceptions import IndexException, IndexWarning
 from pypond.range import TimeRange
 from pypond.util import (
     aware_dt_from_args,
@@ -16,6 +17,7 @@ from pypond.util import (
     localtime_from_ms,
     monthdelta,
     ms_from_dt,
+    sanitize_dt,
 )
 
 
@@ -112,6 +114,10 @@ class Index(object):
 
     # utility methods
 
+    def _warn(self, msg):  # pylint: disable=no-self-use
+        """issue warning"""
+        warnings.warn(msg, IndexWarning, stacklevel=2)
+
     def range_from_index_string(self, idx_str, is_utc=True):  # pylint: disable=too-many-locals, too-many-statements
         """
         Generate the time range from the idx string.
@@ -138,6 +144,8 @@ class Index(object):
 
         local = False if is_utc else True
 
+        warn_string = 'year/month/day indexes are being coerced to UTC'
+
         if num_parts == 3:
             # 2015-07-14  (day)
             self._index_type = 'day'
@@ -151,7 +159,10 @@ class Index(object):
 
             dtargs = dict(year=year, month=month, day=day)
 
-            begin_time = aware_dt_from_args(dtargs, localize=local)
+            if local:
+                self._warn(warn_string)
+
+            begin_time = aware_dt_from_args(dtargs)
 
             end_time = (begin_time + datetime.timedelta(days=1)) - datetime.timedelta(seconds=1)
 
@@ -196,7 +207,10 @@ class Index(object):
 
                 dtargs = dict(year=year, month=month, day=1)
 
-                begin_time = aware_dt_from_args(dtargs, localize=local)
+                if local:
+                    self._warn(warn_string)
+
+                begin_time = aware_dt_from_args(dtargs)
 
                 end_time = monthdelta(begin_time, 1) - datetime.timedelta(seconds=1)
 
@@ -211,7 +225,10 @@ class Index(object):
 
             dtargs = dict(year=year, month=1, day=1)
 
-            begin_time = aware_dt_from_args(dtargs, localize=local)
+            if local:
+                self._warn(warn_string)
+
+            begin_time = aware_dt_from_args(dtargs)
 
             end_time = begin_time.replace(year=year + 1) - datetime.timedelta(seconds=1)
 
@@ -240,16 +257,13 @@ class Index(object):
         else:
             return None
 
-    # XXX(mmg): need test cases for these methods and verification
-    # no examples of use from JS source.
-
     @staticmethod
     def window_position_from_date(win, dtime):
         """window position from datetime object.
 
         previously: Generator.getBucketPosFromDate"""
         duration = Index.window_duration(win)
-        ddms = ms_from_dt(dtime)
+        ddms = ms_from_dt(sanitize_dt(dtime))
         return int(ddms / duration)
 
     @staticmethod

@@ -2,7 +2,6 @@
 Various utilities for the pypond code.
 """
 
-import copy
 import datetime
 import math
 import types

@@ -7,8 +7,9 @@ import unittest
 import warnings
 
 from pypond.index import Index
-from pypond.exceptions import IndexException, UtilityWarning
-from pypond.util import aware_dt_from_args
+from pypond.range import TimeRange
+from pypond.exceptions import IndexException, IndexWarning, UtilityWarning
+from pypond.util import aware_dt_from_args, dt_from_ms
 
 
 class BaseTestIndex(unittest.TestCase):  # pylint: disable=too-many-instance-attributes
@@ -97,6 +98,17 @@ class TestIndexCreation(BaseTestIndex):
 
         self.assertEquals(hour_utc.begin(), hour_local.begin())
 
+        # month/hour/day indexes are immediately converted to UTC.
+
+        year_utc = Index(self._year_index, utc=True)
+
+        with warnings.catch_warnings(record=True) as wrn:
+            year_local = Index(self._year_index, utc=False)
+            self.assertEquals(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, IndexWarning))
+
+        self.assertEquals(year_utc.begin(), year_local.begin())
+
     def test_bad_args(self):
         """pass bogus args."""
 
@@ -157,24 +169,6 @@ class TestIndexStaticMethods(BaseTestIndex):
         """setup method."""
         super(TestIndexStaticMethods, self).setUp()
 
-    def test_get_index_string(self):
-        """
-        Used to be:
-
-        const generator = new Generator("5m");
-        it("should have the correct index", done => {
-            const b = generator.bucket(d);
-            const expected = "5m-4754394";
-            expect(b.index().asString()).to.equal(expected);
-            done();
-        });
-        """
-        dtime = aware_dt_from_args(dict(year=2015, month=2, day=14, hour=7, minute=32, second=22), localize=True)
-        print dtime
-
-        # idx_str = Index.get_index_string('5m', dtime)
-        # print idx_str
-
     def test_window_duration(self):
         """test window duration utility method - index window to ms."""
 
@@ -183,6 +177,67 @@ class TestIndexStaticMethods(BaseTestIndex):
         self.assertEquals(Index.window_duration(self._5_min_index), 300000)
 
         self.assertEquals(Index.window_duration(self._year_index), None)
+
+    def test_get_index_string(self):
+        """
+        test get_index_string - datetime -> index
+
+        Used to be:
+        const d = Date.UTC(2015, 2, 14, 7, 32, 22);
+        const generator = new Generator("5m");
+        it("should have the correct index", done => {
+            const b = generator.bucket(d);
+            const expected = "5m-4754394";
+            expect(b.index().asString()).to.equal(expected);
+            done();
+        });
+
+        REMEMBER: JS Date.UTC month (arg2) is ZERO INDEXED
+
+        get_index_string() calls window_position_from_date() which
+        in turn calls window_duration()
+
+        """
+        dtime = aware_dt_from_args(
+            dict(year=2015, month=3, day=14, hour=7, minute=32, second=22))
+
+        self.assertEquals(dtime, dt_from_ms(1426318342000))
+
+        idx_str = Index.get_index_string('5m', dtime)
+
+        self.assertEquals(idx_str, '5m-4754394')
+
+    def test_get_index_string_list(self):
+        """
+        test get_index_string_list - 2 dt-> timerange -> idx_list
+
+        Used to be:
+
+        const d1 = Date.UTC(2015, 2, 14, 7, 30, 0);
+        const d2 = Date.UTC(2015, 2, 14, 8, 29, 59);
+
+        it("should have the correct index list for a date range", done => {
+            const bucketList = generator.bucketList(d1, d2);
+            const expectedBegin = "5m-4754394";
+            const expectedEnd = "5m-4754405";
+            // _.each(bucketList, (b) => {
+            //     console.log("   -", b.index().asString(), b.index().asTimerange().humanize())
+            // })
+            expect(bucketList.length).to.equal(12);
+
+        Zero based month in play again.
+        """
+        dtime_1 = aware_dt_from_args(
+            dict(year=2015, month=3, day=14, hour=7, minute=30, second=0))
+
+        dtime_2 = aware_dt_from_args(
+            dict(year=2015, month=3, day=14, hour=8, minute=29, second=59))
+
+        idx_list = Index.get_index_string_list('5m', TimeRange(dtime_1, dtime_2))
+
+        self.assertEquals(len(idx_list), 12)
+        self.assertEquals(idx_list[0], '5m-4754394')
+        self.assertEquals(idx_list[-1], '5m-4754405')
 
 if __name__ == '__main__':
     unittest.main()
