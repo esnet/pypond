@@ -129,15 +129,6 @@ class TestIndexCreation(BaseTestIndex):
 
         self.assertEquals(self._canned_index.end(), end)
 
-    def test_window_duration(self):
-        """test window duration utility method - index window to ms."""
-
-        self.assertEquals(Index.window_duration(self._30_sec_index), 30000)
-
-        self.assertEquals(Index.window_duration(self._5_min_index), 300000)
-
-        self.assertEquals(Index.window_duration(self._year_index), None)
-
     def test_nice_string(self):
         """test the nice string method."""
 
@@ -157,6 +148,41 @@ class TestIndexCreation(BaseTestIndex):
         # index index
         idx_idx = Index(self._30_sec_index)
         self.assertEquals(idx_idx.to_nice_string(), self._30_sec_index)
+
+
+class TestIndexStaticMethods(BaseTestIndex):
+    """Test the static/window methods formerly in util.js and the
+    defunct Generator class."""
+    def setUp(self):
+        """setup method."""
+        super(TestIndexStaticMethods, self).setUp()
+
+    def test_get_index_string(self):
+        """
+        Used to be:
+
+        const generator = new Generator("5m");
+        it("should have the correct index", done => {
+            const b = generator.bucket(d);
+            const expected = "5m-4754394";
+            expect(b.index().asString()).to.equal(expected);
+            done();
+        });
+        """
+        dtime = aware_dt_from_args(dict(year=2015, month=2, day=14, hour=7, minute=32, second=22), localize=True)
+        print dtime
+
+        # idx_str = Index.get_index_string('5m', dtime)
+        # print idx_str
+
+    def test_window_duration(self):
+        """test window duration utility method - index window to ms."""
+
+        self.assertEquals(Index.window_duration(self._30_sec_index), 30000)
+
+        self.assertEquals(Index.window_duration(self._5_min_index), 300000)
+
+        self.assertEquals(Index.window_duration(self._year_index), None)
 
 if __name__ == '__main__':
     unittest.main()

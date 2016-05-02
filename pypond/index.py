@@ -125,6 +125,10 @@ class Index(object):
 
         and return a TimeRange for that time. The TimeRange may be considered to be
         local time or UTC time, depending on the utc flag passed in.
+
+        This was in src/util.js in the original project, but the only thing using
+        the code in that util.js was the Index class, and it makes more sense
+        having this as a class method.
         """
         parts = idx_str.split('-')
         num_parts = len(parts)
@@ -220,7 +224,9 @@ class Index(object):
 
     @staticmethod
     def window_duration(win):
-        """duration in ms given a window duration string."""
+        """duration in ms given a window duration string.
+
+        previously: Generator.getLengthFromSize."""
         range_re = re.match('([0-9]+)([smhd])', win)
 
         if range_re:
@@ -239,20 +245,26 @@ class Index(object):
 
     @staticmethod
     def window_position_from_date(win, dtime):
-        """window position from datetime object."""
+        """window position from datetime object.
+
+        previously: Generator.getBucketPosFromDate"""
         duration = Index.window_duration(win)
         ddms = ms_from_dt(dtime)
         return int(ddms / duration)
 
     @staticmethod
     def get_index_string(win, dtime):
-        """return the index string"""
+        """return the index string
+
+        previously: Generator.bucketIndex"""
         pos = Index.window_position_from_date(win, dtime)
         return '{win}-{pos}'.format(win=win, pos=pos)
 
     @staticmethod
     def get_index_string_list(win, timerange):
-        """ TBA """
+        """ TBA
+
+        previously: Generator.bucketIndexList"""
         pos1 = Index.window_position_from_date(win, timerange.begin())
         pos2 = Index.window_position_from_date(win, timerange.end())
 
