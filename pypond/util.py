@@ -2,6 +2,7 @@
 Various utilities for the pypond code.
 """
 
+import copy
 import datetime
 import math
 import types
@@ -52,11 +53,9 @@ def aware_dt_from_args(dtargs, localize=False):
         raise UtilityException('dtargs must be a dict')
 
     if localize:
-        tz_info = LOCAL_TZ
+        return LOCAL_TZ.localize(datetime.datetime(**dtargs))
     else:
-        tz_info = pytz.UTC  # pylint: disable=redefined-variable-type
-
-    return datetime.datetime(**dtargs).replace(tzinfo=tz_info)
+        return datetime.datetime(**dtargs).replace(tzinfo=pytz.UTC)
 
 
 # The awareness check on these functions is a dev bulletproofing maneuver.
