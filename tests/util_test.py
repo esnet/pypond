@@ -129,6 +129,29 @@ class TestTime(unittest.TestCase):
         with self.assertRaises(UtilityException):
             sanitize_dt(self.naive)
 
+    def test_dt_generation_from_args(self):
+        """check aware_dt_from_args()
+
+        This generates a datetime object from the kwargs that are passed to
+        datetime.datetime. So all of the attrs will be the same between the
+        UTC and local version.
+        """
+        dtime = aware_dt_from_args(
+            dict(year=2015, month=3, day=14, hour=7, minute=32, second=22))
+
+        dtime_loc = aware_dt_from_args(
+            dict(year=2015, month=3, day=14, hour=7, minute=32, second=22),
+            localize=True)
+
+        self.assertEquals(dtime.year, dtime_loc.year)
+        self.assertEquals(dtime.month, dtime_loc.month)
+        self.assertEquals(dtime.day, dtime_loc.day)
+        self.assertEquals(dtime.hour, dtime_loc.hour)
+        self.assertEquals(dtime.minute, dtime_loc.minute)
+        self.assertEquals(dtime.second, dtime_loc.second)
+
+        self.assertNotEqual(dtime.tzinfo, dtime_loc.tzinfo)
+
     def test_bad_args(self):
         """Trigger errors for coverage."""
         with self.assertRaises(UtilityException):

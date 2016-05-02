@@ -46,7 +46,11 @@ def localtime_from_ms(msec):
 
 
 def aware_dt_from_args(dtargs, localize=False):
-    """generate an aware datetime object using datetime.datetime kwargs."""
+    """
+    generate an aware datetime object using datetime.datetime kwargs.
+
+    can generate a localized version as well, but please don't.
+    """
 
     if not isinstance(dtargs, dict):
         raise UtilityException('dtargs must be a dict')

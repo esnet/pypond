@@ -118,6 +118,12 @@ class Index(object):
         """issue warning"""
         warnings.warn(msg, IndexWarning, stacklevel=2)
 
+    def _local_idx_warning(self, local=False):
+        """blanket warning to avoid if statements and make pylint happy."""
+        if local:
+            msg = 'year/month/day indexes will being coerced to UTC from localtime'
+            self._warn(msg)
+
     def range_from_index_string(self, idx_str, is_utc=True):  # pylint: disable=too-many-locals, too-many-statements
         """
         Generate the time range from the idx string.
@@ -144,8 +150,6 @@ class Index(object):
 
         local = False if is_utc else True
 
-        warn_string = 'year/month/day indexes are being coerced to UTC'
-
         if num_parts == 3:
             # 2015-07-14  (day)
             self._index_type = 'day'
@@ -157,10 +161,9 @@ class Index(object):
                 msg = 'unable to parse integer year/month/day from {arg}'.format(arg=parts)
                 raise IndexException(msg)
 
-            dtargs = dict(year=year, month=month, day=day)
+            self._local_idx_warning(local)
 
-            if local:
-                self._warn(warn_string)
+            dtargs = dict(year=year, month=month, day=day)
 
             begin_time = aware_dt_from_args(dtargs)
 
@@ -205,10 +208,9 @@ class Index(object):
                     msg = 'unable to parse integer year/month from {arg}'.format(arg=parts)
                     raise IndexException(msg)
 
-                dtargs = dict(year=year, month=month, day=1)
+                self._local_idx_warning(local)
 
-                if local:
-                    self._warn(warn_string)
+                dtargs = dict(year=year, month=month, day=1)
 
                 begin_time = aware_dt_from_args(dtargs)
 
@@ -223,10 +225,9 @@ class Index(object):
                 msg = 'unable to parse integer year from {arg}'.format(arg=parts[0])
                 raise IndexException(msg)
 
-            dtargs = dict(year=year, month=1, day=1)
+            self._local_idx_warning(local)
 
-            if local:
-                self._warn(warn_string)
+            dtargs = dict(year=year, month=1, day=1)
 
             begin_time = aware_dt_from_args(dtargs)
 
