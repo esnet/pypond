@@ -40,7 +40,70 @@ class EventBase(PypondBase):
         # pylint doesn't like self._d but be consistent w/original code.
         # pylint: disable=invalid-name
 
+        # immutable pmap object, holds payload for all subclasses.
         self._d = underscore_d
+
+    # common methods
+
+    def data(self):
+        """Direct access to the event data. The result will be an pyrsistent.pmap."""
+        return self._d.get('data')
+
+    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
+        """
+        Get specific data out of the Event. The data will be converted
+        to a js object. You can use a fieldSpec to address deep data.
+        A fieldSpec could be "a.b" or it could be ['a', 'b'].
+
+        The field spec can have an arbitrary number of "parts."
+        """
+        if isinstance(field_spec, str):
+            path = field_spec.split('.')  # pylint: disable=no-member
+        elif isinstance(field_spec, list):
+            path = field_spec
+
+        return reduce(dict.get, path, thaw(self.data()))
+
+    def value(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
+        """
+        Alias for get()
+        """
+        return self.get(field_spec)
+
+    def to_json(self):
+        """abstract, override in subclasses."""
+        raise NotImplementedError
+
+    def to_string(self):
+        """
+        Retruns the Event as a string, useful for serialization.
+        It's a JSON string of the whole object.
+
+        In JS land, this is synonymous with __str__ or __unicode__
+        """
+        return json.dumps(self.to_json())
+
+    def stringify(self):
+        """Produce a json string of the internal data."""
+        return json.dumps(thaw(self.data()))
+
+    def __str__(self):
+        """call to_string()"""
+        return self.to_string()
+
+    def timestamp(self):
+        """abstract, override in subclass"""
+        raise NotImplementedError
+
+    def begin(self):
+        """abstract, override in subclass"""
+        raise NotImplementedError
+
+    def end(self):
+        """abstract, override in subclass"""
+        raise NotImplementedError
+
+    # static methods, primarily for arg processing.
 
     @staticmethod
     def timestamp_from_arg(arg):
@@ -156,15 +219,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             data=thaw(self.data()),
         )
 
-    def to_string(self):
-        """
-        Retruns the Event as a string, useful for serialization.
-        It's a JSON string of the whole object.
-
-        In JS land, this is synonymous with __str__ or __unicode__
-        """
-        return json.dumps(self.to_json())
-
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
@@ -191,45 +245,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """The end time of this Event, which will be just the timestamp"""
         return self.timestamp()
 
-    def data(self):
-        """Direct access to the event data. The result will be a pysistent.PMap."""
-        return self._d.get('data')
-
     # data setters, returns new object
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
         new_d = self._d.set('data', self.data_from_arg(data))
         return Event(new_d)
-
-    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
-        """
-        Get specific data out of the Event. The data will be converted
-        to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b" or it could be ['a', 'b'].
-
-        The field spec can have an arbitrary number of "parts."
-        """
-        if isinstance(field_spec, str):
-            path = field_spec.split('.')  # pylint: disable=no-member
-        elif isinstance(field_spec, list):
-            path = field_spec
-
-        return reduce(dict.get, path, thaw(self.data()))
-
-    def value(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
-        """
-        Alias for get()
-        """
-        return self.get(field_spec)
-
-    def stringify(self):
-        """Produce a json string of the internal data."""
-        return json.dumps(thaw(self.data()))
-
-    def __str__(self):
-        """call to_string()"""
-        return self.to_string()
 
     # Static class methods
 
@@ -560,15 +581,6 @@ class TimeRangeEvent(EventBase):
             data=thaw(self.data()),
         )
 
-    def to_string(self):
-        """
-        Retruns the Event as a string, useful for serialization.
-        It's a JSON string of the whole object.
-
-        In JS land, this is synonymous with __str__ or __unicode__
-        """
-        return json.dumps(self.to_json())
-
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
@@ -603,10 +615,6 @@ class TimeRangeEvent(EventBase):
         """The end time of this Event, which will be just the timestamp"""
         return self.timerange().end()
 
-    def data(self):
-        """Direct access to the event data. The result will be an Immutable.Map."""
-        return self._d.get('data')
-
     # data setters, returns new object
 
     def set_data(self, data):
@@ -614,36 +622,11 @@ class TimeRangeEvent(EventBase):
         _dnew = self._d.set('data', self.data_from_arg(data))
         return TimeRangeEvent(_dnew)
 
-    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
-        """
-        Get specific data out of the Event. The data will be converted
-        to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b" or it could be ['a', 'b'].
-
-        The field spec can have an arbitrary number of "parts."
-        """
-        if isinstance(field_spec, str):
-            path = field_spec.split('.')  # pylint: disable=no-member
-        elif isinstance(field_spec, list):
-            path = field_spec
-
-        return reduce(dict.get, path, thaw(self.data()))
-
-    def value(self, field_spec):
-        """
-        Alias for get()
-        """
-        return self.get(field_spec)
-
     # Humanize
 
     def humanize_duration(self):
         """Humanize the timerange."""
         return self.timerange().humanize_duration()
-
-    def __str__(self):
-        """call to_string()"""
-        return self.to_string()
 
 
 class IndexedEvent(EventBase):
@@ -693,15 +676,6 @@ class IndexedEvent(EventBase):
             data=thaw(self.data())
         )
 
-    def to_string(self):
-        """
-        Retruns the Event as a string, useful for serialization.
-        It's a JSON string of the whole object.
-
-        In JS land, this is synonymous with __str__ or __unicode__
-        """
-        return json.dumps(self.to_json())
-
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
@@ -711,10 +685,6 @@ class IndexedEvent(EventBase):
             self.index_as_string(),
             thaw(self.data()).values()
         ]
-
-    def data(self):
-        """Direct access to the event data. The result will be an Immutable.Map."""
-        return self._d.get('data')
 
     def index(self):
         """Returns the Index associated with the data in this Event."""
@@ -748,34 +718,9 @@ class IndexedEvent(EventBase):
         """Returns the Index as a string, same as event.index().toString()"""
         return self.index().as_string()
 
-    def __str__(self):
-        """call to_string()"""
-        return self.to_string()
-
     # data setters, returns new object
 
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event."""
         new_d = self._d.set('data', self.data_from_arg(data))
         return IndexedEvent(new_d)
-
-    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
-        """
-        Get specific data out of the Event. The data will be converted
-        to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b" or it could be ['a', 'b'].
-
-        The field spec can have an arbitrary number of "parts."
-        """
-        if isinstance(field_spec, str):
-            path = field_spec.split('.')  # pylint: disable=no-member
-        elif isinstance(field_spec, list):
-            path = field_spec
-
-        return reduce(dict.get, path, thaw(self.data()))
-
-    def value(self, field_spec):
-        """
-        Alias for get()
-        """
-        return self.get(field_spec)
