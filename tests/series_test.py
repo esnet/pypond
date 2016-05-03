@@ -106,6 +106,9 @@ class TestCollectionCreation(SeriesBase):
         new_coll = self._canned_collection.add_event(extra_event)
         self.assertEquals(new_coll.size(), 4)
 
+        print extra_event
+        print new_coll
+
     def test_bad_args(self):
         """pass in bad values"""
         with warnings.catch_warnings(record=True) as wrn:

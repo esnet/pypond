@@ -78,9 +78,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        raise NotImplementedError
-        # can't json serizlize the event objects!
-        # return json.dumps(self.to_json())
+        return json.dumps(self.to_json())
 
     def type(self):
         """
@@ -275,4 +273,4 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
     def __str__(self):
         """call to_string()"""
-        raise NotImplementedError
+        return self.to_string()
