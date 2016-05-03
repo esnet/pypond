@@ -2,9 +2,12 @@
 Implementation of Pond Collection class.
 """
 
-from pyrsistent import freeze
+import json
+
+from pyrsistent import freeze, thaw
 
 from .bases import BoundedIn
+from .event import Event
 from .exceptions import CollectionException, CollectionWarning
 from .util import unique_id, is_pvector
 
@@ -66,7 +69,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         This is actually like json.loads(s) - produces the
         actual vanilla data structure."""
-        raise NotImplementedError
+        return thaw(self._event_list)
 
     def to_string(self):
         """
@@ -75,42 +78,66 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         In JS land, this is synonymous with __str__ or __unicode__
         """
         raise NotImplementedError
+        # can't json serizlize the event objects!
+        # return json.dumps(self.to_json())
 
     def type(self):
-        """Event object type."""
-        raise NotImplementedError
+        """
+        Event object type.
+
+        returns Event | IndexedEvent | TimeRangeEvent
+
+        The class of the type of events in this collection.
+        """
+        return self._type
 
     def size(self):
         """Number of items in collection."""
         return len(self._event_list)
 
-    def size_valid(self):
+    def size_valid(self, field_spec='value'):
         """
         Returns the number of valid items in this collection.
 
-        Uses the fieldName and optionally a function passed in
-        to look up values in all events. It then counts the number
-        that are considered valid, i.e. are not NaN, undefined or null.
+        Uses the fieldSpec to look up values in all events.
+        It then counts the number that are considered valid,
+        i.e. are not NaN, undefined or null.
         """
-        raise NotImplementedError
+        count = 0
+
+        for i in self.events():
+            if Event.is_valid_value(i, field_spec):
+                count += 1
+
+        return count
 
     def at(self, pos):  # pylint: disable=invalid-name
-        """Returns an item in the collection by its position."""
-        raise NotImplementedError
+        """Returns an item in the collection by its position.
+
+        Creates a new object via copy ctor."""
+        try:
+            return self._type(self._event_list[pos])
+        except ValueError:
+            raise CollectionException('invalid index given to at()')
 
     def at_time(self, time):
         """Return an item by time."""
-        raise NotImplementedError
+        pos = self.bisect(time)
 
-    def first(self):
+        if pos and pos < self.size():
+            return self.at(pos)
+
+    def at_first(self):
         """First item."""
-        raise NotImplementedError
+        if self.size():
+            return self.at(0)
 
-    def last(self):
+    def at_last(self):
         """Last item."""
-        raise NotImplementedError
+        if self.size():
+            return self.at(-1)
 
-    def bisect(self, t, b):  # pylint: disable=invalid-name
+    def bisect(self, dtime, b=0):  # pylint: disable=invalid-name
         """
         Finds the index that is just less than the time t supplied.
         In other words every event at the returned index or less
@@ -118,18 +145,44 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         index has a time later than the supplied t.
 
         Optionally supply a begin index to start searching from.
+
+            * dtime - python datetime object to bisect collection with
+                will be made into an aware datetime in UTC.
+            * b - position to start
+
+        Returns index that is the greatest but still below t
         """
-        raise NotImplementedError
+
+        i = b
+        size = self.size()
+
+        if not size:
+            return None
+
+        while i < size:
+            ts_tmp = self.at(i).timestamp()
+            if ts_tmp > dtime:
+                return i - 1 if i - 1 >= 0 else 0
+            elif ts_tmp == dtime:
+                return i
+
+            i += 1
+
+        return i - 1
 
     def events(self):
         """
         Generator to allow for..of loops over series.events()
         """
-        raise NotImplementedError
+        return iter(self._event_list)
 
     def event_list(self):
-        """Get internet list of events."""
-        raise NotImplementedError
+        """Returns the raw Immutable event list."""
+        return self._event_list
+
+    def event_list_as_list(self):
+        """return a python list of the event list."""
+        return thaw(self.event_list())
 
     # Series range
 
