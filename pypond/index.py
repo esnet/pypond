@@ -9,9 +9,10 @@ import datetime
 import re
 import warnings
 
-from pypond.exceptions import IndexException, IndexWarning
-from pypond.range import TimeRange
-from pypond.util import (
+from .bases import PypondBase
+from .exceptions import IndexException, IndexWarning
+from .range import TimeRange
+from .util import (
     aware_dt_from_args,
     dt_from_ms,
     localtime_from_ms,
@@ -29,7 +30,7 @@ UNITS = dict(
 )
 
 
-class Index(object):
+class Index(PypondBase):
     """
     An index that represents as a string a range of time. That range may either
     be in UTC or local time. UTC is the default.
@@ -44,6 +45,7 @@ class Index(object):
 
     def __init__(self, s, utc=True):
         """Create the Index."""
+        super(Index, self).__init__()
 
         self._utc = utc
         self._string = s
@@ -114,15 +116,11 @@ class Index(object):
 
     # utility methods
 
-    def _warn(self, msg):  # pylint: disable=no-self-use
-        """issue warning"""
-        warnings.warn(msg, IndexWarning, stacklevel=2)
-
     def _local_idx_warning(self, local=False):
         """blanket warning to avoid if statements and make pylint happy."""
         if local:
             msg = 'year/month/day indexes will being coerced to UTC from localtime'
-            self._warn(msg)
+            self._warn(msg, IndexWarning)
 
     def range_from_index_string(self, idx_str, is_utc=True):  # pylint: disable=too-many-locals, too-many-statements
         """

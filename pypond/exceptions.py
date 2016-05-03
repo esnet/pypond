@@ -63,4 +63,34 @@ class UtilityWarning(Warning):
     pass
 
 
+class PipelineException(Exception):
+    """Custom Pipeline exception"""
+    def __init__(self, value):
+        # pylint: disable=super-init-not-called
+        self.value = value
+
+    def __str__(self):  # pragma: no cover
+        return repr(self.value)
+
+
+class PipelineWarning(Warning):
+    """Custom Pipeline warning"""
+    pass
+
+
+class CollectionException(Exception):
+    """Custom Collection exception"""
+    def __init__(self, value):
+        # pylint: disable=super-init-not-called
+        self.value = value
+
+    def __str__(self):  # pragma: no cover
+        return repr(self.value)
+
+
+class CollectionWarning(Warning):
+    """Custom Collection warning"""
+    pass
+
+
 NAIVE_MESSAGE = 'non-naive (aware) datetime objects required'

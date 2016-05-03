@@ -1,10 +1,15 @@
 """
-Various utilities for the pypond code.
+Various utilities for the pypond code.  Primarily functions to take
+care of consistent handling and conversion of time values as we are
+trying to traffic in aware datetime objects in UTC time.
+
+Additionally some boolean test functions and assorted other utility functions.
 """
 
 import datetime
 import math
 import types
+import uuid
 import warnings
 
 import humanize
@@ -175,6 +180,13 @@ def humanize_dt_ago(dtime):
 def humanize_duration(delta):
     """format for a single duration value - takes datatime.timedelta as arg"""
     return humanize.naturaldelta(delta)
+
+# various utility functions
+
+
+def unique_id(prefix=''):
+    """generate a uuid with a prefix - for debugging"""
+    return prefix + uuid.uuid4()
 
 # test types
 

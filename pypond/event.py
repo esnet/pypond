@@ -10,6 +10,7 @@ import json
 # using freeze/thaw more bulletproof than pmap/pvector since data is free-form
 from pyrsistent import thaw, freeze
 
+from .bases import PypondBase
 from .exceptions import EventException, NAIVE_MESSAGE
 from .range import TimeRange
 from .index import Index
@@ -27,10 +28,20 @@ from .util import (
 )
 
 
-class EventBase(object):
+class EventBase(PypondBase):
     """
     Common code for the event classes.
     """
+    def __init__(self, underscore_d):
+        "ctor"
+        # initialize common code
+        super(EventBase, self).__init__()
+
+        # pylint doesn't like self._d but be consistent w/original code.
+        # pylint: disable=invalid-name
+
+        self._d = underscore_d
+
     @staticmethod
     def timestamp_from_arg(arg):
         """extract timestamp from a constructor arg."""
@@ -110,22 +121,23 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             - a simple type such as an integer. In the case of the simple type
               this is a shorthand for supplying {"value": v}.
         """
+
         # pylint doesn't like self._d but be consistent w/original code.
         # pylint: disable=invalid-name
 
         if isinstance(instance_or_time, Event):
-            self._d = instance_or_time._d  # pylint: disable=protected-access
+            super(Event, self).__init__(instance_or_time._d)  # pylint: disable=protected-access
             return
 
         if is_pmap(instance_or_time) and 'time' in instance_or_time \
                 and 'data' in instance_or_time:
-            self._d = instance_or_time
+            super(Event, self).__init__(instance_or_time)
             return
 
         time = self.timestamp_from_arg(instance_or_time)
         data = self.data_from_arg(data)
 
-        self._d = freeze(dict(time=time, data=data))
+        super(Event, self).__init__(freeze(dict(time=time, data=data)))
 
     # Query/accessor methods
 
@@ -523,16 +535,16 @@ class TimeRangeEvent(EventBase):
         # pylint: disable=invalid-name
 
         if isinstance(instance_or_args, TimeRangeEvent):
-            self._d = instance_or_args._d  # pylint: disable=protected-access
+            super(TimeRangeEvent, self).__init__(instance_or_args._d)  # pylint: disable=protected-access
             return
         elif is_pmap(instance_or_args):
-            self._d = instance_or_args
+            super(TimeRangeEvent, self).__init__(instance_or_args)
             return
 
         rng = self.timerange_from_arg(instance_or_args)
         data = self.data_from_arg(arg2)
 
-        self._d = freeze(dict(range=rng, data=data))
+        super(TimeRangeEvent, self).__init__(freeze(dict(range=rng, data=data)))
 
         # Query/accessor methods
 
@@ -658,16 +670,16 @@ class IndexedEvent(EventBase):
         # pylint doesn't like self._d but be consistent w/original code.
         # pylint: disable=invalid-name
         if isinstance(instance_or_begin, IndexedEvent):
-            self._d = instance_or_begin._d  # pylint: disable=protected-access
+            super(IndexedEvent, self).__init__(instance_or_begin._d)  # pylint: disable=protected-access
             return
         elif is_pmap(instance_or_begin):
-            self._d = instance_or_begin
+            super(IndexedEvent, self).__init__(instance_or_begin)
             return
 
         index = self.index_from_args(instance_or_begin, utc)
         data = self.data_from_arg(data)
 
-        self._d = freeze(dict(index=index, data=data))
+        super(IndexedEvent, self).__init__(freeze(dict(index=index, data=data)))
 
     def to_json(self):
         """

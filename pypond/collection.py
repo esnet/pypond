@@ -2,8 +2,10 @@
 Implementation of Pond Collection class.
 """
 
+from pypond.bases import BoundedIn
 
-class Collection(object):  # pylint: disable=too-many-public-methods
+
+class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     """
     A collection is a list of Events. You can construct one out of either
     another collection, or a list of Events. You can addEvent() to a collection
@@ -17,7 +19,7 @@ class Collection(object):  # pylint: disable=too-many-public-methods
         """
         Initialize from copy, lists, etc.
         """
-        raise NotImplementedError
+        super(Collection, self).__init__()
 
     def to_json(self):
         """
