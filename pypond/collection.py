@@ -2,7 +2,11 @@
 Implementation of Pond Collection class.
 """
 
-from pypond.bases import BoundedIn
+from pyrsistent import freeze
+
+from .bases import BoundedIn
+from .exceptions import CollectionException, CollectionWarning
+from .util import unique_id, is_pvector
 
 
 class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
@@ -15,11 +19,46 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     can iterate over the collection with a for..of loop, get the size()
     of the collection and access a specific element with at().
     """
-    def __init__(self, arg1, copy_events=True):
+    def __init__(self, instance_or_list, copy_events=True):
         """
         Initialize from copy, lists, etc.
+
+        instance_or_list can be:
+            * a Collection object (copy ctor)
+            * a python list
+            * a pyrsistent.pvector
         """
         super(Collection, self).__init__()
+
+        self._id = unique_id('collection-')
+        self._event_list = None
+        self._type = None
+
+        if isinstance(instance_or_list, Collection):
+            other = instance_or_list
+            if copy_events:
+                # pylint: disable=protected-access
+                self._event_list = other._event_list
+                self._type = other._type
+            else:
+                self._event_list = freeze(list())
+
+        elif isinstance(instance_or_list, list):
+            events = list()
+            for i in instance_or_list:
+                self._check(i)
+                events.append(i)
+            self._event_list = freeze(events)
+
+        elif is_pvector(instance_or_list):
+            self._event_list = instance_or_list
+
+        else:
+            msg = 'Arg was not a Collection, list or pvector - '
+            msg += 'initializing event list to empty pvector'
+            self._warn(msg, CollectionWarning)
+
+            self._event_list = freeze(list())
 
     def to_json(self):
         """
@@ -43,7 +82,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
     def size(self):
         """Number of items in collection."""
-        raise NotImplementedError
+        return len(self._event_list)
 
     def size_valid(self):
         """

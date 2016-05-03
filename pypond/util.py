@@ -186,7 +186,7 @@ def humanize_duration(delta):
 
 def unique_id(prefix=''):
     """generate a uuid with a prefix - for debugging"""
-    return prefix + uuid.uuid4()
+    return prefix + str(uuid.uuid4())
 
 # test types
 
