@@ -5,7 +5,6 @@ Also including tests for Collection class since they are tightly bound.
 """
 
 import datetime
-import json
 import unittest
 import warnings
 
@@ -13,7 +12,7 @@ import warnings
 from pypond.event import Event
 from pypond.collection import Collection
 from pypond.exceptions import CollectionWarning
-from pypond.util import is_pvector
+from pypond.util import is_pvector, ms_from_dt
 
 EVENT_LIST = [
     Event(1429673400000, {'in': 1, 'out': 2}),
@@ -86,6 +85,26 @@ class TestCollectionCreation(SeriesBase):
         # get the raw event list
         self.assertTrue(is_pvector(col.event_list()))
         self.assertTrue(isinstance(col.event_list_as_list(), list))
+
+    def test_slices_maps_and_etc(self):
+        """
+        Test the accessors that return slices, timeranges, etc.
+        """
+        col = self._canned_collection
+
+        # range() = a TimeRange object representing the extents of the
+        # events in the event list.
+        new_range = col.range()
+        self.assertTrue(ms_from_dt(new_range.begin()), 1429673400000)
+        self.assertTrue(ms_from_dt(new_range.end()), 1429673520000)
+
+    def test_mutators(self):
+        """test collection mutation."""
+
+        extra_event = Event(1429673580000, {'in': 7, 'out': 8})
+
+        new_coll = self._canned_collection.add_event(extra_event)
+        self.assertEquals(new_coll.size(), 4)
 
     def test_bad_args(self):
         """pass in bad values"""

@@ -9,6 +9,7 @@ from pyrsistent import freeze, thaw
 from .bases import BoundedIn
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning
+from .range import TimeRange
 from .util import unique_id, is_pvector
 
 
@@ -190,17 +191,29 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         From the range of times, or Indexes within the TimeSeries, return
         the extents of the TimeSeries as a TimeRange.
-        @return {TimeRange} The extents of the TimeSeries
+        returns the extents of the TimeSeries
         """
-        raise NotImplementedError
+        min_val = None
+        max_val = None
+
+        for i in self.events():
+            if min_val is None or i.begin() < min_val:
+                min_val = i.begin()
+
+            if max_val is None or i.end() > max_val:
+                max_val = i.end()
+
+        if min_val is not None and max_val is not None:
+            return TimeRange(min_val, max_val)
 
     # event list mutation
 
-    def add_event(self):
+    def add_event(self, event):
         """
-        Add even and return a new object.
+        Add an event and return a new object.
         """
-        raise NotImplementedError
+        self._check(event)
+        return Collection(self._event_list.append(event))
 
     def slice(self, begin, end):
         """
