@@ -57,6 +57,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         elif is_pvector(instance_or_list):
             self._event_list = instance_or_list
+            for i in self._event_list:
+                self._check(i)
 
         else:
             msg = 'Arg was not a Collection, list or pvector - '
@@ -222,7 +224,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Collection representing a portion of this TimeSeries from begin up to
         but not including end.
         """
-        raise NotImplementedError
+        sliced = Collection(self._event_list[begin:end])
+        sliced._type = self._type  # pylint: disable=protected-access
+        return sliced
 
     def filter(self, func):
         """Generate a filtered event list."""

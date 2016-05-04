@@ -5,7 +5,6 @@ Also including tests for Collection class since they are tightly bound.
 """
 
 import datetime
-import json
 import unittest
 import warnings
 
@@ -52,14 +51,11 @@ class TestCollectionCreation(SeriesBase):
         # copy ctor - no event copy
         col_3 = Collection(col_2, copy_events=False)
         self.assertEquals(col_3.size(), 0)
-        self.assertIsNone(col_3.type())
         self.assertEquals(col_3.size_valid('in'), 0)
 
         # pass in an immutable - use a pre- _check()'ed one
         col_4 = Collection(col_1._event_list)  # pylint: disable=protected-access
         self.assertEquals(col_4.size(), 3)
-        # _check() is not run when immutable comes in.
-        self.assertIsNone(col_4.type())
         self.assertEquals(col_4.size_valid('in'), 3)
 
     def test_accessor_methods(self):
@@ -89,9 +85,9 @@ class TestCollectionCreation(SeriesBase):
         self.assertTrue(is_pvector(col.event_list()))
         self.assertTrue(isinstance(col.event_list_as_list(), list))
 
-    def test_slices_maps_and_etc(self):
+    def test_maps_and_etc(self):
         """
-        Test the accessors that return slices, timeranges, etc.
+        Test the accessors that return transformations, timeranges, etc.
         """
         col = self._canned_collection
 
@@ -108,6 +104,11 @@ class TestCollectionCreation(SeriesBase):
 
         new_coll = self._canned_collection.add_event(extra_event)
         self.assertEquals(new_coll.size(), 4)
+
+        # test slice() here since this collection is longer.
+        sliced = new_coll.slice(1, 3)
+        self.assertEquals(sliced.size(), 2)
+        self.assertTrue(Event.same(sliced.at(0), EVENT_LIST[1]))
 
     def test_bad_args(self):
         """pass in bad values"""
