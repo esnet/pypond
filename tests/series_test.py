@@ -68,6 +68,9 @@ class TestCollectionCreation(SeriesBase):
         self.assertEquals(
             col.to_string(),
             '[{"data": {"out": 2, "in": 1}, "time": 1429673400000}, {"data": {"out": 4, "in": 3}, "time": 1429673460000}, {"data": {"out": 6, "in": 5}, "time": 1429673520000}]')  # pylint: disable=line-too-long
+        self.assertEquals(
+            str(col),
+            '[{"data": {"out": 2, "in": 1}, "time": 1429673400000}, {"data": {"out": 4, "in": 3}, "time": 1429673460000}, {"data": {"out": 6, "in": 5}, "time": 1429673520000}]')  # pylint: disable=line-too-long
 
         # test at() - corollary to array index
         self.assertTrue(Event.same(col.at(2), EVENT_LIST[2]))
@@ -76,6 +79,10 @@ class TestCollectionCreation(SeriesBase):
         # get timestamp of second event and add some time to it
         ref_dtime = EVENT_LIST[1].timestamp() + datetime.timedelta(seconds=3)
         self.assertTrue(Event.same(col.at_time(ref_dtime), EVENT_LIST[1]))
+
+        # overshoot the end of the list for coverage
+        ref_dtime = EVENT_LIST[2].timestamp() + datetime.timedelta(seconds=3)
+        self.assertTrue(Event.same(col.at_time(ref_dtime), EVENT_LIST[2]))
 
         # at_first() and at_last()
         self.assertTrue(Event.same(col.at_first(), EVENT_LIST[0]))
@@ -117,8 +124,23 @@ class TestCollectionCreation(SeriesBase):
         cleaned_good = col.clean('in')
         self.assertEquals(cleaned_good.size(), 3)
 
-        cleaned_bad = col.clean('bogus_data_key')
+        cleaned_bad = col.clean(['bogus_data_key'])
         self.assertEquals(cleaned_bad.size(), 0)
+
+    def test_aggregations(self):
+        """sum, min, max, etc.
+        """
+
+        col = self._canned_collection
+        self.assertEquals(col.sum('in').get('in'), 9)
+        self.assertEquals(col.avg('out').get('out'), 4)
+        self.assertEquals(col.mean('out').get('out'), 4)
+        self.assertEquals(col.min('in').get('in'), 1)
+        self.assertEquals(col.max('in').get('in'), 5)
+        self.assertEquals(col.first('out').get('out'), 2)
+        self.assertEquals(col.last('out').get('out'), 6)
+        self.assertEquals(col.median('out').get('out'), 4)
+        self.assertEquals(col.stdev('out').get('out'), 1.632993161855452)
 
     def test_mutators(self):
         """test collection mutation."""

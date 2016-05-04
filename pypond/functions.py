@@ -2,6 +2,8 @@
 Functions to act as reducers, etc
 """
 
+from math import sqrt
+
 
 class Functions(object):
     """
@@ -41,6 +43,21 @@ class Functions(object):
             return values[-1]
         except IndexError:
             return None
+
+    @staticmethod
+    def stddev(values):
+        avg = Functions.avg(values)
+        variance = [(e - avg)**2 for e in values]
+        return sqrt(Functions.avg(variance))
+
+    @staticmethod
+    def median(values):
+        sort = sorted(values)
+        half = len(sort) // 2
+
+        if not len(sort) % 2:
+            return (sort[half - 1] + sort[half]) / 2.0
+        return sort[half]
 
     @staticmethod
     def difference(values):

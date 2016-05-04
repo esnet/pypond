@@ -283,18 +283,17 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         fspec = self._field_spec_to_array(field_spec)
         result = Event.map_reduce(self.event_list_as_list(), fspec, func)
-        print result
-        return result[fspec]
+        return result
 
         # pylint: disable=dangerous-default-value
 
     def first(self, field_spec=['value']):
         """Get first value in the collection for the fspec"""
-        raise NotImplementedError
+        return self.aggregate(Functions.first, field_spec)
 
     def last(self, field_spec=['value']):
         """Get last value in the collection for the fspec"""
-        raise NotImplementedError
+        return self.aggregate(Functions.last, field_spec)
 
     def sum(self, field_spec=['value']):
         """Get sum"""
@@ -302,27 +301,27 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
     def avg(self, field_spec=['value']):
         """Get avg"""
-        raise NotImplementedError
+        return self.aggregate(Functions.avg, field_spec)
 
     def max(self, field_spec=['value']):
         """Get max"""
-        raise NotImplementedError
+        return self.aggregate(Functions.max, field_spec)
 
     def min(self, field_spec=['value']):
         """Get min"""
-        raise NotImplementedError
+        return self.aggregate(Functions.min, field_spec)
 
     def mean(self, field_spec=['value']):
         """Get mean"""
-        raise NotImplementedError
+        return self.avg(field_spec)
 
     def median(self, field_spec=['value']):
         """Get median"""
-        raise NotImplementedError
+        return self.aggregate(Functions.median, field_spec)
 
     def stdev(self, field_spec=['value']):
         """Get std dev"""
-        raise NotImplementedError
+        return self.aggregate(Functions.stddev, field_spec)
 
     def __str__(self):
         """call to_string()"""
