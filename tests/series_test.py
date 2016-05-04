@@ -97,6 +97,29 @@ class TestCollectionCreation(SeriesBase):
         self.assertTrue(ms_from_dt(new_range.begin()), 1429673400000)
         self.assertTrue(ms_from_dt(new_range.end()), 1429673520000)
 
+        # filter
+        def out_is_four(event):
+            """test function"""
+            return bool(event.get('out') == 4)
+        filtered = col.filter(out_is_four)
+        self.assertEquals(filtered.size(), 1)
+
+        # map
+        def in_only(event):
+            """make new events wtin only data in."""
+            return Event(event.timestamp(), {'in': event.get('in')})
+        mapped = col.map(in_only)
+        self.assertEquals(mapped.count(), 3)
+        for i in mapped.events():
+            self.assertIsNone(i.get('out'))
+
+        # clean
+        cleaned_good = col.clean('in')
+        self.assertEquals(cleaned_good.size(), 3)
+
+        cleaned_bad = col.clean('bogus_data_key')
+        self.assertEquals(cleaned_bad.size(), 0)
+
     def test_mutators(self):
         """test collection mutation."""
 

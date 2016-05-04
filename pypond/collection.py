@@ -10,6 +10,7 @@ from pyrsistent import freeze, thaw
 from .sources import BoundedIn
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning
+from .functions import Functions
 from .range import TimeRange
 from .util import unique_id, is_pvector, ObjectEncoder
 
@@ -229,12 +230,23 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         return sliced
 
     def filter(self, func):
-        """Generate a filtered event list."""
-        raise NotImplementedError
+        """Filter the collection's event list with the supplied function."""
+        flt_events = list()
+
+        for i in self.events():
+            if func(i):
+                flt_events.append(i)
+
+        return Collection(flt_events)
 
     def map(self, func):
         """Map function."""
-        raise NotImplementedError
+        mapped_events = list()
+
+        for i in self.events():
+            mapped_events.append(func(i))
+
+        return Collection(mapped_events)
 
     def clean(self, field_spec):
         """
@@ -242,39 +254,73 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         values for being valid (not NaN, null or undefined).
         The resulting Collection will be clean for that fieldSpec.
         """
-        raise NotImplementedError
+        fspec = self._field_spec_to_array(field_spec)
+        flt_events = list()
+
+        for i in self.events():
+            if Event.is_valid_value(i, fspec):
+                flt_events.append(i)
+
+        return Collection(flt_events)
+
+    def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
+        """split the field spec if it is not already a list."""
+        if isinstance(fspec, list):
+            return fspec
+        elif isinstance(fspec, str):
+            return fspec.split('.')
 
     # sum/min/max etc
 
-    def count(self, field_spec='value'):
-        """Get count - calls self.size_valid(field_spec)"""
+    def count(self):
+        """Get count - calls size()"""
+        return self.size()
+
+    def aggregate(self, func, field_spec=['value']):  # pylint: disable=dangerous-default-value
+        """
+        Aggregates the events down using a user defined function to
+        do the reduction.
+        """
+        fspec = self._field_spec_to_array(field_spec)
+        result = Event.map_reduce(self.event_list_as_list(), fspec, func)
+        print result
+        return result[fspec]
+
+        # pylint: disable=dangerous-default-value
+
+    def first(self, field_spec=['value']):
+        """Get first value in the collection for the fspec"""
         raise NotImplementedError
 
-    def sum(self, field_spec='value'):
+    def last(self, field_spec=['value']):
+        """Get last value in the collection for the fspec"""
+        raise NotImplementedError
+
+    def sum(self, field_spec=['value']):
         """Get sum"""
-        raise NotImplementedError
+        return self.aggregate(Functions.sum, field_spec)
 
-    def max(self, field_spec='value'):
-        """Get max"""
-        raise NotImplementedError
-
-    def min(self, field_spec='value'):
-        """Get min"""
-        raise NotImplementedError
-
-    def avg(self, field_spec='value'):
+    def avg(self, field_spec=['value']):
         """Get avg"""
         raise NotImplementedError
 
-    def mean(self, field_spec='value'):
+    def max(self, field_spec=['value']):
+        """Get max"""
+        raise NotImplementedError
+
+    def min(self, field_spec=['value']):
+        """Get min"""
+        raise NotImplementedError
+
+    def mean(self, field_spec=['value']):
         """Get mean"""
         raise NotImplementedError
 
-    def median(self, field_spec='value'):
+    def median(self, field_spec=['value']):
         """Get median"""
         raise NotImplementedError
 
-    def stdev(self, field_spec='value'):
+    def stdev(self, field_spec=['value']):
         """Get std dev"""
         raise NotImplementedError
 
