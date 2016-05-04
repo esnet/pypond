@@ -9,9 +9,9 @@ import unittest
 import warnings
 
 from pypond.collection import Collection
-from pypond.event import Event
-from pypond.exceptions import CollectionWarning
-from pypond.util import is_pvector, ms_from_dt
+from pypond.event import Event, IndexedEvent, TimeRangeEvent
+from pypond.exceptions import CollectionWarning, CollectionException, PipelineException
+from pypond.util import is_pvector, ms_from_dt, aware_utcnow
 
 EVENT_LIST = [
     Event(1429673400000, {'in': 1, 'out': 2}),
@@ -58,6 +58,18 @@ class TestCollectionCreation(SeriesBase):
         self.assertEquals(col_4.size(), 3)
         self.assertEquals(col_4.size_valid('in'), 3)
 
+        # other event types for coverage
+        ie1 = IndexedEvent('1d-12355', {'value': 42})
+        ie2 = IndexedEvent('1d-12356', {'value': 4242})
+        col_5 = Collection([ie1, ie2])
+        self.assertEquals(col_5.size(), 2)
+
+        tre = TimeRangeEvent(
+            (aware_utcnow(), aware_utcnow() + datetime.timedelta(hours=24)),
+            {'in': 100})
+        col_6 = Collection([tre])
+        self.assertEquals(col_6.size(), 1)
+
     def test_accessor_methods(self):
         """test various access methods. Mostly for coverage."""
 
@@ -74,6 +86,10 @@ class TestCollectionCreation(SeriesBase):
 
         # test at() - corollary to array index
         self.assertTrue(Event.same(col.at(2), EVENT_LIST[2]))
+
+        # overshoot
+        with self.assertRaises(CollectionException):
+            col.at(5)
 
         # test at_time()
         # get timestamp of second event and add some time to it
@@ -155,6 +171,10 @@ class TestCollectionCreation(SeriesBase):
         self.assertEquals(sliced.size(), 2)
         self.assertTrue(Event.same(sliced.at(0), EVENT_LIST[1]))
 
+        # work stddev as well
+        self.assertEquals(new_coll.stdev('in').get('in'), 2.23606797749979)
+        self.assertEquals(new_coll.median('in').get('in'), 4)
+
     def test_bad_args(self):
         """pass in bad values"""
         with warnings.catch_warnings(record=True) as wrn:
@@ -162,6 +182,21 @@ class TestCollectionCreation(SeriesBase):
             self.assertEquals(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, CollectionWarning))
             self.assertEquals(bad_col.size(), 0)
+
+    def test_other_exceptions(self):
+        """trigger other exceptions"""
+        with self.assertRaises(PipelineException):
+            self._canned_collection.start()
+
+        with self.assertRaises(PipelineException):
+            self._canned_collection.stop()
+
+        with self.assertRaises(PipelineException):
+            self._canned_collection.on_emit()
+
+        with self.assertRaises(PipelineException):
+            ie1 = IndexedEvent('1d-12355', {'value': 42})
+            self._canned_collection.add_event(ie1)
 
 
 class TestTimeSeriesCreation(SeriesBase):

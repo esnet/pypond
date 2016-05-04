@@ -72,7 +72,7 @@ class EventBase(PypondBase):
 
     def to_json(self):
         """abstract, override in subclasses."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     def to_string(self):
         """
@@ -93,15 +93,15 @@ class EventBase(PypondBase):
 
     def timestamp(self):
         """abstract, override in subclass"""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     def begin(self):
         """abstract, override in subclass"""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     def end(self):
         """abstract, override in subclass"""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: nocover
 
     # static methods, primarily for arg processing.
 

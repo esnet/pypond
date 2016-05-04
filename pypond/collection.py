@@ -122,7 +122,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Creates a new object via copy ctor."""
         try:
             return self._type(self._event_list[pos])
-        except ValueError:
+        except IndexError:
             raise CollectionException('invalid index given to at()')
 
     def at_time(self, time):
