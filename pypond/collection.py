@@ -2,11 +2,12 @@
 Implementation of Pond Collection class.
 """
 
+import copy
 import json
 
 from pyrsistent import freeze, thaw
 
-from .bases import BoundedIn
+from .sources import BoundedIn
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning
 from .range import TimeRange
@@ -152,7 +153,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Returns index that is the greatest but still below t
         """
 
-        i = b
+        i = copy.copy(b)  # paranoia
         size = self.size()
 
         if not size:

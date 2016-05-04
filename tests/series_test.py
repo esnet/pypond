@@ -8,9 +8,8 @@ import datetime
 import unittest
 import warnings
 
-# import event before collection or circular import issue will happen.
-from pypond.event import Event
 from pypond.collection import Collection
+from pypond.event import Event
 from pypond.exceptions import CollectionWarning
 from pypond.util import is_pvector, ms_from_dt
 

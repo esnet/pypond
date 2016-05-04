@@ -4,11 +4,6 @@ Common base classes and mixins.
 
 import warnings
 
-import pypond.event  # avoiding circular imports
-
-from .exceptions import PipelineException
-from .util import unique_id
-
 
 class PypondBase(object):
     """
@@ -65,57 +60,3 @@ class Observable(PypondBase):
     def has_observers(self):
         """does the object have observers?"""
         return bool(len(self._observers) > 0)
-
-
-class In(Observable):
-    """
-    For the pipeline - raise exceptions if an attempt is made to
-    add heterogenous types.
-    """
-    def __init__(self):
-
-        super(In, self).__init__()
-
-        self._id = unique_id('in-')
-        self._type = None
-
-    def _check(self, event):
-        """verify the internal types."""
-
-        # gotta do.it.this way to avoid circular import with event.py
-        # I don't think these pipeline source bases need their own
-        # module.
-
-        if self._type is None:
-            if isinstance(event, pypond.event.Event):
-                self._type = pypond.event.Event
-            elif isinstance(event, pypond.event.TimeRangeEvent):
-                self._type = pypond.event.TimeRangeEvent
-            elif isinstance(event, pypond.event.IndexedEvent):
-                self._type = pypond.event.IndexedEvent
-        else:
-            if not isinstance(event, self._type):
-                raise PipelineException('Homogeneous events expected')
-
-
-class BoundedIn(In):
-    """For the pipeline - source of a fixed size - like a collection."""
-
-    def __init__(self):
-        super(BoundedIn, self).__init__()
-
-    # pylint: disable=no-self-use, missing-docstring
-
-    def start(self):
-        raise PipelineException('start() not supported on bounded source')
-
-    def stop(self):
-        raise PipelineException('stop() not supported on bounded source')
-
-    def on_emit(self):
-        raise PipelineException('You can not setup a listener to a bounded source')
-
-
-class UnboundedIn(In):
-    """For the pipeline - a source that has no container of its own."""
-    pass
