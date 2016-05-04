@@ -11,7 +11,7 @@ from .sources import BoundedIn
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning
 from .range import TimeRange
-from .util import unique_id, is_pvector
+from .util import unique_id, is_pvector, ObjectEncoder
 
 
 class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
@@ -78,8 +78,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Retruns the collection as a string, useful for serialization.
 
         In JS land, this is synonymous with __str__ or __unicode__
+
+        Use custom object encoder because this is a list of Event* objects.
         """
-        return json.dumps(self.to_json())
+        return json.dumps(self.to_json(), cls=ObjectEncoder)
 
     def type(self):
         """

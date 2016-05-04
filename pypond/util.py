@@ -7,6 +7,7 @@ Additionally some boolean test functions and assorted other utility functions.
 """
 
 import datetime
+import json
 import math
 import types
 import uuid
@@ -187,6 +188,20 @@ def humanize_duration(delta):
 def unique_id(prefix=''):
     """generate a uuid with a prefix - for debugging"""
     return prefix + str(uuid.uuid4())
+
+
+class ObjectEncoder(json.JSONEncoder):
+    """
+    Class to allow arbitrary python objects to be json encoded with
+    json.dumps()/etc by defining a .to_json() method on your object.
+
+    Usage: json.dumps(your_cool_object, cls=ObjectEncoder)
+    """
+    def default(self, obj):  # pylint: disable=method-hidden
+        if hasattr(obj, "to_json"):
+            return self.default(obj.to_json())
+
+        return obj
 
 # test types
 

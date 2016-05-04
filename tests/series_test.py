@@ -5,6 +5,7 @@ Also including tests for Collection class since they are tightly bound.
 """
 
 import datetime
+import json
 import unittest
 import warnings
 
@@ -68,6 +69,9 @@ class TestCollectionCreation(SeriesBase):
 
         # basic accessors
         self.assertEquals(col.to_json(), EVENT_LIST)
+        self.assertEquals(
+            col.to_string(),
+            '[{"data": {"out": 2, "in": 1}, "time": 1429673400000}, {"data": {"out": 4, "in": 3}, "time": 1429673460000}, {"data": {"out": 6, "in": 5}, "time": 1429673520000}]')  # pylint: disable=line-too-long
 
         # test at() - corollary to array index
         self.assertTrue(Event.same(col.at(2), EVENT_LIST[2]))
@@ -104,9 +108,6 @@ class TestCollectionCreation(SeriesBase):
 
         new_coll = self._canned_collection.add_event(extra_event)
         self.assertEquals(new_coll.size(), 4)
-
-        print extra_event
-        print new_coll
 
     def test_bad_args(self):
         """pass in bad values"""
