@@ -219,11 +219,18 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             data=thaw(self.data()),
         )
 
-    def to_point(self):
+    def to_point(self, cols=None):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         """
-        return [self._get_epoch_ms()] + [x for x in self.data().values()]
+        points = [self._get_epoch_ms()]
+
+        if isinstance(cols, list):
+            points += [self.data().get(x, None) for x in cols]
+        else:
+            points += [x for x in self.data().values()]
+
+        return points
 
     def timestamp_as_utc_string(self):
         """The timestamp of this data, in UTC time, as a string."""
@@ -581,14 +588,18 @@ class TimeRangeEvent(EventBase):
             data=thaw(self.data()),
         )
 
-    def to_point(self):
+    def to_point(self, cols=None):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         """
-        return [
-            self.timerange().to_json(),
-            thaw(self.data()).values()
-        ]
+        points = [self.timerange().to_json()]
+
+        if isinstance(cols, list):
+            raise NotImplementedError
+        else:
+            points.append(thaw(self.data()).values())
+
+        return points
 
     def timerange_as_utc_string(self):
         """The timerange of this data, in UTC time, as a string."""
@@ -675,15 +686,19 @@ class IndexedEvent(EventBase):
             data=thaw(self.data())
         )
 
-    def to_point(self):
+    def to_point(self, cols=None):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         Doesn't include the groupByKey (key).
         """
-        return [
-            self.index_as_string(),
-            thaw(self.data()).values()
-        ]
+        points = [self.index_as_string()]
+
+        if isinstance(cols, list):
+            raise NotImplementedError
+        else:
+            points.append(thaw(self.data()).values())
+
+        return points
 
     def index(self):
         """Returns the Index associated with the data in this Event."""

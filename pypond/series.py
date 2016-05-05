@@ -159,7 +159,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         columns += self.columns()
 
         for i in self._collection.events():
-            points.append(i.to_point())
+            points.append(i.to_point(columns[1:]))
 
         cols_and_points = dict(
             columns=columns,
@@ -248,7 +248,15 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         raise NotImplementedError
 
     def columns(self):
-        """access the underlying columns."""
+        """
+        create a list of the underlying columns.
+
+        Due to the nature of the event data and using dicts, the order
+        of the column list might be somewhat unpredictable. When generating
+        points, this is solved by passing the column list to .to_point()
+        as an optional argument to ensure that the points and the columns
+        are properly aligned.
+        """
         cret = dict()
 
         for i in self._collection.events():

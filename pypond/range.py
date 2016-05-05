@@ -95,7 +95,6 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Construct the object using the aforementioned arg combinations.
         """
         super(TimeRange, self).__init__()
-        print self.__dict__
 
         if isinstance(instance_or_begin, TimeRange):
             # copy constructor
