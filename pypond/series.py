@@ -4,8 +4,20 @@ Implements the Pond TimeSeries class.
 http://software.es.net/pond/#/timeseries
 """
 
+import copy
+import json
 
-class TimeSeries(object):  # pylint: disable=too-many-public-methods
+from pyrsistent import freeze, thaw
+
+from .bases import PypondBase
+from .collection import Collection
+from .event import Event, TimeRangeEvent, IndexedEvent
+from .exceptions import TimeSeriesException
+from .index import Index
+from .util import ObjectEncoder
+
+
+class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     """
     A TimeSeries is a a Series where each event is an association of a timestamp
     and some associated data.
@@ -40,14 +52,91 @@ class TimeSeries(object):  # pylint: disable=too-many-public-methods
     events within it (i.e. the min and max times).
     """
 
-    def __init__(self, arg):
+    event_type_map = dict(
+        time=Event,
+        timerange=TimeRangeEvent,
+        index=IndexedEvent,
+    )
+
+    def __init__(self, instance_or_wire):
         """
         initialize a TimeSeries object from
             * Another TimeSeries/copy ctor
             * An event list
             * From the wire format
         """
-        raise NotImplementedError
+        super(TimeSeries, self).__init__()
+
+        self._collection = None
+        self._data = None
+
+        # used for generating the json in the case of the wire format.
+        self._columns = list()
+
+        if isinstance(instance_or_wire, TimeSeries):
+            # copy ctor
+            pass
+        elif isinstance(instance_or_wire, dict):
+            # got wire format/etc
+            if 'events' in instance_or_wire:
+                pass
+            elif 'collection' in instance_or_wire:
+                pass
+            elif 'columns' in instance_or_wire and 'points' in instance_or_wire:
+                # coming from the wire format
+
+                event_type = instance_or_wire.get('columns')[0]
+                event_fields = instance_or_wire.get('columns')[1:]
+
+                events = list()
+
+                for i in instance_or_wire.get('points'):
+                    time = i[0]
+                    event_values = i[1:]
+                    data = dict(zip(event_fields, event_values))
+                    try:
+                        events.append(self.event_type_map[event_type](time, data))
+                    except KeyError:
+                        msg = 'invalid event type {et}'.format(et=event_type)
+                        raise TimeSeriesException(msg)
+
+                self._collection = Collection(events)
+
+                meta2 = copy.copy(instance_or_wire)
+                meta2.pop('columns')
+                meta2.pop('points')
+
+                self._data = self.build_metadata(meta2)
+
+            else:
+                msg = 'unable to determine dict format'
+                raise TimeSeriesException(msg)
+        else:
+            # unable to determine
+            msg = 'arg must be a TimeSeries instance or dict'
+            raise TimeSeriesException(msg)
+
+    @staticmethod
+    def build_metadata(meta):
+        """
+        Build the metadata out of the incoming wire format
+        """
+
+        ret = copy.copy(meta) if meta else dict()
+
+        ret['name'] = meta.get('name', '')
+
+        if 'index' in meta:
+            if isinstance(meta.get('index'), str):
+                ret['index'] = Index(meta.get('index'))
+            elif isinstance(meta.get('index'), Index):
+                ret['index'] = meta.get('index')
+
+        ret['utc'] = True
+        if 'utc' in meta and isinstance(meta.get('utc'), bool):
+            ret['utc'] = meta.get('utc')
+
+        return freeze(ret)
 
     def to_json(self):
         """
@@ -56,7 +145,32 @@ class TimeSeries(object):  # pylint: disable=too-many-public-methods
 
         This is actually like json.loads(s) - produces the
         actual vanilla data structure."""
-        raise NotImplementedError
+
+        columns = list()
+        points = list()
+
+        if self._collection.type() == Event:
+            columns += ['time']
+        elif self._collection.type() == TimeRangeEvent:
+            columns += ['timerange']
+        elif self._collection.type() == IndexedEvent:
+            columns += ['index']
+
+        columns += self.columns()
+
+        for i in self._collection.events():
+            points.append(i.to_point())
+
+        cols_and_points = dict(
+            columns=columns,
+            points=points,
+        )
+
+        # XXX: make sure this does the right thing with the index.
+
+        cols_and_points.update(thaw(self._data))
+
+        return cols_and_points
 
     def to_string(self):
         """
@@ -64,7 +178,7 @@ class TimeSeries(object):  # pylint: disable=too-many-public-methods
 
         In JS land, this is synonymous with __str__ or __unicode__
         """
-        raise NotImplementedError
+        return json.dumps(self.to_json(), cls=ObjectEncoder)
 
     def timerange(self):
         """Returns the extents of the TimeSeries as a TimeRange.."""
@@ -133,6 +247,18 @@ class TimeSeries(object):  # pylint: disable=too-many-public-methods
         """Get data utc."""
         raise NotImplementedError
 
+    def columns(self):
+        """access the underlying columns."""
+        cret = dict()
+
+        for i in self._collection.events():
+            for v in i.to_json().values():
+                if isinstance(v, dict):
+                    for key in v.keys():
+                        cret[key] = True
+
+        return cret.keys()
+
     def collection(self):
         """Returns the internal collection of events for this TimeSeries"""
         raise NotImplementedError
@@ -183,7 +309,7 @@ class TimeSeries(object):  # pylint: disable=too-many-public-methods
 
     def __str__(self):
         """call to_string()"""
-        raise NotImplementedError
+        return self.to_string()
 
     # Static methods
 

@@ -11,13 +11,46 @@ import warnings
 from pypond.collection import Collection
 from pypond.event import Event, IndexedEvent, TimeRangeEvent
 from pypond.exceptions import CollectionWarning, CollectionException, PipelineException
+from pypond.series import TimeSeries
 from pypond.util import is_pvector, ms_from_dt, aware_utcnow
 
+# taken from the pipeline tests
 EVENT_LIST = [
     Event(1429673400000, {'in': 1, 'out': 2}),
     Event(1429673460000, {'in': 3, 'out': 4}),
     Event(1429673520000, {'in': 5, 'out': 6}),
 ]
+
+# taken from the series tests
+DATA = dict(
+    name="traffic",
+    columns=["time", "value", "status"],
+    points=[
+        [1400425947000, 52, "ok"],
+        [1400425948000, 18, "ok"],
+        [1400425949000, 26, "fail"],
+        [1400425950000, 93, "offline"]
+    ]
+)
+
+AVAILABILITY_DATA = dict(
+    name="availability",
+    columns=["index", "uptime"],
+    points=[
+        ["2015-06", "100%"],
+        ["2015-05", "92%"],
+        ["2015-04", "87%"],
+        ["2015-03", "99%"],
+        ["2015-02", "92%"],
+        ["2015-01", "100%"],
+        ["2014-12", "99%"],
+        ["2014-11", "91%"],
+        ["2014-10", "99%"],
+        ["2014-09", "95%"],
+        ["2014-08", "88%"],
+        ["2014-07", "100%"]
+    ]
+)
 
 
 class SeriesBase(unittest.TestCase):
@@ -29,7 +62,19 @@ class SeriesBase(unittest.TestCase):
         self._canned_collection = Collection(EVENT_LIST)
 
 
-class TestCollectionCreation(SeriesBase):
+class TestTimeSeriesCreation(SeriesBase):
+    """
+    Test variations of TimeSeries object creation.
+    """
+    def test_series_creation(self):
+        """test timeseries creation."""
+
+        # series from an event list
+        ts1 = TimeSeries(DATA)
+        print ts1
+
+
+class TestCollection(SeriesBase):
     """
     Tests for the collection class.
     """
@@ -198,18 +243,6 @@ class TestCollectionCreation(SeriesBase):
             ie1 = IndexedEvent('1d-12355', {'value': 42})
             self._canned_collection.add_event(ie1)
 
-
-class TestTimeSeriesCreation(SeriesBase):
-    """
-    Test variations of TimeSeries object creation.
-    """
-    def test_wire(self):
-        """TimeSeries created with our wire format"""
-        pass
-
-    def test_event_list(self):
-        """TimeSeries created with a list of events"""
-        pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -584,7 +584,6 @@ class TimeRangeEvent(EventBase):
     def to_point(self):
         """
         Returns a flat array starting with the timestamp, followed by the values.
-        Doesn't include the groupByKey (key).
         """
         return [
             self.timerange().to_json(),
