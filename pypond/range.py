@@ -8,6 +8,7 @@ import json
 
 from pyrsistent import freeze
 
+from .bases import PypondBase
 from .exceptions import TimeRangeException, NAIVE_MESSAGE
 from .util import (
     aware_utcnow,
@@ -24,7 +25,7 @@ from .util import (
 )
 
 
-class TimeRangeBase(object):
+class TimeRangeBase(PypondBase):
     """Base for TimeRange"""
 
     @staticmethod
@@ -93,6 +94,8 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """
         Construct the object using the aforementioned arg combinations.
         """
+        super(TimeRange, self).__init__()
+        print self.__dict__
 
         if isinstance(instance_or_begin, TimeRange):
             # copy constructor
