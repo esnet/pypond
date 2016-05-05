@@ -4,6 +4,7 @@ Tests for the TimeSeries class
 Also including tests for Collection class since they are tightly bound.
 """
 
+import copy
 import datetime
 import unittest
 import warnings
@@ -57,6 +58,15 @@ AVAILABILITY_DATA = dict(
     ]
 )
 
+TICKET_RANGE = dict(
+    name="outages",
+    columns=["timerange", "title", "esnet_ticket"],
+    points=[
+        [[1429673400000, 1429707600000], "BOOM", "ESNET-20080101-001"],
+        [[1429673400000, 1429707600000], "BAM!", "ESNET-20080101-002"],
+    ],
+)
+
 
 class SeriesBase(unittest.TestCase):
     """
@@ -94,14 +104,27 @@ class TestTimeSeriesCreation(SeriesBase):
         ts5 = TimeSeries(ts4)
         self.assertEquals(ts4.size(), ts5.size())
 
+        # from a wire format time range
+        ts6 = TimeSeries(TICKET_RANGE)
+        self.assertEquals(ts6.size(), len(TICKET_RANGE.get('points')))
+
     def test_bad_ctor_args(self):
         """bogus conctructor args."""
 
+        # bad wire format/etc
         with self.assertRaises(TimeSeriesException):
             TimeSeries(dict())
 
+        # neither dict nor TimeSeries instance
         with self.assertRaises(TimeSeriesException):
             TimeSeries(list())
+
+        # bad wire format
+        bad_wire = copy.deepcopy(TICKET_RANGE)
+        bad_wire.get('columns')[0] = 'bogus_type'
+
+        with self.assertRaises(TimeSeriesException):
+            TimeSeries(bad_wire)
 
 
 class TestCollection(SeriesBase):
