@@ -69,9 +69,13 @@ class TestTimeSeriesCreation(SeriesBase):
     def test_series_creation(self):
         """test timeseries creation."""
 
-        # series from an event list
+        # series from an event list wire format
         ts1 = TimeSeries(DATA)
         print ts1
+
+        # from an index wire format
+        ts2 = TimeSeries(AVAILABILITY_DATA)
+        print ts2
 
 
 class TestCollection(SeriesBase):
