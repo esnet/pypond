@@ -75,13 +75,31 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         if isinstance(instance_or_wire, TimeSeries):
             # copy ctor
-            pass
+            # pylint: disable=protected-access
+            self._collection = instance_or_wire._collection
+            self._data = instance_or_wire._data
+
         elif isinstance(instance_or_wire, dict):
-            # got wire format/etc
             if 'events' in instance_or_wire:
-                pass
+                # list of events dict(name='events', events=[list, of, events])
+
+                self._collection = Collection(instance_or_wire.get('events', []))
+
+                meta = copy.copy(instance_or_wire)
+                meta.pop('events')
+
+                self._data = self.build_metadata(meta)
+
             elif 'collection' in instance_or_wire:
-                pass
+                # collection dict(name='collection', collection=collection_obj)
+
+                self._collection = instance_or_wire.get('collection', None)
+
+                meta = copy.copy(instance_or_wire)
+                meta.pop('collection')
+
+                self._data = self.build_metadata(meta)
+
             elif 'columns' in instance_or_wire and 'points' in instance_or_wire:
                 # coming from the wire format
 
@@ -102,11 +120,11 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
                 self._collection = Collection(events)
 
-                meta2 = copy.copy(instance_or_wire)
-                meta2.pop('columns')
-                meta2.pop('points')
+                meta = copy.copy(instance_or_wire)
+                meta.pop('columns')
+                meta.pop('points')
 
-                self._data = self.build_metadata(meta2)
+                self._data = self.build_metadata(meta)
 
             else:
                 msg = 'unable to determine dict format'
@@ -166,8 +184,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             points=points,
         )
 
-        # XXX: make sure this does the right thing with the index.
-
+        # fold in the rest of the payload
         cols_and_points.update(thaw(self._data))
 
         return cols_and_points
@@ -279,7 +296,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     def size(self):
         """Number of rows in series."""
-        raise NotImplementedError
+        return self._collection.size()
 
     def size_valid(self):
         """Returns the number of rows in the series."""

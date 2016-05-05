@@ -10,7 +10,12 @@ import warnings
 
 from pypond.collection import Collection
 from pypond.event import Event, IndexedEvent, TimeRangeEvent
-from pypond.exceptions import CollectionWarning, CollectionException, PipelineException
+from pypond.exceptions import (
+    CollectionException,
+    CollectionWarning,
+    PipelineException,
+    TimeSeriesException,
+)
 from pypond.series import TimeSeries
 from pypond.util import is_pvector, ms_from_dt, aware_utcnow
 
@@ -69,13 +74,34 @@ class TestTimeSeriesCreation(SeriesBase):
     def test_series_creation(self):
         """test timeseries creation."""
 
-        # series from an event list wire format
+        # from a wire format event list
         ts1 = TimeSeries(DATA)
-        print ts1
+        self.assertEquals(ts1.size(), len(DATA.get('points')))
 
-        # from an index wire format
+        # from a wire format index
         ts2 = TimeSeries(AVAILABILITY_DATA)
-        print ts2
+        self.assertEquals(ts2.size(), len(AVAILABILITY_DATA.get('points')))
+
+        # from a list of events
+        ts3 = TimeSeries(dict(name='events', events=EVENT_LIST))
+        self.assertEquals(ts3.size(), len(EVENT_LIST))
+
+        # from a collection
+        ts4 = TimeSeries(dict(name='collection', collection=self._canned_collection))
+        self.assertEquals(ts4.size(), self._canned_collection.size())
+
+        # copy constructor
+        ts5 = TimeSeries(ts4)
+        self.assertEquals(ts4.size(), ts5.size())
+
+    def test_bad_ctor_args(self):
+        """bogus conctructor args."""
+
+        with self.assertRaises(TimeSeriesException):
+            TimeSeries(dict())
+
+        with self.assertRaises(TimeSeriesException):
+            TimeSeries(list())
 
 
 class TestCollection(SeriesBase):
