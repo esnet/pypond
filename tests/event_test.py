@@ -438,7 +438,7 @@ class TestIndexedEvent(BaseTestEvent):
 
         self.assertEquals(
             ie1.to_point(),
-            ['1d-12355', [42]])
+            ['1d-12355', 42])
 
         self.assertEquals(
             ie1.timerange_as_utc_string(),
@@ -543,22 +543,22 @@ class TestTimeRangeEvent(BaseTestEvent):
         # create with ms timestamps/tuple
         tr1 = TimeRangeEvent((self.test_begin_ms, self.test_end_ms), 23)
         self.assertEqual(tr1.data(), dict(value=23))
-        self.assertEqual(tr1.to_point()[1][0], 23)
+        self.assertEqual(tr1.to_point()[1], 23)
 
         # create with datetime/list
         tr2 = TimeRangeEvent([self.test_begin_ts, self.test_end_ts], 2323)
         self.assertEqual(tr2.to_json().get('data'), dict(value=2323))
-        self.assertEqual(tr2.to_point()[1][0], 2323)
+        self.assertEqual(tr2.to_point()[1], 2323)
 
         # copy constructor
         tr3 = TimeRangeEvent(tr1)
         self.assertEqual(tr3.data(), dict(value=23))
-        self.assertEqual(tr3.to_point()[1][0], 23)
+        self.assertEqual(tr3.to_point()[1], 23)
 
         # borrow a pmap from another instance
         tr4 = TimeRangeEvent(tr2._d)  # pylint: disable=protected-access
         self.assertEqual(tr4.to_json().get('data'), dict(value=2323))
-        self.assertEqual(tr4.to_point()[1][0], 2323)
+        self.assertEqual(tr4.to_point()[1], 2323)
 
         # bad copy arg
         with self.assertRaises(EventException):
@@ -632,7 +632,7 @@ class TestTimeRangeEvent(BaseTestEvent):
 
         new_range = ctr.set_data(new_value)
         self.assertEqual(new_range.data(), dict(value=new_value))
-        self.assertEqual(new_range.to_point()[1][0], new_value)
+        self.assertEqual(new_range.to_point()[1], new_value)
 
 if __name__ == '__main__':
     unittest.main()

@@ -595,9 +595,9 @@ class TimeRangeEvent(EventBase):
         points = [self.timerange().to_json()]
 
         if isinstance(cols, list):
-            points.append([self.data().get(x) for x in cols])
+            points += [self.data().get(x, None) for x in cols]
         else:
-            points.append(thaw(self.data()).values())
+            points += [x for x in self.data().values()]
 
         return points
 
@@ -694,9 +694,9 @@ class IndexedEvent(EventBase):
         points = [self.index_as_string()]
 
         if isinstance(cols, list):
-            points.append([self.data().get(x) for x in cols])
+            points += [self.data().get(x, None) for x in cols]
         else:
-            points.append(thaw(self.data()).values())
+            points += [x for x in self.data().values()]
 
         return points
 
