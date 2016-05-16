@@ -70,9 +70,6 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         self._collection = None
         self._data = None
 
-        # used for generating the json in the case of the wire format.
-        self._columns = list()
-
         if isinstance(instance_or_wire, TimeSeries):
             # copy ctor
             # pylint: disable=protected-access
@@ -362,7 +359,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     @staticmethod
     def equal(series1, series2):
         """Check equality."""
-        raise NotImplementedError
+        # pylint: disable=protected-access
+        # return bool(
+        #     series1._name == series2._name and
+        #     series1._meta == series2._meta and
+        #     series1._utc == series2._utc and
+        #     series1._columns == series2.columns and
+        #     series1._data == series2._data and
+        #     series1._times == series2._times
+        # )
+        pass
 
     @staticmethod
     def same(series1, series2):

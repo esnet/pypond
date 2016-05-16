@@ -128,6 +128,13 @@ class TestTimeSeries(SeriesBase):
         ts6 = TimeSeries(TICKET_RANGE)
         self.assertEquals(ts6.size(), len(TICKET_RANGE.get('points')))
 
+        # non-utc, mostly for coverage
+        idxd = copy.deepcopy(INDEXED_DATA)
+        idxd['utc'] = False
+        ts7 = TimeSeries(idxd)
+        self.assertFalse(ts7.is_utc())
+        self.assertFalse(ts7.to_json().get('utc'))
+
     def test_bad_ctor_args(self):
         """bogus conctructor args."""
 
@@ -214,6 +221,14 @@ class TestTimeSeries(SeriesBase):
         # self.assertEquals(tser.last('out').get('out'), 6)
         self.assertEquals(tser.median('out').get('out'), 4)
         self.assertEquals(tser.stdev('out').get('out'), 1.632993161855452)
+
+
+    def test_comparison_methods(self):
+        """equal/same/etc."""
+        ser1 = TimeSeries(DATA)
+        ser2 = TimeSeries(DATA)
+
+        # print TimeSeries.equal(ser1, ser2)
 
 
 class TestCollection(SeriesBase):
