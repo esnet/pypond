@@ -326,3 +326,25 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     def __str__(self):
         """call to_string()"""
         return self.to_string()
+
+    @staticmethod
+    def equal(coll1, coll2):
+        """
+        test to see if instances are the same
+        """
+        # pylint: disable=protected-access
+        return bool(
+            coll1._type is coll2._type and
+            coll1._event_list is coll2._event_list
+        )
+
+    @staticmethod
+    def same(coll1, coll2):
+        """
+        test to see if the collections have the same values
+        """
+        # pylint: disable=protected-access
+        return bool(
+            coll1._type == coll2._type and
+            coll1._event_list == coll2._event_list
+        )

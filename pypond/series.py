@@ -360,20 +360,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     def equal(series1, series2):
         """Check equality."""
         # pylint: disable=protected-access
-        # return bool(
-        #     series1._name == series2._name and
-        #     series1._meta == series2._meta and
-        #     series1._utc == series2._utc and
-        #     series1._columns == series2.columns and
-        #     series1._data == series2._data and
-        #     series1._times == series2._times
-        # )
-        pass
+        return bool(
+            series1._data is series2._data and
+            series1._collection is series2._collection
+        )
 
     @staticmethod
     def same(series1, series2):
         """Implements JS Object.is()"""
-        raise NotImplementedError
+        # pylint: disable=protected-access
+        return bool(
+            series1._data == series2._data and
+            Collection.same(series1._collection, series2._collection)
+        )
 
     @staticmethod
     def map(data, series_list, mapper):
