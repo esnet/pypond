@@ -310,9 +310,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """Number of rows in series."""
         return self._collection.size()
 
-    def size_valid(self):
+    def size_valid(self, field_spec):
         """Returns the number of rows in the series."""
-        raise NotImplementedError
+        return self._collection.size_valid(field_spec)
 
     def count(self):
         """alias for size."""
@@ -383,3 +383,4 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     @staticmethod
     def merge(data, series_list):
         """Merge."""
+        raise NotImplementedError

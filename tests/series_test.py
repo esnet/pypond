@@ -102,7 +102,10 @@ class TestTimeSeries(SeriesBase):
     Test variations of TimeSeries object creation.
     """
     def test_series_creation(self):
-        """test timeseries creation."""
+        """test timeseries creation.
+
+        Calls to to_json() are to trigger coverage for different variants.
+        """
 
         # from a wire format event list
         ts1 = TimeSeries(DATA)
@@ -111,6 +114,7 @@ class TestTimeSeries(SeriesBase):
         # from a wire format index
         ts2 = TimeSeries(AVAILABILITY_DATA)
         self.assertEquals(ts2.size(), len(AVAILABILITY_DATA.get('points')))
+        self.assertEquals(ts2.to_json().get('name'), 'availability')
 
         # from a list of events
         ts3 = TimeSeries(dict(name='events', events=EVENT_LIST))
@@ -127,13 +131,20 @@ class TestTimeSeries(SeriesBase):
         # from a wire format time range
         ts6 = TimeSeries(TICKET_RANGE)
         self.assertEquals(ts6.size(), len(TICKET_RANGE.get('points')))
+        self.assertEquals(ts6.to_json().get('name'), 'outages')
 
-        # non-utc, mostly for coverage
+        # non-utc indexed data variant mostly for coverage
         idxd = copy.deepcopy(INDEXED_DATA)
         idxd['utc'] = False
         ts7 = TimeSeries(idxd)
         self.assertFalse(ts7.is_utc())
         self.assertFalse(ts7.to_json().get('utc'))
+
+        # indexed data variant using Index object - for coverage as well
+        idxd2 = copy.deepcopy(INDEXED_DATA)
+        idxd2['index'] = Index(idxd2.get('index'))
+        ts8 = TimeSeries(idxd2)
+        self.assertEquals(ts8.to_json().get('index').to_string(), '1d-625')
 
     def test_bad_ctor_args(self):
         """bogus conctructor args."""
@@ -205,6 +216,13 @@ class TestTimeSeries(SeriesBase):
             {'utc': True, 'name': 'traffic'})
 
         self.assertEquals(self._canned_wire_series.meta('name'), 'traffic')
+
+        self.assertEquals(len(list(self._canned_wire_series.events())), 4)
+        self.assertEquals(
+            self._canned_event_series.collection(),
+            self._canned_event_series._collection)  # pylint: disable=protected-access
+
+        self.assertEquals(self._canned_event_series.size_valid('in'), 3)
 
     def test_underlying_methods(self):
         """basically aliases for underlying collection methods."""
