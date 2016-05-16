@@ -383,3 +383,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     def merge(data, series_list):
         """Merge."""
         raise NotImplementedError
+
+    # XXX: how do we have to things with the same name
+    # @staticmethod
+    # def sum(data, series_list, field_spec):
+    #     """
+    #     Takes a list of TimeSeries and sums them together to form a new
+    #     Timeseries.
+
+    #     const ts1 = new TimeSeries(weather1);
+    #     const ts2 = new TimeSeries(weather2);
+    #     const sum = TimeSeries.sum({name: "sum"}, [ts1, ts2], ["temp"]);
+    #     """
+    #     raise NotImplementedError
