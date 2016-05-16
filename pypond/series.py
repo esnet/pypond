@@ -217,7 +217,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """Access the series events via index"""
         return self._collection.at(i)
 
-    def bisect(self, t, b):  # pylint: disable=invalid-name
+    def bisect(self, dtime, b=0):  # pylint: disable=invalid-name
         """
         Finds the index that is just less than the time t supplied.
         In other words every event at the returned index or less
@@ -226,7 +226,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         Optionally supply a begin index to start searching from.
         """
-        raise NotImplementedError
+        return self._collection.bisect(dtime, b)
 
     def slice(self, begin, end):
         """
@@ -234,35 +234,47 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries representing a portion of this TimeSeries from begin up to
         but not including end.
         """
-        raise NotImplementedError
+        sliced = self._collection.slice(begin, end)
+        res = TimeSeries(self)
+        res._collection = sliced  # pylint: disable=protected-access
+        return res
+
+    def clean(self, field_spec):
+        """
+        Generates new collection using a fieldspec
+        """
+        cleaned = self._collection.clean(field_spec)
+        res = TimeSeries(self)
+        res._collection = cleaned  # pylint: disable=protected-access
+        return res
 
     def events(self):
         """
         Generator to allow for..of loops over series.events()
         """
-        raise NotImplementedError
+        return iter(self._collection.event_list())
 
     # Access metadata about the series
 
     def name(self):
         """Get data name."""
-        raise NotImplementedError
+        return self._data.get('name')
 
     def index(self):
         """Get the index."""
-        raise NotImplementedError
+        return self._data.get('index')
 
     def index_as_string(self):
         """Index represented as a string."""
-        raise NotImplementedError
+        return self.index().to_string() if self.index() else None
 
     def index_as_range(self):
         """Index returnd as time range."""
-        raise NotImplementedError
+        return self.index().as_timerange() if self.index() else None
 
     def is_utc(self):
         """Get data utc."""
-        raise NotImplementedError
+        return self._data.get('utc')
 
     def columns(self):
         """
@@ -286,11 +298,14 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     def collection(self):
         """Returns the internal collection of events for this TimeSeries"""
-        raise NotImplementedError
+        return self._collection
 
-    def meta(self):
+    def meta(self, key=None):
         """Returns the meta data about this TimeSeries as a JSON object"""
-        raise NotImplementedError
+        if key is None:
+            return thaw(self._data)
+        else:
+            return self._data.get(key)
 
     # Access the series itself
 
@@ -302,35 +317,41 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """Returns the number of rows in the series."""
         raise NotImplementedError
 
+    def count(self):
+        """alias for size."""
+        return self.size()
+
     # sum/min/max etc
 
-    def sum(self, field_spec):
+    # pylint: disable=dangerous-default-value
+
+    def sum(self, field_spec=['value']):
         """Get sum"""
-        raise NotImplementedError
+        return self._collection.sum(field_spec)
 
-    def max(self, field_spec):
+    def max(self, field_spec=['value']):
         """Get max"""
-        raise NotImplementedError
+        return self._collection.max(field_spec)
 
-    def min(self, field_spec):
+    def min(self, field_spec=['value']):
         """Get min"""
-        raise NotImplementedError
+        return self._collection.min(field_spec)
 
-    def avg(self, field_spec):
+    def avg(self, field_spec=['value']):
         """Get avg"""
-        raise NotImplementedError
+        return self._collection.avg(field_spec)
 
-    def mean(self, field_spec):
+    def mean(self, field_spec=['value']):
         """Get mean"""
-        raise NotImplementedError
+        return self._collection.mean(field_spec)
 
-    def median(self, field_spec):
+    def median(self, field_spec=['value']):
         """Get median"""
-        raise NotImplementedError
+        return self._collection.median(field_spec)
 
-    def stdev(self, field_spec):
+    def stdev(self, field_spec=['value']):
         """Get std dev"""
-        raise NotImplementedError
+        return self._collection.stdev(field_spec)
 
     def __str__(self):
         """call to_string()"""

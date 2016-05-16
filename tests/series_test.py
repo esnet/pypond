@@ -17,8 +17,9 @@ from pypond.exceptions import (
     PipelineException,
     TimeSeriesException,
 )
+from pypond.index import Index
 from pypond.series import TimeSeries
-from pypond.util import is_pvector, ms_from_dt, aware_utcnow
+from pypond.util import is_pvector, ms_from_dt, aware_utcnow, dt_from_ms
 
 # taken from the pipeline tests
 EVENT_LIST = [
@@ -29,6 +30,18 @@ EVENT_LIST = [
 
 # taken from the series tests
 DATA = dict(
+    name="traffic",
+    columns=["time", "value", "status"],
+    points=[
+        [1400425947000, 52, "ok"],
+        [1400425948000, 18, "ok"],
+        [1400425949000, 26, "fail"],
+        [1400425950000, 93, "offline"]
+    ]
+)
+
+INDEXED_DATA = dict(
+    index="1d-625",
     name="traffic",
     columns=["time", "value", "status"],
     points=[
@@ -80,6 +93,8 @@ class SeriesBase(unittest.TestCase):
         self._canned_event_series = TimeSeries(
             dict(name='collection', collection=self._canned_collection))
         self._canned_wire_series = TimeSeries(DATA)
+        # canned index
+        self._canned_index_series = TimeSeries(INDEXED_DATA)
 
 
 class TestTimeSeries(SeriesBase):
@@ -144,6 +159,61 @@ class TestTimeSeries(SeriesBase):
         self.assertEquals(
             self._canned_event_series.at(1).to_string(),
             EVENT_LIST[1].to_string())
+
+    def test_slices_and_permutations(self):
+        """methods that slice/etc the underlying series."""
+
+        # bisect
+        search = dt_from_ms(1400425949000 + 30)
+        bsect_idx = self._canned_wire_series.bisect(search)
+
+        bsection = self._canned_wire_series.at(bsect_idx)
+        self.assertEquals(bsection.data().get('status'), 'fail')
+
+        # clean
+        self.assertEquals(self._canned_event_series.clean('in').size(), 3)
+        self.assertEquals(self._canned_event_series.clean('bogus_value').size(), 0)
+
+        # slice
+        sliced = self._canned_event_series.slice(1, 3)
+        self.assertEquals(sliced.size(), 2)
+        self.assertTrue(Event.same(sliced.at(0), EVENT_LIST[1]))
+
+    def test_data_accessors(self):
+        """methods to get metadata and such."""
+        self.assertEquals(self._canned_wire_series.name(), 'traffic')
+        self.assertTrue(self._canned_wire_series.is_utc())
+
+        # index stuff
+        self.assertEquals(
+            self._canned_index_series.index_as_string(),
+            INDEXED_DATA.get('index'))
+        self.assertTrue(isinstance(self._canned_index_series.index(), Index))
+        self.assertEquals(
+            self._canned_index_series.index_as_range().to_json(),
+            [54000000000, 54086400000])
+
+        self.assertEquals(
+            self._canned_wire_series.meta(),
+            {'utc': True, 'name': 'traffic'})
+
+        self.assertEquals(self._canned_wire_series.meta('name'), 'traffic')
+
+    def test_underlying_methods(self):
+        """basically aliases for underlying collection methods."""
+
+        self.assertEquals(self._canned_event_series.count(), len(EVENT_LIST))
+
+        tser = self._canned_event_series
+        self.assertEquals(tser.sum('in').get('in'), 9)
+        self.assertEquals(tser.avg('out').get('out'), 4)
+        self.assertEquals(tser.mean('out').get('out'), 4)
+        self.assertEquals(tser.min('in').get('in'), 1)
+        self.assertEquals(tser.max('in').get('in'), 5)
+        # self.assertEquals(tser.first('out').get('out'), 2)
+        # self.assertEquals(tser.last('out').get('out'), 6)
+        self.assertEquals(tser.median('out').get('out'), 4)
+        self.assertEquals(tser.stdev('out').get('out'), 1.632993161855452)
 
 
 class TestCollection(SeriesBase):

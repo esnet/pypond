@@ -7,7 +7,6 @@ http://software.es.net/pond/#/index
 import copy
 import datetime
 import re
-import warnings
 
 from .bases import PypondBase
 from .exceptions import IndexException, IndexWarning
