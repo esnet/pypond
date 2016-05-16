@@ -240,13 +240,19 @@ class TestTimeSeries(SeriesBase):
         self.assertEquals(tser.median('out').get('out'), 4)
         self.assertEquals(tser.stdev('out').get('out'), 1.632993161855452)
 
+    def test_equality_methods(self):
+        """test equal/same static methods."""
 
-    def test_comparison_methods(self):
-        """equal/same/etc."""
         ser1 = TimeSeries(DATA)
         ser2 = TimeSeries(DATA)
 
-        # print TimeSeries.equal(ser1, ser2)
+        self.assertTrue(TimeSeries.equal(ser1, ser1))
+        # self.assertTrue(TimeSeries.same(ser1, ser1))
+
+        self.assertFalse(TimeSeries.equal(ser1, ser2))
+
+        # XXX _collection._event_list not evaluating as the same
+        print TimeSeries.same(ser1, ser2)
 
 
 class TestCollection(SeriesBase):
