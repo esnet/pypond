@@ -199,23 +199,23 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     def timerange(self):
         """Returns the extents of the TimeSeries as a TimeRange.."""
-        raise NotImplementedError
+        return self._collection.range()
 
     def range(self):
         """Alias for timerange()"""
-        raise NotImplementedError
+        return self.timerange()
 
     def begin(self):
         """Gets the earliest time represented in the TimeSeries."""
-        raise NotImplementedError
+        return self.range().begin()
 
     def end(self):
         """Gets the latest time represented in the TimeSeries."""
-        raise NotImplementedError
+        return self.range().end()
 
     def at(self, i):  # pylint: disable=invalid-name
         """Access the series events via index"""
-        raise NotImplementedError
+        return self._collection.at(i)
 
     def bisect(self, t, b):  # pylint: disable=invalid-name
         """

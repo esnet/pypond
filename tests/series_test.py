@@ -74,10 +74,15 @@ class SeriesBase(unittest.TestCase):
     """
     def setUp(self):
         """setup."""
+        # canned collection
         self._canned_collection = Collection(EVENT_LIST)
+        # canned series objects
+        self._canned_event_series = TimeSeries(
+            dict(name='collection', collection=self._canned_collection))
+        self._canned_wire_series = TimeSeries(DATA)
 
 
-class TestTimeSeriesCreation(SeriesBase):
+class TestTimeSeries(SeriesBase):
     """
     Test variations of TimeSeries object creation.
     """
@@ -125,6 +130,20 @@ class TestTimeSeriesCreation(SeriesBase):
 
         with self.assertRaises(TimeSeriesException):
             TimeSeries(bad_wire)
+
+    def test_range_accessors(self):
+        """accessors to get at the underlying timerange."""
+        self.assertEquals(
+            self._canned_event_series.begin(),
+            EVENT_LIST[0].timestamp())
+
+        self.assertEquals(
+            self._canned_event_series.end(),
+            EVENT_LIST[-1].timestamp())
+
+        self.assertEquals(
+            self._canned_event_series.at(1).to_string(),
+            EVENT_LIST[1].to_string())
 
 
 class TestCollection(SeriesBase):
