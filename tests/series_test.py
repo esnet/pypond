@@ -418,6 +418,15 @@ class TestCollection(SeriesBase):
             ie1 = IndexedEvent('1d-12355', {'value': 42})
             self._canned_collection.add_event(ie1)
 
+    def test_equality_methods(self):
+        """test equal/same static methods."""
+        self.assertTrue(
+            Collection.equal(self._canned_collection, self._canned_collection))
+        self.assertFalse(
+            Collection.equal(self._canned_collection, Collection(EVENT_LIST)))
+
+        self.assertTrue(
+            Collection.same(self._canned_collection, Collection(EVENT_LIST)))
 
 if __name__ == '__main__':
     unittest.main()
