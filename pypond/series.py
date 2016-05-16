@@ -358,7 +358,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def equal(series1, series2):
-        """Check equality."""
+        """Check equality - same instance."""
         # pylint: disable=protected-access
         return bool(
             series1._data is series2._data and
@@ -367,7 +367,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def same(series1, series2):
-        """Implements JS Object.is()"""
+        """Implements JS Object.is() - same values"""
         # pylint: disable=protected-access
         return bool(
             series1._data == series2._data and
