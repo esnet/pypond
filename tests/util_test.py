@@ -97,7 +97,7 @@ class TestTime(unittest.TestCase):
             """get an unrounded local time deal."""
             pacific = pytz.timezone('US/Pacific')
             local = pacific.localize(datetime.datetime.now())
-            if local.microsecond % 1000 != 0:
+            if local.microsecond % 10000 != 0:
                 return local
             else:
                 # unlikely
