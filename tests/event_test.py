@@ -361,6 +361,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
 
         # bad arg
         self.assertIsNone(Event.sum([]))
+        self.assertIsNone(Event.avg([]))
 
         # work the extra reducer functions in Functions module
         result = Event.combine(events, 'c', Functions.max)

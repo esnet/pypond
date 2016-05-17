@@ -299,6 +299,47 @@ class TestTimeSeries(SeriesBase):
         self.assertEquals(t_summed.at(0).get('in'), 104)
         self.assertEquals(t_summed.at(1).get('in'), 36)
 
+        # more variations for coverage
+
+        test_idx_data = dict(
+            name="availability",
+            columns=["index", "uptime"],
+            points=[
+                ["2015-06", 100],
+                ["2015-05", 92],
+                ["2015-04", 87],
+                ["2015-03", 99],
+                ["2015-02", 92],
+                ["2015-01", 100],
+                ["2014-12", 99],
+                ["2014-11", 91],
+                ["2014-10", 99],
+                ["2014-09", 95],
+                ["2014-08", 88],
+                ["2014-07", 100]
+            ]
+        )
+
+        t_idx = TimeSeries(test_idx_data)
+        idx_sum = TimeSeries.sum_list(dict(name='available'), [t_idx, t_idx], 'uptime')
+        self.assertEquals(idx_sum.at(0).get('uptime'), 200)
+        self.assertEquals(idx_sum.at(1).get('uptime'), 184)
+        self.assertEquals(idx_sum.at(2).get('uptime'), 174)
+
+        test_outage = dict(
+            name="outages",
+            columns=["timerange", "length", "esnet_ticket"],
+            points=[
+                [[1429673400000, 1429707600000], 23, "ESNET-20080101-001"],
+                [[1429673500000, 1429707700000], 54, "ESNET-20080101-002"],
+            ],
+        )
+
+        t_tr = TimeSeries(test_outage)
+        tr_sum = TimeSeries.sum_list(dict(name='outage length'), [t_tr, t_tr], 'length')
+        self.assertEquals(tr_sum.at(0).get('length'), 46)
+        self.assertEquals(tr_sum.at(1).get('length'), 108)
+
 
 class TestCollection(SeriesBase):
     """
@@ -370,6 +411,13 @@ class TestCollection(SeriesBase):
         # overshoot the end of the list for coverage
         ref_dtime = EVENT_LIST[2].timestamp() + datetime.timedelta(seconds=3)
         self.assertTrue(Event.same(col.at_time(ref_dtime), EVENT_LIST[2]))
+
+        # hit dead on for coverage
+        self.assertEquals(col.at_time(EVENT_LIST[1].timestamp()).get('in'), 3)
+
+        # empty collection for coverage
+        empty_coll = Collection(col, copy_events=False)
+        self.assertIsNone(empty_coll.at_time(ref_dtime))
 
         # at_first() and at_last()
         self.assertTrue(Event.same(col.at_first(), EVENT_LIST[0]))
