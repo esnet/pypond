@@ -258,10 +258,9 @@ class TestTimeSeries(SeriesBase):
         self.assertFalse(TimeSeries.equal(ser1, ser2))
         self.assertTrue(TimeSeries.same(ser1, ser2))
 
-        # TBA
         copy_ctor = TimeSeries(ser1)
-        print TimeSeries.equal(copy_ctor, ser1)  # returns True
-        print copy_ctor is ser1  # returns False
+        self.assertTrue(TimeSeries.equal(copy_ctor, ser1))
+        self.assertFalse(copy_ctor is ser1)
 
 
 class TestCollection(SeriesBase):
@@ -445,10 +444,9 @@ class TestCollection(SeriesBase):
         self.assertTrue(
             Collection.same(self._canned_collection, Collection(EVENT_LIST)))
 
-        # TBA
-        # copy_ctor = Collection(self._canned_collection)
-        # print Collection.equal(self._canned_collection, copy_ctor)
-        # print copy_ctor is self._canned_collection
+        copy_ctor = Collection(self._canned_collection)
+        self.assertTrue(Collection.equal(self._canned_collection, copy_ctor))
+        self.assertFalse(copy_ctor is self._canned_collection)
 
 if __name__ == '__main__':
     unittest.main()
