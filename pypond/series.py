@@ -350,6 +350,18 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """Get std dev"""
         return self._collection.stdev(field_spec)
 
+    def aggregate(self, func, field_spec=['value']):
+        """Get std dev"""
+        return self._collection.aggregate(func, field_spec)
+
+    def pipeline(self):
+        """get a pipeline from the collection."""
+        raise NotImplementedError
+
+    def select(self, field_spec, cb):  # pylint: disable=invalid-name
+        """call select on the pipeline."""
+        raise NotImplementedError
+
     def __str__(self):
         """call to_string()"""
         return self.to_string()

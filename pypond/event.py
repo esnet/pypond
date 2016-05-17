@@ -91,6 +91,11 @@ class EventBase(PypondBase):
         """call to_string()"""
         return self.to_string()
 
+    def __eq__(self, other):
+        """equality operator. need this to be able to check if
+        the event_list in a collection is the same as another."""
+        return bool(self._d == other._d)  # pylint: disable=protected-access
+
     def timestamp(self):
         """abstract, override in subclass"""
         raise NotImplementedError  # pragma: nocover

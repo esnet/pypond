@@ -17,6 +17,7 @@ from pypond.exceptions import (
     PipelineException,
     TimeSeriesException,
 )
+from pypond.functions import Functions
 from pypond.index import Index
 from pypond.series import TimeSeries
 from pypond.util import is_pvector, ms_from_dt, aware_utcnow, dt_from_ms
@@ -224,6 +225,11 @@ class TestTimeSeries(SeriesBase):
 
         self.assertEquals(self._canned_event_series.size_valid('in'), 3)
 
+        self.assertEquals(
+            str(self._canned_event_series),
+            '{"utc": true, "points": [[1429673400000, 1, 2], [1429673460000, 3, 4], [1429673520000, 5, 6]], "name": "collection", "columns": ["time", "in", "out"]}'  # pylint: disable=line-too-long
+        )
+
     def test_underlying_methods(self):
         """basically aliases for underlying collection methods."""
 
@@ -235,10 +241,10 @@ class TestTimeSeries(SeriesBase):
         self.assertEquals(tser.mean('out').get('out'), 4)
         self.assertEquals(tser.min('in').get('in'), 1)
         self.assertEquals(tser.max('in').get('in'), 5)
-        # self.assertEquals(tser.first('out').get('out'), 2)
-        # self.assertEquals(tser.last('out').get('out'), 6)
         self.assertEquals(tser.median('out').get('out'), 4)
         self.assertEquals(tser.stdev('out').get('out'), 1.632993161855452)
+        # redundant, but for coverage
+        self.assertEquals(tser.aggregate(Functions.sum, 'in').get('in'), 9)
 
     def test_equality_methods(self):
         """test equal/same static methods."""
@@ -247,12 +253,15 @@ class TestTimeSeries(SeriesBase):
         ser2 = TimeSeries(DATA)
 
         self.assertTrue(TimeSeries.equal(ser1, ser1))
-        # self.assertTrue(TimeSeries.same(ser1, ser1))
+        self.assertTrue(TimeSeries.same(ser1, ser1))
 
         self.assertFalse(TimeSeries.equal(ser1, ser2))
+        self.assertTrue(TimeSeries.same(ser1, ser2))
 
-        # XXX _collection._event_list not evaluating as the same
-        print TimeSeries.same(ser1, ser2)
+        # TBA
+        copy_ctor = TimeSeries(ser1)
+        print TimeSeries.equal(copy_ctor, ser1)  # returns True
+        print copy_ctor is ser1  # returns False
 
 
 class TestCollection(SeriesBase):
@@ -428,11 +437,18 @@ class TestCollection(SeriesBase):
         """test equal/same static methods."""
         self.assertTrue(
             Collection.equal(self._canned_collection, self._canned_collection))
+        self.assertTrue(
+            Collection.same(self._canned_collection, self._canned_collection))
+
         self.assertFalse(
             Collection.equal(self._canned_collection, Collection(EVENT_LIST)))
-
         self.assertTrue(
             Collection.same(self._canned_collection, Collection(EVENT_LIST)))
+
+        # TBA
+        # copy_ctor = Collection(self._canned_collection)
+        # print Collection.equal(self._canned_collection, copy_ctor)
+        # print copy_ctor is self._canned_collection
 
 if __name__ == '__main__':
     unittest.main()
