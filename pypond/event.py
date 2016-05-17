@@ -461,12 +461,21 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     @staticmethod
     def sum(events, field_spec=None):
         """combine() with sum."""
-        return Event.combine(events, field_spec, Functions.sum)
+        summ = Event.combine(events, field_spec, Functions.sum)
+
+        if summ is not None:
+            return Event.combine(events, field_spec, Functions.sum)[0]
+        else:
+            return None
 
     @staticmethod
     def avg(events, field_spec=None):
         """combine() with avg."""
-        return Event.combine(events, field_spec, Functions.avg)
+        avg = Event.combine(events, field_spec, Functions.avg)
+        if avg is not None:
+            return Event.combine(events, field_spec, Functions.avg)[0]
+        else:
+            return None
 
     # map, reduce, etc
 

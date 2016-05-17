@@ -284,7 +284,7 @@ class TestTimeSeries(SeriesBase):
         self.assertTrue(TimeSeries.equal(copy_ctor, ser1))
         self.assertFalse(copy_ctor is ser1)
 
-    def test_merge_and_map(self):
+    def test_merge_sum_and_map(self):
         """test the time series merging/map static methods."""
         t_in = TimeSeries(TRAFFIC_DATA_IN)
         t_out = TimeSeries(TRAFFIC_DATA_OUT)
@@ -293,6 +293,11 @@ class TestTimeSeries(SeriesBase):
 
         self.assertEquals(t_merged.at(2).get('in'), 26)
         self.assertEquals(t_merged.at(2).get('out'), 67)
+
+        t_summed = TimeSeries.sum_list(dict(name='traffic'), [t_in, t_in], 'in')
+
+        self.assertEquals(t_summed.at(0).get('in'), 104)
+        self.assertEquals(t_summed.at(1).get('in'), 36)
 
 
 class TestCollection(SeriesBase):

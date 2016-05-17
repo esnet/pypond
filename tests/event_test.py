@@ -337,27 +337,27 @@ class TestEventMapReduceCombine(BaseTestEvent):
         ]
 
         result = Event.sum(events)
-        self.assertEqual(result[0].get('a'), 8)
-        self.assertEqual(result[0].get('b'), 11)
-        self.assertEqual(result[0].get('c'), 14)
+        self.assertEqual(result.get('a'), 8)
+        self.assertEqual(result.get('b'), 11)
+        self.assertEqual(result.get('c'), 14)
 
         # combine single field
         result = Event.sum(events, 'a')
-        self.assertEqual(result[0].get('a'), 8)
-        self.assertIsNone(result[0].get('b'))
-        self.assertIsNone(result[0].get('c'))
+        self.assertEqual(result.get('a'), 8)
+        self.assertIsNone(result.get('b'))
+        self.assertIsNone(result.get('c'))
 
         # grab multiple fields
         result = Event.sum(events, ['a', 'c'])
-        self.assertEqual(result[0].get('a'), 8)
-        self.assertIsNone(result[0].get('b'))
-        self.assertEqual(result[0].get('c'), 14)
+        self.assertEqual(result.get('a'), 8)
+        self.assertIsNone(result.get('b'))
+        self.assertEqual(result.get('c'), 14)
 
         # average
         result = Event.avg(
             events + [self._create_event(self.aware_ts, {'a': 1, 'b': 1, 'c': 2})],
             'c')
-        self.assertEquals(result[0].get('c'), 4)
+        self.assertEquals(result.get('c'), 4)
 
         # bad arg
         self.assertIsNone(Event.sum([]))
