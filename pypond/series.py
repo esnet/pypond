@@ -4,6 +4,7 @@ Implements the Pond TimeSeries class.
 http://software.es.net/pond/#/timeseries
 """
 
+import collections
 import copy
 import json
 
@@ -387,14 +388,43 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
     @staticmethod
-    def map(data, series_list, mapper):
+    def map(data, series_list, mapper, field_spec=None):
         """for each series, map events to the same timestamp/index"""
-        raise NotImplementedError
+
+        event_map = collections.OrderedDict()
+
+        for i in series_list:
+            for evn in i.events():
+                key = None
+                if isinstance(evn, Event):
+                    key = evn.timestamp()
+                elif isinstance(evn, IndexedEvent):
+                    key = evn.index()
+                elif isinstance(evn, TimeRangeEvent):
+                    key = evn.timerange().to_utc_string()
+
+                if key not in event_map:
+                    # keep keys in insert order
+                    event_map.update({key: list()})
+
+                event_map[key].append(evn)
+
+        events = list()
+
+        for v in event_map.values():
+            if field_spec is None:
+                event = mapper(v)
+            else:
+                event = mapper(v, field_spec)
+
+            events.append(event)
+
+        return TimeSeries(dict(events=events, **data))
 
     @staticmethod
     def merge(data, series_list):
         """Merge."""
-        raise NotImplementedError
+        return TimeSeries.map(data, series_list, Event.merge)
 
     # XXX: how do we have to things with the same name
     # @staticmethod

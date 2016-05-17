@@ -53,6 +53,28 @@ INDEXED_DATA = dict(
     ]
 )
 
+TRAFFIC_DATA_IN = dict(
+    name="star-cr5:to_anl_ip-a_v4",
+    columns=["time", "in"],
+    points=[
+        [1400425947000, 52],
+        [1400425948000, 18],
+        [1400425949000, 26],
+        [1400425950000, 93]
+    ]
+)
+
+TRAFFIC_DATA_OUT = dict(
+    name="star-cr5:to_anl_ip-a_v4",
+    columns=["time", "out"],
+    points=[
+        [1400425947000, 34],
+        [1400425948000, 13],
+        [1400425949000, 67],
+        [1400425950000, 91]
+    ]
+)
+
 AVAILABILITY_DATA = dict(
     name="availability",
     columns=["index", "uptime"],
@@ -261,6 +283,16 @@ class TestTimeSeries(SeriesBase):
         copy_ctor = TimeSeries(ser1)
         self.assertTrue(TimeSeries.equal(copy_ctor, ser1))
         self.assertFalse(copy_ctor is ser1)
+
+    def test_merge_and_map(self):
+        """test the time series merging/map static methods."""
+        t_in = TimeSeries(TRAFFIC_DATA_IN)
+        t_out = TimeSeries(TRAFFIC_DATA_OUT)
+
+        t_merged = TimeSeries.merge(dict(name='traffic'), [t_in, t_out])
+
+        self.assertEquals(t_merged.at(2).get('in'), 26)
+        self.assertEquals(t_merged.at(2).get('out'), 67)
 
 
 class TestCollection(SeriesBase):
