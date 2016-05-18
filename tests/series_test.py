@@ -340,6 +340,18 @@ class TestTimeSeries(SeriesBase):
         self.assertEquals(tr_sum.at(0).get('length'), 46)
         self.assertEquals(tr_sum.at(1).get('length'), 108)
 
+    def test_ts_collapse(self):
+        """
+        Test TimeSeries.collapse()
+        """
+        ces = self._canned_event_series
+
+        collapsed_ces = ces.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+        self.assertEquals(len(collapsed_ces.columns()), 3)
+
+        for i in collapsed_ces.events():
+            self.assertEquals(i.get('in') + i.get('out'), i.get('in_out_sum'))
+
 
 class TestCollection(SeriesBase):
     """
@@ -461,6 +473,17 @@ class TestCollection(SeriesBase):
 
         cleaned_bad = col.clean(['bogus_data_key'])
         self.assertEquals(cleaned_bad.size(), 0)
+
+    def test_collection_collapse(self):
+        """test Collection.collaps()"""
+        col = self._canned_collection
+
+        collapsed_col = col.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+        self.assertEquals(collapsed_col.size(), 3)
+
+        for i in collapsed_col.events():
+            self.assertEquals(len(i.data().keys()), 3)
+            self.assertEquals(i.get('in') + i.get('out'), i.get('in_out_sum'))
 
     def test_aggregations(self):
         """sum, min, max, etc.

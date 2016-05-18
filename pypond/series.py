@@ -248,6 +248,15 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         cleaned = self._collection.clean(field_spec)
         return self.set_collection(cleaned)
 
+    def collapse(self, field_spec_list, name, reducer, append=True):
+        """
+        Takes a fieldSpecList (list of column names) and collapses
+        them to a new column which is the reduction of the matched columns
+        in the fieldSpecList.
+        """
+        collapsed = self._collection.collapse(field_spec_list, name, reducer, append)
+        return self.set_collection(collapsed)
+
     def events(self):
         """
         Generator to allow for..of loops over series.events()

@@ -263,6 +263,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         return Collection(flt_events)
 
+    def collapse(self, field_spec_list, name, reducer, append=True):
+        """
+        Takes a fieldSpecList (list of column names) and collapses
+        them to a new column which is the reduction of the matched columns
+        in the fieldSpecList.
+        """
+        fsl = self._field_spec_to_array(field_spec_list)
+
+        collapsed_events = list()
+
+        for evn in self.events():
+            collapsed_events.append(evn.collapse(fsl, name, reducer, append))
+
+        return Collection(collapsed_events)
+
     def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
         """split the field spec if it is not already a list."""
         if isinstance(fspec, list):
