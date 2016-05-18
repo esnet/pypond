@@ -264,6 +264,23 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         new_d = self._d.set('data', self.data_from_arg(data))
         return Event(new_d)
 
+    def collapse(self, field_spec_list, name, reducer, append=False):
+        """
+        Collapses this event's columns, represented by the fieldSpecList
+        into a single column. The collapsing itself is done with the reducer
+        function. Optionally the collapsed column could be appended to the
+        existing columns, or replace them (the default).
+        """
+        data = thaw(self.data()) if append else dict()
+        vals = list()
+
+        for i in field_spec_list:
+            vals.append(self.get(i))
+
+        data[name] = reducer(vals)
+
+        return self.set_data(data)
+
     # Static class methods
 
     @staticmethod
@@ -461,6 +478,17 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     @staticmethod
     def sum(events, field_spec=None):
         """combine() with sum."""
+
+        tstmp = None
+
+        for i in events:
+            if tstmp is None:
+                tstmp = i.timestamp()
+            else:
+                if tstmp != i.timestamp():
+                    msg = 'sum() expects all events to have the same timestamp'
+                    raise EventException(msg)
+
         summ = Event.combine(events, field_spec, Functions.sum)
 
         if summ is not None:

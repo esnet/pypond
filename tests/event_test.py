@@ -353,6 +353,15 @@ class TestEventMapReduceCombine(BaseTestEvent):
         self.assertIsNone(result.get('b'))
         self.assertEqual(result.get('c'), 14)
 
+        # raise an exception
+        bad_events = events + [
+            self._create_event(
+                self.aware_ts + datetime.timedelta(seconds=1),
+                {'a': 8, 'b': 9, 'c': 0})
+        ]
+        with self.assertRaises(EventException):
+            Event.sum(bad_events, 'a')
+
         # average
         result = Event.avg(
             events + [self._create_event(self.aware_ts, {'a': 1, 'b': 1, 'c': 2})],
@@ -384,6 +393,19 @@ class TestEventMapReduceCombine(BaseTestEvent):
 
         self.assertIsNone(Functions.first([]))
         self.assertIsNone(Functions.last([]))
+
+    def test_event_collapse(self):
+        """test collapse()"""
+
+        ev1 = self._create_event(self.aware_ts, {'a': 5, 'b': 6, 'c': 7})
+
+        ev2 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum, append=True)
+        self.assertEquals(len(ev2.data().keys()), 4)
+        self.assertEquals(ev2.get('a_to_c'), 12)
+
+        ev3 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum, append=False)
+        self.assertEquals(len(ev3.data().keys()), 1)
+        self.assertEquals(ev3.get('a_to_c'), 12)
 
 
 class TestIndexedEvent(BaseTestEvent):
