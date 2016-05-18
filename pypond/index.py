@@ -236,6 +236,8 @@ class Index(PypondBase):
             return None
 
     # Static class methods
+    # The two window_* methods were in util.js in the pond source but
+    # they were only being called from this code, so here they are.
 
     @staticmethod
     def window_duration(win):

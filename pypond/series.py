@@ -215,6 +215,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """Access the series events via index"""
         return self._collection.at(i)
 
+    def set_collection(self, coll):
+        """Sets a new underlying collection for this TimeSeries."""
+        res = TimeSeries(self)
+        res._collection = coll  # pylint: disable=protected-access
+        return res
+
     def bisect(self, dtime, b=0):  # pylint: disable=invalid-name
         """
         Finds the index that is just less than the time t supplied.
@@ -233,18 +239,14 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         but not including end.
         """
         sliced = self._collection.slice(begin, end)
-        res = TimeSeries(self)
-        res._collection = sliced  # pylint: disable=protected-access
-        return res
+        return self.set_collection(sliced)
 
     def clean(self, field_spec):
         """
         Generates new collection using a fieldspec
         """
         cleaned = self._collection.clean(field_spec)
-        res = TimeSeries(self)
-        res._collection = cleaned  # pylint: disable=protected-access
-        return res
+        return self.set_collection(cleaned)
 
     def events(self):
         """
