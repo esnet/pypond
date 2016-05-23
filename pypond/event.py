@@ -54,7 +54,10 @@ class EventBase(PypondBase):
     # common methods
 
     def data(self):
-        """Direct access to the event data. The result will be an pyrsistent.pmap."""
+        """Direct access to the event data. The result will be an pyrsistent.pmap.
+
+        :returns: pyrsistent.pmap
+        """
         return self._d.get('data')
 
     def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
@@ -64,6 +67,10 @@ class EventBase(PypondBase):
         A fieldSpec could be "a.b" or it could be ['a', 'b'].
 
         The field spec can have an arbitrary number of "parts."
+
+        :param field_spec: Field spec of data value to get.
+        :type field_spect: str/list
+        :returns: various - Depends on underlying data.
         """
         if isinstance(field_spec, str):
             path = field_spec.split('.')  # pylint: disable=no-member
@@ -75,6 +82,10 @@ class EventBase(PypondBase):
     def value(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Alias for get()
+
+        :param field_spec: Field spec of data value to get.
+        :type field_spect: str/list
+        :returns: various - Depends on underlying data.
         """
         return self.get(field_spec)
 
@@ -88,11 +99,16 @@ class EventBase(PypondBase):
         It's a JSON string of the whole object.
 
         In JS land, this is synonymous with __str__ or __unicode__
+
+        :returns: str -- String representation of this object.
         """
         return json.dumps(self.to_json())
 
     def stringify(self):
-        """Produce a json string of the internal data."""
+        """Produce a json string of the internal data.
+
+        :returns: str -- String representation of this object's data.
+        """
         return json.dumps(thaw(self.data()))
 
     def __str__(self):
@@ -120,7 +136,13 @@ class EventBase(PypondBase):
 
     @staticmethod
     def timestamp_from_arg(arg):
-        """extract timestamp from a constructor arg."""
+        """extract timestamp from a constructor arg.
+
+        :param arg: Time value as passed to one of the consctructors.
+        :type arg: int (epoch ms) or datetime
+        :returns: datetime -- Datetime object that has been sanitized.
+        :raises: EventException
+        """
         if isinstance(arg, int):
             return dt_from_ms(arg)
         elif isinstance(arg, datetime.datetime):
@@ -133,7 +155,13 @@ class EventBase(PypondBase):
 
     @staticmethod
     def timerange_from_arg(arg):
-        """extract timerange from a constructor arg."""
+        """create TimeRange from a constructor arg.
+
+        :param arg: Time value as passed to one of the consctructors.
+        :type arg: list/tuple/pvector or TimeRange
+        :returns: TimeRange
+        :raises: EventException
+        """
         if isinstance(arg, TimeRange):
             return arg
         elif isinstance(arg, (list, tuple)) or is_pvector(arg):
@@ -143,7 +171,13 @@ class EventBase(PypondBase):
 
     @staticmethod
     def index_from_args(instance_or_index, utc=True):
-        """extract index from a constructor arg."""
+        """create Index from a constructor arg.
+
+        :param arg: Index value as passed to one of the consctructors.
+        :type arg: str or Index
+        :returns: Index
+        :raises: EventException
+        """
         if isinstance(instance_or_index, str):
             return Index(instance_or_index, utc)
         elif isinstance(instance_or_index, Index):
@@ -155,7 +189,13 @@ class EventBase(PypondBase):
 
     @staticmethod
     def data_from_arg(arg):
-        """extract data from a constructor arg and make immutable."""
+        """extract data from a constructor arg and make immutable.
+
+        :param arg: Data payload passed to one of the constructors.
+        :type arg: dict/pmap/int/float/str
+        :returns: pyrsisten.pmap
+        :raises: EventException
+        """
         if isinstance(arg, dict):
             return freeze(arg)
         elif is_pmap(arg):
@@ -759,11 +799,16 @@ class TimeRangeEvent(EventBase):
 
     def to_json(self):
         """
-        Returns the Event as a JSON object, essentially:
-        {time: t, data: {key: value, ...}}
+         Returns the TimeRangeEvent as a JSON object, essentially
+
+        ::
+
+            {timerange: tr, data: {key: value, ...}}
 
         This is actually like json.loads(s) - produces the
-        actual vanilla data structure."""
+        actual data structure from the object internal data.
+
+        :return: dict -- timerange/data keys"""
         return dict(
             timerange=self.timerange().to_json(),
             data=thaw(self.data()),
@@ -772,6 +817,13 @@ class TimeRangeEvent(EventBase):
     def to_point(self, cols=None):
         """
         Returns a flat array starting with the timestamp, followed by the values.
+
+        Can be given an optional list of columns so the returned list will
+        have the values in order. Primarily for the TimeSeries wire format.
+
+        :param cols: List of data columns.
+        :type cols: list/default of None.
+        :returns: list -- ms since epoch folowed by data values.
         """
         points = [self.timerange().to_json()]
 
@@ -783,40 +835,66 @@ class TimeRangeEvent(EventBase):
         return points
 
     def timerange_as_utc_string(self):
-        """The timerange of this data, in UTC time, as a string."""
+        """The timerange of this data, in UTC time, as a string.
+
+        :returns: str -- formatted time string.
+        """
         return self.timerange().to_utc_string()
 
     def timerange_as_local_string(self):
-        """The timerange of this data, in Local time, as a string."""
+        """The timerange of this data, in Local time, as a string.
+
+        :returns: str -- formatted time string.
+        """
         return self.timerange().to_local_string()
 
     def timestamp(self):
-        """The timestamp of this data"""
+        """The timestamp of this data.
+
+        :returns: datetime -- Datetime of the beginning of the range.
+        """
         return self.begin()
 
     def timerange(self):
-        """The TimeRange of this data."""
+        """The TimeRange of this data.
+
+        :returns: TimeRange -- the underlying TimeRange object.
+        """
         return self._d.get('range')
 
     def begin(self):
-        """The begin time of this Event, which will be just the timestamp"""
+        """The begin time of this Event, which will be just the timestamp.
+
+        :returns: datetime -- Datetime of the beginning of the range.
+        """
         return self.timerange().begin()
 
     def end(self):
-        """The end time of this Event, which will be just the timestamp"""
+        """The end time of this Event, which will be just the timestamp.
+
+        :returns: datetime -- Datetime of the end of the range.
+        """
         return self.timerange().end()
 
     # data setters, returns new object
 
     def set_data(self, data):
-        """Sets the data portion of the event and returns a new Event."""
+        """Sets the data portion of the event and returns a new TimeRangeEvent.
+
+        :param data: The new data portion for this event object.
+        :type data: dict
+        :returns: TimeRangeEvent - a new TimeRangeEvent object.
+        """
         _dnew = self._d.set('data', self.data_from_arg(data))
         return TimeRangeEvent(_dnew)
 
     # Humanize
 
     def humanize_duration(self):
-        """Humanize the timerange."""
+        """Humanize the timerange.
+
+        :returns: str -- humanized string of the timerange()
+        """
         return self.timerange().humanize_duration()
 
 
@@ -836,6 +914,8 @@ class IndexedEvent(EventBase):
         - an pyrsistent.pmap, or
         - a simple type such as an integer. In the case of the simple type
           this is a shorthand for supplying {"value": v}.
+
+    :raises: EventException
     """
     def __init__(self, instance_or_begin, data=None, utc=True):
         """
@@ -871,6 +951,13 @@ class IndexedEvent(EventBase):
         """
         Returns a flat array starting with the timestamp, followed by the values.
         Doesn't include the groupByKey (key).
+
+        Can be given an optional list of columns so the returned list will
+        have the values in order. Primarily for the TimeSeries wire format.
+
+        :param cols: List of data columns.
+        :type cols: list/default of None.
+        :returns: list -- ms since epoch folowed by data values.
         """
         points = [self.index_as_string()]
 
@@ -882,40 +969,69 @@ class IndexedEvent(EventBase):
         return points
 
     def index(self):
-        """Returns the Index associated with the data in this Event."""
+        """Returns the Index associated with the data in this Event.
+
+        :returns: Index -- Underlying Index object.
+        """
         return self._d.get('index')
 
     def timerange(self):
-        """The TimeRange of this data."""
+        """The TimeRange of this data.
+
+        :returns: TimeRange -- Timerange from the underlying Index.
+        """
         return self.index().as_timerange()
 
     def timerange_as_utc_string(self):
-        """The timerange of this data, in UTC time, as a string."""
+        """The timerange of this data, in UTC time, as a string.
+
+        :returns: str -- Underlying TimeRange as UTC string.
+        """
         return self.timerange().to_utc_string()
 
     def timerange_as_local_string(self):
-        """The timerange of this data, in Local time, as a string."""
+        """The timerange of this data, in Local time, as a string.
+
+        :returns: str -- Underlying TimeRange as localtime string.
+        """
         return self.timerange().to_local_string()
 
     def begin(self):
-        """The begin time of this Event, which will be just the timestamp"""
+        """The begin time of this Event, which will be just the timestamp.
+
+        :returns: datetime -- Datetime of the beginning of the range.
+        """
         return self.timerange().begin()
 
     def end(self):
-        """The end time of this Event, which will be just the timestamp"""
+        """The end time of this Event, which will be just the timestamp.
+
+        :returns: datetime -- Datetime of the end of the range.
+        """
         return self.timerange().end()
 
     def timestamp(self):
-        """The timestamp of this data"""
+        """The timestamp of this beginning of the range.
+
+        :returns: datetime -- Datetime of the beginning of the range.
+        """
         return self.begin()
 
     def index_as_string(self):
-        """Returns the Index as a string, same as event.index().toString()"""
+        """Returns the Index as a string, same as event.index().toString().
+
+        :returns: str -- String version of the underlying Index.
+        """
         return self.index().as_string()
 
     # data setters, returns new object
 
     def set_data(self, data):
-        """Sets the data portion of the event and returns a new Event."""
+        """Sets the data portion of the event and returns a new IndexedEvent.
+
+        :param data: The new data portion for this event object.
+        :type data: dict
+        :returns: IndexedEvent - a new IndexedEvent object.
+        """
         new_d = self._d.set('data', self.data_from_arg(data))
         return IndexedEvent(new_d)
