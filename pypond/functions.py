@@ -7,7 +7,7 @@
 #  LICENSE file in the root directory of this source tree.
 
 """
-Functions to act as reducers, etc
+Functions to act as reducers/aggregators, etc.
 """
 
 from math import sqrt
