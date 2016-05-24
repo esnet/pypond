@@ -52,6 +52,14 @@ pypond.index module
     :undoc-members:
     :show-inheritance:
 
+pypond.indexed_event module
+---------------------------
+
+.. automodule:: pypond.indexed_event
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pypond.range module
 -------------------
 
@@ -72,6 +80,14 @@ pypond.sources module
 ---------------------
 
 .. automodule:: pypond.sources
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypond.timerange_event module
+-----------------------------
+
+.. automodule:: pypond.timerange_event
     :members:
     :undoc-members:
     :show-inheritance:
