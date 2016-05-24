@@ -10,9 +10,11 @@
 Base classes and components of pipeline sources.
 """
 
-from .event import Event, IndexedEvent, TimeRangeEvent
+from .event import Event
 from .bases import Observable
 from .exceptions import PipelineException
+from .indexed_event import IndexedEvent
+from .timerange_event import TimeRangeEvent
 from .util import unique_id
 
 

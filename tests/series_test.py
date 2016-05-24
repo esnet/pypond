@@ -18,7 +18,7 @@ import unittest
 import warnings
 
 from pypond.collection import Collection
-from pypond.event import Event, IndexedEvent, TimeRangeEvent
+from pypond.event import Event
 from pypond.exceptions import (
     CollectionException,
     CollectionWarning,
@@ -27,7 +27,9 @@ from pypond.exceptions import (
 )
 from pypond.functions import Functions
 from pypond.index import Index
+from pypond.indexed_event import IndexedEvent
 from pypond.series import TimeSeries
+from pypond.timerange_event import TimeRangeEvent
 from pypond.util import is_pvector, ms_from_dt, aware_utcnow, dt_from_ms
 
 # taken from the pipeline tests

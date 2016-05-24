@@ -18,11 +18,13 @@ import unittest
 # prefer freeze over the data type specific functions
 from pyrsistent import freeze, thaw
 
-from pypond.event import Event, TimeRangeEvent, IndexedEvent
+from pypond.event import Event
 from pypond.exceptions import EventException
 from pypond.functions import Functions
 from pypond.index import Index
+from pypond.indexed_event import IndexedEvent
 from pypond.range import TimeRange
+from pypond.timerange_event import TimeRangeEvent
 from pypond.util import (
     aware_utcnow,
     dt_from_ms,

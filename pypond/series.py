@@ -20,9 +20,11 @@ from pyrsistent import freeze, thaw
 
 from .bases import PypondBase
 from .collection import Collection
-from .event import Event, TimeRangeEvent, IndexedEvent
+from .event import Event
 from .exceptions import TimeSeriesException
 from .index import Index
+from .indexed_event import IndexedEvent
+from .timerange_event import TimeRangeEvent
 from .util import ObjectEncoder
 
 
