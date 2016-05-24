@@ -17,10 +17,10 @@ from pyrsistent import freeze, thaw
 
 from .sources import BoundedIn
 from .event import Event
-from .exceptions import CollectionException, CollectionWarning
+from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions
 from .range import TimeRange
-from .util import unique_id, is_pvector, ObjectEncoder
+from .util import unique_id, is_pvector, ObjectEncoder, _check_dt
 
 
 class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
@@ -86,7 +86,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Returns the collection as json object.
 
         This is actually like json.loads(s) - produces the
-        actual vanilla data structure."""
+        actual vanilla data structure.
+
+        :returns: list of Event objects
+        """
         return thaw(self._event_list)
 
     def to_string(self):
@@ -96,6 +99,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         In JS land, this is synonymous with __str__ or __unicode__
 
         Use custom object encoder because this is a list of Event* objects.
+
+        :returns: str -- String representation of this object.
         """
         return json.dumps(self.to_json(), cls=ObjectEncoder)
 
@@ -103,14 +108,17 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         Event object type.
 
-        returns Event | IndexedEvent | TimeRangeEvent
-
         The class of the type of events in this collection.
+
+        :returns: Event | IndexedEvent | TimeRangeEvent (class not instance)
         """
         return self._type
 
     def size(self):
-        """Number of items in collection."""
+        """Number of items in collection.
+
+        :returns: int -- N items in collection.
+        """
         return len(self._event_list)
 
     def size_valid(self, field_spec='value'):
@@ -120,6 +128,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Uses the fieldSpec to look up values in all events.
         It then counts the number that are considered valid,
         i.e. are not NaN, undefined or null.
+
+        :param field_spec: Name of value to look up.
+        :type field_spec: str
+        :returns: int - Number of <field_spec> values in all the Events.
         """
         count = 0
 
@@ -132,26 +144,48 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     def at(self, pos):  # pylint: disable=invalid-name
         """Returns an item in the collection by its position.
 
-        Creates a new object via copy ctor."""
+        Creates a new object via copy ctor.
+
+        :param pos: The index of the event to be retrieved.
+        :type pos: int
+        :returns: new Event | IndexedEvent | TimeRangeEvent instance
+        """
         try:
             return self._type(self._event_list[pos])
         except IndexError:
             raise CollectionException('invalid index given to at()')
 
     def at_time(self, time):
-        """Return an item by time."""
+        """Return an item by time. Primarily a utility method that sits in
+        front of bisect() and fetches using at().
+
+        If you have events at 12:00 and 12:02 and you make the query
+        at 12:01, the one at 12:00 will be returned. Otherwise it will
+        return the exact match.
+
+        :param time: Datetime object >= to the event to be returned. Must
+            be an aware UTC datetime object.
+        :type time: datetime.datetime
+        :returns: new Event | IndexedEvent | TimeRangeEvent instance
+        """
         pos = self.bisect(time)
 
         if pos and pos < self.size():
             return self.at(pos)
 
     def at_first(self):
-        """First item."""
+        """Retrieve the first item in this collection.
+
+        :returns: new Event | IndexedEvent | TimeRangeEvent instance
+        """
         if self.size():
             return self.at(0)
 
     def at_last(self):
-        """Last item."""
+        """Return the last event item in this collection.
+
+        :returns: new Event | IndexedEvent | TimeRangeEvent instance
+        """
         if self.size():
             return self.at(-1)
 
@@ -168,7 +202,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
                 will be made into an aware datetime in UTC.
             * b - position to start
 
-        Returns index that is the greatest but still below t
+        Returns index that is the greatest but still below t - see docstring
+        for at_time()
+
+        :param dtime: Datetime object >= to the event to be returned. Must
+            be an aware UTC datetime object.
+        :type dtime: datetime.datetime
+        :param b: Array index position to start searching from.
+        :type b: int
+        :returns: int or None -- The index position of the desired event.
         """
 
         i = copy.copy(b)  # paranoia
@@ -176,6 +218,12 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         if not size:
             return None
+
+        try:
+            _check_dt(dtime)
+        except UtilityException:
+            msg = 'at_time() and bisect() must be called with aware UTC datetime objects'
+            raise CollectionException(msg)
 
         while i < size:
             ts_tmp = self.at(i).timestamp()
@@ -191,15 +239,28 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     def events(self):
         """
         Generator to allow for..of loops over series.events()
+
+        ::
+
+            for i in series.events():
+                do_stuff(i)
+
+        :returns: iterator -- Iterate over the internal events.
         """
         return iter(self._event_list)
 
     def event_list(self):
-        """Returns the raw Immutable event list."""
+        """Returns the raw Immutable event list.
+
+        :returns: pyrsistent.pvector - The raw immutable event list.
+        """
         return self._event_list
 
     def event_list_as_list(self):
-        """return a python list of the event list."""
+        """return a python list of the event list.
+
+        :returns: list -- Thawed version of the internal pvector.
+        """
         return thaw(self.event_list())
 
     # Series range
@@ -207,8 +268,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     def range(self):
         """
         From the range of times, or Indexes within the TimeSeries, return
-        the extents of the TimeSeries as a TimeRange.
-        returns the extents of the TimeSeries
+        the extents of the Collection/TimeSeries as a TimeRange.
+
+        :returns: TimeRange
         """
         min_val = None
         max_val = None
@@ -227,7 +289,11 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
     def add_event(self, event):
         """
-        Add an event and return a new object.
+        Add an event to the payload and return a new Collection object.
+
+        :param event: Event to add to collection.
+        :type event: Event | IndexedEvent | TimeRangeEvent
+        :returns: Collection
         """
         self._check(event)
         return Collection(self._event_list.append(event))
@@ -236,14 +302,32 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         Perform a slice of events within the Collection, returns a new
         Collection representing a portion of this TimeSeries from begin up to
-        but not including end.
+        but not including end. Uses typical python [slice:syntax].
+
+        :param begin: Slice begin.
+        :type begin: int
+        :param end: Slice end.
+        :type end: int
+        :returns: Collection
         """
         sliced = Collection(self._event_list[begin:end])
         sliced._type = self._type  # pylint: disable=protected-access
         return sliced
 
     def filter(self, func):
-        """Filter the collection's event list with the supplied function."""
+        """Filter the collection's event list with the supplied function.
+        The function will be passed each of the Event objects and return
+        a boolean value. If True, then it will be included in the filter.
+
+        ::
+
+            def is_even(event):
+                return bool(event.get('some_value') % 2 == 0)
+
+        :param func: Funtion to filter with.
+        :type func: func
+        :returns: Collection
+        """
         flt_events = list()
 
         for i in self.events():
@@ -253,7 +337,20 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         return Collection(flt_events)
 
     def map(self, func):
-        """Map function."""
+        """Map function. Apply function to the collection events
+        and return a new Collection from the resulting events. Function
+        must creat a new Event* instance.
+
+        ::
+
+            def in_only(event):
+                # make new events wtin only data value "in".
+                return Event(event.timestamp(), {'in': event.get('in')})
+
+        :param func: Mapper function
+        :type func: func
+        :returns: Collection
+        """
         mapped_events = list()
 
         for i in self.events():
@@ -266,6 +363,11 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Returns a new Collection by testing the fieldSpec
         values for being valid (not NaN, null or undefined).
         The resulting Collection will be clean for that fieldSpec.
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: Collection
         """
         fspec = self._field_spec_to_array(field_spec)
         flt_events = list()
@@ -281,6 +383,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Takes a fieldSpecList (list of column names) and collapses
         them to a new column which is the reduction of the matched columns
         in the fieldSpecList.
+
+        :param field_spec_list: List of columns to collapse.
+        :type field_spec_list: list
+        :param name: Name of new column containing collapsed data.
+        :type name: str
+        :param reducer: Function to pass to reducer.
+        :type reducer: func
+        :param append: Append collapsed column to existing data dict or make new (default: False).
+        :type append: bool
         """
         fsl = self._field_spec_to_array(field_spec_list)
 
@@ -301,13 +412,23 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     # sum/min/max etc
 
     def count(self):
-        """Get count - calls size()"""
+        """Get count - calls size()
+
+        :returns: int -- Number of events in the collection.
+        """
         return self.size()
 
     def aggregate(self, func, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Aggregates the events down using a user defined function to
         do the reduction.
+
+        :param func: Function to pass to map reduce to perform the aggregation.
+        :type func: func
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: dict -- dict of reduced/aggregated values.
         """
         fspec = self._field_spec_to_array(field_spec)
         result = Event.map_reduce(self.event_list_as_list(), fspec, func)
@@ -316,49 +437,112 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         # pylint: disable=dangerous-default-value
 
     def first(self, field_spec=['value']):
-        """Get first value in the collection for the fspec"""
+        """Get first value in the collection for the fspec
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: depends on value
+        """
         return self.aggregate(Functions.first, field_spec)
 
     def last(self, field_spec=['value']):
-        """Get last value in the collection for the fspec"""
+        """Get last value in the collection for the fspec
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: depends on value
+        """
         return self.aggregate(Functions.last, field_spec)
 
     def sum(self, field_spec=['value']):
-        """Get sum"""
+        """Get sum
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.aggregate(Functions.sum, field_spec)
 
     def avg(self, field_spec=['value']):
-        """Get avg"""
+        """Get avg
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.aggregate(Functions.avg, field_spec)
 
     def max(self, field_spec=['value']):
-        """Get max"""
+        """Get max
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.aggregate(Functions.max, field_spec)
 
     def min(self, field_spec=['value']):
-        """Get min"""
+        """Get min
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.aggregate(Functions.min, field_spec)
 
     def mean(self, field_spec=['value']):
-        """Get mean"""
+        """Get mean
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.avg(field_spec)
 
     def median(self, field_spec=['value']):
-        """Get median"""
+        """Get median
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.aggregate(Functions.median, field_spec)
 
     def stdev(self, field_spec=['value']):
-        """Get std dev"""
+        """Get std dev
+
+        :param field_spec: Field spec to values. "Deep" syntax either
+            'deep.value' or ['deep', 'value']
+        :type field_spec: list or str
+        :returns: int or float
+        """
         return self.aggregate(Functions.stddev, field_spec)
 
     def __str__(self):
-        """call to_string()"""
+        """call to_string()
+
+        :returns: str - String representation of the object.
+        """
         return self.to_string()
 
     @staticmethod
     def equal(coll1, coll2):
         """
-        test to see if instances are the same
+        Test to see if instances are the *same instance*.
+
+        :param coll1: A collection.
+        :type coll1: Collection
+        :param coll2: A collection.
+        :type coll2: Collection
+        :returns: bool
         """
         # pylint: disable=protected-access
         return bool(
@@ -369,7 +553,13 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     @staticmethod
     def same(coll1, coll2):
         """
-        test to see if the collections have the same values
+        Test to see if the collections *have the same values*.
+
+        :param coll1: A collection.
+        :type coll1: Collection
+        :param coll2: A collection.
+        :type coll2: Collection
+        :returns: bool
         """
         # pylint: disable=protected-access
         return bool(
