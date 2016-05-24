@@ -32,15 +32,20 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     Basic operations on the list of events are also possible. You
     can iterate over the collection with a for..of loop, get the size()
     of the collection and access a specific element with at().
+
+    Initialize from copy, lists, etc.
+
+    instance_or_list arg can be:
+
+    * a Collection object (copy ctor)
+    * a python list
+    * a pyrsistent.pvector
+
+    The list and pvector will contain Events.
     """
     def __init__(self, instance_or_list, copy_events=True):
         """
-        Initialize from copy, lists, etc.
-
-        instance_or_list can be:
-            * a Collection object (copy ctor)
-            * a python list
-            * a pyrsistent.pvector
+        Create a collection object.
         """
         super(Collection, self).__init__()
 
