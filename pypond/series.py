@@ -71,7 +71,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     * An event list
     * From the wire format
 
-    :raises: TimeSeriesException
+    Parameters
+    ----------
+    instance_or_wire : TimeSeries, list of events, wire format
+        See above
+
+    Raises
+    ------
+    TimeSeriesException
+        Raised when args can not be properly handled.
+
+    Attributes
+    ----------
+    event_type_map : dict
+        Map text keys from wire format to the appropriate Event class.
     """
 
     event_type_map = dict(
@@ -154,6 +167,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     def build_metadata(meta):
         """
         Build the metadata out of the incoming wire format
+
+        Parameters
+        ----------
+        meta : dict
+            Incoming wire format.
+
+        Returns
+        -------
+        pyrsistent.pmap
+            Immutable dict of metadata
         """
 
         ret = copy.copy(meta) if meta else dict()
@@ -174,11 +197,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     def to_json(self):
         """
-        Returns the TimeSeries as a JSON object, essentially:
-        {time: t, data: {key: value, ...}}
+        Returns the TimeSeries as a python dict.
 
         This is actually like json.loads(s) - produces the
-        actual vanilla data structure."""
+        actual vanilla data structure.
+
+        Returns
+        -------
+        dict
+            Dictionary of columns and points
+        """
 
         columns = list()
         points = list()
@@ -210,31 +238,82 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Retruns the TimeSeries as a string, useful for serialization.
 
         In JS land, this is synonymous with __str__ or __unicode__
+
+        Returns
+        -------
+        str
+            String version of to_json() for transmission/etc.
         """
         return json.dumps(self.to_json(), cls=ObjectEncoder)
 
     def timerange(self):
-        """Returns the extents of the TimeSeries as a TimeRange.."""
+        """Returns the extents of the TimeSeries as a TimeRange..
+
+        Returns
+        -------
+        TimeRange
+            TimeRange internal of the underly collection.
+        """
         return self._collection.range()
 
     def range(self):
-        """Alias for timerange()"""
+        """Alias for timerange()
+
+        Returns
+        -------
+        TimeRange
+            TimeRange internal of the underly collection.
+        """
         return self.timerange()
 
     def begin(self):
-        """Gets the earliest time represented in the TimeSeries."""
+        """Gets the earliest time represented in the TimeSeries.
+
+        Returns
+        -------
+        datetime.datetime
+            The begin time of the underlying time range.
+        """
         return self.range().begin()
 
     def end(self):
-        """Gets the latest time represented in the TimeSeries."""
+        """Gets the latest time represented in the TimeSeries.
+
+        Returns
+        -------
+        datetime.datetime
+            The end time of the underlying time range.
+        """
         return self.range().end()
 
     def at(self, i):  # pylint: disable=invalid-name
-        """Access the series events via index"""
+        """Access the series events via numeric index
+
+        Parameters
+        ----------
+        i : int
+            An array index
+
+        Returns
+        -------
+        Event
+            The Event object found at index i
+        """
         return self._collection.at(i)
 
     def set_collection(self, coll):
-        """Sets a new underlying collection for this TimeSeries."""
+        """Sets a new underlying collection for this TimeSeries.
+
+        Parameters
+        ----------
+        coll : Collection
+            New collection to assign to this TimeSeries
+
+        Returns
+        -------
+        TimeSeries
+            New TimeSeries with Collection coll
+        """
         res = TimeSeries(self)
         res._collection = coll  # pylint: disable=protected-access
         return res
@@ -246,7 +325,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         has a time before the supplied t, and every sample after the
         index has a time later than the supplied t.
 
-        Optionally supply a begin index to start searching from.
+        Optionally supply a begin index to start searching from. Returns
+        index that is the greatest but still below t.
+
+        Parameters
+        ----------
+        dtime : datetime.datetime
+            Date time object to search with
+        b : int, optional
+            An index position to start searching from.
+
+        Returns
+        -------
+        int
+            The index of the Event searched for by dtime.
         """
         return self._collection.bisect(dtime, b)
 
@@ -254,14 +346,39 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         Perform a slice of events within the TimeSeries, returns a new
         TimeSeries representing a portion of this TimeSeries from begin up to
-        but not including end.
+        but not including end. Uses typical python [slice:syntax].
+
+        Parameters
+        ----------
+        begin : int
+            Slice begin index
+        end : int
+            Slice end index
+
+        Returns
+        -------
+        TimeSeries
+            New instance with sliced collection.
         """
         sliced = self._collection.slice(begin, end)
         return self.set_collection(sliced)
 
     def clean(self, field_spec):
         """
-        Generates new collection using a fieldspec
+        Returns a new TimeSeries by testing the field_spec
+        values for being valid (not NaN, null or undefined).
+        The resulting TimeSeries will be clean for that fieldSpec.
+
+        Parameters
+        ----------
+        field_spec : list
+            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
+            preferred
+
+        Returns
+        -------
+        TimeSeries
+            New time series from clean values from the field spec.
         """
         cleaned = self._collection.clean(field_spec)
         return self.set_collection(cleaned)
@@ -271,6 +388,22 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Takes a fieldSpecList (list of column names) and collapses
         them to a new column which is the reduction of the matched columns
         in the fieldSpecList.
+
+        Parameters
+        ----------
+        field_spec_list : list
+            List of columns to collapse
+        name : str
+            Name of new column containing collapsed values.
+        reducer : Function to pass to reducer.
+            function
+        append : bool, optional
+            Append collapsed column to existing data or fresh data payload.
+
+        Returns
+        -------
+        TimeSeries
+            A new time series from the collapsed columns.
         """
         collapsed = self._collection.collapse(field_spec_list, name, reducer, append)
         return self.set_collection(collapsed)
@@ -278,25 +411,54 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     def events(self):
         """
         Generator to allow for..of loops over series.events()
+
+        Returns
+        -------
+        iterator
+            Generator for loops.
         """
         return iter(self._collection.event_list())
 
     # Access metadata about the series
 
     def name(self):
-        """Get data name."""
+        """Get data name.
+
+        Returns
+        -------
+        str
+            Data name.
+        """
         return self._data.get('name')
 
     def index(self):
-        """Get the index."""
+        """Get the index.
+
+        Returns
+        -------
+        Index
+            Get the index.
+        """
         return self._data.get('index')
 
     def index_as_string(self):
-        """Index represented as a string."""
+        """Index represented as a string.
+
+        Returns
+        -------
+        str
+            String format of Index or None.
+        """
         return self.index().to_string() if self.index() else None
 
     def index_as_range(self):
-        """Index returnd as time range."""
+        """Index returned as time range.
+
+        Returns
+        -------
+        TimeRange
+            Index as a TimeRange or None
+        """
         return self.index().as_timerange() if self.index() else None
 
     def is_utc(self):
@@ -312,6 +474,11 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         points, this is solved by passing the column list to .to_point()
         as an optional argument to ensure that the points and the columns
         are properly aligned.
+
+        Returns
+        -------
+        list
+            List of column names.
         """
         cret = dict()
 
@@ -324,11 +491,28 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         return cret.keys()
 
     def collection(self):
-        """Returns the internal collection of events for this TimeSeries"""
+        """Returns the internal collection of events for this TimeSeries
+
+        Returns
+        -------
+        Collection
+            Internal collection.
+        """
         return self._collection
 
     def meta(self, key=None):
-        """Returns the meta data about this TimeSeries as a JSON object"""
+        """Returns the meta data about this TimeSeries as a JSON object
+
+        Parameters
+        ----------
+        key : str, optional
+            Optional metadata key to fetch value for
+
+        Returns
+        -------
+        dict or key/value
+            Return a thawed metadata dict or the value specified by *key*.
+        """
         if key is None:
             return thaw(self._data)
         else:
@@ -337,15 +521,38 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     # Access the series itself
 
     def size(self):
-        """Number of rows in series."""
+        """Number of rows in series.
+
+        Returns
+        -------
+        int
+            Number in the series.
+        """
         return self._collection.size()
 
     def size_valid(self, field_spec):
-        """Returns the number of rows in the series."""
+        """Returns the number of rows in the series.
+
+        Parameters
+        ----------
+        field_spec : list or string
+            Field spec of columns to validate.
+
+        Returns
+        -------
+        int
+            Number of valid <field_spec> values in the events.
+        """
         return self._collection.size_valid(field_spec)
 
     def count(self):
-        """alias for size."""
+        """alias for size.
+
+        Returns
+        -------
+        int
+            Number of rows in series.
+        """
         return self.size()
 
     # sum/min/max etc
@@ -353,35 +560,127 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     # pylint: disable=dangerous-default-value
 
     def sum(self, field_spec=['value']):
-        """Get sum"""
+        """Get sum
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Summed values
+        """
         return self._collection.sum(field_spec)
 
     def max(self, field_spec=['value']):
-        """Get max"""
+        """Get max
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Max value
+        """
         return self._collection.max(field_spec)
 
     def min(self, field_spec=['value']):
-        """Get min"""
+        """Get min
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Min value
+        """
         return self._collection.min(field_spec)
 
     def avg(self, field_spec=['value']):
-        """Get avg"""
+        """Get avg
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Average value
+        """
         return self._collection.avg(field_spec)
 
     def mean(self, field_spec=['value']):
-        """Get mean"""
+        """Get mean
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Mean value
+        """
         return self._collection.mean(field_spec)
 
     def median(self, field_spec=['value']):
-        """Get median"""
+        """Get median
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Median value
+        """
         return self._collection.median(field_spec)
 
     def stdev(self, field_spec=['value']):
-        """Get std dev"""
+        """Get std dev
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Specific fields to process
+
+        Returns
+        -------
+        int or float
+            Standard deviation
+        """
         return self._collection.stdev(field_spec)
 
     def aggregate(self, func, field_spec=['value']):
-        """Get std dev"""
+        """Aggregates the events down using a user defined function to
+        do the reduction.
+
+        Parameters
+        ----------
+        func : function
+            Function to pass to map reduct to perform the aggregation.
+        field_spec : list, optional
+            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
+            preferred.
+
+        Returns
+        -------
+        dict
+            Dict of reduced values
+        """
         return self._collection.aggregate(func, field_spec)
 
     def pipeline(self):
@@ -400,7 +699,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def equal(series1, series2):
-        """Check equality - same instance."""
+        """Check equality - same instance.
+
+        Parameters
+        ----------
+        series1 : TimeSeries
+            A time series
+        series2 : TimeSeries
+            Another time series
+
+        Returns
+        -------
+        bool
+            Are the two the same instance?
+        """
         # pylint: disable=protected-access
         return bool(
             series1._data is series2._data and
@@ -409,7 +721,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def same(series1, series2):
-        """Implements JS Object.is() - same values"""
+        """Implements JS Object.is() - same values
+
+        Parameters
+        ----------
+        series1 : TimeSeries
+            A time series
+        series2 : TimeSeries
+            Another time series
+
+        Returns
+        -------
+        bool
+            Do the two have the same values?
+        """
         # pylint: disable=protected-access
         return bool(
             series1._data == series2._data and
@@ -418,7 +743,25 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def map(data, series_list, mapper, field_spec=None):
-        """for each series, map events to the same timestamp/index"""
+        """for each series, map events to the same timestamp/index
+
+        Parameters
+        ----------
+        data : dict or pmap
+            Data payload
+        series_list : list
+            List of TimeSeries objects.
+        mapper : function
+            Mapper function
+        field_spec : list, optional
+            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
+            preferred.
+
+        Returns
+        -------
+        TimeSeries
+            New time series containing the mapped events.
+        """
 
         event_map = collections.OrderedDict()
 
@@ -452,7 +795,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def merge(data, series_list):
-        """Merge."""
+        """Merge a list of time series.
+
+        Parameters
+        ----------
+        data : dict or pvector
+            Data payload
+        series_list : list
+            List of TimeSeries instances.
+
+        Returns
+        -------
+        TimeSeries
+            New TimeSeries from merge.
+        """
         return TimeSeries.map(data, series_list, Event.merge)
 
     @staticmethod
@@ -463,6 +819,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         const ts1 = new TimeSeries(weather1);
         const ts2 = new TimeSeries(weather2);
-        const sum = TimeSeries.sum({name: "sum"}, [ts1, ts2], ["temp"]);
+        const sum = TimeSeries.sum_list({name: "sum"}, [ts1, ts2], ["temp"]);
+
+        Parameters
+        ----------
+        data : dict
+            Data payload
+        series_list : list
+            List of TimeSeries objects
+        field_spec : list
+            Field spec for columns.
+
+        Returns
+        -------
+        TimeSeries
+            New time series with summed values.
         """
         return TimeSeries.map(data, series_list, Event.sum, field_spec)
