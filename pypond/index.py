@@ -64,6 +64,7 @@ class Index(PypondBase):
     :type s: str
     :param utc: index interpreted as utc or localtime. Pleast don't set this to false.
     :type utc: bool
+    :raises: IndexException
     """
 
     def __init__(self, s, utc=True):
@@ -193,6 +194,7 @@ class Index(PypondBase):
         :type idx_str: str
         :param is_utc: index interpreted as utc or localtime. Pleast don't set this to false.
         :tpye is_utc: bool
+        :raises: IndexException
         """
         parts = idx_str.split('-')
         num_parts = len(parts)

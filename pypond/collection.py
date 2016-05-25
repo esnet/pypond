@@ -149,6 +149,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         :param pos: The index of the event to be retrieved.
         :type pos: int
         :returns: new Event | IndexedEvent | TimeRangeEvent instance
+        :raises: CollectionException
         """
         try:
             return self._type(self._event_list[pos])
@@ -211,6 +212,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         :param b: Array index position to start searching from.
         :type b: int
         :returns: int or None -- The index position of the desired event.
+        :raises: EventException
         """
 
         i = copy.copy(b)  # paranoia

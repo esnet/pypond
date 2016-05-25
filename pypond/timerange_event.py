@@ -31,7 +31,7 @@ class TimeRangeEvent(EventBase):
     - a simple type such as an integer. In the case of the simple type
       this is a shorthand for supplying {"value": v}.
 
-
+    :raises: EventException
     """
     def __init__(self, instance_or_args, arg2=None):
         """

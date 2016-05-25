@@ -643,6 +643,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         :param field_spec: Column(s) to sum
         :type field_spec: str/list
         :returns: int/float or None
+        :raises: EventException
         """
 
         tstmp = None
