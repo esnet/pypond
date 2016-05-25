@@ -31,11 +31,23 @@ class In(Observable):
         self._type = None
 
     def _check(self, event):
-        """verify the internal types."""
+        """verify the internal types.
 
-        # gotta do.it.this way to avoid circular import with event.py
-        # I don't think these pipeline source bases need their own
-        # module.
+        Parameters
+        ----------
+        event : Event
+            An Event
+
+        Returns
+        -------
+        no return value
+            Sets internal value in subclass or raises exception
+
+        Raises
+        ------
+        PipelineException
+            Raised if events are not all of one type.
+        """
 
         if self._type is None:
             if isinstance(event, Event):
