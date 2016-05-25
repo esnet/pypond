@@ -33,9 +33,11 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
     A TimeSeries is a a Series where each event is an association of a timestamp
     and some associated data.
 
-    Data passed into it may have the following format, which is our wire format:
+    Data passed into it may have the following format, which is our wire format
 
-      {
+    ::
+
+        {
         "name": "traffic",
         "columns": ["time", "value", ...],
         "points": [
@@ -45,15 +47,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
            [1400425950000, 93, ...],
            ...
          ]
-      }
+        }
 
     Alternatively, the TimeSeries may be constructed from a list of Event objects.
 
     Internaly the above series is represented as two parts:
-     * Collection - an Immutable.List of Events and associated methods
-                      to query and manipulate that list
-     * Meta data  - an Immutable.Map of extra data associated with the
-                      TimeSeries
+
+    * Collection - an Immutable.List of Events and associated methods
+        to query and manipulate that list
+    * Meta data  - an Immutable.Map of extra data associated with the
+        TimeSeries
 
     The events stored in the collection may be Events (timestamp based),
     TimeRangeEvents (time range based) or IndexedEvents (an alternative form
@@ -61,6 +64,14 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     The timerange associated with a TimeSeries is simply the bounds of the
     events within it (i.e. the min and max times).
+
+    Initialize a TimeSeries object from:
+
+    * Another TimeSeries/copy ctor
+    * An event list
+    * From the wire format
+
+    :raises: TimeSeriesException
     """
 
     event_type_map = dict(
@@ -71,10 +82,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     def __init__(self, instance_or_wire):
         """
-        initialize a TimeSeries object from
-            * Another TimeSeries/copy ctor
-            * An event list
-            * From the wire format
+        create a time series object
         """
         super(TimeSeries, self).__init__()
 
