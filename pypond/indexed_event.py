@@ -26,7 +26,16 @@ class IndexedEvent(EventBase):
         - a simple type such as an integer. In the case of the simple type
           this is a shorthand for supplying {"value": v}.
 
-    :raises: EventException
+    Parameters
+    ----------
+    instance_or_begin : Index, pyrsistent.pmap, or str.
+        Index for copy constructor, pmap as the fully
+        formed internals or a string arg to the Index class.
+    data : dict or pyrsistent.pmap, optional
+        Data payload.
+    utc : bool, optional
+        UTC or localtime to create index in. Please don't not use UTC.
+        Yes, that's a double negative.
     """
     def __init__(self, instance_or_begin, data=None, utc=True):
         """
@@ -52,7 +61,13 @@ class IndexedEvent(EventBase):
         {time: t, data: {key: value, ...}}
 
         This is actually like json.loads(s) - produces the
-        actual vanilla data structure."""
+        actual vanilla data structure.
+
+        Returns
+        -------
+        dict
+            Dictionary representation of object internals.
+        """
         return dict(
             index=self.index_as_string(),
             data=thaw(self.data())
@@ -66,9 +81,16 @@ class IndexedEvent(EventBase):
         Can be given an optional list of columns so the returned list will
         have the values in order. Primarily for the TimeSeries wire format.
 
-        :param cols: List of data columns.
-        :type cols: list/default of None.
-        :returns: list -- ms since epoch folowed by data values.
+        Parameters
+        ----------
+        cols : list, optional
+            List of columns to order the points in so the TimeSeries
+            wire format is rendered corectly.
+
+        Returns
+        -------
+        list
+            Epoch ms followed by points.
         """
         points = [self.index_as_string()]
 
@@ -82,49 +104,70 @@ class IndexedEvent(EventBase):
     def index(self):
         """Returns the Index associated with the data in this Event.
 
-        :returns: Index -- Underlying Index object.
+        Returns
+        -------
+        Index
+            The underlying index object
         """
         return self._d.get('index')
 
     def timerange(self):
         """The TimeRange of this data.
 
-        :returns: TimeRange -- Timerange from the underlying Index.
+        Returns
+        -------
+        TimeRange
+            Time range from the underlying index.
         """
         return self.index().as_timerange()
 
     def timerange_as_utc_string(self):
         """The timerange of this data, in UTC time, as a string.
 
-        :returns: str -- Underlying TimeRange as UTC string.
+        Returns
+        -------
+        str
+            Underlying TimeRange as UTC string.
         """
         return self.timerange().to_utc_string()
 
     def timerange_as_local_string(self):
-        """The timerange of this data, in Local time, as a string.
+        """The timerange of this data, in Local time, as a string..
 
-        :returns: str -- Underlying TimeRange as localtime string.
+        Returns
+        -------
+        str
+            Underlying TimeRange as localtime string.
         """
         return self.timerange().to_local_string()
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp.
 
-        :returns: datetime -- Datetime of the beginning of the range.
+        Returns
+        -------
+        datetime.datetime
+            Datetime of the beginning of the range.
         """
         return self.timerange().begin()
 
     def end(self):
         """The end time of this Event, which will be just the timestamp.
 
-        :returns: datetime -- Datetime of the end of the range.
+        Returns
+        -------
+        datetime.datetime
+            Datetime of the end of the range.
         """
         return self.timerange().end()
 
     def timestamp(self):
         """The timestamp of this beginning of the range.
 
-        :returns: datetime -- Datetime of the beginning of the range.
+        Returns
+        -------
+        datetime.datetime
+            Datetime of the beginning of the range.
         """
         return self.begin()
 
@@ -132,6 +175,11 @@ class IndexedEvent(EventBase):
         """Returns the Index as a string, same as event.index().toString().
 
         :returns: str -- String version of the underlying Index.
+
+        Returns
+        -------
+        str
+            String version of the underlying index.
         """
         return self.index().as_string()
 
@@ -143,6 +191,16 @@ class IndexedEvent(EventBase):
         :param data: The new data portion for this event object.
         :type data: dict
         :returns: IndexedEvent - a new IndexedEvent object.
+
+        Parameters
+        ----------
+        data : dict
+            The new data payload for this event object.
+
+        Returns
+        -------
+        IndexedEvent
+            A new indexed event with the provided payload.
         """
         new_d = self._d.set('data', self.data_from_arg(data))
         return IndexedEvent(new_d)
