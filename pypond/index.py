@@ -60,15 +60,23 @@ class Index(PypondBase):
 
     - 1d-278      (range, in n x days, hours, minutes or seconds)
 
-    :param s: The index string in one of the aforementioned formats.
-    :type s: str
-    :param utc: index interpreted as utc or localtime. Pleast don't set this to false.
-    :type utc: bool
-    :raises: IndexException
+    Parameters
+    ----------
+    s : str
+        The index string in one of the aforementioned formats.
+    utc : bool, optional
+        Index interpreted as UTC or localtime. Please don't set this to false
+        since non-UTC times are the devil.
+
+    Raises
+    ------
+    IndexException
+        Raised if arg s could not be translated into a valid timerange/index.
     """
 
     def __init__(self, s, utc=True):
-        """Create the Index."""
+        """Create the Index.
+        """
         super(Index, self).__init__()
 
         self._utc = utc
@@ -90,7 +98,10 @@ class Index(PypondBase):
         This is actually like json.loads(s) - produces the
         actual data structure.
 
-        :returns: str -- The index text string as previously outlined.
+        Returns
+        -------
+        str
+            The index string as previously outlined.
         """
         return self._string
 
@@ -100,7 +111,10 @@ class Index(PypondBase):
 
         In JS land, this is synonymous with __str__ or __unicode__
 
-        :returns: str -- The index text string as previously outlined.
+        Returns
+        -------
+        str
+            The index string as previously outlined.
         """
         return self._string
 
@@ -110,7 +124,15 @@ class Index(PypondBase):
         that calendar range as a human readable format, e.g. "June, 2014".
         The format specified is a Moment.format.
 
-        :returns: str -- The index text string as a formatted (strftime()) time.
+        Parameters
+        ----------
+        fmt : str, optional
+            User can pass in a valid strftime() format string.
+
+        Returns
+        -------
+        str
+            FThe index text string as a formatted (strftime()) time.
         """
 
         if fmt is not None and self._index_type in ('day', 'month', 'year'):
@@ -128,35 +150,50 @@ class Index(PypondBase):
     def as_string(self):
         """Alias for to_string()
 
-        :returns: str -- The index text string as previously outlined.
+        Returns
+        -------
+        str
+            The index string as previously outlined.
         """
         return self.to_string()
 
     def as_timerange(self):
         """Returns the Index as a TimeRange
 
-        :returns: TimeRange -- the underlying time range object.
+        Returns
+        -------
+        TimeRange
+            The underlying time range object.
         """
         return self._timerange
 
     def begin(self):
         """Returns start date of the index.
 
-        :returns: datetime.datetime
+        Returns
+        -------
+        datetime.datetime
+            Start date of the index.
         """
         return self.as_timerange().begin()
 
     def end(self):
         """Returns end date of the index.
 
-        :returns: datetime.datetime
+        Returns
+        -------
+        datetime.datetime
+            End date of the index.
         """
         return self.as_timerange().end()
 
     def __str__(self):
         """call to_string()
 
-        :returns: str -- String representation of object.
+        Returns
+        -------
+        str
+            String representation of the object.
         """
         return self.to_string()
 
@@ -172,15 +209,15 @@ class Index(PypondBase):
         """
         Generate the time range from the idx string.
 
-        The index string arg will may be of two forms:
-
+        The index string arg will may be of two forms
+        ---------------------------------------------
         - 2015-07-14  (day)
         - 2015-07     (month)
         - 2015        (year)
 
 
-        or:
-
+        or
+        --
         - 1d-278      (range, in n x days, hours, minutes or seconds)
 
         and return a TimeRange for that time. The TimeRange may be considered to be
@@ -190,11 +227,22 @@ class Index(PypondBase):
         the code in that util.js was the Index class, and it makes more sense
         having this as a class method.
 
-        :param idx_str: The index string in one of the aforementioned formats.
-        :type idx_str: str
-        :param is_utc: index interpreted as utc or localtime. Pleast don't set this to false.
-        :tpye is_utc: bool
-        :raises: IndexException
+        Parameters
+        ----------
+        idx_str : str
+            The index string in one of the aformentioned formats
+        is_utc : bool, optional
+            Index interpreted as utc or localtime. Please don't use localtime.
+
+        Returns
+        -------
+        TimeRange
+            A time range made from the interpreted index string.
+
+        Raises
+        ------
+        IndexException
+            Raised when the string format is determined to be invalid.
         """
         parts = idx_str.split('-')
         num_parts = len(parts)
@@ -302,9 +350,15 @@ class Index(PypondBase):
 
         previously: Generator.getLengthFromSize.
 
-        :param win: An index string in the previously mentioned 1d-278 format.
-        :type win: str
-        :returns: int -- Duration of the index in ms.
+        Parameters
+        ----------
+        win : str
+            An index string in the previously mentioned 1d-278 style format.
+
+        Returns
+        -------
+        int
+            Duration of the index/range in ms.
         """
         range_re = re.match('([0-9]+)([smhd])', win)
 
@@ -325,11 +379,17 @@ class Index(PypondBase):
 
         previously: Generator.getBucketPosFromDate
 
-        :param win: Prefix of the index string.
-        :type win: str
-        :param dtime: datetime.datetime object to calculate suffix from.
-        :type dtime: datetime.datetime
-        :returns: int -- the suffix for the index string.
+        Parameters
+        ----------
+        win : str
+            Prefix if the index string.
+        dtime : datetime.datetime
+            Datetime to calculate suffix from.
+
+        Returns
+        -------
+        int
+            The suffix for the index string.
         """
         duration = Index.window_duration(win)
         ddms = ms_from_dt(sanitize_dt(dtime))
@@ -351,11 +411,17 @@ class Index(PypondBase):
 
         previously: Generator.bucketIndex
 
-        :param win: Prefix of the index string.
-        :type win: str
-        :param dtime: datetime.datetime object to generate the index string from.
-        :type dtime: datetime.datetime
-        :returns: str -- The index string.
+        Parameters
+        ----------
+        win : str
+            Prefix of the index string.
+        dtime : datetime.datetime
+            Datetime to generate index string from.
+
+        Returns
+        -------
+        str
+            The index string.
         """
         pos = Index.window_position_from_date(win, dtime)
         return '{win}-{pos}'.format(win=win, pos=pos)
@@ -381,10 +447,18 @@ class Index(PypondBase):
 
         previously: Generator.bucketIndexList
 
-        :param win: Prefix of the index string.
-        :type win: str
-        :param dtime: TimeRange object to generate the index string from.
-        :type dtime: TimeRange
+        Parameters
+        ----------
+        win : str
+            Prefix of the index string.
+        timerange : TimeRange
+            Time range object to generate index string from
+
+        Returns
+        -------
+        list
+            A list of strings of index values at every "tick" in the range
+            specified.
         """
         pos1 = Index.window_position_from_date(win, timerange.begin())
         pos2 = Index.window_position_from_date(win, timerange.end())
