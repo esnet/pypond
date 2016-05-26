@@ -39,9 +39,16 @@ from .util import (
 class EventBase(PypondBase):
     """
     Common code for the event classes.
+
+    Parameters
+    ----------
+    underscore_d : pyrsistent.pmap
+        Immutable dict-like object containing the payload for the
+        events.
     """
     def __init__(self, underscore_d):
-        "ctor"
+        """Constructor for base class.
+        """
         # initialize common code
         super(EventBase, self).__init__()
 
@@ -56,7 +63,10 @@ class EventBase(PypondBase):
     def data(self):
         """Direct access to the event data. The result will be an pyrsistent.pmap.
 
-        :returns: pyrsistent.pmap
+        Returns
+        -------
+        pyrsistent.pmap
+            The immutable data payload.
         """
         return self._d.get('data')
 
@@ -64,13 +74,24 @@ class EventBase(PypondBase):
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
-        A fieldSpec could be "a.b" or it could be ['a', 'b'].
+        A fieldSpec could be "a.b" or it could be ['a', 'b']. Favor
+        the list version please.
 
         The field spec can have an arbitrary number of "parts."
 
         :param field_spec: Field spec of data value to get.
         :type field_spect: str/list
         :returns: various - Depends on underlying data.
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Field spec of data value to get.
+
+        Returns
+        -------
+        various
+            Type depends on underyling data
         """
         if isinstance(field_spec, str):
             path = field_spec.split('.')  # pylint: disable=no-member
@@ -86,11 +107,27 @@ class EventBase(PypondBase):
         :param field_spec: Field spec of data value to get.
         :type field_spect: str/list
         :returns: various - Depends on underlying data.
+
+        Parameters
+        ----------
+        field_spec : list, optional
+            Field spec of data value to get.
+
+        Returns
+        -------
+        various
+            Type depends on underlying data.
         """
         return self.get(field_spec)
 
     def to_json(self):
-        """abstract, override in subclasses."""
+        """abstract, override in subclasses.
+
+        Raises
+        ------
+        NotImplementedError
+            Needs to be implemented in subclasses.
+        """
         raise NotImplementedError  # pragma: nocover
 
     def to_string(self):
@@ -100,14 +137,20 @@ class EventBase(PypondBase):
 
         In JS land, this is synonymous with __str__ or __unicode__
 
-        :returns: str -- String representation of this object.
+        Returns
+        -------
+        str
+            String representatoin of this object.
         """
         return json.dumps(self.to_json())
 
     def stringify(self):
         """Produce a json string of the internal data.
 
-        :returns: str -- String representation of this object's data.
+        Returns
+        -------
+        str
+            String representation of this object's data.
         """
         return json.dumps(thaw(self.data()))
 
@@ -117,19 +160,48 @@ class EventBase(PypondBase):
 
     def __eq__(self, other):
         """equality operator. need this to be able to check if
-        the event_list in a collection is the same as another."""
+        the event_list in a collection is the same as another.
+
+        Parameters
+        ----------
+        other : Event
+            Event object for == comparison.
+
+        Returns
+        -------
+        bool
+            True if other event has same payload.
+        """
         return bool(self._d == other._d)  # pylint: disable=protected-access
 
     def timestamp(self):
-        """abstract, override in subclass"""
+        """abstract, override in subclass
+
+        Raises
+        ------
+        NotImplementedError
+            Needs to be implemented in subclasses.
+        """
         raise NotImplementedError  # pragma: nocover
 
     def begin(self):
-        """abstract, override in subclass"""
+        """abstract, override in subclass
+
+        Raises
+        ------
+        NotImplementedError
+            Needs to be implemented in subclasses.
+        """
         raise NotImplementedError  # pragma: nocover
 
     def end(self):
-        """abstract, override in subclass"""
+        """abstract, override in subclass
+
+        Raises
+        ------
+        NotImplementedError
+            Needs to be implemented in subclasses.
+        """
         raise NotImplementedError  # pragma: nocover
 
     # static methods, primarily for arg processing.
@@ -138,10 +210,20 @@ class EventBase(PypondBase):
     def timestamp_from_arg(arg):
         """extract timestamp from a constructor arg.
 
-        :param arg: Time value as passed to one of the consctructors.
-        :type arg: int (epoch ms) or datetime
-        :returns: datetime -- Datetime object that has been sanitized.
-        :raises: EventException
+        Parameters
+        ----------
+        arg : int or datetime.datetime
+            Time value as passed to one of the constructors
+
+        Returns
+        -------
+        datetime.datetime
+            Datetime object that has been sanitized
+
+        Raises
+        ------
+        EventException
+            Does not accept unaware datetime objects.
         """
         if isinstance(arg, int):
             return dt_from_ms(arg)
@@ -157,10 +239,20 @@ class EventBase(PypondBase):
     def timerange_from_arg(arg):
         """create TimeRange from a constructor arg.
 
-        :param arg: Time value as passed to one of the consctructors.
-        :type arg: list/tuple/pvector or TimeRange
-        :returns: TimeRange
-        :raises: EventException
+        Parameters
+        ----------
+        arg : list, tuple, pvector or TimeRange
+            Time value as passed to one of the constructors.
+
+        Returns
+        -------
+        TimeRange
+            New TimeRange instance from args
+
+        Raises
+        ------
+        EventException
+            Raised on invalid arg.
         """
         if isinstance(arg, TimeRange):
             return arg
@@ -173,10 +265,22 @@ class EventBase(PypondBase):
     def index_from_args(instance_or_index, utc=True):
         """create Index from a constructor arg.
 
-        :param arg: Index value as passed to one of the consctructors.
-        :type arg: str or Index
-        :returns: Index
-        :raises: EventException
+        Parameters
+        ----------
+        instance_or_index : Index or str
+            Index value as passed to a constructor
+        utc : bool, optional
+            Use utc time internally, please don't not do this.
+
+        Returns
+        -------
+        Index
+            New Index object from args.
+
+        Raises
+        ------
+        EventException
+            Raised on invalid arg.
         """
         if isinstance(instance_or_index, str):
             return Index(instance_or_index, utc)
@@ -195,6 +299,23 @@ class EventBase(PypondBase):
         :type arg: dict/pmap/int/float/str
         :returns: pyrsisten.pmap
         :raises: EventException
+
+        Parameters
+        ----------
+        arg : dict, pmap, int, float, str
+            Data payloas as passed to one of the constructors. If dict or
+            pmap, that is used as the data payload, if other value, then
+            presumed to be a simple payload of {'value': arg}.
+
+        Returns
+        -------
+        pyrsistent.pmap
+            Immutable dict-like object
+
+        Raises
+        ------
+        EventException
+            Raised on bad arg input.
         """
         if isinstance(arg, dict):
             return freeze(arg)
@@ -235,14 +356,19 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     - a simple type such as an integer. In the case of the simple type
       this is a shorthand for supplying {"value": v}.
 
-    :raises: EventException
-
+    Parameters
+    ----------
+    instance_or_time : Event, pyrsistent.pmap, int, datetime.datetime
+        An event for copy constructor, a fully formed and formatted
+        immutable data payload, or an int (epoch ms) or a
+        datetime.datetime object to create a timestamp from.
+    data : None, optional
+        Could be dict/pmap/int/float/str to use for data payload.
     """
     def __init__(self, instance_or_time, data=None):
         """
         Create a basic event.
         """
-
         # pylint doesn't like self._d but be consistent w/original code.
         # pylint: disable=invalid-name
 
@@ -276,7 +402,10 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         This is actually like json.loads(s) - produces the
         actual data structure from the object internal data.
 
-        :return: dict -- time/data keys
+        Returns
+        -------
+        dict
+            time/data keys
         """
         return dict(
             time=self._get_epoch_ms(),
@@ -289,9 +418,18 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         Can be given an optional list of columns so the returned list will
         have the values in order. Primarily for the TimeSeries wire format.
 
-        :param cols: List of data columns.
-        :type cols: list/default of None.
-        :returns: list -- ms since epoch folowed by data values.
+        Parameters
+        ----------
+        cols : list, optional
+            List of data columns to order the data points in so the
+            TimeSeries wire format lines up correctly. If not specified,
+            the points will be whatever order that dict.values() decides
+            to return it in.
+
+        Returns
+        -------
+        list
+            Epoch ms followed by points.
         """
         points = [self._get_epoch_ms()]
 
@@ -305,35 +443,50 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def timestamp_as_utc_string(self):
         """The timestamp of this data, in UTC time, as a formatted string.
 
-        :returns: str -- formatted date string.
+        Returns
+        -------
+        str
+            Formatted data string.
         """
         return format_dt(self.timestamp())
 
     def timestamp_as_local_string(self):
         """The timestamp of this data, in Local time, as a formatted string.
 
-        :returns: str -- formatted date string.
+        Returns
+        -------
+        str
+            Formatted data string.
         """
         return format_dt(self.timestamp(), localize=True)
 
     def timestamp(self):
         """The timestamp of this data
 
-        :returns: datetime object
+        Returns
+        -------
+        datetime.datetime
+            Datetime object
         """
         return self._d.get('time')
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp.
 
-        :returns: datetime object
+        Returns
+        -------
+        datetime.datetime
+            Datetime object
         """
         return self.timestamp()
 
     def end(self):
         """The end time of this Event, which will be just the timestamp.
 
-        :returns: datetime object
+        Returns
+        -------
+        datetime.datetime
+            Datetime object
         """
         return self.timestamp()
 
@@ -342,9 +495,15 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def set_data(self, data):
         """Sets the data portion of the event and returns a new Event.
 
-        :param data: The new data portion for this event object.
-        :type data: dict
-        :returns: Event - a new Event object.
+        Parameters
+        ----------
+        data : dict
+            New data payload for this event object.
+
+        Returns
+        -------
+        Event
+            A new event object.
         """
         new_d = self._d.set('data', self.data_from_arg(data))
         return Event(new_d)
@@ -356,14 +515,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         function. Optionally the collapsed column could be appended to the
         existing columns, or replace them (the default).
 
-        :param field_spec_list: List of columns to collapse.
-        :type field_spec_list: list
-        :param name: Name of new column containing collapsed data.
-        :type name: str
-        :param reducer: Function to pass to reducer.
-        :type reducer: func
-        :param append: Append collapsed column to existing data dict or make new (default: False).
-        :type append: bool
+        Parameters
+        ----------
+        field_spec_list : list
+            List of columns to collapse
+        name : str
+            Name of new column with collapsed data.
+        reducer : function
+            Function to pass to reducer.
+        append : bool, optional
+            Set True to add new column to existing data dict, False to create
+            a new Event with just the collapsed data.
+
+        Returns
+        -------
+        Event
+            New event object.
         """
         data = thaw(self.data()) if append else dict()
         vals = list()
@@ -389,6 +556,18 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         :type event1: Event
         :param event2: An event.
         :type event2: Event
+
+        Parameters
+        ----------
+        event1 : Event
+            An event.
+        event2 : Event
+            Another event.
+
+        Returns
+        -------
+        bool
+            Returns True if the event payloads is the same.
         """
         # pylint: disable=protected-access
         return bool(is_pmap(event1._d) and is_pmap(event2._d) and
@@ -400,8 +579,17 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         The same as Event.value() only it will return false if the
         value is either undefined, NaN or Null.
 
-        :param field_spec: Data value to validate.
-        :type field_spect: str
+        Parameters
+        ----------
+        event : Event
+            An event.
+        field_spec : str, optional
+            Column/value to validate
+
+        Returns
+        -------
+        bool
+            Return false if undefined, NaN, or None.
         """
         val = event.value(field_spec)
 
@@ -413,8 +601,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         Function to select specific fields of an event using
         a fieldSpec and return a new event with just those fields.
 
-        The fieldSpec currently can be:
-
+        The fieldSpec currently can be
+        ------------------------------
         * A single field name
         * An list of field names
 
@@ -422,6 +610,18 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         :param field_spec: Fields to gather into a new object
         :type field_spec: str or list
+
+        Parameters
+        ----------
+        event : Event
+            Event to pull from.
+        field_spec : list or str
+            Fields to gather into a new object.
+
+        Returns
+        -------
+        Event
+            A new event object.
         """
         new_dict = dict()
 
@@ -446,10 +646,21 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         The events being merged must have the same type and must have the
         same timestamp.
 
-        :param events: List of Events to merge.
-        :type events: list
-        :raises: EventException
-        :returns: Event
+        Parameters
+        ----------
+        events : list
+            A list of Event object to merge.
+
+        Returns
+        -------
+        Event
+            A new event object.
+
+        Raises
+        ------
+        EventException
+            Raised if the events are not the same type, have the same timestamp
+            or have the same key.
         """
         ts_ref = events[0].timestamp()
         new_data = dict()
@@ -479,10 +690,21 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         The events being merged must have the same type and must have the
         same timestamp.
 
-        :param events: List of TimeRangeEvents events to merge.
-        :type events: list
-        :raises: EventException
-        :returns: TimeRangeEvent
+        Parameters
+        ----------
+        events : list
+            List of TimeRangeEvents to merge
+
+        Returns
+        -------
+        TimeRangeEvent
+            A new time range event object.
+
+        Raises
+        ------
+        EventException
+            Raised if the events are not the same type, have the same timestamp
+            or have the same key.
         """
 
         ts_ref = events[0].timerange()
@@ -519,6 +741,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         :type events: list
         :raises: EventException
         :returns: IndexedEvent
+
+        Parameters
+        ----------
+        events : list
+            A list of IndexedEvent objects.
+
+        Returns
+        -------
+        IndexedEvent
+            New indexed event object.
+
+        raises
+        ------
+        EventException
+            Raised if the events are not the same type, have the same timestamp
+            or have the same key.
         """
 
         # need to defer import on these static methods to avoid
@@ -551,9 +789,15 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         are in the list and call one of the three Event class specific
         methods.
 
-        :param events: - List of Event types
-        :type events: list
-        :returns: Event/TimeRangeEvent/IndexedEvent
+        Parameters
+        ----------
+        events : list
+            List of Events types
+
+        Returns
+        -------
+        Event, TimeRangeEvent, IndexedEvent
+            New event type returned from appropriate merge method.
         """
         if not isinstance(events, list):
             # need to be a list
@@ -584,13 +828,19 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         to form a new event. Doesn't currently work on IndexedEvents
         or TimeRangeEvents.
 
-        :param events: List of Event objects.
-        :type events: list
-        :param field_spec: Columns to operate on.
-        :type field_spec: str/list/None
-        :param reducer: Reducer function to apply to column data.
-        :type reducer: func
-        :returns: List of Event
+        Parameters
+        ----------
+        events : list
+            List of Event objects
+        field_spec : list or str
+            Columns to operate on.
+        reducer : function
+            Reducer function to apply to column data.
+
+        Returns
+        -------
+        list
+            A list of Event objects.
         """
         if len(events) < 1:
             return None
@@ -636,14 +886,25 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def sum(events, field_spec=None):
-        """combine() called with a summing function as a reducer.
+        """combine() called with a summing function as a reducer. All
+        of the events need to have the same timestamp.
 
-        :param events: List of Event.
-        :type events: list
-        :param field_spec: Column(s) to sum
-        :type field_spec: str/list
-        :returns: int/float or None
-        :raises: EventException
+        Parameters
+        ----------
+        events : list
+            A list of Event objects
+        field_spec : list or str, optional
+            Colums(s) to sum.
+
+        Returns
+        -------
+        int, float or None
+            The summed value.
+
+        Raises
+        ------
+        EventException
+            Raised on mismatching timestamps.
         """
 
         tstmp = None
@@ -667,11 +928,17 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     def avg(events, field_spec=None):
         """combine() called with a averaging function as a reducer.
 
-        :param events: List of Event.
-        :type events: list
-        :param field_spec: Column(s) to sum
-        :type field_spec: str/list
-        :returns: int/float or None"""
+        Parameters
+        ----------
+        events : list
+            A list of Event objects
+        field_spec : list or str, optional
+            Colums(s) to sum.
+
+        Returns
+        -------
+        int, float or None
+            The averaged value."""
         avg = Event.combine(events, field_spec, Functions.avg)
         if avg is not None:
             return Event.combine(events, field_spec, Functions.avg)[0]
@@ -698,11 +965,17 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
             result ->  {in: [1, 3], out: [2, 4]}
 
-        :param events: List of events.
-        :type events: list
-        :param field_spec: Data values/columns to map.
-        :type field_spec: str, list, func or None
-        :returns: dict -- Python dict of mapped columns/values.
+        Parameters
+        ----------
+        events : list
+            A list of events
+        field_spec : str, list, func or None, optional
+            Data values/columns to map.
+
+        Returns
+        -------
+        dict
+            A dict of mapped columns/values.
         """
         result = dict()
 
@@ -748,11 +1021,17 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                 return calcValue;
             }
 
-        :param mapped: Dict as produced by map()
-        :type mapped: dict
-        :param reducer: The reducer function.
-        :type reducer: func
-        :returns: dict -- dict of reduced values.
+        Parameters
+        ----------
+        mapped : dict
+            Dict as produced by map()
+        reducer : function
+            The reducer function.
+
+        Returns
+        -------
+        dict
+            A dict of reduced values.
         """
         result = dict()
 
@@ -763,5 +1042,20 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def map_reduce(events, field_spec, reducer):
-        """map and reduce"""
+        """map and reduce
+
+        Parameters
+        ----------
+        events : list
+            A list of events
+        field_spec : a field spec as passed to map()
+            See map()
+        reducer : function
+            The reducer function.
+
+        Returns
+        -------
+        dict
+            A dict as returned by reduce()
+        """
         return Event.reduce(Event.map(events, field_spec), reducer)
