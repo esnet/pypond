@@ -79,10 +79,6 @@ class EventBase(PypondBase):
 
         The field spec can have an arbitrary number of "parts."
 
-        :param field_spec: Field spec of data value to get.
-        :type field_spect: str/list
-        :returns: various - Depends on underlying data.
-
         Parameters
         ----------
         field_spec : list, optional
@@ -103,10 +99,6 @@ class EventBase(PypondBase):
     def value(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
         """
         Alias for get()
-
-        :param field_spec: Field spec of data value to get.
-        :type field_spect: str/list
-        :returns: various - Depends on underlying data.
 
         Parameters
         ----------
@@ -294,11 +286,6 @@ class EventBase(PypondBase):
     @staticmethod
     def data_from_arg(arg):
         """extract data from a constructor arg and make immutable.
-
-        :param arg: Data payload passed to one of the constructors.
-        :type arg: dict/pmap/int/float/str
-        :returns: pyrsisten.pmap
-        :raises: EventException
 
         Parameters
         ----------
@@ -552,11 +539,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Check if the two objects are the same.
 
-        :param event1: An event.
-        :type event1: Event
-        :param event2: An event.
-        :type event2: Event
-
         Parameters
         ----------
         event1 : Event
@@ -736,11 +718,6 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         The events being merged must have the same type and must have the
         same timestamp.
-
-        :param events: List of IndexedEvents events to merge.
-        :type events: list
-        :raises: EventException
-        :returns: IndexedEvent
 
         Parameters
         ----------
