@@ -31,7 +31,12 @@ class TimeRangeEvent(EventBase):
     - a simple type such as an integer. In the case of the simple type
       this is a shorthand for supplying {"value": v}.
 
-    :raises: EventException
+    Parameters
+    ----------
+    instance_or_args : TimeRange, iterable, pyrsistent.pmap
+        See above
+    arg2 : dict, pmap, int, float, str, optional
+        See above.
     """
     def __init__(self, instance_or_args, arg2=None):
         """
@@ -65,7 +70,11 @@ class TimeRangeEvent(EventBase):
         This is actually like json.loads(s) - produces the
         actual data structure from the object internal data.
 
-        :return: dict -- timerange/data keys"""
+        Returns
+        -------
+        dict
+            Dict representation of internals (timerange, data).
+        """
         return dict(
             timerange=self.timerange().to_json(),
             data=thaw(self.data()),
@@ -78,9 +87,18 @@ class TimeRangeEvent(EventBase):
         Can be given an optional list of columns so the returned list will
         have the values in order. Primarily for the TimeSeries wire format.
 
-        :param cols: List of data columns.
-        :type cols: list/default of None.
-        :returns: list -- ms since epoch folowed by data values.
+        Parameters
+        ----------
+        cols : list, optional
+            List of data columns to order the data points in so the
+            TimeSeries wire format lines up correctly. If not specified,
+            the points will be whatever order that dict.values() decides
+            to return it in.
+
+        Returns
+        -------
+        list
+            Epoch ms followed by points.
         """
         points = [self.timerange().to_json()]
 
@@ -94,42 +112,61 @@ class TimeRangeEvent(EventBase):
     def timerange_as_utc_string(self):
         """The timerange of this data, in UTC time, as a string.
 
-        :returns: str -- formatted time string.
+        Returns
+        -------
+        str
+            Formatted time string
         """
         return self.timerange().to_utc_string()
 
     def timerange_as_local_string(self):
         """The timerange of this data, in Local time, as a string.
 
-        :returns: str -- formatted time string.
+        Returns
+        -------
+        str
+            Formatted time string.
         """
         return self.timerange().to_local_string()
 
     def timestamp(self):
-        """The timestamp of this data.
+        """The timestamp of this Event data. It's just the beginning
+        of the range in this case.
 
-        :returns: datetime -- Datetime of the beginning of the range.
+        Returns
+        -------
+        datetime.datetime
+            Beginning of range.
         """
         return self.begin()
 
     def timerange(self):
         """The TimeRange of this data.
 
-        :returns: TimeRange -- the underlying TimeRange object.
+        Returns
+        -------
+        TimeRange
+            The underlying time range object.
         """
         return self._d.get('range')
 
     def begin(self):
         """The begin time of this Event, which will be just the timestamp.
 
-        :returns: datetime -- Datetime of the beginning of the range.
+        Returns
+        -------
+        datetime.datetime
+            Beginning of range.
         """
         return self.timerange().begin()
 
     def end(self):
         """The end time of this Event, which will be just the timestamp.
 
-        :returns: datetime -- Datetime of the end of the range.
+        Returns
+        -------
+        datetime.datetime
+            End of range.
         """
         return self.timerange().end()
 
@@ -141,6 +178,16 @@ class TimeRangeEvent(EventBase):
         :param data: The new data portion for this event object.
         :type data: dict
         :returns: TimeRangeEvent - a new TimeRangeEvent object.
+
+        Parameters
+        ----------
+        data : dict
+            New payload to set as the data for this event.
+
+        Returns
+        -------
+        TimeRangeEvent
+            A new time range event object with new data payload.
         """
         _dnew = self._d.set('data', self.data_from_arg(data))
         return TimeRangeEvent(_dnew)
@@ -150,6 +197,9 @@ class TimeRangeEvent(EventBase):
     def humanize_duration(self):
         """Humanize the timerange.
 
-        :returns: str -- humanized string of the timerange()
+        Returns
+        -------
+        str
+            Humanized string of the time range.
         """
         return self.timerange().humanize_duration()
