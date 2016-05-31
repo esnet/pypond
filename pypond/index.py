@@ -209,15 +209,14 @@ class Index(PypondBase):
         """
         Generate the time range from the idx string.
 
-        The index string arg will may be of two forms
-        ---------------------------------------------
+        The index string arg will may be of two forms:
+
         - 2015-07-14  (day)
         - 2015-07     (month)
         - 2015        (year)
 
+        or:
 
-        or
-        --
         - 1d-278      (range, in n x days, hours, minutes or seconds)
 
         and return a TimeRange for that time. The TimeRange may be considered to be

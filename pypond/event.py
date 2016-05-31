@@ -587,8 +587,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         Function to select specific fields of an event using
         a fieldSpec and return a new event with just those fields.
 
-        The fieldSpec currently can be
-        ------------------------------
+        The fieldSpec currently can be:
+
         * A single field name
         * An list of field names
 
