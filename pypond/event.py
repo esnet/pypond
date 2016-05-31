@@ -11,6 +11,10 @@ Implementation of the Pond Event classes.
 
 http://software.es.net/pond/#/events
 """
+
+# Sorry pylint, I've abstracted out all I can and there are lots of docstrings.
+# pylint: disable=too-many-lines
+
 import copy
 import datetime
 import json
