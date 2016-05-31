@@ -456,9 +456,17 @@ class TestTimeRangeMutation(BaseTestTimeRange):
         rng1 = can.set_begin(new_begin)
         self.assertEquals(rng1.begin(), new_begin)
 
+        # bad arg
+        with self.assertRaises(TimeRangeException):
+            can.set_begin(ms_from_dt(new_begin))
+
         rng2 = rng1.set_end(new_end)
         self.assertEquals(rng2.end(), new_end)
         self.assertEquals(rng2.begin(), new_begin)
+
+        # bad arg
+        with self.assertRaises(TimeRangeException):
+            can.set_end(ms_from_dt(new_end))
 
     def test_mutation_new_range(self):
         """mutate to new range"""

@@ -218,6 +218,11 @@ class TestTimeSeries(SeriesBase):
         search = dt_from_ms(1400425949000 + 30)
         bsect_idx = self._canned_wire_series.bisect(search)
 
+        # bisect with bad arg
+        bad_search = datetime.datetime.now()
+        with self.assertRaises(CollectionException):
+            self._canned_wire_series.bisect(bad_search)
+
         bsection = self._canned_wire_series.at(bsect_idx)
         self.assertEquals(bsection.data().get('status'), 'fail')
 
