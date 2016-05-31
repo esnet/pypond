@@ -39,13 +39,19 @@ class TimeRangeBase(PypondBase):
     @staticmethod
     def awareness_check(dtime):
         """
-        Check input to make sure datetimes are aware. Presumes an interable
-        contaning datetimes, but will fail over via duck typing.
+        Check input to make sure datetimes are aware. Presumes an iterable
+        contaning datetimes, but will fail over to process a single
+        datetime object via duck typing.
 
-        :param dtime: Iterable containing datetime.datetime objects. Will also
-            handle a single datetime.datetime object as well in case.
-        :type dtime: list
-        :raises: TimeRangeException
+        Parameters
+        ----------
+        dtime : list, tuple or pvector but will failover to datetime.
+            An interable of datetime objects
+
+        Raises
+        ------
+        TimeRangeException
+            Raised if a non-aware datetime object is found.
         """
         try:
             for i in dtime:
@@ -61,10 +67,22 @@ class TimeRangeBase(PypondBase):
         Validate input when a pvector, list or tuple is passed in
         as a constructor arg.
 
-        :param list_type: A list, tuple or pvector passed to the constructor.
-        :type list_type: list, tuple or pvector
-        :returns: pyrsistent.pvector -- containing the start and end time.
-        :raises: TimeRangeException
+        Parameters
+        ----------
+        list_type : list, tuple of pvector
+            Iterable containing args (epoch ms or datetime) that was passed to
+            the constructor.
+
+        Returns
+        -------
+        pyrsistent.pvector
+            Immutable list-like object with two elements - the beginning and
+            ending datetime of the range.
+
+        Raises
+        ------
+        TimeRangeException
+            Raised if bad args have been passed in.
         """
         # two elements
         if len(list_type) != 2:
@@ -93,6 +111,16 @@ class TimeRangeBase(PypondBase):
         Make sure that the end time is not chronologically before the begin.
 
         :raises: TimeRangeException
+
+        Parameters
+        ----------
+        range_obj : pyrsistent.pvector
+            The internal begin/end immutable range object.
+
+        Raises
+        ------
+        TimeRangeException
+            Raised if end arg is earlier in time than begin.
         """
         if range_obj[0] > range_obj[1]:
             msg = 'Invalid range - end {e} is earlier in time than begin {b}'.format(
@@ -110,11 +138,17 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     - Two arguments, begin and end, each of which may be a datetime object,
       or a ms timestamp.
 
-    :param instance_or_begin: See above for variations.
-    :type instance_or_begin: TimeRange, iterable, int or datetime.datetime.
-    :param end: Optional arg for the end of the time range.
-    :type end: int or datetime.datetime
-    :raises: TimeRangeException
+    Parameters
+    ----------
+    instance_or_begin : TimeRange, iterable, int or datetime.datetime.
+        See above for variations.
+    end : int or datetime.datetime, optional
+        Optional arg for the end of the time range.
+
+    Raises
+    ------
+    TimeRangeException
+        Raised to indicate errors with args.
     """
     def __init__(self, instance_or_begin, end=None):
         """
@@ -151,7 +185,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns the internal range, which is an Immutable List containing
         begin and end values.
 
-        :returns: pyrsisten.pvector
+        Returns
+        -------
+        pyrsistent.pvector
+            Immutable list containing the range.
         """
         return self._range
 
@@ -159,21 +196,30 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """
         Returns the TimeRange as a python list of two ms timestamps.
 
-        :returns: list
+        Returns
+        -------
+        list
+            List of two timestamps.
         """
         return [ms_from_dt(self.begin()), ms_from_dt(self.end())]
 
     def to_string(self):
         """Returns the TimeRange as a string, useful for serialization.
 
-        :returns: str -- string representation of the range.
+        Returns
+        -------
+        str
+            String representaion of the range.
         """
         return json.dumps(self.to_json())
 
     def to_local_string(self):
         """Returns the TimeRange as a string expressed in local time.
 
-        :returns: str
+        Returns
+        -------
+        str
+            Timerange as a string.
         """
         return '[{b}, {e}]'.format(
             b=format_dt(self.begin(), localize=True),
@@ -182,7 +228,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def to_utc_string(self):
         """Returns the TimeRange as a string expressed in UTC time.
 
-        :returns: str
+        Returns
+        -------
+        str
+            Timerange as string.
         """
         return '[{b}, {e}]'.format(b=format_dt(self.begin()),
                                    e=format_dt(self.end()))
@@ -194,7 +243,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
 
         This displays in local time, so don't freak out.
 
-        :returns: str
+        Returns
+        -------
+        str
+            Human friendly time range string.
         """
         return '{b} to {e}'.format(b=humanize_dt(self.begin()), e=humanize_dt(self.end()))
 
@@ -203,7 +255,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns a human friendly version of the TimeRange, e.g.
         e.g. "a few seconds ago to a month ago"
 
-        :returns: str
+        Returns
+        -------
+        str
+            Another human friendly duration string.
         """
         return '{b} to {e}'.format(b=humanize_dt_ago(self.begin()),
                                    e=humanize_dt_ago(self.end()))
@@ -211,14 +266,20 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def begin(self):
         """Returns the begin time of the TimeRange.
 
-        :returns: datetime.datetime
+        Returns
+        -------
+        datetime.datetime
+            The begin time.
         """
         return self._range[0]
 
     def end(self):
         """Returns the end time of the TimeRange.
 
-        :returns: datetime.datetime
+        Returns
+        -------
+        datetime.datetime
+            The end time.
         """
         return self._range[1]
 
@@ -226,10 +287,20 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """
         Sets a new begin time on the TimeRange. The result will be a new TimeRange.
 
-        :param dtime: New time range boundry.
-        :type dtime: datetime.datetime
-        :returns: TimeRange -- new time range object with new bounds.
-        :raises: TimeRangeException
+        Parameters
+        ----------
+        dtime : datetime.datetime
+            New time range boundary.
+
+        Returns
+        -------
+        TimeRange
+            A new time range object reflecting the new range bounds.
+
+        Raises
+        ------
+        TimeRangeException
+            Raised on invalid arg.
         """
         if not isinstance(dtime, datetime.datetime):
             msg = 'arg must be a datetime object.'
@@ -243,10 +314,20 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         """
         Sets a new end time on the TimeRange. The result will be a new TimeRange.
 
-        :param dtime: New time range boundry.
-        :type dtime: datetime.datetime
-        :returns: TimeRange -- new time range object with new bounds.
-        :raises: TimeRangeException
+        Parameters
+        ----------
+        dtime : datetime.datetime
+            New time range boundary.
+
+        Returns
+        -------
+        TimeRange
+            A new time range object reflecting the new range bounds.
+
+        Raises
+        ------
+        TimeRangeException
+            Raised on invalid arg.
         """
         if not isinstance(dtime, datetime.datetime):
             msg = 'arg must be a datetime object.'
@@ -261,14 +342,31 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns if the two TimeRanges can be considered equal,
         in that they have the same times.
 
-        :param other: Another time range object to compare to this instance.
-        :type other: TimeRange
-        :returns: bool
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object
+
+        Returns
+        -------
+        bool
+            True if both object represent the same time range.
         """
         return bool(self.begin() == other.begin() and self.end() == other.end())
 
     def contains(self, other):
-        """Returns true if other is completely inside this."""
+        """Returns true if other is completely inside this.
+
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object.
+
+        Returns
+        -------
+        bool
+            Returns true if other range is completely inside this one.
+        """
         if isinstance(other, datetime.datetime):
             return bool(self.begin() <= other and self.end() >= other)
         elif isinstance(other, TimeRange):
@@ -282,18 +380,30 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns true if this TimeRange is completely within the supplied
         other TimeRange.
 
-        :param other: Another time range object to compare to this instance.
-        :type other: TimeRange
-        :returns: bool
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object.
+
+        Returns
+        -------
+        bool
+            Returns true if this range is completely inside the other one.
         """
         return bool(self.begin() >= other.begin() and self.end() <= other.end())
 
     def overlaps(self, other):
         """Returns true if the passed in other TimeRange overlaps this time Range.
 
-        :param other: Another time range object to compare to this instance.
-        :type other: TimeRange
-        :returns: bool
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object.
+
+        Returns
+        -------
+        bool
+            Returns true if other range overlaps this one.
         """
         return bool(
             (self.contains(other.begin()) and not self.contains(other.end())) or
@@ -305,9 +415,15 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns true if the passed in other Range in no way
         overlaps this time Range.
 
-        :param other: Another time range object to compare to this instance.
-        :type other: TimeRange
-        :returns: bool
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object.
+
+        Returns
+        -------
+        bool
+            Returns true if other range in no way overlaps this one.
         """
         return bool((self.end() < other.begin()) or (self.begin() > other.end()))
 
@@ -316,9 +432,16 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns a new Timerange which covers the extents of this and
         other combined.
 
-        :param other: Another time range object to compare to this instance.
-        :type other: TimeRange
-        :returns: TimeRange -- new time range instance.
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object
+
+        Returns
+        -------
+        TimeRange
+            New time range which covers the extents of this and the
+            other range combined.
         """
         beg = self.begin() if self.begin() < other.begin() else other.begin()
         end = self.end() if self.end() > other.end() else other.end()
@@ -330,9 +453,16 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
         Returns a new TimeRange which represents the intersection
         (overlapping) part of this and other.
 
-        :param other: Another time range object to compare to this instance.
-        :type other: TimeRange
-        :returns: TimeRange -- new time range instance.
+        Parameters
+        ----------
+        other : TimeRange
+            Another time range object.
+
+        Returns
+        -------
+        TimeRange
+            A new time range object representing the intersection (overlapping)
+            part of this and the other.
         """
         if self.disjoint(other):
             return None
@@ -345,21 +475,31 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def duration(self):
         """Return epoch milliseconds.
 
-        :returns: int -- Duration in ms.
+        Returns
+        -------
+        int
+            Duration in ms.
         """
         return ms_from_dt(self.end()) - ms_from_dt(self.begin())
 
     def humanize_duration(self):
         """Humanize the duration.
 
-        :returns: str -- Humanized duration string.
+        Returns
+        -------
+        str
+            Humanized duration string.
         """
         return humanize_duration(self.end() - self.begin())
 
     def __str__(self):
         """string repr method.
 
-        :returns: str"""
+        Returns
+        -------
+        str
+            String repr method.
+        """
         return self.to_string()
 
     # Static class methods to create canned TimeRanges
@@ -368,7 +508,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def last_day():
         """Generate a time range spanning last 24 hours
 
-        :returns: TimeRange
+        Returns
+        -------
+        TimeRange
+            A new time range object of the requested duration.
         """
         end = aware_utcnow()
         beg = end - datetime.timedelta(hours=24)
@@ -378,7 +521,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def last_seven_days():
         """Generate a time range spanning last 7 days
 
-        :returns: TimeRange
+        Returns
+        -------
+        TimeRange
+            A new time range object of the requested duration.
         """
         end = aware_utcnow()
         beg = end - datetime.timedelta(days=7)
@@ -388,7 +534,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def last_thirty_days():
         """Generate a time range spanning last 30 days
 
-        :returns: TimeRange
+        Returns
+        -------
+        TimeRange
+            A new time range object of the requested duration.
         """
         end = aware_utcnow()
         beg = end - datetime.timedelta(days=30)
@@ -398,7 +547,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def last_month():
         """Generate a time range spanning last month.
 
-        :returns: TimeRange
+        Returns
+        -------
+        TimeRange
+            A new time range object of the requested duration.
         """
         end = aware_utcnow()
         beg = monthdelta(end, -1)
@@ -408,7 +560,10 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     def last_ninety_days():
         """Generate a time range spanning last 90 days
 
-        :returns: TimeRange
+        Returns
+        -------
+        TimeRange
+            A new time range object of the requested duration.
         """
         end = aware_utcnow()
         beg = end - datetime.timedelta(days=90)
