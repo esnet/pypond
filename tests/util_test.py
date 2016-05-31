@@ -88,7 +88,8 @@ class TestTime(unittest.TestCase):
             ms_from_dt(self.naive)
 
     def test_sanitize_dt(self):
-        """Test datetime timezone conversion to UTC."""
+        """Test datetime timezone conversion to UTC.
+        """
 
         # aware utc should just go in and out.
         utc = aware_utcnow()
@@ -102,13 +103,30 @@ class TestTime(unittest.TestCase):
         # Use .localize and not datetime.replace to generate
         # the local date because that doesn't handle DST correctly.
         def get_unrounded_local():
-            """get an unrounded local time deal."""
+            """get an unrounded local time deal - a datetime
+            object with real microsecond precision."""
+
             pacific = pytz.timezone('US/Pacific')
             local = pacific.localize(datetime.datetime.now())
-            if local.microsecond % 10000 != 0:
+            if len(str(local.microsecond)) < 6:
+                # Prevent a microsecond value that starts with
+                # a zero - ie: .023493. This will interefere
+                # with the janky string-based rounding that this
+                # test is doing for the purposes of this test by
+                # becoming 23493.
+                time.sleep(.1)
+                return get_unrounded_local()
+            elif local.microsecond % 1000 != 0:
+                # The "good" case - we have a six decimal place
+                # microseconds value that has greater than millisecond
+                # precision. This is to work sanitizing incoming
+                # microsecond values down to milliseconds to have
+                # parity with the javascript precision.
                 return local
             else:
-                # unlikely
+                # Unlikely - this will happen if the microsecond
+                # value is spontaneously exactly at millisecond
+                # precision.
                 return get_unrounded_local()
 
         local = get_unrounded_local()
