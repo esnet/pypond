@@ -149,6 +149,32 @@ class TestInterop(unittest.TestCase):
                 new_idx = v[1]
                 self.assertEquals(orig_data[orig_idx], new_data[new_idx])
 
+    def test_event_series_with_index(self):
+        """test indexed data, not a series of IndexedEvent."""
+        event_series_with_index = dict(
+            index="1d-625",
+            name="traffic",
+            columns=["time", "value", "status"],
+            points=[
+                [1400425947000, 522, "ok"],
+                [1400425948000, 183, "ok"],
+                [1400425949000, 264, "fail"],
+                [1400425950000, 935, "offline"]
+            ]
+        )
+
+        series = TimeSeries(event_series_with_index)
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        new_json = new_series.to_json()
+
+        self._validate_points(event_series_with_index, new_json)
+        self.assertTrue(new_json.get('utc'))
+        self.assertEquals(event_series_with_index.get('index'), new_json.get('index'))
+
     def test_event_series(self):
         """test a series that contains basic event objects."""
         event_series = dict(
