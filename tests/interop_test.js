@@ -24,7 +24,11 @@ switch(myArgs[0]) {
         wire = JSON.parse(myArgs[1]);
         series = new pond.TimeSeries(wire);
         break;
-    case 'indexedevent':
+    case 'indexed_event':
+        wire = JSON.parse(myArgs[1]);
+        series = new pond.TimeSeries(wire);
+        break;
+    case 'time_range_event':
         wire = JSON.parse(myArgs[1]);
         series = new pond.TimeSeries(wire);
         break;

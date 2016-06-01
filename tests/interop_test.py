@@ -172,11 +172,44 @@ class TestInterop(unittest.TestCase):
         wire = self._call_interop_script('event', series.to_string())
 
         new_series = TimeSeries(wire)
-
         new_json = new_series.to_json()
 
         self._validate_points(event_series, new_json)
         self.assertTrue(new_json.get('utc'))
+
+        # try something a bit fancier with different types
+        interface_series = dict(
+            name="star-cr5:to_anl_ip-a_v4",
+            description="star-cr5->anl(as683):100ge:site-ex:show:intercloud",
+            device="star-cr5",
+            id=169,
+            interface="to_anl_ip-a_v4",
+            is_ipv6=False,
+            is_oscars=False,
+            oscars_id=None,
+            resource_uri="",
+            site="anl",
+            site_device="noni",
+            site_interface="et-1/0/0",
+            stats_type="Standard",
+            title=None,
+            columns=["time", "in", "out"],
+            points=[
+                [1400425947000, 52, 34],
+                [1400425948000, 18, 13],
+                [1400425949000, 26, 67],
+                [1400425950000, 93, 91]
+            ]
+        )
+
+        series = TimeSeries(interface_series)
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+        new_json = new_series.to_json()
+
+        self._validate_points(interface_series, new_json)
 
     def test_indexed_event_series(self):
         """test a series of IndexedEvent objects."""
@@ -201,14 +234,35 @@ class TestInterop(unittest.TestCase):
 
         series = TimeSeries(indexed_event_series)
 
-        wire = self._call_interop_script('indexedevent', series.to_string())
+        wire = self._call_interop_script('indexed_event', series.to_string())
 
         new_series = TimeSeries(wire)
-
         new_json = new_series.to_json()
 
         self._validate_points(indexed_event_series, new_json)
         self.assertTrue(new_json.get('utc'))
+
+    def test_timerange_event_series(self):
+        """test a series with a TimerangeEvent objects."""
+        timerange_event_series = dict(
+            name="outages",
+            columns=["timerange", "title", "esnet_ticket"],
+            points=[
+                [[1429673400000, 1429707600000], "BOOM", "ESNET-20080101-001"],
+                [[1429673400000, 1429707600000], "BAM!", "ESNET-20080101-002"],
+            ],
+        )
+
+        series = TimeSeries(timerange_event_series)
+
+        wire = self._call_interop_script('time_range_event', series.to_string())
+
+        new_series = TimeSeries(wire)
+        new_json = new_series.to_json()
+
+        self._validate_points(timerange_event_series, new_json)
+        self.assertTrue(new_json.get('utc'))
+        self.assertEquals(timerange_event_series.get('name'), new_json.get('name'))
 
     def test_event_series_with_index(self):
         """test indexed data, not a series of IndexedEvent."""
@@ -229,7 +283,6 @@ class TestInterop(unittest.TestCase):
         wire = self._call_interop_script('event', series.to_string())
 
         new_series = TimeSeries(wire)
-
         new_json = new_series.to_json()
 
         self._validate_points(event_series_with_index, new_json)
