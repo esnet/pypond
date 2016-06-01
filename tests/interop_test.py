@@ -84,10 +84,10 @@ class TestInterop(unittest.TestCase):
             msg = 'Could not execute external interop script'
             raise InteropException(msg)
 
-    def _call_interop_script(self, arg1, wire='', as_json=True):
+    def _call_interop_script(self, case, wire='', as_json=True):
         """call the external script."""
 
-        args = ['node', self.interop_script, arg1, wire]
+        args = ['node', self.interop_script, case, wire]
 
         proc = Popen(args, stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
@@ -124,20 +124,12 @@ class TestInterop(unittest.TestCase):
         # build map between the columns and the points because after
         # the data round trips, the columns might be in a different
         # order - not an error because the points will still "line up."
-
-        col_prefixes = ('time', 'index', 'timerange',)
-
         col_map = dict()
 
         for i in enumerate(orig.get('columns')):
-            if i[1] in col_prefixes:
-                continue
             col_map[i[1]] = [i[0]]
 
         for i in enumerate(new.get('columns')):
-            if i[1] in col_prefixes:
-                continue
-
             if i[1] not in col_map:
                 msg = 'no corresponding column for incoming col {col}'.format(col=i[1])
                 raise InteropException(msg)
@@ -147,14 +139,7 @@ class TestInterop(unittest.TestCase):
         # now validate the data since column index mapping has been built.
 
         for i in enumerate(orig.get('points')):
-            # first, validate the time stamps
             idx = i[0]
-            orig_ts = i[1][0]
-            new_ts = new.get('points')[idx][0]
-
-            self.assertEqual(orig_ts, new_ts)
-
-            # now, validate the columns
 
             orig_data = i[1]
             new_data = new.get('points')[idx]
@@ -164,8 +149,8 @@ class TestInterop(unittest.TestCase):
                 new_idx = v[1]
                 self.assertEquals(orig_data[orig_idx], new_data[new_idx])
 
-    def test_event(self):
-        """test a series that contains events."""
+    def test_event_series(self):
+        """test a series that contains basic event objects."""
         event_series = dict(
             name="traffic",
             columns=["time", "value", "status"],
