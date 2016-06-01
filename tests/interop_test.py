@@ -19,6 +19,7 @@ Because the external interop script is going to do a relative path
 import of pond.
 """
 
+import json
 import os
 import unittest
 from subprocess import Popen, PIPE, call
@@ -76,13 +77,14 @@ class TestInterop(unittest.TestCase):
             raise InteropException(msg)
 
         # and finally run the external program with a test flag
-        exitcode, out, _ = self._call_interop_script('ping')
+        out = self._call_interop_script('ping', as_json=False)
 
-        if exitcode != 0 or out.strip() != 'pong':
+        # the exit code is already being checked in _call_interop_script()
+        if out.strip() != 'pong':
             msg = 'Could not execute external interop script'
             raise InteropException(msg)
 
-    def _call_interop_script(self, arg1, wire=''):
+    def _call_interop_script(self, arg1, wire='', as_json=True):
         """call the external script."""
 
         args = ['node', self.interop_script, arg1, wire]
@@ -91,11 +93,101 @@ class TestInterop(unittest.TestCase):
         out, err = proc.communicate()
         exitcode = proc.returncode
 
-        return exitcode, out, err
+        if exitcode != 0:
+            msg = 'Got non-zero exit code and error: {err}'.format(err=err)
+            raise InteropException(msg)
+
+        # this is primarily for setUp or anything else that wants
+        # the raw output from the script. Otherwise, try to parse
+        # it as a json blob.
+        if as_json is False:
+            return out
+
+        wire = None
+
+        try:
+            wire = json.loads(out)
+        except ValueError:
+            msg = 'could not get a valid json object from output: {out}'.format(
+                out=out.strip())
+
+        return wire
+
+    def _validate_points(self, orig, new):
+        """
+        Compare the data points from the original and reconstituted
+        data structures. This check will be common to all of the
+        round-trip tests any more specific tests can be done
+        in the specific test methods.
+        """
+
+        # build map between the columns and the points because after
+        # the data round trips, the columns might be in a different
+        # order - not an error because the points will still "line up."
+
+        col_prefixes = ('time', 'index', 'timerange',)
+
+        col_map = dict()
+
+        for i in enumerate(orig.get('columns')):
+            if i[1] in col_prefixes:
+                continue
+            col_map[i[1]] = [i[0]]
+
+        for i in enumerate(new.get('columns')):
+            if i[1] in col_prefixes:
+                continue
+
+            if i[1] not in col_map:
+                msg = 'no corresponding column for incoming col {col}'.format(col=i[1])
+                raise InteropException(msg)
+
+            col_map[i[1]].append(i[0])
+
+        # now validate the data since column index mapping has been built.
+
+        for i in enumerate(orig.get('points')):
+            # first, validate the time stamps
+            idx = i[0]
+            orig_ts = i[1][0]
+            new_ts = new.get('points')[idx][0]
+
+            self.assertEqual(orig_ts, new_ts)
+
+            # now, validate the columns
+
+            orig_data = i[1]
+            new_data = new.get('points')[idx]
+
+            for v in col_map.values():
+                orig_idx = v[0]
+                new_idx = v[1]
+                self.assertEquals(orig_data[orig_idx], new_data[new_idx])
 
     def test_event(self):
-        """test the Event object"""
-        pass
+        """test a series that contains events."""
+        event_series = dict(
+            name="traffic",
+            columns=["time", "value", "status"],
+            points=[
+                [1400425947000, 52, "ok"],
+                [1400425948000, 18, "ok"],
+                [1400425949000, 26, "fail"],
+                [1400425950000, 93, "offline"]
+            ]
+        )
+
+        series = TimeSeries(event_series)
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        new_json = new_series.to_json()
+
+        self._validate_points(event_series, new_json)
+        self.assertTrue(new_json.get('utc'))
+
 
 if __name__ == '__main__':
     unittest.main()
