@@ -118,12 +118,27 @@ class TestInterop(unittest.TestCase):
 
         return wire
 
-    def _validate_points(self, orig, new):
+    def _validate_wire_points(self, orig, new):
         """
         Compare the data points from the original and reconstituted
         data structures. This check will be common to all of the
         round-trip tests any more specific tests can be done
         in the specific test methods.
+
+        This is used on tests where the original arg to TimeSeries
+        is a data structure that resembles the general wire format.
+        Like so:
+
+        event_series = dict(
+            name="traffic",
+            columns=["time", "value", "status"],
+            points=[
+                [1400425947000, 52, "ok"],
+                [1400425948000, 18, "ok"],
+                [1400425949000, 26, "fail"],
+                [1400425950000, 93, "offline"]
+            ]
+        )
         """
 
         # build map between the columns and the points because after
@@ -174,7 +189,7 @@ class TestInterop(unittest.TestCase):
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
 
-        self._validate_points(event_series, new_json)
+        self._validate_wire_points(event_series, new_json)
         self.assertTrue(new_json.get('utc'))
 
         # try something a bit fancier with different types
@@ -209,7 +224,7 @@ class TestInterop(unittest.TestCase):
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
 
-        self._validate_points(interface_series, new_json)
+        self._validate_wire_points(interface_series, new_json)
 
     def test_indexed_event_series(self):
         """test a series of IndexedEvent objects."""
@@ -239,7 +254,7 @@ class TestInterop(unittest.TestCase):
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
 
-        self._validate_points(indexed_event_series, new_json)
+        self._validate_wire_points(indexed_event_series, new_json)
         self.assertTrue(new_json.get('utc'))
 
     def test_timerange_event_series(self):
@@ -260,7 +275,7 @@ class TestInterop(unittest.TestCase):
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
 
-        self._validate_points(timerange_event_series, new_json)
+        self._validate_wire_points(timerange_event_series, new_json)
         self.assertTrue(new_json.get('utc'))
         self.assertEquals(timerange_event_series.get('name'), new_json.get('name'))
 
@@ -285,7 +300,7 @@ class TestInterop(unittest.TestCase):
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
 
-        self._validate_points(event_series_with_index, new_json)
+        self._validate_wire_points(event_series_with_index, new_json)
         self.assertTrue(new_json.get('utc'))
         self.assertEquals(event_series_with_index.get('index'), new_json.get('index'))
 
