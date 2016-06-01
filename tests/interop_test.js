@@ -18,7 +18,13 @@ switch(myArgs[0]) {
         // method.
         process.exit(0)
         break;
+    // these cases are probably overkill but we might need
+    // them sometime so here we go.
     case 'event':
+        wire = JSON.parse(myArgs[1]);
+        series = new pond.TimeSeries(wire);
+        break;
+    case 'indexedevent':
         wire = JSON.parse(myArgs[1]);
         series = new pond.TimeSeries(wire);
         break;

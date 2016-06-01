@@ -17,6 +17,11 @@ dev_dir/
 
 Because the external interop script is going to do a relative path
 import of pond.
+
+Round-tripping the data to an external script isn't necessarily the
+most optimal method of doing these tests, but it seems to be the
+more reliable way to check that both code bases interoperability
+is synced up in a dynamic way.
 """
 
 import json
@@ -149,6 +154,62 @@ class TestInterop(unittest.TestCase):
                 new_idx = v[1]
                 self.assertEquals(orig_data[orig_idx], new_data[new_idx])
 
+    def test_event_series(self):
+        """test a series that contains basic event objects."""
+        event_series = dict(
+            name="traffic",
+            columns=["time", "value", "status"],
+            points=[
+                [1400425947000, 52, "ok"],
+                [1400425948000, 18, "ok"],
+                [1400425949000, 26, "fail"],
+                [1400425950000, 93, "offline"]
+            ]
+        )
+
+        series = TimeSeries(event_series)
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        new_json = new_series.to_json()
+
+        self._validate_points(event_series, new_json)
+        self.assertTrue(new_json.get('utc'))
+
+    def test_indexed_event_series(self):
+        """test a series of IndexedEvent objects."""
+        indexed_event_series = dict(
+            name="availability",
+            columns=["index", "uptime"],
+            points=[
+                ["2015-06", "100%"],
+                ["2015-05", "92%"],
+                ["2015-04", "87%"],
+                ["2015-03", "99%"],
+                ["2015-02", "92%"],
+                ["2015-01", "100%"],
+                ["2014-12", "99%"],
+                ["2014-11", "91%"],
+                ["2014-10", "99%"],
+                ["2014-09", "95%"],
+                ["2014-08", "88%"],
+                ["2014-07", "100%"]
+            ]
+        )
+
+        series = TimeSeries(indexed_event_series)
+
+        wire = self._call_interop_script('indexedevent', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        new_json = new_series.to_json()
+
+        self._validate_points(indexed_event_series, new_json)
+        self.assertTrue(new_json.get('utc'))
+
     def test_event_series_with_index(self):
         """test indexed data, not a series of IndexedEvent."""
         event_series_with_index = dict(
@@ -174,31 +235,6 @@ class TestInterop(unittest.TestCase):
         self._validate_points(event_series_with_index, new_json)
         self.assertTrue(new_json.get('utc'))
         self.assertEquals(event_series_with_index.get('index'), new_json.get('index'))
-
-    def test_event_series(self):
-        """test a series that contains basic event objects."""
-        event_series = dict(
-            name="traffic",
-            columns=["time", "value", "status"],
-            points=[
-                [1400425947000, 52, "ok"],
-                [1400425948000, 18, "ok"],
-                [1400425949000, 26, "fail"],
-                [1400425950000, 93, "offline"]
-            ]
-        )
-
-        series = TimeSeries(event_series)
-
-        wire = self._call_interop_script('event', series.to_string())
-
-        new_series = TimeSeries(wire)
-
-        new_json = new_series.to_json()
-
-        self._validate_points(event_series, new_json)
-        self.assertTrue(new_json.get('utc'))
-
 
 if __name__ == '__main__':
     unittest.main()

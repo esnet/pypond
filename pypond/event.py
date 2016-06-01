@@ -278,7 +278,7 @@ class EventBase(PypondBase):
         EventException
             Raised on invalid arg.
         """
-        if isinstance(instance_or_index, str):
+        if isinstance(instance_or_index, (str, unicode)):
             return Index(instance_or_index, utc)
         elif isinstance(instance_or_index, Index):
             return instance_or_index
