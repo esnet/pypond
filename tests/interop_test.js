@@ -11,6 +11,8 @@ var wire;
 var series;
 
 switch(myArgs[0]) {
+    // This case is so setUp() can reach out and test if the
+    // script can be called.
     case 'ping':
         console.log('pong');
         // Explicitly exit on this ping test so subsequent output
