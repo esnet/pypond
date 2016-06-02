@@ -6,4 +6,7 @@ install:
   - pip install -r dev-requirements.txt
   - pip install coveralls
 # command to run tests
-script: nosetests
+script:
+  - nosetests
+notifications:
+  slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
