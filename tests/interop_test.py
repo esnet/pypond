@@ -275,6 +275,36 @@ class TestInterop(unittest.TestCase):
         self._validate_wire_points(indexed_event_series, new_json)
         self.assertTrue(new_json.get('utc'))
 
+        # again with more involved data
+
+        availability_series = dict(
+            name="availability",
+            columns=["index", "uptime", "notes", "outages"],
+            points=[
+                ["2015-06", 100, "", 0],
+                ["2015-05", 92, "Router failure June 12", 26],
+                ["2015-04", 87, "Planned downtime in April", 82],
+                ["2015-03", 99, "Minor outage March 2", 4],
+                ["2015-02", 92, "", 12],
+                ["2015-01", 100, "", 0],
+                ["2014-12", 99, "", 3],
+                ["2014-11", 91, "", 14],
+                ["2014-10", 99, "", 3],
+                ["2014-09", 95, "", 6],
+                ["2014-08", 88, "", 17],
+                ["2014-09", 100, "", 2]
+            ]
+        )
+
+        series = TimeSeries(availability_series)
+
+        wire = self._call_interop_script('indexed_event', series.to_string())
+
+        new_series = TimeSeries(wire)
+        new_json = new_series.to_json()
+
+        self._validate_wire_points(availability_series, new_json)
+
     def test_timerange_event_series(self):
         """test a series with a TimerangeEvent objects."""
         timerange_event_series = dict(
