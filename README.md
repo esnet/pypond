@@ -27,7 +27,7 @@ The output will be in `pypond/docs/build/html` and can be browsed with a web bro
 Running the unit tests will probably only be of interest to other developers. There is a test module that tests interoperability with the JavaScript library (`pypond/tests/interop_test.py`) that will require some additional setup.
 
 1. It will check to find the `node` executable somewhere in the path. If it is not found, those tests will fail.
-2. The [Pond source](https://github.com/esnet/pond) will need to be checked out at the same level "alongside" of the pypond source and then execute `npm run build` at the root level of the pond source. (Running `npm run build` should be a formality, but is included just in case the `pond/lib` directory was not properly regenerated from `pond/src`)
+2. The [Pond source](https://github.com/esnet/pond) will need to be checked out at the same level "alongside" of the pypond source and then execute `npm install` followed by `npm run build` at the root level of the pond source. (Running `npm run build` should be a formality, but is included just in case the `pond/lib` directory was not properly regenerated from `pond/src`)
 3. Execute `pip install -r dev-requirements.txt` and then run `nosetests` from either the source root or test directory (`pypond/` or `pypond/tests/`). The `pip` command will also install pypond in "develop" mode.
 
 That particular test sends the data on a round trip by:

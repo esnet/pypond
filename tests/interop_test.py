@@ -101,7 +101,6 @@ class TestInterop(unittest.TestCase):
 
         if exitcode != 0:
             msg = 'Got non-zero exit code and error: {err}'.format(err=err)
-            msg += ' cwd: {cwd} ls: {ls}'.format(cwd=os.getcwd(), ls=os.listdir('.'))
             raise InteropException(msg)
 
         # this is primarily for setUp or anything else that wants
