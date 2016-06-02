@@ -43,7 +43,6 @@ class InteropException(Exception):
         return repr(self.value)
 
 
-@unittest.skip('Temporarily turned off during travis setup.')
 class TestInterop(unittest.TestCase):
     """
     Test wire format rount trip
