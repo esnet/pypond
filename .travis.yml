@@ -7,6 +7,8 @@ install:
   - pip install coveralls
 # command to run tests
 script:
+  - mkdir ../pond
+  - git clone https://github.com/esnet/pond.git ../pond/
   - nosetests --verbose --with-coverage --cover-package=pypond
 notifications:
   slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
