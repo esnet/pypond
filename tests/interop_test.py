@@ -29,6 +29,7 @@ import os
 import unittest
 from subprocess import Popen, PIPE, call
 
+from pypond.event import Event
 from pypond.series import TimeSeries
 
 
@@ -225,6 +226,23 @@ class TestInterop(unittest.TestCase):
         new_json = new_series.to_json()
 
         self._validate_wire_points(interface_series, new_json)
+
+        # Now with a list of events
+
+        event_objects = [
+            Event(1429673400000, {'in': 1, 'out': 2}),
+            Event(1429673460000, {'in': 3, 'out': 4}),
+            Event(1429673520000, {'in': 5, 'out': 6}),
+        ]
+
+        series = TimeSeries(dict(name='events', events=event_objects))
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        for i in enumerate(event_objects):
+            self.assertTrue(Event.same(i[1], new_series.at(i[0])))
 
     def test_indexed_event_series(self):
         """test a series of IndexedEvent objects."""
