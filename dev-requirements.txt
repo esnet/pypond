@@ -2,4 +2,5 @@
 pylint
 nose
 sphinx
+coverage
 -e .

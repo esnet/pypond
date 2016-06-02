@@ -7,6 +7,6 @@ install:
   - pip install coveralls
 # command to run tests
 script:
-  - nosetests
+  - nosetests --verbose --with-coverage
 notifications:
   slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
