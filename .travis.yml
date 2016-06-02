@@ -9,6 +9,10 @@ install:
 script:
   - mkdir ../pond
   - git clone https://github.com/esnet/pond.git ../pond/
+  - cd ../pond
+  - npm install
+  - npm run build
+  - cd ../pypond
   - nosetests --verbose --with-coverage --cover-package=pypond
 notifications:
   slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
