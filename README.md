@@ -4,23 +4,13 @@
 
 PyPond is a Python implementation of the JavaScript [Pond timeseries library](http://software.es.net/pond/). At a very high level, both implementations offer classes and structures to collect, manipulate and transmit timeseries data. Time series transmission is done via a JSON-based wire format.
 
+This implementation is [hosted on GitHub](https://github.com/esnet/pypond).
+
 ## Documentation
 
-The main project link has extensive documentation on the various structures (Event, TimeRange, TimeSeries, etc) that both implementations use internally. There is no need to duplicate that documentation here since the python implementation follows the same API and uses the same structures.
+The [main project link](http://software.es.net/pond/) has extensive documentation on the various structures (Event, TimeRange, TimeSeries, etc) that both implementations use internally. There is no need to duplicate that documentation here since the python implementation follows the same API and uses the same structures.
 
 The only real difference with pypond is that the method names have been changed to their obvious pythonic corollaries (`obj.toString()` becomes `obj.to_string()`) and any comparison methods named `.is()` in the JavaScript version have been renamed to `.same()` in pypond since `is` is a reserved word.
-
-### Generating python API docs
-
-The Python specific API documents can be generated with sphinx in the usual fashion:
-
-```
-pip install sphinx
-cd pypond/docs
-make html
-```
-
-The output will be in `pypond/docs/build/html` and can be browsed with a web browser. Or a different sphinx output target can be generated with the proper `make` target.
 
 ### Running the tests
 
