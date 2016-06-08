@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/pypond/badge/?version=latest)](http://pypond.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/pypond/badge/?version=latest)](http://pypond.readthedocs.io/en/latest/?badge=latest) [![Build Status](https://travis-ci.com/esnet/pypond.svg?token=NPu8uMM82tPQVrz8WFXu&branch=master)](https://travis-ci.com/esnet/pypond)
 
 # PyPond - Python Pond timeseries library.
 
