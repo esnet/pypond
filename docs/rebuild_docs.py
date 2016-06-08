@@ -24,12 +24,14 @@ RST_INDEX = """
 
 README_TOKEN
 
+.. _dev-docs:
+
 .. toctree::
     :maxdepth: 2
-    :caption: Api Documentation
+    :caption: Developer Documentation
 
     api
-    modules
+    tests
 """
 
 
