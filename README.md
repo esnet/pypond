@@ -15,4 +15,3 @@ The [main project site](http://software.es.net/pond/) has extensive documentatio
 The only real difference with pypond is that the method names have been changed to their obvious pythonic corollaries (`obj.toString()` becomes `obj.to_string()`) and any comparison methods named `.is()` in the JavaScript version have been renamed to `.same()` in pypond since `is` is a reserved word.
 
 The tests can also be referred to as a fairly complete set of examples as well.
-
