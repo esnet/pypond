@@ -50,7 +50,12 @@ def main():
     subprocess.call(['sphinx-apidoc', '-f', '-o', 'source', '../pypond/'])
 
     # generate a new index including the README.md
-    readme = pypandoc.convert('../README.md', 'rst')
+    # shave off the first line RE: badges to be displayed
+    # on github but shaved off for the get the docs stuff.
+    with open('../README.md', 'r') as fh:
+        data = ''.join(fh.readlines()[1:])
+
+    readme = pypandoc.convert(data, 'rst', format='md')
 
     index_text = RST_INDEX.replace('README_TOKEN', readme)
     index_file = './source/index.rst'

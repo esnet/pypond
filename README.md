@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/pypond/badge/?version=latest)](http://pypond.readthedocs.io/en/latest/?badge=latest)
+
 # PyPond - Python Pond timeseries library.
 
 ## Overview
