@@ -8,7 +8,7 @@ install:
   - nvm use stable
   - npm install
   - pip install -r dev-requirements.txt
-  - pip install python-coveralls
+  - pip install coveralls
 # command to run tests
 script:
   - mkdir ../pond
