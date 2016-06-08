@@ -4,7 +4,7 @@
 
 PyPond is a Python implementation of the JavaScript [Pond timeseries library](http://software.es.net/pond/). At a very high level, both implementations offer classes and structures to collect, manipulate and transmit timeseries data. Time series transmission is done via a JSON-based wire format.
 
-This implementation is [hosted on GitHub](https://github.com/esnet/pypond).
+This implementation is [hosted on GitHub](https://github.com/esnet/pypond) and the API documentation is [hosted on Read the Docs](http://pypond.readthedocs.org/).
 
 ## Documentation
 
