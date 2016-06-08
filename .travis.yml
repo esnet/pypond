@@ -19,6 +19,7 @@ script:
   - cd ../pypond
   - nosetests --with-coverage --cover-package=pypond
 after_success:
-  coveralls
+  - env
+  - coveralls
 notifications:
   slack: esnet:UcgwMEeTt4IEFs2OZGwFznH2
