@@ -4,5 +4,4 @@ nose
 sphinx
 coverage
 pypandoc
-sphinxcontrib-napoleon
 -e .

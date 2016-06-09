@@ -31,7 +31,8 @@ setup(
         'pyrsistent==0.11.12',
         'pytz==2016.3',
         'tzlocal==1.2.2',
-        'humanize==0.5.1'
+        'humanize==0.5.1',
+        'sphinxcontrib-napoleon==0.5.0',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
