@@ -32,7 +32,9 @@ setup(
         'pytz==2016.3',
         'tzlocal==1.2.2',
         'humanize==0.5.1',
+        # there are for read the docs builds
         'sphinxcontrib-napoleon==0.5.0',
+        'recommonmark==0.4.0',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
