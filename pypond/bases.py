@@ -26,10 +26,12 @@ class PypondBase(object):
     def _warn(self, msg, warn_type):  # pylint: disable=no-self-use
         """Issue a python warning.
 
-        :param msg: The warning message.
-        :type msg: str
-        :param warn_type: Custom warning class from pypond.exceptions.
-        :type warn_type: Warning subclass
+        Parameters
+        ----------
+        msg : str
+            The warning message
+        warn_type : Exception subclass
+            Custom warning from pypond.exceptions.
         """
         warnings.warn(msg, warn_type, stacklevel=2)
 
