@@ -141,8 +141,12 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:
     # For building locally and the github gh-pages hosting business.
-    html_theme = 'haiku'
     templates_path = ['_esnet/templates']
+    exclude_patterns = ['_build', '_esnet']
+    html_theme = 'bootstrap'
+    html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+
+    html_favicon = "_esnet/static/favicon.ico"
 else:
     # use default on RTD so it'll use the RTD theme
     html_theme = 'default'
