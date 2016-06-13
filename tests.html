@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Running the tests &mdash; pypond 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pypond 0.1 documentation" href="index.html" />
+    <link rel="prev" title="API Documentation" href="api.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pypond 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-the-tests">
+<span id="running-the-tests"></span><h1>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
+<p>Running the <a class="reference external" href="https://github.com/esnet/pypond/tree/master/tests">unit tests</a> will probably only be of interest to other developers. There is a test module that tests interoperability with the JavaScript library (<code class="docutils literal"><span class="pre">pypond/tests/interop_test.py</span></code>) that will require some additional setup.</p>
+<ol class="simple">
+<li>It will check to find the <code class="docutils literal"><span class="pre">node</span></code> executable somewhere in the path. If it is not found, those tests will fail.</li>
+<li>The <a class="reference external" href="https://github.com/esnet/pond">Pond source</a> will need to be checked out at the same level &#8220;alongside&#8221; of the pypond source and then execute <code class="docutils literal"><span class="pre">npm</span> <span class="pre">install</span></code> followed by <code class="docutils literal"><span class="pre">npm</span> <span class="pre">run</span> <span class="pre">build</span></code> at the root level of the pond source. (Running <code class="docutils literal"><span class="pre">npm</span> <span class="pre">run</span> <span class="pre">build</span></code> should be a formality, but is included just in case the <code class="docutils literal"><span class="pre">pond/lib</span></code> directory was not properly regenerated from <code class="docutils literal"><span class="pre">pond/src</span></code>)</li>
+<li>Execute <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">dev-requirements.txt</span></code> and then run <code class="docutils literal"><span class="pre">nosetests</span></code> from either the source root or test directory (<code class="docutils literal"><span class="pre">pypond/</span></code> or <code class="docutils literal"><span class="pre">pypond/tests/</span></code>). The <code class="docutils literal"><span class="pre">pip</span></code> command will also install pypond in &#8220;develop&#8221; mode.</li>
+</ol>
+<p>That particular test sends the data on a round trip by:</p>
+<ol class="simple">
+<li>generating the wire format using the Python structures</li>
+<li>sends it to an external script run by <code class="docutils literal"><span class="pre">node</span></code> as an arg</li>
+<li>which reconstitutes the wire format as a JS structure</li>
+<li>then the JS structure is used to generate the wire format again</li>
+<li>wire format is returned to the calling unit test over stdout</li>
+<li>a new Python structure is created with the incoming wire format</li>
+<li>that structure is checked against the original data the first TimeSeries was created from.</li>
+</ol>
+<p>All of the other tests are just standard-issue Python unit tests.</p>
+<p>The <a class="reference external" href="https://github.com/esnet/pypond/tree/master/tests">tests</a> can also be referred to as a fairly complete set of examples as well.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="previous chapter">API Documentation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tests.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pypond 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Monte M. Goode.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
+    </div>
+  </body>
+</html>

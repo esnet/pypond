@@ -1,8 +1,0 @@
-*.egg-info
-*.pyc
-dist/
-.coverage
-build
-_build
-_static
-_templates
