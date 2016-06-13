@@ -6,6 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = build
+GITHUBDIR     = ../../pypond-docs
 
 # User-friendly check for sphinx-build
 ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
@@ -23,6 +24,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html       to make standalone HTML files"
+	@echo "  github     to build html and push gh-pages branch to github"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
 	@echo "  pickle     to make pickle files"
@@ -58,6 +60,16 @@ html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+.PHONY: github
+github:
+	# presumes ../../pypond-docs set up per:
+	# https://daler.github.io/sphinxdoc-test/includeme.html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(GITHUBDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(GITHUBDIR)/html."
+	@echo "Pushing new docs to github."
+	cd $(GITHUBDIR)/html; git add . ; git commit -m "rebuilt docs"; git push origin gh-pages
 
 .PHONY: dirhtml
 dirhtml:
