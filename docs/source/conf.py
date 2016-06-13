@@ -15,6 +15,8 @@
 import sys
 import os
 
+import sphinx_bootstrap_theme
+
 from recommonmark.parser import CommonMarkParser
 
 # pylint: skip-file
@@ -140,6 +142,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
     # For building locally and the github gh-pages hosting business.
     html_theme = 'haiku'
+    templates_path = ['_esnet/templates']
 else:
     # use default on RTD so it'll use the RTD theme
     html_theme = 'default'
