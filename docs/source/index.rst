@@ -15,7 +15,8 @@ JSON-based wire format.
 
 This implementation is `available on
 GitHub <https://github.com/esnet/pypond>`__ and the API documentation is
-`hosted on Read the Docs <http://pypond.readthedocs.org/>`__.
+available at `software.es.net <http://software.es.net/pypond/>`__ (and
+alternately on `RTD <http://pypond.readthedocs.io/en/latest/>`__).
 
 Core Documentation
 ------------------
