@@ -1,5 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -8,8 +7,11 @@
     
     <title>Running the tests &mdash; pypond 0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/esnet/esnet.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,31 +25,103 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="top" title="pypond 0.1 documentation" href="index.html" />
-    <link rel="prev" title="API Documentation" href="api.html" /> 
+    <link rel="prev" title="API Documentation" href="api.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="api.html" title="API Documentation"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pypond 0.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          <!-- LOGO:  _static/ -->
+          pypond</a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
             
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Section <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running the tests</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="api.html" title="Previous Chapter: API Documentation">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="hidden-sm">
+        API Documenta...
+      </span>
+    </a>
+  </li>
+              
+            
+            <li class="divider-vertical"></li>
+            
+                <li><a href="genindex.html">Index</a></li>
+                <li><a href="https://www.es.net">ESnet</a></li>
+            
+            <li><a href="https://github.com/esnet/pypond"><img src="_static/esnet/icon-github.png" height="20" width="20"></a></li>
+            
+            
+            
+          </ul>
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Running the tests</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
   <div class="section" id="running-the-tests">
 <span id="running-the-tests"></span><h1>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h1>
 <p>Running the <a class="reference external" href="https://github.com/esnet/pypond/tree/master/tests">unit tests</a> will probably only be of interest to other developers. There is a test module that tests interoperability with the JavaScript library (<code class="docutils literal"><span class="pre">pypond/tests/interop_test.py</span></code>) that will require some additional setup.</p>
@@ -71,53 +145,35 @@
 </div>
 
 
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="api.html"
-                        title="previous chapter">API Documentation</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/tests.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
+    </div>
+      
+  </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <a href="http://www.es.net/"><img src="_static/esnet/logo-esnet.png" alt="[ESnet]"></a>
       </div>
-      <div class="clearer"></div>
+      <div class="col-md-11">
+        <p class="pull-right">
+        <a href="#">Back to top</a>
+        
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/tests.txt"
+     rel="nofollow">Source</a>
+</div>
+        
+        </p>
+        <p>
+            &copy; Copyright 2016, The Regents of the University of California.<br/>
+          Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.1.<br/>
+        </p>
+      </div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="api.html" title="API Documentation"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">pypond 0.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright Copyright 2016, The Regents of the University of California.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
-    </div>
+  </div>
+</footer>
   </body>
 </html>
