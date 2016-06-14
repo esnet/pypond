@@ -1,7 +1,7 @@
 # install a couple of dev packages and the source in develop mode
 pylint
 nose
-sphinx
+sphinx==1.4.1
 sphinx-bootstrap-theme
 coverage
 pypandoc

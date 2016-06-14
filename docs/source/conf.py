@@ -72,7 +72,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pypond'
-copyright = u'2016, Monte M. Goode'
+copyright = u'Copyright 2016, The Regents of the University of California'
 author = u'Monte M. Goode'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -141,12 +141,31 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:
     # For building locally and the github gh-pages hosting business.
-    templates_path = ['_esnet/templates']
+    # templates_path = ['_esnet/templates']
     exclude_patterns = ['_build', '_esnet']
     html_theme = 'bootstrap'
     html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
+    # add html_theme options:
+    html_theme_options = {
+        "navbar_pagenav": False,
+        "nosidebar": False,
+        "navbar_class": "navbar",
+        "navbar_site_name": "Section",
+        "source_link_position": "footer",
+        "navbar_links": [
+            ("Index", "genindex"),
+            ("ESnet", "https://www.es.net", True),
+        ],
+    }
+
+    # add html_logo and html_sidebars
+    html_logo = "_esnet/static/logo-esnet-ball-sm.png"
+    html_sidebars = {'index': None, 'search': None, '*': ['localtoc.html']}
     html_favicon = "_esnet/static/favicon.ico"
+    html_context = {
+        "github_url": "https://github.com/esnet/pypond",
+    }
 else:
     # use default on RTD so it'll use the RTD theme
     html_theme = 'default'
