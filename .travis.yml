@@ -1,10 +1,10 @@
 language: python
-python:
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
+matrix:
+  include:
+    - python "2.7"
+      env: NOSEARGS=--with-coverage --cover-package=pypond
+    - python "3.5"
+      env: NOSEARGS=--with-coverage --cover-package=pypond
 # command to install dependencies
 install:
   - . $HOME/.nvm/nvm.sh
@@ -21,7 +21,8 @@ script:
   - npm install
   - npm run build
   - cd ../pypond
-  - nosetests --with-coverage --cover-package=pypond
+  # coverage is busted on python 3.2
+  - nosetests $NOSEARGS
 after_success:
   - coveralls
 notifications:
