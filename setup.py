@@ -19,7 +19,7 @@ if sys.version_info[0] == 2 and sys.version_info[1] < 7:
 
 setup(
     name='pypond',
-    version='0.1',
+    version='0.2',
     description='Python implementation of the Pond JavaScript timeseries library (https://github.com/esnet/pond).',  # pylint: disable=line-too-long
     long_description=DESCRIPTION,
     author='Monte M. Goode',
@@ -45,6 +45,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: JavaScript',
         'Topic :: Software Development :: Libraries',
     ],
