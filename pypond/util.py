@@ -377,6 +377,7 @@ class ObjectEncoder(json.JSONEncoder):
 
     Usage: json.dumps(your_cool_object, cls=ObjectEncoder)
     """
+
     def default(self, obj):  # pylint: disable=method-hidden
         if hasattr(obj, "to_json"):
             return self.default(obj.to_json())

@@ -23,6 +23,7 @@ class In(Observable):
     For the pipeline - raise exceptions if an attempt is made to
     add heterogenous types.
     """
+
     def __init__(self):
 
         super(In, self).__init__()

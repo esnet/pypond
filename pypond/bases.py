@@ -18,6 +18,7 @@ class PypondBase(object):
     Universal base class. Used to provide common functionality (logging, etc)
     to all the other classes.
     """
+
     def __init__(self):
         """ctor"""
 
@@ -46,6 +47,7 @@ class Observable(PypondBase):
      interface to define the relationships and to emit events
      to the interested observers.
     """
+
     def __init__(self):
         super(Observable, self).__init__()
 

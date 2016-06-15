@@ -361,6 +361,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     data : None, optional
         Could be dict/pmap/int/float/str to use for data payload.
     """
+
     def __init__(self, instance_or_time, data=None):
         """
         Create a basic event.

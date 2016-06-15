@@ -52,6 +52,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Copy event list when using copy constructor, otherwise the
         new object has an emtpy event list.
     """
+
     def __init__(self, instance_or_list, copy_events=True):
         """
         Create a collection object.

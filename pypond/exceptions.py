@@ -13,6 +13,7 @@ Custom exception and warning classes.
 
 class EventException(Exception):
     """Custom Event exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -28,6 +29,7 @@ class EventWarning(Warning):
 
 class TimeRangeException(Exception):
     """Custom TimeRange exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -43,6 +45,7 @@ class TimeRangeWarning(Warning):
 
 class IndexException(Exception):
     """Custom Index exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -58,6 +61,7 @@ class IndexWarning(Warning):
 
 class UtilityException(Exception):
     """Custom Utility exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -73,6 +77,7 @@ class UtilityWarning(Warning):
 
 class PipelineException(Exception):
     """Custom Pipeline exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -88,6 +93,7 @@ class PipelineWarning(Warning):
 
 class CollectionException(Exception):
     """Custom Collection exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -103,6 +109,7 @@ class CollectionWarning(Warning):
 
 class TimeSeriesException(Exception):
     """Custom TimeSeries exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
