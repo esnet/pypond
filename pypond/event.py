@@ -21,7 +21,7 @@ import json
 
 from functools import reduce  # pylint: disable=redefined-builtin
 
-from past.builtins import basestring  # pylint: disable=redefined-builtin
+import six
 
 # using freeze/thaw more bulletproof than pmap/pvector since data is free-form
 from pyrsistent import thaw, freeze
@@ -283,7 +283,7 @@ class EventBase(PypondBase):
         EventException
             Raised on invalid arg.
         """
-        if isinstance(instance_or_index, basestring):
+        if isinstance(instance_or_index, six.string_types):
             return Index(instance_or_index, utc)
         elif isinstance(instance_or_index, Index):
             return instance_or_index
