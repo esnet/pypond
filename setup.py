@@ -28,12 +28,12 @@ setup(
     packages=['pypond'],
     scripts=[],
     install_requires=[
-        'pyrsistent==0.11.12',
-        'pytz==2016.3',
+        'pyrsistent==0.11.13',
+        'pytz==2016.4',
         'tzlocal==1.2.2',
         'humanize==0.5.1',
         # there are for read the docs builds
-        'sphinxcontrib-napoleon==0.5.0',
+        'sphinxcontrib-napoleon==0.5.1',
         'recommonmark==0.4.0',
     ],
     classifiers=[
@@ -43,7 +43,7 @@ setup(
         'Environment :: Web Environment',
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: JavaScript',
         'Topic :: Software Development :: Libraries',
     ],
