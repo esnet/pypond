@@ -45,6 +45,7 @@ class IndexedEvent(EventBase):
         UTC or localtime to create index in. Please don't not use UTC.
         Yes, that's a double negative.
     """
+
     def __init__(self, instance_or_begin, data=None, utc=True):
         """
         Create an indexed event.

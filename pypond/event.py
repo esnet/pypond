@@ -19,6 +19,10 @@ import copy
 import datetime
 import json
 
+from functools import reduce  # pylint: disable=redefined-builtin
+
+from past.builtins import basestring  # pylint: disable=redefined-builtin
+
 # using freeze/thaw more bulletproof than pmap/pvector since data is free-form
 from pyrsistent import thaw, freeze
 
@@ -38,7 +42,6 @@ from .util import (
     ms_from_dt,
     sanitize_dt,
 )
-from functools import reduce
 
 
 class EventBase(PypondBase):
@@ -51,6 +54,7 @@ class EventBase(PypondBase):
         Immutable dict-like object containing the payload for the
         events.
     """
+
     def __init__(self, underscore_d):
         """Constructor for base class.
         """
@@ -279,7 +283,7 @@ class EventBase(PypondBase):
         EventException
             Raised on invalid arg.
         """
-        if isinstance(instance_or_index, str):
+        if isinstance(instance_or_index, basestring):
             return Index(instance_or_index, utc)
         elif isinstance(instance_or_index, Index):
             return instance_or_index
