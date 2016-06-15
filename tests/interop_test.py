@@ -351,11 +351,9 @@ class TestInterop(unittest.TestCase):
         series = TimeSeries(event_series_with_index)
 
         wire = self._call_interop_script('event', series.to_string())
-        print(wire)
 
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
-        print(new_json)
 
         self._validate_wire_points(event_series_with_index, new_json)
         self.assertTrue(new_json.get('utc'))
