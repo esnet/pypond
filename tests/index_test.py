@@ -22,6 +22,7 @@ from pypond.util import aware_dt_from_args, dt_from_ms
 
 class BaseTestIndex(unittest.TestCase):  # pylint: disable=too-many-instance-attributes
     """Base for index tests."""
+
     def setUp(self):
         """setup"""
 
@@ -40,6 +41,7 @@ class TestIndexCreation(BaseTestIndex):
     """
     Test variations of Event object creation.
     """
+
     def test_create(self):
         """test index constructor args and underlying TimeRange."""
 
@@ -173,6 +175,7 @@ class TestIndexCreation(BaseTestIndex):
 class TestIndexStaticMethods(BaseTestIndex):
     """Test the static/window methods formerly in util.js and the
     defunct Generator class."""
+
     def setUp(self):
         """setup method."""
         super(TestIndexStaticMethods, self).setUp()

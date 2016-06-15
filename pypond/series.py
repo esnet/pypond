@@ -231,6 +231,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         # fold in the rest of the payload
         cols_and_points.update(thaw(self._data))
 
+        # Turn the index back into a string for the json representation.
+        # The Index object can still be accessed via TimeSeries.index()
+        if 'index' in cols_and_points and \
+                isinstance(cols_and_points.get('index'), Index):
+            cols_and_points['index'] = cols_and_points.get('index').to_string()
+
         return cols_and_points
 
     def to_string(self):

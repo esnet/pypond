@@ -35,6 +35,7 @@ class BaseTestTimeRange(unittest.TestCase):
     """
     Base for range tests.
     """
+
     def setUp(self):
         self.test_end_ts = aware_utcnow()
         self.test_begin_ts = self.test_end_ts - datetime.timedelta(hours=12)
@@ -52,6 +53,7 @@ class TestTimeRangeCreation(BaseTestTimeRange):
     """
     Test variations of TimeRange object creation.
     """
+
     def test_ts_creation(self):
         """test creation with timestamps (both args and lists), validate said."""
 
@@ -186,6 +188,7 @@ class TestTimeRangeOutput(BaseTestTimeRange):
     """
     Tests to check output from the time range objects
     """
+
     def test_json_and_stringoutput(self):
         """verify the json (vanilla data structure) and string output is right"""
         rang = self.canned_range
@@ -446,6 +449,7 @@ class TestTimeRangeMutation(BaseTestTimeRange):
     """
     Test mutating TimeRange objects.
     """
+
     def test_set_end_and_begin(self):
         """test the begin/end mutators"""
 

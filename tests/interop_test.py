@@ -35,6 +35,7 @@ from pypond.series import TimeSeries
 
 class InteropException(Exception):
     """Custom Interop exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -47,6 +48,7 @@ class TestInterop(unittest.TestCase):
     """
     Test wire format rount trip
     """
+
     def setUp(self):
         """common setup."""
 
@@ -98,6 +100,11 @@ class TestInterop(unittest.TestCase):
         proc = Popen(args, stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
         exitcode = proc.returncode
+
+        # Out is bytes in python3 and a string in python2. The
+        # str() cast is to keep the py2 string from becoming
+        # specifically unicode.
+        out = str(out.decode())
 
         if exitcode != 0:
             msg = 'Got non-zero exit code and error: {err}'.format(err=err)
@@ -344,9 +351,11 @@ class TestInterop(unittest.TestCase):
         series = TimeSeries(event_series_with_index)
 
         wire = self._call_interop_script('event', series.to_string())
+        print(wire)
 
         new_series = TimeSeries(wire)
         new_json = new_series.to_json()
+        print(new_json)
 
         self._validate_wire_points(event_series_with_index, new_json)
         self.assertTrue(new_json.get('utc'))
