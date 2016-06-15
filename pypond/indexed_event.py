@@ -105,7 +105,7 @@ class IndexedEvent(EventBase):
         if isinstance(cols, list):
             points += [self.data().get(x, None) for x in cols]
         else:
-            points += [x for x in self.data().values()]
+            points += [x for x in list(self.data().values())]
 
         return points
 

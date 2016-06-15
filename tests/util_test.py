@@ -46,19 +46,19 @@ class TestTime(unittest.TestCase):
         # ms -> dt -> ms
         to_dt = dt_from_ms(self.ms_reference)
         from_dt = ms_from_dt(to_dt)
-        self.assertEquals(from_dt, self.ms_reference)
+        self.assertEqual(from_dt, self.ms_reference)
 
         # dt -> ms -> dt to test rounding in aware_utcnow()
         now = aware_utcnow()
         to_ms = ms_from_dt(now)
         back_to_dt = dt_from_ms(to_ms)
-        self.assertEquals(now, back_to_dt)
+        self.assertEqual(now, back_to_dt)
 
         # dt from unixtime -> ms -> dt
         utc = datetime.datetime.utcfromtimestamp(1459442035).replace(tzinfo=pytz.UTC)
         utcms = ms_from_dt(utc)
         back_to_utc = dt_from_ms(utcms)
-        self.assertEquals(utc, back_to_utc)
+        self.assertEqual(utc, back_to_utc)
 
     def test_aware(self):
         """Verify test_aware function."""
@@ -169,12 +169,12 @@ class TestTime(unittest.TestCase):
             dict(year=2015, month=3, day=14, hour=7, minute=32, second=22),
             localize=True)
 
-        self.assertEquals(dtime.year, dtime_loc.year)
-        self.assertEquals(dtime.month, dtime_loc.month)
-        self.assertEquals(dtime.day, dtime_loc.day)
-        self.assertEquals(dtime.hour, dtime_loc.hour)
-        self.assertEquals(dtime.minute, dtime_loc.minute)
-        self.assertEquals(dtime.second, dtime_loc.second)
+        self.assertEqual(dtime.year, dtime_loc.year)
+        self.assertEqual(dtime.month, dtime_loc.month)
+        self.assertEqual(dtime.day, dtime_loc.day)
+        self.assertEqual(dtime.hour, dtime_loc.hour)
+        self.assertEqual(dtime.minute, dtime_loc.minute)
+        self.assertEqual(dtime.second, dtime_loc.second)
 
         self.assertNotEqual(dtime.tzinfo, dtime_loc.tzinfo)
 
@@ -190,7 +190,7 @@ class TestTime(unittest.TestCase):
         """random things for coverage."""
         # work logic in monthdelta
         dtime = datetime.datetime(year=2015, month=12, day=1)
-        self.assertEquals(monthdelta(dtime, 0), dtime)
+        self.assertEqual(monthdelta(dtime, 0), dtime)
 
 if __name__ == '__main__':
     unittest.main()

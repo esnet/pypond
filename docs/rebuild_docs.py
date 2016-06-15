@@ -43,7 +43,7 @@ def main():
     seg = os.path.split(cwd)
 
     if seg[1] != 'docs':
-        print 'must be run in pypond/docs as ./rebuild_docs.py'
+        print('must be run in pypond/docs as ./rebuild_docs.py')
         return -1
 
     # regenerate the module api index
@@ -61,7 +61,7 @@ def main():
     index_file = './source/index.rst'
 
     if not os.path.exists(index_file):
-        print 'can not find {f}'.format(f=index_file)
+        print('can not find {f}'.format(f=index_file))
         return -1
 
     fh = open(index_file, 'w')

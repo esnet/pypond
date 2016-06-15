@@ -140,7 +140,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 for i in instance_or_wire.get('points'):
                     time = i[0]
                     event_values = i[1:]
-                    data = dict(zip(event_fields, event_values))
+                    data = dict(list(zip(event_fields, event_values)))
                     try:
                         events.append(self.event_type_map[event_type](time, data))
                     except KeyError:
@@ -483,12 +483,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         cret = dict()
 
         for i in self._collection.events():
-            for v in i.to_json().values():
+            for v in list(i.to_json().values()):
                 if isinstance(v, dict):
-                    for key in v.keys():
+                    for key in list(v.keys()):
                         cret[key] = True
 
-        return cret.keys()
+        return list(cret.keys())
 
     def collection(self):
         """Returns the internal collection of events for this TimeSeries
@@ -783,7 +783,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         events = list()
 
-        for v in event_map.values():
+        for v in list(event_map.values()):
             if field_spec is None:
                 event = mapper(v)
             else:
