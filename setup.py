@@ -15,7 +15,10 @@ except (IOError, ImportError, OSError):
     DESCRIPTION = open('README.md').read()
 
 if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    sys.exit('Sorry, Python < 2.7 is not supported')
+    sys.exit('Sorry, Python 2 < 2.7 is not supported')
+
+if sys.version_info[0] == 3 and sys.version_info[1] < 3:
+    sys.exit('Sorry, Python 3 < 3.3 is not supported')
 
 setup(
     name='pypond',
@@ -45,6 +48,8 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: JavaScript',
         'Topic :: Software Development :: Libraries',
