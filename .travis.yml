@@ -11,7 +11,7 @@ install:
   - nvm install stable
   - nvm use stable
   - npm install
-  - pip install -r dev-requirements.txt
+  - python setup.py install
   - pip install coveralls
 # command to run tests
 script:
