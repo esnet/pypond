@@ -707,12 +707,14 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
     def __str__(self):
         """call to_string()
 
+        to_string() is already being tested so skip coverage.
+
         Returns
         -------
         str
             String representation of the object.
         """
-        return self.to_string()
+        return self.to_string()  # pragma: no cover
 
     @staticmethod
     def equal(coll1, coll2):

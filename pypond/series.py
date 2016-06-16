@@ -699,7 +699,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     def __str__(self):
         """call to_string()"""
-        return self.to_string()
+        return self.to_string()  # pragma: no cover
 
     # Static methods
 

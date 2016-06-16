@@ -14,6 +14,7 @@ Also including tests for Collection class since they are tightly bound.
 
 import copy
 import datetime
+import json
 import unittest
 import warnings
 
@@ -420,13 +421,8 @@ class TestCollection(SeriesBase):
 
         # basic accessors
         self.assertEqual(col.to_json(), EVENT_LIST)
-        # These are ordered differently in python3 and is a bad test to begin with.
-        # self.assertEqual(
-        #     col.to_string(),
-        #     '[{"data": {"out": 2, "in": 1}, "time": 1429673400000}, {"data": {"out": 4, "in": 3}, "time": 1429673460000}, {"data": {"out": 6, "in": 5}, "time": 1429673520000}]')  # pylint: disable=line-too-long
-        # self.assertEqual(
-        #     str(col),
-        #     '[{"data": {"out": 2, "in": 1}, "time": 1429673400000}, {"data": {"out": 4, "in": 3}, "time": 1429673460000}, {"data": {"out": 6, "in": 5}, "time": 1429673520000}]')  # pylint: disable=line-too-long
+
+        self.assertEqual(len(json.loads(col.to_string())), 3)
 
         # test at() - corollary to array index
         self.assertTrue(Event.same(col.at(2), EVENT_LIST[2]))

@@ -141,7 +141,7 @@ class EventBase(PypondBase):
         Returns
         -------
         str
-            String representatoin of this object.
+            String representation of this object.
         """
         return json.dumps(self.to_json())
 
@@ -151,7 +151,7 @@ class EventBase(PypondBase):
         Returns
         -------
         str
-            String representation of this object's data.
+            String representation of this object's internal data.
         """
         return json.dumps(thaw(self.data()))
 

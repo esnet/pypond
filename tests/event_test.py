@@ -467,13 +467,9 @@ class TestIndexedEvent(BaseTestEvent):
 
         ie1 = IndexedEvent(idx, {'value': val})
 
-        # These fail after 2to3 conversion and this is a bad test anyways.
-        # self.assertEqual(
-        #     ie1.to_string(),
-        #     '{"index": "1d-12355", "data": {"value": 42}}')
-        # self.assertEqual(
-        #     str(ie1),
-        #     '{"index": "1d-12355", "data": {"value": 42}}')
+        # normally this is a bad test, but the internal payload
+        # is simple enough here and so the return is predicable.
+        self.assertEqual(ie1.stringify(), '{"value": 42}')
 
         self.assertEqual(
             ie1.to_point(),
