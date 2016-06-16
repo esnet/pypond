@@ -35,6 +35,7 @@ from pypond.series import TimeSeries
 
 class InteropException(Exception):
     """Custom Interop exception"""
+
     def __init__(self, value):
         # pylint: disable=super-init-not-called
         self.value = value
@@ -47,6 +48,7 @@ class TestInterop(unittest.TestCase):
     """
     Test wire format rount trip
     """
+
     def setUp(self):
         """common setup."""
 
@@ -98,6 +100,11 @@ class TestInterop(unittest.TestCase):
         proc = Popen(args, stdout=PIPE, stderr=PIPE)
         out, err = proc.communicate()
         exitcode = proc.returncode
+
+        # Out is bytes in python3 and a string in python2. The
+        # str() cast is to keep the py2 string from becoming
+        # specifically unicode.
+        out = str(out.decode())
 
         if exitcode != 0:
             msg = 'Got non-zero exit code and error: {err}'.format(err=err)
@@ -165,10 +172,10 @@ class TestInterop(unittest.TestCase):
             orig_data = i[1]
             new_data = new.get('points')[idx]
 
-            for v in col_map.values():
+            for v in list(col_map.values()):
                 orig_idx = v[0]
                 new_idx = v[1]
-                self.assertEquals(orig_data[orig_idx], new_data[new_idx])
+                self.assertEqual(orig_data[orig_idx], new_data[new_idx])
 
     def test_event_series(self):
         """test a series that contains basic event objects."""
@@ -325,7 +332,7 @@ class TestInterop(unittest.TestCase):
 
         self._validate_wire_points(timerange_event_series, new_json)
         self.assertTrue(new_json.get('utc'))
-        self.assertEquals(timerange_event_series.get('name'), new_json.get('name'))
+        self.assertEqual(timerange_event_series.get('name'), new_json.get('name'))
 
     def test_event_series_with_index(self):
         """test indexed data, not a series of IndexedEvent."""
@@ -350,7 +357,7 @@ class TestInterop(unittest.TestCase):
 
         self._validate_wire_points(event_series_with_index, new_json)
         self.assertTrue(new_json.get('utc'))
-        self.assertEquals(event_series_with_index.get('index'), new_json.get('index'))
+        self.assertEqual(event_series_with_index.get('index'), new_json.get('index'))
 
 if __name__ == '__main__':
     unittest.main()

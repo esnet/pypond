@@ -11,6 +11,7 @@ Functions to act as reducers/aggregators, etc.
 """
 
 from math import sqrt
+from functools import reduce
 
 
 class Functions(object):

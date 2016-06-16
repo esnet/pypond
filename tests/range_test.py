@@ -35,6 +35,7 @@ class BaseTestTimeRange(unittest.TestCase):
     """
     Base for range tests.
     """
+
     def setUp(self):
         self.test_end_ts = aware_utcnow()
         self.test_begin_ts = self.test_end_ts - datetime.timedelta(hours=12)
@@ -52,6 +53,7 @@ class TestTimeRangeCreation(BaseTestTimeRange):
     """
     Test variations of TimeRange object creation.
     """
+
     def test_ts_creation(self):
         """test creation with timestamps (both args and lists), validate said."""
 
@@ -186,6 +188,7 @@ class TestTimeRangeOutput(BaseTestTimeRange):
     """
     Tests to check output from the time range objects
     """
+
     def test_json_and_stringoutput(self):
         """verify the json (vanilla data structure) and string output is right"""
         rang = self.canned_range
@@ -224,7 +227,7 @@ class TestTimeRangeOutput(BaseTestTimeRange):
         # check the underlying immutable vector
         rng = self.canned_range.range()
         self.assertTrue(is_pvector(rng))
-        self.assertEquals(rng[0], self.test_begin_ts)
+        self.assertEqual(rng[0], self.test_begin_ts)
 
         # check the local string accessor
         i = 0
@@ -239,21 +242,21 @@ class TestTimeRangeOutput(BaseTestTimeRange):
 
         start_dt_as_local = self.test_begin_ts.astimezone(LOCAL_TZ).strftime(HUMAN_FORMAT)
 
-        self.assertEquals(date_1, start_dt_as_local)
+        self.assertEqual(date_1, start_dt_as_local)
 
         # humanize check
         human = self.canned_range.humanize()
-        self.assertEquals(human.split(' to ')[0], start_dt_as_local)
+        self.assertEqual(human.split(' to ')[0], start_dt_as_local)
 
         # duration checks
-        self.assertEquals(self.canned_range.duration(), 43200000)
+        self.assertEqual(self.canned_range.duration(), 43200000)
 
-        self.assertEquals(self.canned_range.humanize_duration(), '12 hours')
+        self.assertEqual(self.canned_range.humanize_duration(), '12 hours')
 
         # __str__
         to_str = str(self.canned_range)
         ms_bounds = '[{b}, {e}]'.format(b=self.test_begin_ms, e=self.test_end_ms)
-        self.assertEquals(to_str, ms_bounds)
+        self.assertEqual(to_str, ms_bounds)
 
 
 class TestTimeRangeComparisons(BaseTestTimeRange):
@@ -446,6 +449,7 @@ class TestTimeRangeMutation(BaseTestTimeRange):
     """
     Test mutating TimeRange objects.
     """
+
     def test_set_end_and_begin(self):
         """test the begin/end mutators"""
 
@@ -454,15 +458,15 @@ class TestTimeRangeMutation(BaseTestTimeRange):
         new_end = self.test_end_ts + datetime.timedelta(hours=24)
 
         rng1 = can.set_begin(new_begin)
-        self.assertEquals(rng1.begin(), new_begin)
+        self.assertEqual(rng1.begin(), new_begin)
 
         # bad arg
         with self.assertRaises(TimeRangeException):
             can.set_begin(ms_from_dt(new_begin))
 
         rng2 = rng1.set_end(new_end)
-        self.assertEquals(rng2.end(), new_end)
-        self.assertEquals(rng2.begin(), new_begin)
+        self.assertEqual(rng2.end(), new_end)
+        self.assertEqual(rng2.begin(), new_begin)
 
         # bad arg
         with self.assertRaises(TimeRangeException):

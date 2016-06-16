@@ -46,6 +46,7 @@ class TimeRangeEvent(EventBase):
     arg2 : dict, pmap, int, float, str, optional
         See above.
     """
+
     def __init__(self, instance_or_args, arg2=None):
         """
         Create a time range event.
@@ -113,7 +114,7 @@ class TimeRangeEvent(EventBase):
         if isinstance(cols, list):
             points += [self.data().get(x, None) for x in cols]
         else:
-            points += [x for x in self.data().values()]
+            points += [x for x in list(self.data().values())]
 
         return points
 

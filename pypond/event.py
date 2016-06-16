@@ -19,6 +19,10 @@ import copy
 import datetime
 import json
 
+from functools import reduce  # pylint: disable=redefined-builtin
+
+import six
+
 # using freeze/thaw more bulletproof than pmap/pvector since data is free-form
 from pyrsistent import thaw, freeze
 
@@ -50,6 +54,7 @@ class EventBase(PypondBase):
         Immutable dict-like object containing the payload for the
         events.
     """
+
     def __init__(self, underscore_d):
         """Constructor for base class.
         """
@@ -136,7 +141,7 @@ class EventBase(PypondBase):
         Returns
         -------
         str
-            String representatoin of this object.
+            String representation of this object.
         """
         return json.dumps(self.to_json())
 
@@ -146,7 +151,7 @@ class EventBase(PypondBase):
         Returns
         -------
         str
-            String representation of this object's data.
+            String representation of this object's internal data.
         """
         return json.dumps(thaw(self.data()))
 
@@ -278,7 +283,7 @@ class EventBase(PypondBase):
         EventException
             Raised on invalid arg.
         """
-        if isinstance(instance_or_index, (str, unicode)):
+        if isinstance(instance_or_index, six.string_types):
             return Index(instance_or_index, utc)
         elif isinstance(instance_or_index, Index):
             return instance_or_index
@@ -356,6 +361,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     data : None, optional
         Could be dict/pmap/int/float/str to use for data payload.
     """
+
     def __init__(self, instance_or_time, data=None):
         """
         Create a basic event.
@@ -427,7 +433,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         if isinstance(cols, list):
             points += [self.data().get(x, None) for x in cols]
         else:
-            points += [x for x in self.data().values()]
+            points += [x for x in list(self.data().values())]
 
         return points
 
@@ -660,7 +666,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
             i_data = thaw(i.data())
 
-            for k, v in i_data.items():
+            for k, v in list(i_data.items()):
                 if k in new_data:
                     raise EventException(
                         'Events being merged may not have the same key: {k}'.format(k=k))
@@ -707,7 +713,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             if i.timerange() != ts_ref:
                 raise EventException('Events being merged need the same timestamp.')
 
-            for k, v in i.data().items():
+            for k, v in list(i.data().items()):
                 if k in new_data:
                     raise EventException(
                         'Events being merged can not have the same key {key}'.format(key=k))
@@ -754,7 +760,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             if idx_ref != i.index_as_string():
                 raise EventException('Events being merged need the same index.')
 
-            for k, v in i.to_json().get('data').items():
+            for k, v in list(i.to_json().get('data').items()):
                 if k in new_data:
                     raise EventException(
                         'Events being merged can not have the same key {key}'.format(key=k))
@@ -833,7 +839,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             field_names = list()
 
             if field_spec is None:
-                field_names = thaw(event.data()).keys()
+                field_names = list(thaw(event.data()).keys())
             elif isinstance(field_spec, str):
                 field_names = [field_spec]
             elif isinstance(field_spec, list):
@@ -851,7 +857,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         event_data = dict()
 
-        for k, v in Event.reduce(mapped, reducer).items():
+        for k, v in list(Event.reduce(mapped, reducer).items()):
             # ts::k with single reduced value
             tstamp, field = k.split('::')
             tstamp = int(tstamp)
@@ -861,7 +867,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         # event_data 2 level dict {'1459283734515': {'a': 8, 'c': 14, 'b': 11}}
 
-        return [Event(x[0], x[1]) for x in event_data.items()]
+        return [Event(x[0], x[1]) for x in list(event_data.items())]
 
     # these call combine with appropriate reducer
 
@@ -977,13 +983,13 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         elif is_function(field_spec):
             for evt in events:
                 pairs = field_spec(evt)
-                for k, v in pairs.items():
+                for k, v in list(pairs.items()):
                     key_check(k)
                     result[k].append(v)
         else:
             # type not found or None or none - map everything
             for evt in events:
-                for k, v in thaw(evt.data()).items():
+                for k, v in list(thaw(evt.data()).items()):
                     key_check(k)
                     result[k].append(v)
 
@@ -1016,7 +1022,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         result = dict()
 
-        for k, v in mapped.items():
+        for k, v in list(mapped.items()):
             result[k] = reducer(v)
 
         return result

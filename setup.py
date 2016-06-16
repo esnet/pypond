@@ -15,11 +15,14 @@ except (IOError, ImportError, OSError):
     DESCRIPTION = open('README.md').read()
 
 if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    sys.exit('Sorry, Python < 2.7 is not supported')
+    sys.exit('Sorry, Python 2 < 2.7 is not supported')
+
+if sys.version_info[0] == 3 and sys.version_info[1] < 3:
+    sys.exit('Sorry, Python 3 < 3.3 is not supported')
 
 setup(
     name='pypond',
-    version='0.1',
+    version='0.2',
     description='Python implementation of the Pond JavaScript timeseries library (https://github.com/esnet/pond).',  # pylint: disable=line-too-long
     long_description=DESCRIPTION,
     author='Monte M. Goode',
@@ -32,6 +35,7 @@ setup(
         'pytz==2016.4',
         'tzlocal==1.2.2',
         'humanize==0.5.1',
+        'six==1.10.0',
         # there are for read the docs builds
         'sphinxcontrib-napoleon==0.5.1',
         'recommonmark==0.4.0',
@@ -44,6 +48,10 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: JavaScript',
         'Topic :: Software Development :: Libraries',
     ],

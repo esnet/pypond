@@ -8,6 +8,8 @@ PyPond is a Python implementation of the JavaScript [Pond timeseries library](ht
 
 This implementation is [available on GitHub](https://github.com/esnet/pypond) and the API documentation is available at [software.es.net](http://software.es.net/pypond/) (and alternately on [RTD](http://pypond.readthedocs.io/en/latest/)).
 
+PyPond runs on python 2.7 and 3.3 through 3.6.
+
 ## Core Documentation
 
 The [main project site](http://software.es.net/pond/) has extensive documentation on the various structures (Event, TimeRange, TimeSeries, etc) that both implementations use internally. There is no need to duplicate that conceptual documentation here since the python implementation follows the same API and uses the same structures.

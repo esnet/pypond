@@ -150,6 +150,7 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
     TimeRangeException
         Raised to indicate errors with args.
     """
+
     def __init__(self, instance_or_begin, end=None):
         """
         Construct the object using the aforementioned arg combinations.

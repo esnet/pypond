@@ -45,6 +45,7 @@ class IndexedEvent(EventBase):
         UTC or localtime to create index in. Please don't not use UTC.
         Yes, that's a double negative.
     """
+
     def __init__(self, instance_or_begin, data=None, utc=True):
         """
         Create an indexed event.
@@ -105,7 +106,7 @@ class IndexedEvent(EventBase):
         if isinstance(cols, list):
             points += [self.data().get(x, None) for x in cols]
         else:
-            points += [x for x in self.data().values()]
+            points += [x for x in list(self.data().values())]
 
         return points
 
