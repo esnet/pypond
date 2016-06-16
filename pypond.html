@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypond package &mdash; pypond 0.1 documentation</title>
+    <title>pypond package &mdash; pypond 0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1',
+        VERSION:     '0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.1 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.2 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -218,6 +218,7 @@ new object has an emtpy event list.</li>
 <dt id="pypond.collection.Collection.__str__">
 <code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.__str__" title="Permalink to this definition">¶</a></dt>
 <dd><p>call to_string()</p>
+<p>to_string() is already being tested so skip coverage.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1643,7 +1644,7 @@ the list version please.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of this object&#8217;s data.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of this object&#8217;s internal data.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -1729,7 +1730,7 @@ It&#8217;s a JSON string of the whole object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representatoin of this object.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of this object.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -1764,98 +1765,98 @@ It&#8217;s a JSON string of the whole object.</p>
 <dl class="exception">
 <dt id="pypond.exceptions.CollectionException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">CollectionException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.CollectionException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom Collection exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.CollectionWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">CollectionWarning</code><a class="headerlink" href="#pypond.exceptions.CollectionWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom Collection warning</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.EventException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">EventException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.EventException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom Event exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.EventWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">EventWarning</code><a class="headerlink" href="#pypond.exceptions.EventWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom Event warning</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.IndexException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">IndexException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.IndexException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom Index exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.IndexWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">IndexWarning</code><a class="headerlink" href="#pypond.exceptions.IndexWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom Index warning</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.PipelineException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">PipelineException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.PipelineException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom Pipeline exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.PipelineWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">PipelineWarning</code><a class="headerlink" href="#pypond.exceptions.PipelineWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom Pipeline warning</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.TimeRangeException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">TimeRangeException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.TimeRangeException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom TimeRange exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.TimeRangeWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">TimeRangeWarning</code><a class="headerlink" href="#pypond.exceptions.TimeRangeWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom TimeRange warning</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.TimeSeriesException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">TimeSeriesException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.TimeSeriesException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom TimeSeries exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.TimeSeriesWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">TimeSeriesWarning</code><a class="headerlink" href="#pypond.exceptions.TimeSeriesWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom TimeSeries warning</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.UtilityException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">UtilityException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.UtilityException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Custom Utility exception</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pypond.exceptions.UtilityWarning">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">UtilityWarning</code><a class="headerlink" href="#pypond.exceptions.UtilityWarning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Warning</span></code></p>
 <p>Custom Utility warning</p>
 </dd></dl>
 
@@ -3390,7 +3391,7 @@ are properly aligned.</p>
 
 <dl class="attribute">
 <dt>
-<code class="descname">event_type_map</code><em class="property"> = {'index': &lt;class 'pypond.indexed_event.IndexedEvent'&gt;, 'timerange': &lt;class 'pypond.timerange_event.TimeRangeEvent'&gt;, 'time': &lt;class 'pypond.event.Event'&gt;}</em></dt>
+<code class="descname">event_type_map</code><em class="property"> = {'time': &lt;class 'pypond.event.Event'&gt;, 'index': &lt;class 'pypond.indexed_event.IndexedEvent'&gt;, 'timerange': &lt;class 'pypond.timerange_event.TimeRangeEvent'&gt;}</em></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -4144,7 +4145,7 @@ trying to traffic in aware datetime objects in UTC time.</p>
 <p>Additionally some boolean test functions and assorted other utility functions.</p>
 <dl class="class">
 <dt id="pypond.util.ObjectEncoder">
-<em class="property">class </em><code class="descclassname">pypond.util.</code><code class="descname">ObjectEncoder</code><span class="sig-paren">(</span><em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>encoding='utf-8'</em>, <em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.ObjectEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pypond.util.</code><code class="descname">ObjectEncoder</code><span class="sig-paren">(</span><em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.ObjectEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">json.encoder.JSONEncoder</span></code></p>
 <p>Class to allow arbitrary python objects to be json encoded with
 json.dumps()/etc by defining a .to_json() method on your object.</p>
