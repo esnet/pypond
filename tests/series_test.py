@@ -90,18 +90,18 @@ AVAILABILITY_DATA = dict(
     name="availability",
     columns=["index", "uptime"],
     points=[
-        ["2015-06", "100%"],
-        ["2015-05", "92%"],
-        ["2015-04", "87%"],
-        ["2015-03", "99%"],
-        ["2015-02", "92%"],
-        ["2015-01", "100%"],
-        ["2014-12", "99%"],
-        ["2014-11", "91%"],
-        ["2014-10", "99%"],
-        ["2014-09", "95%"],
+        ["2014-07", "100%"],
         ["2014-08", "88%"],
-        ["2014-07", "100%"]
+        ["2014-09", "95%"],
+        ["2014-10", "99%"],
+        ["2014-11", "91%"],
+        ["2014-12", "99%"],
+        ["2015-01", "100%"],
+        ["2015-02", "92%"],
+        ["2015-03", "99%"],
+        ["2015-04", "87%"],
+        ["2015-05", "92%"],
+        ["2015-06", "100%"],
     ]
 )
 
@@ -199,6 +199,13 @@ class TestTimeSeries(SeriesBase):
 
         with self.assertRaises(TimeSeriesException):
             TimeSeries(bad_wire)
+
+        # events out of order
+        bad_data = copy.deepcopy(DATA)
+        bad_data['points'].reverse()
+
+        with self.assertRaises(TimeSeriesException):
+            TimeSeries(bad_data)
 
     def test_range_accessors(self):
         """accessors to get at the underlying timerange."""
@@ -324,26 +331,26 @@ class TestTimeSeries(SeriesBase):
             name="availability",
             columns=["index", "uptime"],
             points=[
-                ["2015-06", 100],
-                ["2015-05", 92],
-                ["2015-04", 87],
-                ["2015-03", 99],
-                ["2015-02", 92],
-                ["2015-01", 100],
-                ["2014-12", 99],
-                ["2014-11", 91],
-                ["2014-10", 99],
-                ["2014-09", 95],
+                ["2014-07", 100],
                 ["2014-08", 88],
-                ["2014-07", 100]
+                ["2014-09", 95],
+                ["2014-10", 99],
+                ["2014-11", 91],
+                ["2014-12", 99],
+                ["2015-01", 100],
+                ["2015-02", 92],
+                ["2015-03", 99],
+                ["2015-04", 87],
+                ["2015-05", 92],
+                ["2015-06", 100],
             ]
         )
 
         t_idx = TimeSeries(test_idx_data)
         idx_sum = TimeSeries.sum_list(dict(name='available'), [t_idx, t_idx], 'uptime')
         self.assertEqual(idx_sum.at(0).get('uptime'), 200)
-        self.assertEqual(idx_sum.at(1).get('uptime'), 184)
-        self.assertEqual(idx_sum.at(2).get('uptime'), 174)
+        self.assertEqual(idx_sum.at(1).get('uptime'), 176)
+        self.assertEqual(idx_sum.at(2).get('uptime'), 190)
 
         test_outage = dict(
             name="outages",

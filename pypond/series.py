@@ -163,6 +163,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             msg = 'arg must be a TimeSeries instance or dict'
             raise TimeSeriesException(msg)
 
+        if self._collection.is_chronological() is not True:
+            msg = 'Events supplied to TimeSeries constructor must be chronological'
+            raise TimeSeriesException(msg)
+
     @staticmethod
     def build_metadata(meta):
         """
