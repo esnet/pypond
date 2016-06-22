@@ -29,6 +29,7 @@ from pypond.exceptions import (
 from pypond.functions import Functions
 from pypond.index import Index
 from pypond.indexed_event import IndexedEvent
+from pypond.range import TimeRange
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
 from pypond.util import is_pvector, ms_from_dt, aware_utcnow, dt_from_ms
@@ -244,6 +245,30 @@ class TestTimeSeries(SeriesBase):
         sliced = self._canned_event_series.slice(1, 3)
         self.assertEqual(sliced.size(), 2)
         self.assertTrue(Event.same(sliced.at(0), EVENT_LIST[1]))
+
+    def test_cropping(self):
+        """test TimeSeries.crop()"""
+
+        crop_data = dict(
+            name="star-cr5:to_anl_ip-a_v4",
+            columns=["time", "in"],
+            points=[
+                [1400425947000, 52],
+                [1400425948000, 18],
+                [1400425949000, 26],
+                [1400425950000, 93],
+                [1400425951000, 99],
+                [1400425952000, 100],
+            ]
+        )
+
+        series = TimeSeries(crop_data)
+        new_range = TimeRange(1400425948000, 1400425951000)
+        new_series = series.crop(new_range)
+
+        self.assertEqual(new_series.size(), 3)
+        self.assertEqual(new_series.at(0).data().get('in'), 18)
+        self.assertEqual(new_series.at(2).data().get('in'), 93)
 
     def test_data_accessors(self):
         """methods to get metadata and such."""

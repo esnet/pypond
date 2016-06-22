@@ -373,6 +373,25 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         sliced = self._collection.slice(begin, end)
         return self.set_collection(sliced)
 
+    def crop(self, timerange):
+        """Crop the TimeSeries to the specified TimeRange and return
+        a new TimeSeries
+
+        Parameters
+        ----------
+        timerange : TimeRange
+            Bounds of the new TimeSeries
+
+        Returns
+        -------
+        TimeSeries
+            The new cropped TimeSeries instance.
+        """
+
+        begin = self.bisect(timerange.begin())
+        end = self.bisect(timerange.end(), begin)
+        return self.slice(begin, end)
+
     def clean(self, field_spec):
         """
         Returns a new TimeSeries by testing the field_spec
