@@ -314,6 +314,34 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return iter(self._event_list)
 
+    def set_events(self, events):
+        """Create a new Collection from this one and set the internal
+        list of events
+
+        Parameters
+        ----------
+        events : list or pyrsistent.pvector
+            A list of events
+
+        Returns
+        -------
+        Collection
+            Returns a new collection with the event list set to the
+            everts arg
+
+        Raises
+        ------
+        CollectionException
+            Raised if wrong arg type.
+        """
+        if not isinstance(events, list) and not is_pvector(events):
+            msg = 'arg must be a list or pvector'
+            raise CollectionException(msg)
+
+        ret = Collection(self)
+        ret._event_list = events  # pylint: disable=protected-access
+        return ret
+
     def event_list(self):
         """Returns the raw Immutable event list.
 
@@ -333,6 +361,41 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             Thawed version of internal immutable data structure.
         """
         return thaw(self.event_list())
+
+    def sort_by_time(self):
+        """Return a new instance of this collection after making sure
+        that all of the events are sorted by timestamp.
+
+        Returns
+        -------
+        Collection
+            A copy of this collection with the events chronologically
+            sorted.
+        """
+        ordered = sorted(self._event_list, key=lambda x: x.ts)
+        return self.set_events(ordered)
+
+    def is_chronological(self):
+        """Checks that the events in this collection are in chronological
+        order.
+
+        Returns
+        -------
+        bool
+            True if events are in chronologcal order.
+        """
+        ret = True
+        current_ts = None
+
+        for i in self._event_list:
+            if current_ts is None:
+                current_ts = i.timestamp()
+            else:
+                if i.timestamp() < current_ts:
+                    ret = False
+                current_ts = i.timestamp()
+
+        return ret
 
     # Series range
 

@@ -541,6 +541,20 @@ class TestCollection(SeriesBase):
             self.assertTrue(issubclass(wrn[0].category, CollectionWarning))
             self.assertEqual(bad_col.size(), 0)
 
+    def test_sort_by_time(self):
+        """test Collection.sort_by_time()"""
+
+        reversed_events = [EVENT_LIST[2], EVENT_LIST[1], EVENT_LIST[0]]
+
+        bad_order = Collection(reversed_events)
+        self.assertNotEqual(bad_order.event_list_as_list(), EVENT_LIST)
+        self.assertFalse(bad_order.is_chronological())
+
+        good_order = bad_order.sort_by_time()
+
+        self.assertEqual(good_order.event_list_as_list(), EVENT_LIST)
+        self.assertTrue(good_order.is_chronological())
+
     def test_other_exceptions(self):
         """trigger other exceptions"""
         with self.assertRaises(PipelineException):

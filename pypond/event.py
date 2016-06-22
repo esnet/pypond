@@ -205,6 +205,21 @@ class EventBase(PypondBase):
         """
         raise NotImplementedError  # pragma: nocover
 
+    @property
+    def ts(self):
+        """A property to expose the datetime.datetime value returned
+        by the timestamp() method.  This is so we can support sorting
+        of a list of events via the following method:
+
+            ordered = sorted(self._event_list, key=lambda x: x.ts)
+
+        Returns
+        -------
+        datetime.datetime
+            Returns the value returned by timestamp()
+        """
+        return self.timestamp()
+
     # static methods, primarily for arg processing.
 
     @staticmethod
