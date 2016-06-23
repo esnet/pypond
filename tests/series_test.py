@@ -342,12 +342,13 @@ class TestTimeSeries(SeriesBase):
         t_in = TimeSeries(TRAFFIC_DATA_IN)
         t_out = TimeSeries(TRAFFIC_DATA_OUT)
 
-        t_merged = TimeSeries.merge(dict(name='traffic'), [t_in, t_out])
+        t_merged = TimeSeries.timeseries_list_merge(dict(name='traffic'), [t_in, t_out])
 
         self.assertEqual(t_merged.at(2).get('in'), 26)
         self.assertEqual(t_merged.at(2).get('out'), 67)
 
-        t_summed = TimeSeries.sum_list(dict(name='traffic'), [t_in, t_in], 'in')
+        t_summed = TimeSeries.timeseries_list_sum(
+            dict(name='traffic'), [t_in, t_in], 'in')
 
         self.assertEqual(t_summed.at(0).get('in'), 104)
         self.assertEqual(t_summed.at(1).get('in'), 36)
@@ -374,7 +375,8 @@ class TestTimeSeries(SeriesBase):
         )
 
         t_idx = TimeSeries(test_idx_data)
-        idx_sum = TimeSeries.sum_list(dict(name='available'), [t_idx, t_idx], 'uptime')
+        idx_sum = TimeSeries.timeseries_list_sum(
+            dict(name='available'), [t_idx, t_idx], 'uptime')
         self.assertEqual(idx_sum.at(0).get('uptime'), 200)
         self.assertEqual(idx_sum.at(1).get('uptime'), 176)
         self.assertEqual(idx_sum.at(2).get('uptime'), 190)
@@ -389,7 +391,8 @@ class TestTimeSeries(SeriesBase):
         )
 
         t_tr = TimeSeries(test_outage)
-        tr_sum = TimeSeries.sum_list(dict(name='outage length'), [t_tr, t_tr], 'length')
+        tr_sum = TimeSeries.timeseries_list_sum(
+            dict(name='outage length'), [t_tr, t_tr], 'length')
         self.assertEqual(tr_sum.at(0).get('length'), 46)
         self.assertEqual(tr_sum.at(1).get('length'), 108)
 
