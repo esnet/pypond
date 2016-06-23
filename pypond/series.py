@@ -448,31 +448,6 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         cleaned = self._collection.clean(field_spec)
         return self.set_collection(cleaned)
 
-    def collapse(self, field_spec_list, name, reducer, append=True):
-        """
-        Takes a fieldSpecList (list of column names) and collapses
-        them to a new column which is the reduction of the matched columns
-        in the fieldSpecList.
-
-        Parameters
-        ----------
-        field_spec_list : list
-            List of columns to collapse
-        name : str
-            Name of new column containing collapsed values.
-        reducer : Function to pass to reducer.
-            function
-        append : bool, optional
-            Append collapsed column to existing data or fresh data payload.
-
-        Returns
-        -------
-        TimeSeries
-            A new time series from the collapsed columns.
-        """
-        collapsed = self._collection.collapse(field_spec_list, name, reducer, append)
-        return self.set_collection(collapsed)
-
     def events(self):
         """
         Generator to allow for..of loops over series.events()
@@ -794,6 +769,31 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             the select operation.
         """
         raise NotImplementedError
+
+    def collapse(self, field_spec_list, name, reducer, append=True):
+        """
+        Takes a fieldSpecList (list of column names) and collapses
+        them to a new column which is the reduction of the matched columns
+        in the fieldSpecList.
+
+        Parameters
+        ----------
+        field_spec_list : list
+            List of columns to collapse
+        name : str
+            Name of new column containing collapsed values.
+        reducer : Function to pass to reducer.
+            function
+        append : bool, optional
+            Append collapsed column to existing data or fresh data payload.
+
+        Returns
+        -------
+        TimeSeries
+            A new time series from the collapsed columns.
+        """
+        collapsed = self._collection.collapse(field_spec_list, name, reducer, append)
+        return self.set_collection(collapsed)
 
     def __str__(self):
         """call to_string()"""
