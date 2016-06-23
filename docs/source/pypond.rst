@@ -60,6 +60,14 @@ pypond.indexed_event module
     :undoc-members:
     :show-inheritance:
 
+pypond.pipeline module
+----------------------
+
+.. automodule:: pypond.pipeline
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pypond.range module
 -------------------
 
