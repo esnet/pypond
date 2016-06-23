@@ -311,6 +311,42 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.at(i)
 
+    def at_time(self, time):
+        """Return an event in the series by its time. This is the same
+        as calling `bisect` first and then using `at` with the index.
+
+        Parameters
+        ----------
+        time : datetime.datetime
+            A datetime object
+
+        Returns
+        -------
+        Event
+            The event at the designated time.
+        """
+        return self._collection.at_time(time)
+
+    def at_first(self):
+        """Return first event in the series
+
+        Returns
+        -------
+        Event
+            The first event in the series.
+        """
+        return self._collection.at_first()
+
+    def at_last(self):
+        """Return last event in the series
+
+        Returns
+        -------
+        Event
+            The last event in the series.
+        """
+        return self._collection.at_last()
+
     def set_collection(self, coll):
         """Sets a new underlying collection for this TimeSeries.
 

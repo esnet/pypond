@@ -297,11 +297,9 @@ class TestTimeSeries(SeriesBase):
 
         self.assertEqual(self._canned_event_series.size_valid('in'), 3)
 
-        # differently ordered in python3 and is a bad test anyways
-        # self.assertEqual(
-        #     str(self._canned_event_series),
-        #     '{"utc": true, "points": [[1429673400000, 1, 2], [1429673460000, 3, 4], [1429673520000, 5, 6]], "name": "collection", "columns": ["time", "in", "out"]}'  # pylint: disable=line-too-long
-        # )
+        # at_first() and at_last()
+        self.assertTrue(Event.same(self._canned_event_series.at_first(), EVENT_LIST[0]))
+        self.assertTrue(Event.same(self._canned_event_series.at_last(), EVENT_LIST[2]))
 
     def test_underlying_methods(self):
         """basically aliases for underlying collection methods."""
