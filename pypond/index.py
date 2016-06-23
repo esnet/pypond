@@ -471,3 +471,15 @@ class Index(PypondBase):
                 pos += 1
 
         return idx_list
+
+    @staticmethod
+    def get_daily_index_string(date, utc=True):
+        pass
+
+    @staticmethod
+    def get_monthly_index_string(date, utc=True):
+        pass
+
+    @staticmethod
+    def get_yearly_index_string(date, utc=True):
+        pass
