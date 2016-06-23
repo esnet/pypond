@@ -297,9 +297,13 @@ class TestTimeSeries(SeriesBase):
 
         self.assertEqual(self._canned_event_series.size_valid('in'), 3)
 
-        # at_first() and at_last()
+        # at_first() and at_last() and at_time()
         self.assertTrue(Event.same(self._canned_event_series.at_first(), EVENT_LIST[0]))
         self.assertTrue(Event.same(self._canned_event_series.at_last(), EVENT_LIST[2]))
+
+        ref_dtime = EVENT_LIST[1].timestamp() + datetime.timedelta(seconds=3)
+        self.assertTrue(Event.same(self._canned_event_series.at_time(ref_dtime),
+            EVENT_LIST[1]))
 
     def test_underlying_methods(self):
         """basically aliases for underlying collection methods."""
