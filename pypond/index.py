@@ -23,6 +23,7 @@ from .util import (
     aware_dt_from_args,
     dt_from_ms,
     localtime_from_ms,
+    localtime_info_from_utc,
     monthdelta,
     ms_from_dt,
     sanitize_dt,
@@ -474,12 +475,63 @@ class Index(PypondBase):
 
     @staticmethod
     def get_daily_index_string(date, utc=True):
-        pass
+        """Generate an index string with day granularity.
+
+        Parameters
+        ----------
+        date : datetime.datetime
+            An aware UTC datetime object
+        utc : bool, optional
+            Render the index in local time this is used for display purposes
+            to render charts in a localized way.
+
+        Returns
+        -------
+        string
+            The formatted index string.
+        """
+        year = date.year if utc else localtime_info_from_utc(date).get('year')
+        month = date.strftime('%m') if utc else localtime_info_from_utc(date).get('month')
+        day = date.strftime('%d') if utc else localtime_info_from_utc(date).get('day')
+        return '{y}-{m}-{d}'.format(y=year, m=month, d=day)
 
     @staticmethod
     def get_monthly_index_string(date, utc=True):
-        pass
+        """Generate an index string with month granularity.
+
+        Parameters
+        ----------
+        date : datetime.datetime
+            An aware UTC datetime object
+        utc : bool, optional
+            Render the index in local time this is used for display purposes
+            to render charts in a localized way.
+
+        Returns
+        -------
+        string
+            The formatted index string.
+        """
+        year = date.year if utc else localtime_info_from_utc(date).get('year')
+        month = date.strftime('%m') if utc else localtime_info_from_utc(date).get('month')
+        return '{y}-{m}'.format(y=year, m=month)
 
     @staticmethod
     def get_yearly_index_string(date, utc=True):
-        pass
+        """Generate an index string with year granularity.
+
+        Parameters
+        ----------
+        date : datetime.datetime
+            An aware UTC datetime object
+        utc : bool, optional
+            Render the index in local time this is used for display purposes
+            to render charts in a localized way.
+
+        Returns
+        -------
+        string
+            The formatted index string.
+        """
+        year = date.year if utc else localtime_info_from_utc(date).get('year')
+        return '{y}'.format(y=year)

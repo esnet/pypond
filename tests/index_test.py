@@ -250,5 +250,14 @@ class TestIndexStaticMethods(BaseTestIndex):
         self.assertEqual(idx_list[0], '5m-4754394')
         self.assertEqual(idx_list[-1], '5m-4754405')
 
+    def test_formatted_index_strings(self):
+        """test the staic methods to return date strings."""
+        dtime = aware_dt_from_args(
+            dict(year=2016, month=1, day=1, hour=1, minute=0))
+        self.assertEqual(Index.get_yearly_index_string(dtime), '2016')
+        self.assertEqual(Index.get_monthly_index_string(dtime), '2016-01')
+        self.assertEqual(Index.get_daily_index_string(dtime), '2016-01-01')
+
+
 if __name__ == '__main__':
     unittest.main()

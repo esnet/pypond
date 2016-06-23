@@ -98,6 +98,35 @@ def localtime_from_ms(msec):
     return datetime.datetime.fromtimestamp(msec / 1000.0, LOCAL_TZ)
 
 
+def localtime_info_from_utc(dtime):
+    """Extract local TZ formatted values from an aware UTC datetime object.
+    This is used by the index string methods when grouping data for
+    local display.
+
+    Parameters
+    ----------
+    dtime : datetime.datetime
+        An aware UTC datetime object
+
+    Returns
+    -------
+    dict
+        A dict with formatted elements (zero-padded months, etc) extracted
+        from the local version.
+    """
+    _check_dt(dtime)
+
+    local = dtime.astimezone(LOCAL_TZ)
+
+    local_info = dict(
+        year=local.year,
+        month=local.strftime('%m'),
+        day=local.strftime('%d'),
+    )
+
+    return local_info
+
+
 def aware_dt_from_args(dtargs, localize=False):
     """
     generate an aware datetime object using datetime.datetime kwargs.
