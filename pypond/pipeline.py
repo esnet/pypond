@@ -126,42 +126,125 @@ class Pipeline(PypondBase):
         """New pipeline."""
         super(Pipeline, self).__init__()
 
+    # Accessors to the current Pipeline state
 
+    def input(self):
+        """Originally called in() in JS code."""
+        return self._d.get('in')
 
+    def mode(self):
+        return self._d.get('mode')
 
+    def first(self):
+        return self._d.get('first')
 
+    def last(self):
+        return self._d.get('last')
 
+    def get_window_type(self):
+        return self._d.get('windowType')
 
+    def get_window_duration(self):
+        return self._d.get('windowDuration')
 
+    def get_group_by(self):
+        return self._d.get('groupBy')
 
+    def get_emit_on(self):
+        return self._d.get('emitOn')
 
+    # Results
 
+    def clear_results(self):
+        raise NotImplementedError
 
+    def add_result(self, arg1, arg2):
+        raise NotImplementedError
 
+    def results_done(self):
+        raise NotImplementedError
 
+    # Pipeline mutations
 
+    def _set_in(self, input):
+        raise NotImplementedError
 
+    def _set_first(self, i):
+        raise NotImplementedError
 
+    def _set_last(self, i):
+        raise NotImplementedError
 
+    def _append(self, processor):
+        raise NotImplementedError
 
+    # Pipeline state chained methods
 
+    def window_by(self, win):
+        raise NotImplementedError
 
+    def clear_window(self):
+        raise NotImplementedError
 
+    def group_by(self, key):
+        raise NotImplementedError
 
+    def clear_group_by(self):
+        raise NotImplementedError
 
+    def emit_on(self, trigger):
+        raise NotImplementedError
 
+    def from_source(self, src):
+        """originally named from() in JS code."""
+        raise NotImplementedError
 
+    def to_event_list(self):
+        raise NotImplementedError
 
+    def to_keyed_collections(self):
+        raise NotImplementedError
 
+    def to(self):
+        raise NotImplementedError
 
+    def count(self):
+        raise NotImplementedError
 
+    def offset_by(self, by, field_spec):
+        raise NotImplementedError
 
+    def aggregate(self, fields):
+        raise NotImplementedError
 
+    def as_events(self, options):
+        raise NotImplementedError
 
+    def map(self, op):  # pylint: disable=invalid-name
+        raise NotImplementedError
 
+    def filter(self, op):  # pylint: disable=invalid-name
+        raise NotImplementedError
 
+    def select(self, field_spec):
+        raise NotImplementedError
 
+    def collapse(self, field_spec, name, reducer, append):
+        raise NotImplementedError
 
+    def take(self, limit):
+        raise NotImplementedError
 
+    def as_time_range_events(self, options):
+        raise NotImplementedError
 
+    def as_indexed_events(self, options):
+        raise NotImplementedError
 
+# module functions
+
+def pipeline(args):
+    return Pipeline(args)
+
+def is_pipeline(pline):
+    return isinstance(pline, Pipeline)
