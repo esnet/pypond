@@ -123,4 +123,20 @@ class TimeSeriesWarning(Warning):
     pass
 
 
+class ProcessorException(Exception):
+    """Custom Processor exception"""
+
+    def __init__(self, value):
+        # pylint: disable=super-init-not-called
+        self.value = value
+
+    def __str__(self):  # pragma: no cover
+        return repr(self.value)
+
+
+class ProcessorWarning(Warning):
+    """Custom Processor warning"""
+    pass
+
+
 NAIVE_MESSAGE = 'non-naive (aware) datetime objects required'

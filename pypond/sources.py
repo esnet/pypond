@@ -7,13 +7,14 @@
 #  LICENSE file in the root directory of this source tree.
 
 """
-Base classes and components of pipeline sources.
+Base classes and components of pipeline sources and processors.
 """
 
 from .event import Event
 from .bases import Observable
 from .exceptions import PipelineException
 from .indexed_event import IndexedEvent
+from .pipeline import is_pipeline
 from .timerange_event import TimeRangeEvent
 from .util import unique_id
 
@@ -83,3 +84,53 @@ class BoundedIn(In):
 class UnboundedIn(In):
     """For the pipeline - a source that has no container of its own."""
     pass
+
+
+# Base for all pipeline processors
+
+def add_prev_to_chain(n, chain):  # pylint: disable=invalid-name
+    """
+    Recursive function to add values to the chain.
+    """
+    chain.append(n)
+    if is_pipeline(n.prev()):
+        chain.append(n.prev().input())
+        return chain
+    else:
+        add_prev_to_chain(n.prev(), chain)
+
+
+class Processor(Observable):
+    """
+    Base class for all pipeline processors.
+    """
+
+    def __init__(self, arg1, options):
+        super(Processor, self).__init__()
+
+        self._pipeline = None
+        self._prev = None
+
+        if is_pipeline(arg1):
+            self._pipeline = arg1
+            self._prev = options.prev
+
+    def prev(self):
+        """Return prev"""
+        return self._prev
+
+    def pipeline(self):
+        """Return the pipeline"""
+        return self._pipeline
+
+    def chain(self):
+        """Return the chain"""
+        chain = [self]
+
+        if is_pipeline(self.prev()):
+            chain.append(self.prev().input())
+            return chain
+        else:
+            return add_prev_to_chain(self.prev(), chain)
+
+    # flush() is inherited from Observable

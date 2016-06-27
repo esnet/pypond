@@ -95,6 +95,46 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
         # set to false (the default) this is never called.
         pass
 
+# Encapsulation object for Pipeline/etc options.
+
+
+class Options(object):  # pylint: disable=too-few-public-methods
+    """
+    Encapsulation object for Pipeline options.
+
+    Example::
+
+        o = Options(foo='bar')
+
+        and
+
+        o = Options()
+        o.foo = 'bar'
+
+        Are identical.
+
+    Parameters
+    ----------
+    initial : dict, optional
+        Can supply a dict of initial values.
+    """
+
+    def __init__(self, **kwargs):
+        """Encapsulation object for Pipeline options."""
+        self.__dict__['_data'] = {}
+
+        if kwargs:
+            self.__dict__['_data'] = kwargs
+
+    def __getattr__(self, name):
+        return self._data.get(name, None)
+
+    def __setattr__(self, name, value):
+        self.__dict__['_data'][name] = value
+
+    def to_dict(self):  # pylint: disable=missing-docstring
+        return self._data
+
 
 class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
     """
@@ -122,7 +162,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Description
     """
 
-    def __init__(self, arg):
+    def __init__(self, arg=None):
         """New pipeline."""
         super(Pipeline, self).__init__()
 
@@ -343,7 +383,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
     def to_keyed_collections(self):
         raise NotImplementedError
 
-    def to(self, out, observer, options=None):  # pylint: disable=invalid-name, dangerous-default-value
+    def to(self, out, observer, options=Options()):  # pylint: disable=invalid-name
         """
         Sets up the destination sink for the pipeline.
 
@@ -371,7 +411,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             The output.
         observer : function or instance
             The observer.
-        options : dict, optional
+        options : Options, optional
             Options.
 
         Returns
@@ -458,13 +498,13 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         There are three options:
 
-        1. use the beginning time (options = {'alignment': "lag"})
-        2. use the center time (options = {'alignment': "center"})
-        3. use the end time (options = {'alignment': "lead"})
+        1. use the beginning time (options = Options(alignment='lag')
+        2. use the center time (options = Options(alignment='center')
+        3. use the end time (options = Options(alignment='lead')
 
         Parameters
         ----------
-        options : dict
+        options : Options
             The options, see above.
 
         Returns
@@ -568,15 +608,18 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         There are three option for alignment:
 
-        1. time range will be in front of the timestamp (options = {'alignment': "front"})
-        2. time range will be centered on the timestamp (options = {'alignment': "center"})
-        3. time range will be positoned behind the timestamp (options = {'alignment': "behind"})
+        1. time range will be in front of the timestamp - ie:
+           options = Options(alignment='front')
+        2. time range will be centered on the timestamp - ie:
+           options = Options(alignment='center')
+        3. time range will be positoned behind the timestamp - ie:
+           options = Options(alignment='behind')
 
         The duration is of the form "1h" for one hour, "30s" for 30 seconds and so on.
 
         Parameters
         ----------
-        options : dict
+        options : Options
             Options - see above.
 
         Returns
@@ -595,7 +638,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        options : dict
+        options : Options
             Contains the conversion options. In this case, the duration string
             of the Index is expected. Must contain the key 'duration' and the
             duration string is of the form "1h" for one hour, "30s" for 30
@@ -625,4 +668,3 @@ def is_pipeline(pline):
     """Boolean test to see if something is a Pipeline instance."""
     return isinstance(pline, Pipeline)
 
-    return isinstance(pline, Pipeline)
