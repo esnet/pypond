@@ -14,7 +14,6 @@ from .event import Event
 from .bases import Observable
 from .exceptions import PipelineException
 from .indexed_event import IndexedEvent
-from .pipeline import is_pipeline
 from .timerange_event import TimeRangeEvent
 from .util import unique_id
 
@@ -93,6 +92,10 @@ def add_prev_to_chain(n, chain):  # pylint: disable=invalid-name
     Recursive function to add values to the chain.
     """
     chain.append(n)
+
+    # need to avoid circular imports
+    from .pipeline import is_pipeline
+
     if is_pipeline(n.prev()):
         chain.append(n.prev().input())
         return chain
@@ -111,6 +114,9 @@ class Processor(Observable):
         self._pipeline = None
         self._prev = None
 
+        # need to avoid circular imports
+        from .pipeline import is_pipeline
+
         if is_pipeline(arg1):
             self._pipeline = arg1
             self._prev = options.prev
@@ -126,6 +132,9 @@ class Processor(Observable):
     def chain(self):
         """Return the chain"""
         chain = [self]
+
+        # need to avoid circular imports
+        from .pipeline import is_pipeline
 
         if is_pipeline(self.prev()):
             chain.append(self.prev().input())
