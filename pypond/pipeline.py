@@ -474,7 +474,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         raise NotImplementedError
 
-    def offset_by(self, offset_by, field_spec):
+    def offset_by(self, offset_by, field_spec='value'):
         """
         Processor to offset a set of fields by a value. Mostly used for
         testing processor and pipeline operations with a simple operation.

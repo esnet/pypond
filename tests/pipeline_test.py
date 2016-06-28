@@ -42,7 +42,7 @@ class TestOffsetPipeline(BaseTestPipeline):
         out = None
         timeseries = TimeSeries(DATA)
 
-        p1 = Pipeline().from_source(timeseries.collection()).offset_by(1, 'value')
+        p1 = Pipeline().from_source(timeseries.collection()).offset_by(1, 'value').offset_by(2)
 
 if __name__ == '__main__':
     unittest.main()
