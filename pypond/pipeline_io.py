@@ -51,6 +51,15 @@ class Collector(PypondBase):
         self._collections = dict()
 
 
+    def flush_collections(self):
+        raise NotImplementedError
+
+    def emit_collections(self, collection):
+        raise NotImplementedError
+
+    def add_event(self, event):
+        raise NotImplementedError
+
 #
 # Output classes
 #
@@ -110,13 +119,13 @@ class CollectionOut(PipelineOut):
             k = '--'.join(keys) if len(keys) > 0 else 'all'
             self._pipeline.add_result(k, collection)
 
-    # def add_event(self, event):
-    #     self._collector.add_event(event)
+    def add_event(self, event):
+        self._collector.add_event(event)
 
     def on_emit(self, callback):
         self._callback = callback
 
-    # def flush(self):
-    #     self._collector.flush_collections()
-    #     if self._callback is None:
-    #         self._pipeline.results_done()
+    def flush(self):
+        self._collector.flush_collections()
+        if self._callback is None:
+            self._pipeline.results_done()
