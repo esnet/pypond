@@ -53,7 +53,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         new object has an emtpy event list.
     """
 
-    def __init__(self, instance_or_list, copy_events=True):
+    def __init__(self, instance_or_list=None, copy_events=True):
         """
         Create a collection object.
         """
@@ -63,7 +63,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         self._event_list = None
         self._type = None
 
-        if isinstance(instance_or_list, Collection):
+        if instance_or_list is None:
+            self._event_list = freeze(list())
+        elif isinstance(instance_or_list, Collection):
             other = instance_or_list
             if copy_events:
                 # pylint: disable=protected-access
