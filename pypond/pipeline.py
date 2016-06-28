@@ -18,7 +18,7 @@ from .bases import PypondBase
 from .exceptions import PipelineException
 from .offset import Offset
 from .series import TimeSeries
-from .sources import BoundedIn, UnboundedIn
+from .sources import BoundedIn, UnboundedIn, Processor
 from .util import is_pmap, Options
 
 
@@ -68,6 +68,8 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
 
         self._pipeline = pline
         self._output = output
+        self._input = None
+        self._execution_chain = list()
 
         # We use the pipeline's chain() function to walk the
         # DAG back up the tree to the "in" to:
@@ -78,11 +80,31 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
         # NOTE: we do not currently support merging, so this is
         # a linear chain.
 
+        process_chain = list()
+
+        if self._pipeline.last() is not None:
+            process_chain = self._pipeline.last().chain()
+            self._input = process_chain[0].pipeline().input()
+        else:
+            self._input = self._pipeline.input()
+
         # Using the list of nodes in the tree that will be involved in
         # our processing we can build an execution chain. This is the
         # chain of processor clones, linked together, for our specific
         # processing pipeline. We run this execution chain later by
         # evoking start().
+
+        self._execution_chain = [self._output]
+
+        prev = self._output
+
+        for i in process_chain:
+            if isinstance(i, Processor):
+                processor = i.clone()
+                if prev is not None:
+                    processor.add_observer(prev)
+                    self._execution_chain.append(processor)
+                    prev = processor
 
     def start(self, force=False):
         """Start the runner
@@ -92,15 +114,22 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
             to cause any buffers to emit.
         """
         # Clear any results ready for the run
+        self._pipeline.clear_results()
 
         # The head is the first process node in the execution chain.
         # To process the source through the execution chain we add
         # each event from the input to the head.
 
+        head = self._execution_chain.pop()
+        for i in self._input.events():
+            head.add_event(i)
+
         # The runner indicates that it is finished with the bounded
         # data by sending a flush() call down the chain. If force is
         # set to false (the default) this is never called.
-        pass
+
+        if force is True:
+            head.flush()
 
 
 def default_callback():
@@ -160,6 +189,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             )
 
         self._results = list()
+        self._results_done = False
 
     # Accessors to the current Pipeline state
 
@@ -191,13 +221,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
     # Results
 
     def clear_results(self):
-        raise NotImplementedError
+        """Clear the result state of this Pipeline instance."""
+        self._results = None
+        self._results_done = False
 
     def add_result(self, arg1, arg2):
         raise NotImplementedError
 
     def results_done(self):
-        raise NotImplementedError
+        """Set result state as done."""
+        self._results_done = True
 
     #
     # Pipeline mutations
@@ -440,7 +473,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        out : EventOut, etc instance
+        out : EventOut, CollectionOut, etc instance
             The output.
         observer : function or instance
             The observer.
@@ -452,7 +485,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+        Out = out  # pylint: disable=invalid-name
+
+        if self.input() is None:
+            msg = 'Tried to eval pipeline without a In. Missing from() in chain?'
+            raise PipelineException(msg)
+
+        out = Out(self, observer, options)
+
+        if self.mode() == 'batch':
+            runner = Runner(self, out)
+            runner.start(True)
+
+        return self
 
     def count(self, observer, force=True):
         """

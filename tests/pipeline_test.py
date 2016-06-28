@@ -1,10 +1,16 @@
 """
 Tests for the pipeline.
+
+Attributes
+----------
+DATA : TYPE
+    Description
 """
 
 import unittest
 
 from pypond.pipeline import Pipeline
+from pypond.pipeline_io import CollectionOut
 from pypond.series import TimeSeries
 
 DATA = dict(
@@ -27,6 +33,11 @@ class BaseTestPipeline(unittest.TestCase):
     def setUp(self):
         """
         Common setup stuff.
+
+        Returns
+        -------
+        TYPE
+            Description
         """
         self._void_pipeline = Pipeline()
 
@@ -38,11 +49,21 @@ class TestOffsetPipeline(BaseTestPipeline):
     """
 
     def test_simple_offset_chain(self):
-        """test a simple offset chain."""
+        """test a simple offset chain.
+
+        Returns
+        -------
+        TYPE
+            Description
+        """
         out = None
         timeseries = TimeSeries(DATA)
 
-        p1 = Pipeline().from_source(timeseries.collection()).offset_by(1, 'value').offset_by(2)
+        pip1 = Pipeline().from_source(
+            timeseries.collection()).offset_by(1, 'value').offset_by(2).to(
+                CollectionOut, out)
+
+        print(pip1._d)
 
 if __name__ == '__main__':
     unittest.main()

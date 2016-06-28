@@ -56,7 +56,7 @@ class Observable(PypondBase):
     def emit(self, event):
         """add event to observers."""
         for i in self._observers:
-            i.addEvent(event)
+            i.add_event(event)
 
     def flush(self):
         """flush observers."""
