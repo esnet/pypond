@@ -132,7 +132,7 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
             head.flush()
 
 
-def default_callback():
+def default_callback(*args):  # pylint: disable=unused-argument
     """Default no-op callback for group_by in the Pipeline constructor."""
     return ''
 
@@ -207,16 +207,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         return self._d.get('last')
 
     def get_window_type(self):
-        return self._d.get('windowType')
+        return self._d.get('window_type')
 
     def get_window_duration(self):
-        return self._d.get('windowDuration')
+        return self._d.get('window_duration')
 
     def get_group_by(self):
-        return self._d.get('groupBy')
+        return self._d.get('group_by')
 
     def get_emit_on(self):
-        return self._d.get('emitOn')
+        return self._d.get('emit_on')
 
     # Results
 

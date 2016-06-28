@@ -11,7 +11,9 @@ Objects to handle Pipeline I/O.
 """
 
 from .bases import PypondBase
-from .util import unique_id, Options
+from .collection import Collection
+from .exceptions import PipelineIOException
+from .util import unique_id, Options, Capsule
 
 #
 # The collector
@@ -58,7 +60,69 @@ class Collector(PypondBase):
         raise NotImplementedError
 
     def add_event(self, event):
-        raise NotImplementedError
+
+        ts = event.timestamp()
+
+        # window_key
+        window_key = None
+
+        if self._window_type == 'fixed':
+            pass
+        elif self._window_type == 'daily':
+            pass
+        elif self._window_type == 'monthly':
+            pass
+        elif self._window_type == 'yearly':
+            pass
+        else:
+            window_key = self._window_type
+
+        # groupby key
+        group_by_key = self._group_by(event)
+
+        # collection key
+
+        collection_key = '{wk}::{gbk}'.format(wk=window_key, gbk=group_by_key) if \
+            group_by_key is not None else window_key
+
+        discard = False
+
+        if collection_key not in self._collections:
+            self._collections[collection_key] = Capsule(
+                window_key=window_key,
+                group_by_key=group_by_key,
+                collection=Collection(),
+            )
+            discard = True
+
+        self._collections[collection_key].collection = \
+            self._collections[collection_key].collection.add_event(event)
+
+        # if fixed windows, collect together old collections that
+        # will be discarded.
+
+        discards = dict()
+
+        if discard is True and self._window_type == 'fixed':
+            for k, v in list(self._collections.items()):
+                if v.window_key == window_key:
+                    discards[k] = v
+
+        # emit
+
+        print(self._emit_on)
+
+        if self._emit_on == 'each_event':
+            self.emit_collections(self._collections)
+        elif self._emit_on == 'discard':
+            self.emit_collections(discards)
+            for k in list(discards.keys()):
+                self._collections.pop(k, None)
+        elif self._emit_on == 'flush':
+            pass
+        else:
+            msg = 'Unknown emit type supplied to Collector'
+            raise PipelineIOException(msg)
 
 #
 # Output classes

@@ -453,6 +453,16 @@ class Options(object):  # pylint: disable=too-few-public-methods
     def to_dict(self):  # pylint: disable=missing-docstring
         return self._data
 
+
+class Capsule(Options):  # pylint: disable=too-few-public-methods
+    """
+    Straight subclass of Options so there is no confusion between this
+    and the pipeline Options. Employing this to mimic the Javascript
+    Object in cases where using a Python dict would cause confusion
+    porting the code.
+    """
+    pass
+
 # test types
 
 

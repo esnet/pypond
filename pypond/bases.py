@@ -61,7 +61,7 @@ class Observable(PypondBase):
     def flush(self):
         """flush observers."""
         for i in self._observers:
-            if issubclass(i, Observable):
+            if isinstance(i, Observable):
                 i.flush()
 
     def add_observer(self, observer):
