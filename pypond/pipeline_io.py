@@ -112,7 +112,7 @@ class Collector(PypondBase):
 
         print(self._emit_on)
 
-        if self._emit_on == 'each_event':
+        if self._emit_on == 'eachEvent':  # keeping mixedCase tokens for consistancy.
             self.emit_collections(self._collections)
         elif self._emit_on == 'discard':
             self.emit_collections(discards)
