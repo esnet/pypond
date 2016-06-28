@@ -243,7 +243,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         raise NotImplementedError
 
     def _append(self, processor):
-        raise NotImplementedError
+        first = self.first()
+        last = self.last()
+
+        if first is None:
+            first = processor
+        if last is not None:
+            last.add_observer(processor)
+
+        last = processor
+
+        new_d = self._d.update({'first': first, 'last': last})
+
+        return Pipeline(new_d)
 
     # Pipeline state chained methods
 
