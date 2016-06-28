@@ -65,7 +65,7 @@ class Offset(Processor):
 
     def add_event(self, event):
         """
-        Output an even that is offset
+        Output an even that is offset by a certain value.
 
         Parameters
         ----------
