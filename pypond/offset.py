@@ -12,8 +12,8 @@ Offset is a simple processor used by the testing code to verify Pipeline behavio
 
 from .event import Event
 from .exceptions import ProcessorException
-from .pipeline import is_pipeline, Options
 from .sources import Processor
+from .util import Options, is_pipeline
 
 
 class Offset(Processor):

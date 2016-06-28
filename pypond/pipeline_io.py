@@ -11,8 +11,7 @@ Objects to handle Pipeline I/O.
 """
 
 from .bases import PypondBase
-from .pipeline import Options
-from .util import unique_id
+from .util import unique_id, Options
 
 #
 # The collector

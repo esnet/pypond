@@ -413,6 +413,46 @@ class ObjectEncoder(json.JSONEncoder):
 
         return obj
 
+# Encapsulation object for Pipeline/etc options.
+
+
+class Options(object):  # pylint: disable=too-few-public-methods
+    """
+    Encapsulation object for Pipeline options.
+
+    Example::
+
+        o = Options(foo='bar')
+
+        and
+
+        o = Options()
+        o.foo = 'bar'
+
+        Are identical.
+
+    Parameters
+    ----------
+    initial : dict, optional
+        Can supply a dict of initial values.
+    """
+
+    def __init__(self, **kwargs):
+        """Encapsulation object for Pipeline options."""
+        self.__dict__['_data'] = {}
+
+        if kwargs:
+            self.__dict__['_data'] = kwargs
+
+    def __getattr__(self, name):
+        return self._data.get(name, None)
+
+    def __setattr__(self, name, value):
+        self.__dict__['_data'][name] = value
+
+    def to_dict(self):  # pylint: disable=missing-docstring
+        return self._data
+
 # test types
 
 
@@ -485,3 +525,27 @@ def is_function(func):
         Is the object a python function?
     """
     return isinstance(func, types.FunctionType)
+
+
+def is_pipeline(obj):
+    """Test if something is a Pipeline object. This is put here
+    with a deferred import statement to avoid circular imports
+    so the I/O don't need to import pipeline.py.
+
+    This probably does not need to be deferred but doing it
+    for safety sake.
+
+    Parameters
+    ----------
+    obj : object
+        An object to test to see if it's a Pipeline.
+
+    Returns
+    -------
+    bool
+        True if Pipeline
+    """
+    from .pipeline import Pipeline
+    return isinstance(obj, Pipeline)
+
+

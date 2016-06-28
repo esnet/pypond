@@ -12,7 +12,14 @@ Implementation of the Pond Pipeline classes.
 http://software.es.net/pond/#/pipeline
 """
 
+from pyrsistent import freeze
+
 from .bases import PypondBase
+from .exceptions import PipelineException
+from .offset import Offset
+from .series import TimeSeries
+from .sources import BoundedIn, UnboundedIn
+from .util import is_pmap, Options
 
 
 class Runner(PypondBase):  # pylint: disable=too-few-public-methods
@@ -95,45 +102,10 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
         # set to false (the default) this is never called.
         pass
 
-# Encapsulation object for Pipeline/etc options.
 
-
-class Options(object):  # pylint: disable=too-few-public-methods
-    """
-    Encapsulation object for Pipeline options.
-
-    Example::
-
-        o = Options(foo='bar')
-
-        and
-
-        o = Options()
-        o.foo = 'bar'
-
-        Are identical.
-
-    Parameters
-    ----------
-    initial : dict, optional
-        Can supply a dict of initial values.
-    """
-
-    def __init__(self, **kwargs):
-        """Encapsulation object for Pipeline options."""
-        self.__dict__['_data'] = {}
-
-        if kwargs:
-            self.__dict__['_data'] = kwargs
-
-    def __getattr__(self, name):
-        return self._data.get(name, None)
-
-    def __setattr__(self, name, value):
-        self.__dict__['_data'][name] = value
-
-    def to_dict(self):  # pylint: disable=missing-docstring
-        return self._data
+def default_callback():
+    """Default no-op callback for group_by in the Pipeline constructor."""
+    return ''
 
 
 class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
@@ -165,6 +137,29 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
     def __init__(self, arg=None):
         """New pipeline."""
         super(Pipeline, self).__init__()
+
+        # sorry pylint, that's just how it goes sometimes
+        # pylint: disable=invalid-name, protected-access
+
+        if isinstance(arg, Pipeline):
+            self._d = arg._d
+        elif is_pmap(arg):
+            self._d = arg
+        else:
+            self._d = freeze(
+                dict(
+                    type=None,
+                    input=None,  # renamed from 'in' in the JS source
+                    first=None,
+                    last=None,
+                    group_by=default_callback,
+                    window_type='global',
+                    window_duration=None,
+                    emit_on='eachEvent'
+                )
+            )
+
+        self._results = list()
 
     # Accessors to the current Pipeline state
 
@@ -204,13 +199,32 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
     def results_done(self):
         raise NotImplementedError
 
+    #
     # Pipeline mutations
+    #
 
-    def _set_in(self, input):
+    def _set_in(self, pipe_in):
         """
         Setting the In for the Pipeline returns a new Pipeline.
         """
-        raise NotImplementedError
+        mode = None
+        source = pipe_in
+
+        if isinstance(pipe_in, TimeSeries):
+            mode = 'batch'
+            source = pipe_in.collection()
+        elif isinstance(pipe_in, BoundedIn):
+            mode = 'batch'
+        elif isinstance(pipe_in, UnboundedIn):
+            mode = 'stream'
+        else:
+            msg = 'Unknown input type'
+            raise PipelineException(msg)
+
+        new_d = self._d.update({'in': source, 'mode': mode})
+
+        return Pipeline(new_d)
+
 
     def _set_first(self, i):
         """
@@ -375,7 +389,14 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+        if isinstance(src, Pipeline):
+            pipeline_in = src.input()
+            return self._set_in(pipeline_in)
+        elif isinstance(src, (BoundedIn, UnboundedIn)):
+            return self._set_in(src)
+        else:
+            msg = 'from_source() only takes Pipeline, BoundedIn or UnboundedIn'
+            raise PipelineException(msg)
 
     def to_event_list(self):
         raise NotImplementedError
@@ -458,7 +479,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The modified Pipeline.
         """
-        raise NotImplementedError
+        offset = Offset(
+            self,
+            Options(
+                by=offset_by,
+                field_spec=field_spec,
+                prev=self.last() if self.last() else self
+            )
+        )
+
+        return self._append(offset)
 
     def aggregate(self, fields):
         """
