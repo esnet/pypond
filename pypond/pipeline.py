@@ -17,6 +17,7 @@ from pyrsistent import freeze
 from .bases import PypondBase
 from .exceptions import PipelineException
 from .offset import Offset
+from .pipeline_io import CollectionOut
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn, Processor
 from .util import is_pmap, Options
@@ -134,7 +135,7 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
 
 def default_callback(*args):  # pylint: disable=unused-argument
     """Default no-op callback for group_by in the Pipeline constructor."""
-    return ''
+    return None
 
 
 class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
@@ -198,24 +199,73 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         return self._d.get('in')
 
     def mode(self):
+        """Get the pipeline mode (ie: batch, stream).
+
+        Returns
+        -------
+        str
+            The mode.
+        """
         return self._d.get('mode')
 
     def first(self):
+        """Get the first processor
+
+        Returns
+        -------
+        Processor
+            An pipeline processor.
+        """
         return self._d.get('first')
 
     def last(self):
+        """Get the last processor
+
+        Returns
+        -------
+        Processor
+            An pipeline processor.
+        """
         return self._d.get('last')
 
     def get_window_type(self):
+        """Get the window type (global, etc).
+
+        Returns
+        -------
+        str
+            The window type.
+        """
         return self._d.get('window_type')
 
     def get_window_duration(self):
+        """Get the window duration.
+
+        Returns
+        -------
+        str
+            A formatted window duration.
+        """
         return self._d.get('window_duration')
 
     def get_group_by(self):
+        """Get the group by callback.
+
+        Returns
+        -------
+        function
+            Returns the group by function.
+        """
         return self._d.get('group_by')
 
     def get_emit_on(self):
+        """Get the emit on (eachEvent, etc).
+
+        Returns
+        -------
+        str
+            Description
+        """
         return self._d.get('emit_on')
 
     # Results
@@ -226,7 +276,27 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         self._results_done = False
 
     def add_result(self, arg1, arg2):
-        raise NotImplementedError
+        """Add the incoming result from the processor callback.
+
+        Parameters
+        ----------
+        arg1 : str
+            Collection key string.
+        arg2 : Collection or str
+            Generally the incoming collection.
+        """
+        if self._results is None:
+            if isinstance(arg1, str) and arg2 is not None:
+                self._results = dict()
+            else:
+                self._results = list()  # pylint: disable=redefined-variable-type
+
+        if isinstance(arg1, str) and arg2 is not None:
+            self._results[arg1] = arg2
+        else:
+            self._results.append(arg1)
+
+        self._results_done = False
 
     def results_done(self):
         """Set result state as done."""
@@ -257,7 +327,6 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         new_d = self._d.update({'in': source, 'mode': mode})
 
         return Pipeline(new_d)
-
 
     def _set_first(self, i):
         """
@@ -444,12 +513,29 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             raise PipelineException(msg)
 
     def to_event_list(self):
+        """Directly return the results from the processor rather than
+        passing a callback in.
+
+        Returns
+        -------
+        list or dict
+            Returns the _results attribute with events.
+        """
         raise NotImplementedError
 
     def to_keyed_collections(self):
-        raise NotImplementedError
+        """Directly return the results from the processor rather than
+        passing a callback in.
 
-    def to(self, out, observer, options=Options()):  # pylint: disable=invalid-name
+        Returns
+        -------
+        list or dict
+            Returns the _results attribute from a Pipeline object after processing.
+            Will contain Collection objects.
+        """
+        return self.to(CollectionOut)
+
+    def to(self, out, observer=None, options=Options()):  # pylint: disable=invalid-name
         """
         Sets up the destination sink for the pipeline.
 
@@ -496,6 +582,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         if self.mode() == 'batch':
             runner = Runner(self, out)
             runner.start(True)
+            if self._results_done and observer is None:
+                return self._results
+
+        elif self.mode() == 'stream':
+            out = Out(self, observer, options)
+
+            if self.first():
+                self.input().add_observer(self.first())
+
+            if self.last():
+                self.last().add_observer(out)
+            else:
+                self.input().add_observer(out)
 
         return self
 
@@ -754,4 +853,3 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 def is_pipeline(pline):
     """Boolean test to see if something is a Pipeline instance."""
     return isinstance(pline, Pipeline)
-

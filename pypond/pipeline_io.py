@@ -13,6 +13,7 @@ Objects to handle Pipeline I/O.
 from .bases import PypondBase
 from .collection import Collection
 from .exceptions import PipelineIOException
+from .index import Index
 from .util import unique_id, Options, Capsule
 
 #
@@ -52,28 +53,51 @@ class Collector(PypondBase):
         # maintained collections
         self._collections = dict()
 
-
     def flush_collections(self):
-        raise NotImplementedError
+        """Emit the remaining collections."""
+        self.emit_collections(self._collections)
 
-    def emit_collections(self, collection):
-        raise NotImplementedError
+    def emit_collections(self, collections):
+        """Emit all of the collections to the trigger callback that was
+        passed in by the Processor
 
-    def add_event(self, event):
+        Parameters
+        ----------
+        collections : dict
+            A dict of string keys and Capsule objects containing the
+            window_key, group_by_key and a Collection.
+        """
+        if self._on_trigger:
+            for v in list(collections.values()):
+                self._on_trigger(v.collection, v.window_key, v.group_by_key)
 
-        ts = event.timestamp()
+    def add_event(self, event):  # pylint: disable=too-many-branches
+        """Add and event to the _collections dict and act accordingly
+        depending on how _emit_on is set.
 
+        Parameters
+        ----------
+        event : Event
+            An event.
+
+        Raises
+        ------
+        PipelineIOException
+            Raised on bad args.
+        """
         # window_key
         window_key = None
 
+        ts = event.timestamp()
+
         if self._window_type == 'fixed':
-            pass
+            window_key = Index.get_index_string(self._window_duration, ts)
         elif self._window_type == 'daily':
-            pass
+            window_key = Index.get_daily_index_string(ts)
         elif self._window_type == 'monthly':
-            pass
+            window_key = Index.get_monthly_index_string(ts)
         elif self._window_type == 'yearly':
-            pass
+            window_key = Index.get_yearly_index_string(ts)
         else:
             window_key = self._window_type
 
@@ -110,8 +134,6 @@ class Collector(PypondBase):
 
         # emit
 
-        print(self._emit_on)
-
         if self._emit_on == 'eachEvent':  # keeping mixedCase tokens for consistancy.
             self.emit_collections(self._collections)
         elif self._emit_on == 'discard':
@@ -119,6 +141,7 @@ class Collector(PypondBase):
             for k in list(discards.keys()):
                 self._collections.pop(k, None)
         elif self._emit_on == 'flush':
+            # this is not an overlooked/unimplemented case.
             pass
         else:
             msg = 'Unknown emit type supplied to Collector'
@@ -149,11 +172,29 @@ class PipelineOut(PypondBase):  # pylint: disable=too-few-public-methods
 
 
 class CollectionOut(PipelineOut):
+    """Output object for when processor results are being returned
+    as a collection.
 
-    def __init__(self, pipeline, options, callback):
+    Parameters
+    ----------
+    pipeline : Pipeline
+        A reference to the calling Pipeline instance.
+    callback : function or None
+        Will either be a function that the collector callback will
+        pass things to or None which will pass the results back to
+        the calling Pipeline.
+    options : Options
+        An Options object.
+    """
+
+    def __init__(self, pipeline, callback, options):
+        """Output object for when processor results are being returned.
+        """
         super(CollectionOut, self).__init__(pipeline)
 
         self._callback = callback
+        self._options = options
+
         self._collector = Collector(
             Options(
                 window_type=pipeline.get_window_type(),
@@ -177,19 +218,36 @@ class CollectionOut(PipelineOut):
             keys = list()
             if window_key != 'global':
                 keys.append(window_key)
-            if group_by != 'all':
+            if group_by != 'all' and group_by is not None:
                 keys.append(group_by)
 
             k = '--'.join(keys) if len(keys) > 0 else 'all'
             self._pipeline.add_result(k, collection)
 
     def add_event(self, event):
+        """Add an event to the collector.
+
+        Parameters
+        ----------
+        event : Event
+            An event object
+        """
         self._collector.add_event(event)
 
     def on_emit(self, callback):
+        """Sets the internal callback.
+
+        Parameters
+        ----------
+        callback : function or None
+            Value to set the intenal _callback to.
+        """
         self._callback = callback
 
     def flush(self):
+        """Flush the collector and mark the results_done = True in the
+        pipeline if there is no longer an observer.
+        """
         self._collector.flush_collections()
         if self._callback is None:
             self._pipeline.results_done()

@@ -734,7 +734,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             New pipline.
         """
-        raise NotImplementedError
+        # gotta avoid circular imports by deferring
+        from .pipeline import Pipeline
+        return Pipeline().from_source(self._collection)
 
     def map(self, op):  # pylint: disable=invalid-name
         """Takes an operator that is used to remap events from this TimeSeries to
