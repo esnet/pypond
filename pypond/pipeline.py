@@ -582,7 +582,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.to',
-            'out: {0}, obs: {1}, opt: {2}'.format(out, observer, options.to_dict())
+            'out: {0}, obs: {1}, opt: {2} mode: {3}'.format(
+                out, observer, options.to_dict(), self.mode())
         )
 
         Out = out  # pylint: disable=invalid-name

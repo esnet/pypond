@@ -82,7 +82,35 @@ class BoundedIn(In):
 
 class UnboundedIn(In):
     """For the pipeline - a source that has no container of its own."""
-    pass
+
+    def __init__(self):
+        super(UnboundedIn, self).__init__()
+        self._running = True
+
+    def start(self):
+        """start"""
+        self._running = True
+
+    def stop(self):
+        """stop"""
+        self._running = False
+
+    def add_event(self, event):
+        """Type check and event and emit it if we are running have have observers.
+
+        Parameters
+        ----------
+        event : Event
+            Some Event class
+        """
+        self._check(event)
+        if self.has_observers() is True and self._running is True:
+            self.emit(event)
+
+    def events(self):  # pylint: disable=no-self-use
+        """Raise an exception - can't iterate an unbounded source."""
+        msg = 'Iteration across unbounded sources is not suported.'
+        raise PipelineException(msg)
 
 
 # Base for all pipeline processors
