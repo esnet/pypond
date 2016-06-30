@@ -10,10 +10,39 @@
 Common base classes and mixins.
 """
 
+import logging
+import os
+import time
 import warnings
 
 
-class PypondBase(object):
+def setup_log(log_path=None):
+    """
+    Usage:
+    _log('main.start', 'happy simple log event')
+    _log('launch', 'more={0}, complex={1} log=event'.format(100, 200))
+    """
+    # pylint: disable=redefined-variable-type
+    logger = logging.getLogger("pypond")
+    if not log_path:
+        handle = logging.StreamHandler()
+    else:
+        # it's on you to make sure log_path is valid.
+        logfile = '{0}/pypond.log'.format(log_path)
+        handle = logging.FileHandler(logfile)
+    handle.setFormatter(logging.Formatter('ts=%(asctime)s %(message)s'))
+    logger.addHandler(handle)
+    logger.setLevel(logging.INFO)
+    return logger
+
+log = setup_log()  # pylint: disable=invalid-name
+
+
+def _log(event, msg):
+    log.info('event=%s id=%s %s', event, int(time.time()), msg)
+
+
+class PypondBase(object):  # pylint: disable=too-few-public-methods
     """
     Universal base class. Used to provide common functionality (logging, etc)
     to all the other classes.
@@ -22,7 +51,20 @@ class PypondBase(object):
     def __init__(self):
         """ctor"""
 
-        self._log = None  # logging handler tba
+        self._logger = _log
+
+    def _log(self, event, msg):
+        """Log events if PYPOND_LOG is set.
+
+        Parameters
+        ----------
+        event : str
+            The event - ie: 'init.start' and etc.
+        msg : str
+            The log message
+        """
+        if 'PYPOND_LOG' in os.environ:
+            self._logger(event, msg)
 
     def _warn(self, msg, warn_type):  # pylint: disable=no-self-use
         """Issue a python warning.
