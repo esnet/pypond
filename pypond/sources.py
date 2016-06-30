@@ -138,6 +138,8 @@ class Processor(Observable):
 
         self._log('Processor.init')
 
+        self._id = unique_id('processor-')
+
         self._pipeline = None
         self._prev = None
 

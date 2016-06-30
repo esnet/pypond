@@ -38,7 +38,7 @@ class Offset(Processor):
         """
         super(Offset, self).__init__(arg1, options)
 
-        self._log('Offset.init')
+        self._log('Offset.init', 'uid: {0}'.format(self._id))
 
         self._by = None
         self._field_spec = None

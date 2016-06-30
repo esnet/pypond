@@ -68,8 +68,13 @@ class TestOffsetPipeline(BaseTestPipeline):
         """test a simple offset chain."""
         timeseries = TimeSeries(DATA)
 
-        kcol = Pipeline().from_source(
-            timeseries.collection()).offset_by(1, 'value').offset_by(2).to_keyed_collections()
+        kcol = (
+            Pipeline()
+            .from_source(timeseries.collection())
+            .offset_by(1, 'value')
+            .offset_by(2)
+            .to_keyed_collections()
+        )
 
         self.assertEqual(kcol['all'].at(0).get(), 55)
         self.assertEqual(kcol['all'].at(1).get(), 21)
@@ -80,8 +85,12 @@ class TestOffsetPipeline(BaseTestPipeline):
         """test running the offset chain directly from the TimeSeries."""
         timeseries = TimeSeries(DATA)
 
-        kcol = timeseries.pipeline().offset_by(1, 'value').offset_by(2).to_keyed_collections()
-
+        kcol = (
+            timeseries.pipeline()
+            .offset_by(1, 'value')
+            .offset_by(2)
+            .to_keyed_collections()
+        )
         self.assertEqual(kcol['all'].at(0).get(), 55)
         self.assertEqual(kcol['all'].at(1).get(), 21)
         self.assertEqual(kcol['all'].at(2).get(), 29)
@@ -97,9 +106,13 @@ class TestOffsetPipeline(BaseTestPipeline):
 
         timeseries = TimeSeries(DATA)
 
-        Pipeline().from_source(
-            timeseries.collection()).offset_by(
-                1, 'value').offset_by(2).to(CollectionOut, cback)
+        (
+            Pipeline()
+            .from_source(timeseries.collection())
+            .offset_by(1, 'value')
+            .offset_by(2)
+            .to(CollectionOut, cback)
+        )
 
         self.assertEqual(RESULTS.at(0).get(), 55)
         self.assertEqual(RESULTS.at(1).get(), 21)
@@ -121,8 +134,13 @@ class TestOffsetPipeline(BaseTestPipeline):
 
         source = UnboundedIn()
 
-        pip1 = Pipeline().from_source(source).offset_by(1, 'in').offset_by(2, 'in').to(
-            CollectionOut, cback)
+        pip1 = (
+            Pipeline()
+            .from_source(source)
+            .offset_by(1, 'in')
+            .offset_by(2, 'in')
+            .to(CollectionOut, cback)
+        )
 
         pip1.offset_by(3, 'in').to(CollectionOut, cback2)
 
@@ -144,8 +162,12 @@ class TestOffsetPipeline(BaseTestPipeline):
 
         source = UnboundedIn()
 
-        Pipeline().from_source(source).offset_by(3, 'in').to(CollectionOut, cback)
-
+        (
+            Pipeline()
+            .from_source(source)
+            .offset_by(3, 'in')
+            .to(CollectionOut, cback)
+        )
         source.add_event(EVENTLIST1[0])
         source.add_event(EVENTLIST1[1])
 
