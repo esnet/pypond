@@ -16,10 +16,10 @@ from pyrsistent import freeze
 
 from .bases import PypondBase
 from .exceptions import PipelineException
-from .processors import Offset, Mapper
 from .pipeline_io import CollectionOut
+from .processors import Offset, Mapper, Processor
 from .series import TimeSeries
-from .sources import BoundedIn, UnboundedIn, Processor
+from .sources import BoundedIn, UnboundedIn
 from .util import is_pmap, Options
 
 

@@ -10,10 +10,65 @@
 Offset is a simple processor used by the testing code to verify Pipeline behavior.
 """
 
+from .bases import Observable
 from .event import Event
 from .exceptions import ProcessorException
-from .sources import Processor
-from .util import Options, is_pipeline
+from .util import Options, is_pipeline, unique_id
+
+# Base for all pipeline processors
+
+
+def add_prev_to_chain(n, chain):  # pylint: disable=invalid-name
+    """
+    Recursive function to add values to the chain.
+    """
+    chain.append(n)
+
+    if is_pipeline(n.prev()):
+        chain.append(n.prev().input())
+        return chain
+    else:
+        add_prev_to_chain(n.prev(), chain)
+
+
+class Processor(Observable):
+    """
+    Base class for all pipeline processors.
+    """
+
+    def __init__(self, arg1, options):
+        super(Processor, self).__init__()
+
+        self._log('Processor.init')
+
+        self._id = unique_id('processor-')
+
+        self._pipeline = None
+        self._prev = None
+
+        if is_pipeline(arg1):
+            self._pipeline = arg1
+            self._prev = options.prev
+
+    def prev(self):
+        """Return prev"""
+        return self._prev
+
+    def pipeline(self):
+        """Return the pipeline"""
+        return self._pipeline
+
+    def chain(self):
+        """Return the chain"""
+        chain = [self]
+
+        if is_pipeline(self.prev()):
+            chain.append(self.prev().input())
+            return chain
+        else:
+            return add_prev_to_chain(self.prev(), chain)
+
+    # flush() is inherited from Observable
 
 
 class Offset(Processor):
