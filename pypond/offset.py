@@ -38,6 +38,8 @@ class Offset(Processor):
         """
         super(Offset, self).__init__(arg1, options)
 
+        self._log('Offset.init')
+
         self._by = None
         self._field_spec = None
 
@@ -72,6 +74,9 @@ class Offset(Processor):
         event : Event, IndexedEvent, TimerangeEvent
             Any of the three event variants.
         """
+
+        self._log('Offset.add_event', event)
+
         if self.has_observers():
             selected = Event.selector(event, self._field_spec)
             data = dict()
@@ -81,5 +86,7 @@ class Offset(Processor):
                 data[k] = offset_value
 
             output_event = event.set_data(data)
+
+            self._log('Offset.add_event', 'emitting: {0}'.format(output_event))
 
             self.emit(output_event)

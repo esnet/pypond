@@ -67,6 +67,8 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
         """Create a new batch runner"""
         super(Runner, self).__init__()
 
+        self._log('Runner.init')
+
         self._pipeline = pline
         self._output = output
         self._input = None
@@ -114,6 +116,7 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
             force (bool, optional): force Flush at the end of the batch source
             to cause any buffers to emit.
         """
+        self._log('Runner.start', 'starting')
         # Clear any results ready for the run
         self._pipeline.clear_results()
 
@@ -130,6 +133,7 @@ class Runner(PypondBase):  # pylint: disable=too-few-public-methods
         # set to false (the default) this is never called.
 
         if force is True:
+            self._log('Runner.start', 'flushing')
             head.flush()
 
 
@@ -157,11 +161,6 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
     ----------
     arg : Pipeline, PMap, None
         See above.
-
-    Returns
-    -------
-    TYPE
-        Description
     """
 
     def __init__(self, arg=None):
@@ -170,6 +169,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         # sorry pylint, that's just how it goes sometimes
         # pylint: disable=invalid-name, protected-access
+
+        self._log('Pipeline.init')
 
         if isinstance(arg, Pipeline):
             self._d = arg._d
@@ -310,6 +311,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         Setting the In for the Pipeline returns a new Pipeline.
         """
+        self._log('Pipeline._set_in', 'in: {0}'.format(pipe_in))
+
         mode = None
         source = pipe_in
 
@@ -345,6 +348,9 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         raise NotImplementedError
 
     def _append(self, processor):
+
+        self._log('Pipeline._append', 'processor: {0}'.format(processor))
+
         first = self.first()
         last = self.last()
 
@@ -503,6 +509,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
+        self._log('Pipeline.from_source', 'called with: {0}'.format(src))
+
         if isinstance(src, Pipeline):
             pipeline_in = src.input()
             return self._set_in(pipeline_in)
@@ -571,6 +579,12 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
+
+        self._log(
+            'Pipeline.to',
+            'out: {0}, obs: {1}, opt: {2}'.format(out, observer, options.to_dict())
+        )
+
         Out = out  # pylint: disable=invalid-name
 
         if self.input() is None:
@@ -635,6 +649,9 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The modified Pipeline.
         """
+
+        self._log('Pipeline.offset_by', 'offset: {0}'.format(offset_by))
+
         offset = Offset(
             self,
             Options(

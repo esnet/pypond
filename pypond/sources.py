@@ -108,6 +108,8 @@ class Processor(Observable):
     def __init__(self, arg1, options):
         super(Processor, self).__init__()
 
+        self._log('Processor.init')
+
         self._pipeline = None
         self._prev = None
 

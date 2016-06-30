@@ -53,8 +53,8 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
 
         self._logger = _log
 
-    def _log(self, event, msg):
-        """Log events if PYPOND_LOG is set.
+    def _log(self, event, msg=''):
+        """Log events if environment variable PYPOND_LOG is set.
 
         Parameters
         ----------
@@ -97,17 +97,20 @@ class Observable(PypondBase):
 
     def emit(self, event):
         """add event to observers."""
+        # self._log('Observable.emit')
         for i in self._observers:
             i.add_event(event)
 
     def flush(self):
         """flush observers."""
+        self._log('Observable.flush')
         for i in self._observers:
             if hasattr(i, 'flush'):
                 i.flush()
 
     def add_observer(self, observer):
         """add an observer if it does not already exist."""
+        self._log('Observable.add_observer', 'obs: {0}'.format(observer))
         should_add = True
 
         for i in self._observers:

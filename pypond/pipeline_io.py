@@ -41,6 +41,9 @@ class Collector(PypondBase):
 
     def __init__(self, options, on_trigger):
         super(Collector, self).__init__()
+
+        self._log('Collector.init', 'opt: {0} trigger: {1}'.format(options.to_dict(), on_trigger))
+
         # options
         self._group_by = options.group_by
         self._emit_on = options.emit_on
@@ -55,6 +58,9 @@ class Collector(PypondBase):
 
     def flush_collections(self):
         """Emit the remaining collections."""
+
+        self._log('Collector.flush_collections')
+
         self.emit_collections(self._collections)
 
     def emit_collections(self, collections):
@@ -67,6 +73,9 @@ class Collector(PypondBase):
             A dict of string keys and Capsule objects containing the
             window_key, group_by_key and a Collection.
         """
+
+        self._log('Collector.emit_collections')
+
         if self._on_trigger:
             for v in list(collections.values()):
                 self._on_trigger(v.collection, v.window_key, v.group_by_key)
@@ -85,6 +94,9 @@ class Collector(PypondBase):
         PipelineIOException
             Raised on bad args.
         """
+
+        self._log('Collector.add_event', event)
+
         # window_key
         window_key = None
 
@@ -192,6 +204,8 @@ class CollectionOut(PipelineOut):
         """
         super(CollectionOut, self).__init__(pipeline)
 
+        self._log('CollectionOut.init')
+
         self._callback = callback
         self._options = options
 
@@ -210,6 +224,12 @@ class CollectionOut(PipelineOut):
         This is the callback passed to the collector, normally done
         as an inline in the Javascript source.
         """
+
+        self._log(
+            'CollectionOut._collector_callback',
+            'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
+        )
+
         group_by = group_by_key
 
         if self._callback is not None:
@@ -248,6 +268,9 @@ class CollectionOut(PipelineOut):
         """Flush the collector and mark the results_done = True in the
         pipeline if there is no longer an observer.
         """
+
+        self._log('CollectionOut.flush')
+
         self._collector.flush_collections()
         if self._callback is None:
             self._pipeline.results_done()

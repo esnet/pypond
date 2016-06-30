@@ -33,7 +33,7 @@ class BaseTestPipeline(unittest.TestCase):
         """
         Common setup stuff.
         """
-        self._void_pipeline = Pipeline()
+        # self._void_pipeline = Pipeline()
 
 
 class TestOffsetPipeline(BaseTestPipeline):
