@@ -8,6 +8,7 @@ import unittest
 import pytz
 
 from pypond.event import Event
+from pypond.functions import Functions
 from pypond.pipeline import Pipeline
 from pypond.pipeline_io import CollectionOut
 from pypond.series import TimeSeries
@@ -216,6 +217,43 @@ class TestMapCollapseSelect(BaseTestPipeline):
 
         self.assertEqual(kcol.get('all').at(0).get('in'), 37)
         self.assertEqual(kcol.get('all').at(0).get('out'), 80)
+
+    def test_simple_collapse(self):
+        """collapse a subset of columns."""
+        timeseries = TimeSeries(IN_OUT_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+            .emit_on('flush')
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('all').at(0).get('in_out_sum'), 117)
+        self.assertEqual(kcol.get('all').at(1).get('in_out_sum'), 110)
+        self.assertEqual(kcol.get('all').at(2).get('in_out_sum'), 108)
+
+    def test_multiple_collapse_chains(self):
+        """multiple collapsers."""
+        timeseries = TimeSeries(IN_OUT_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+            .collapse(['in', 'out'], 'in_out_max', Functions.max)
+            .emit_on('flush')
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('all').at(0).get('in_out_sum'), 117)
+        self.assertEqual(kcol.get('all').at(1).get('in_out_sum'), 110)
+        self.assertEqual(kcol.get('all').at(2).get('in_out_sum'), 108)
+
+        self.assertEqual(kcol.get('all').at(0).get('in_out_max'), 80)
+        self.assertEqual(kcol.get('all').at(1).get('in_out_max'), 88)
+        self.assertEqual(kcol.get('all').at(2).get('in_out_max'), 56)
 
 
 class TestOffsetPipeline(BaseTestPipeline):

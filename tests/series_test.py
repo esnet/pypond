@@ -403,7 +403,6 @@ class TestTimeSeries(SeriesBase):
         ces = self._canned_event_series
 
         collapsed_ces = ces.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
-        self.assertEqual(len(collapsed_ces.columns()), 3)
 
         for i in collapsed_ces.events():
             self.assertEqual(i.get('in') + i.get('out'), i.get('in_out_sum'))

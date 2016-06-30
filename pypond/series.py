@@ -795,8 +795,14 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             A new time series from the collapsed columns.
         """
-        collapsed = self._collection.collapse(field_spec_list, name, reducer, append)
-        return self.set_collection(collapsed)
+
+        coll = (
+            self.pipeline()
+            .collapse(field_spec_list, name, reducer, append)
+            .to_keyed_collections()
+        )
+
+        return coll.get('all')
 
     def __str__(self):
         """call to_string()"""

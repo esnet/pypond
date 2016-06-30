@@ -15,7 +15,7 @@ from .bases import Observable
 from .exceptions import PipelineException
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
-from .util import unique_id, is_pipeline
+from .util import unique_id
 
 
 class In(Observable):
@@ -111,19 +111,3 @@ class UnboundedIn(In):
         """Raise an exception - can't iterate an unbounded source."""
         msg = 'Iteration across unbounded sources is not suported.'
         raise PipelineException(msg)
-
-
-# Base for all pipeline processors
-
-def add_prev_to_chain(n, chain):  # pylint: disable=invalid-name
-    """
-    Recursive function to add values to the chain.
-    """
-    chain.append(n)
-
-    if is_pipeline(n.prev()):
-        chain.append(n.prev().input())
-        return chain
-    else:
-        add_prev_to_chain(n.prev(), chain)
-

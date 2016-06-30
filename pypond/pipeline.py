@@ -17,7 +17,7 @@ from pyrsistent import freeze
 from .bases import PypondBase
 from .exceptions import PipelineException
 from .pipeline_io import CollectionOut
-from .processors import Offset, Mapper, Processor
+from .processors import Offset, Mapper, Processor, Collapser
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn
 from .util import is_pmap, Options
@@ -515,7 +515,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         if isinstance(src, Pipeline):
             pipeline_in = src.input()
             return self._set_in(pipeline_in)
-        elif isinstance(src, (BoundedIn, UnboundedIn)):
+        elif isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
             return self._set_in(src)
         else:
             msg = 'from_source() only takes Pipeline, BoundedIn or UnboundedIn'
@@ -719,6 +719,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         raise NotImplementedError
 
+    def _chain_last(self):
+        """Get the operative last for the processors
+
+        Returns
+        -------
+        Pipeline
+            Returns either self.last() or self
+        """
+        return self.last() if self.last() is not None else self
+
     def map(self, op):  # pylint: disable=invalid-name
         """
         Map the event stream using an operator.
@@ -734,9 +744,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        last = self.last() if self.last() is not None else self
-
-        res = Mapper(self, Options(op=op, prev=last))
+        res = Mapper(self, Options(op=op, prev=self._chain_last()))
 
         return self._append(res)
 
@@ -772,7 +780,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         raise NotImplementedError
 
-    def collapse(self, field_spec, name, reducer, append):
+    def collapse(self, field_spec, name, reducer, append=True):
         """
         Collapse a subset of columns using a reducer function.
 
@@ -793,7 +801,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+
+        coll = Collapser(
+            self,
+            Options(
+                field_spec=field_spec,
+                name=name,
+                reducer=reducer,
+                append=append,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(coll)
 
     def take(self, limit):
         """
