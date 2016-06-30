@@ -16,8 +16,7 @@ from pyrsistent import freeze
 
 from .bases import PypondBase
 from .exceptions import PipelineException
-from .offset import Offset
-from .mapper import Mapper
+from .processors import Offset, Mapper
 from .pipeline_io import CollectionOut
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn, Processor
