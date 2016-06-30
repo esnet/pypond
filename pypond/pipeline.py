@@ -17,6 +17,7 @@ from pyrsistent import freeze
 from .bases import PypondBase
 from .exceptions import PipelineException
 from .offset import Offset
+from .mapper import Mapper
 from .pipeline_io import CollectionOut
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn, Processor
@@ -482,7 +483,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
-        raise NotImplementedError
+        new_d = self._d.set('emit_on', trigger)
+        return Pipeline(new_d)
 
     # I/O
 
@@ -733,7 +735,11 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+        last = self.last() if self.last() is not None else self
+
+        res = Mapper(self, Options(op=op, prev=last))
+
+        return self._append(res)
 
     def filter(self, op):  # pylint: disable=invalid-name
         """
