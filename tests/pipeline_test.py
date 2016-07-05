@@ -10,7 +10,7 @@ import pytz
 from pypond.event import Event
 from pypond.functions import Functions
 from pypond.pipeline import Pipeline
-from pypond.pipeline_io import CollectionOut, EventOut
+from pypond.pipeline_io import CollectionOut
 from pypond.series import TimeSeries
 from pypond.sources import UnboundedIn
 
