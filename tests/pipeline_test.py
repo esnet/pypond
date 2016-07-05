@@ -291,22 +291,39 @@ class TestFilterAndTake(BaseTestPipeline):
     """
     Tests for filter and take operations to sort events.
     """
+
     def test_simple_filter(self):
         """filter events in a batch."""
 
-        def filter(e):
-            return e.value() > 65
+        def filter_cb(event):
+            """filter callback"""
+            return event.value() > 65
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
         kcol = (
             Pipeline()
             .from_source(timeseries)
-            .filter(filter)
+            .filter(filter_cb)
             .to_keyed_collections()
         )
 
         self.assertEqual(kcol.get('all').size(), 39)
+
+    def test_simple_take(self):
+        """take 10 events in batch."""
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .take(10)
+            .to_keyed_collections()
+        )
+
+        new_ts = TimeSeries(dict(name='result', collection=kcol.get('all')))
+        self.assertEqual(new_ts.size(), 10)
 
 
 class TestOffsetPipeline(BaseTestPipeline):

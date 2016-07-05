@@ -24,6 +24,7 @@ from .processors import (
     Offset,
     Processor,
     Selector,
+    Taker,
 )
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn
@@ -853,7 +854,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+
+        take = Taker(
+            self,
+            Options(
+                limit=limit,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(take)
 
     def as_time_range_events(self, options):
         """
