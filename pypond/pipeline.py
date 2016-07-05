@@ -17,7 +17,7 @@ from pyrsistent import freeze
 from .bases import PypondBase
 from .exceptions import PipelineException
 from .pipeline_io import CollectionOut
-from .processors import Offset, Mapper, Processor, Collapser
+from .processors import Offset, Mapper, Processor, Collapser, Selector
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn
 from .util import is_pmap, Options
@@ -778,7 +778,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+
+        sel = Selector(
+            self,
+            Options(
+                field_spec=field_spec,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(sel)
 
     def collapse(self, field_spec, name, reducer, append=True):
         """

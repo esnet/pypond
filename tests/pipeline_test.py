@@ -34,7 +34,8 @@ DATA = dict(
 )
 
 
-def _strp(dstr):  # pylint: disable=no-self-use
+def _strp(dstr):
+    """decode some existing test ts strings from js tests."""
     fmt = '%Y-%m-%dT%H:%M:%SZ'
     return datetime.datetime.strptime(dstr, fmt).replace(tzinfo=pytz.UTC)
 
@@ -254,6 +255,36 @@ class TestMapCollapseSelect(BaseTestPipeline):
         self.assertEqual(kcol.get('all').at(0).get('in_out_max'), 80)
         self.assertEqual(kcol.get('all').at(1).get('in_out_max'), 88)
         self.assertEqual(kcol.get('all').at(2).get('in_out_max'), 56)
+
+    def test_single_select(self):
+        """select a single column."""
+        timeseries = TimeSeries(IN_OUT_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .select('in')
+            .to_keyed_collections()
+        )
+
+        new_ts = TimeSeries(dict(name='new_timeseries', collection=kcol.get('all')))
+
+        self.assertEqual(new_ts.columns(), ['in'])
+
+    def test_subset_select(self):
+        """select multiple columns."""
+        timeseries = TimeSeries(IN_OUT_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .select(['out', 'perpendicular'])
+            .to_keyed_collections()
+        )
+
+        new_ts = TimeSeries(dict(name='new_timeseries', collection=kcol.get('all')))
+
+        self.assertEqual(set(new_ts.columns()), set(['out', 'perpendicular']))
 
 
 class TestOffsetPipeline(BaseTestPipeline):
