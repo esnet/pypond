@@ -10,7 +10,7 @@ import pytz
 from pypond.event import Event
 from pypond.functions import Functions
 from pypond.pipeline import Pipeline
-from pypond.pipeline_io import CollectionOut
+from pypond.pipeline_io import CollectionOut, EventOut
 from pypond.series import TimeSeries
 from pypond.sources import UnboundedIn
 
@@ -285,6 +285,28 @@ class TestMapCollapseSelect(BaseTestPipeline):
         new_ts = TimeSeries(dict(name='new_timeseries', collection=kcol.get('all')))
 
         self.assertEqual(set(new_ts.columns()), set(['out', 'perpendicular']))
+
+
+class TestFilterAndTake(BaseTestPipeline):
+    """
+    Tests for filter and take operations to sort events.
+    """
+    def test_simple_filter(self):
+        """filter events in a batch."""
+
+        def filter(e):
+            return e.value() > 65
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .filter(filter)
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('all').size(), 39)
 
 
 class TestOffsetPipeline(BaseTestPipeline):

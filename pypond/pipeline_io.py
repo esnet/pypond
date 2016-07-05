@@ -182,6 +182,62 @@ class PipelineOut(PypondBase):  # pylint: disable=too-few-public-methods
         self._id = unique_id('out-')
         self._pipeline = pipeline
 
+    def on_emit(self, callback):
+        """Sets the internal callback.
+
+        Parameters
+        ----------
+        callback : function or None
+            Value to set the intenal _callback to.
+        """
+        self._callback = callback
+
+
+class EventOut(PipelineOut):
+    """Output object for when processor results are being returned
+    as events.
+
+    Parameters
+    ----------
+    pipeline : Pipeline
+        A reference to the calling Pipeline instance.
+    callback : function or None
+        Will either be a function that the collector callback will
+        pass things to or None which will pass the results back to
+        the calling Pipeline.
+    options : Options
+        An Options object.
+    """
+    def __init__(self, pipeline, callback=None, options=Options()):
+        """Output object for when processor results are being returned.
+        """
+        super(EventOut, self).__init__(pipeline)
+
+        self._log('EventOut.init')
+
+        self._callback = callback
+        self._options = options
+
+    def add_event(self, event):
+        """Add an event to the pipeline or callback.
+
+        Parameters
+        ----------
+        event : Event
+            An event object
+        """
+        if self._callback is not None:
+            self._callback(event)
+        else:
+            self._pipeline.add_result(event)
+
+    def flush(self):
+        """Mark the results_done = True in the pipeline if there is no longer
+        an observer.
+        """
+        if self._callback is None:
+            self._pipeline.results_done()
+
 
 class CollectionOut(PipelineOut):
     """Output object for when processor results are being returned
@@ -253,16 +309,6 @@ class CollectionOut(PipelineOut):
             An event object
         """
         self._collector.add_event(event)
-
-    def on_emit(self, callback):
-        """Sets the internal callback.
-
-        Parameters
-        ----------
-        callback : function or None
-            Value to set the intenal _callback to.
-        """
-        self._callback = callback
 
     def flush(self):
         """Flush the collector and mark the results_done = True in the
