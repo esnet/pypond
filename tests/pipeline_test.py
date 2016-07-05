@@ -325,6 +325,59 @@ class TestFilterAndTake(BaseTestPipeline):
         new_ts = TimeSeries(dict(name='result', collection=kcol.get('all')))
         self.assertEqual(new_ts.size(), 10)
 
+    def test_filter_and_take_chain(self):
+        """filter events, then apply take"""
+
+        def filter_cb(event):
+            """filter callback"""
+            return event.value() > 65
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .filter(filter_cb)
+            .take(10)
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('all').size(), 10)
+        self.assertEqual(kcol.get('all').at(0).value(), 80)
+        self.assertEqual(kcol.get('all').at(1).value(), 88)
+        self.assertEqual(kcol.get('all').at(8).value(), 88)
+        self.assertEqual(kcol.get('all').at(9).value(), 94)
+
+    def test_take_and_group_by(self):
+        """take events with different group by keys."""
+
+        def gb_callback(event):
+            """group into two groups."""
+            return 'high' if event.value() > 65 else 'low'
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .group_by(gb_callback)
+            .take(10)
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('low').size(), 10)
+
+        self.assertEqual(kcol.get('low').at(0).value(), 52)
+        self.assertEqual(kcol.get('low').at(1).value(), 26)
+
+        self.assertEqual(kcol.get('high').size(), 10)
+
+        self.assertEqual(kcol.get('high').at(0).value(), 80)
+        self.assertEqual(kcol.get('high').at(1).value(), 88)
+        self.assertEqual(kcol.get('high').at(8).value(), 88)
+        self.assertEqual(kcol.get('high').at(9).value(), 94)
+
 
 class TestOffsetPipeline(BaseTestPipeline):
     """

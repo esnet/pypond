@@ -378,19 +378,20 @@ class Taker(Processor):
             coll_key = '{wk}::{gbk}'.format(wk=window_key, gbk=group_by_key) if \
                 group_by_key is not None else window_key
 
-            self._log('Taker.add_event', 'collection key: {0}'.format(coll_key))
-
             if coll_key not in self._count:
                 self._count[coll_key] = 0
 
             self._count[coll_key] += 1
 
-            self._log(
-                'Taker.add_event',
-                'count: {0} limit: {1}'.format(self._count.get(coll_key), self._limit)
-            )
-
             if self._count.get(coll_key) <= self._limit:
+                self._log('Taker.add_event', 'collection key: {0}'.format(coll_key))
+                self._log(
+                    'Taker.add_event',
+                    'count: {0} limit: {1}'.format(
+                        self._count.get(coll_key),
+                        self._limit
+                    )
+                )
                 self._log('Taker.add_event', 'emitting: {0}'.format(event))
                 self.emit(event)
 

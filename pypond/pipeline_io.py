@@ -182,16 +182,6 @@ class PipelineOut(PypondBase):  # pylint: disable=too-few-public-methods
         self._id = unique_id('out-')
         self._pipeline = pipeline
 
-    def on_emit(self, callback):
-        """Sets the internal callback.
-
-        Parameters
-        ----------
-        callback : function or None
-            Value to set the intenal _callback to.
-        """
-        self._callback = callback
-
 
 class EventOut(PipelineOut):
     """Output object for when processor results are being returned
@@ -208,6 +198,7 @@ class EventOut(PipelineOut):
     options : Options
         An Options object.
     """
+
     def __init__(self, pipeline, callback=None, options=Options()):
         """Output object for when processor results are being returned.
         """
@@ -237,6 +228,16 @@ class EventOut(PipelineOut):
         """
         if self._callback is None:
             self._pipeline.results_done()
+
+    def on_emit(self, callback):
+        """Sets the internal callback.
+
+        Parameters
+        ----------
+        callback : function or None
+            Value to set the intenal _callback to.
+        """
+        self._callback = callback
 
 
 class CollectionOut(PipelineOut):
@@ -309,6 +310,16 @@ class CollectionOut(PipelineOut):
             An event object
         """
         self._collector.add_event(event)
+
+    def on_emit(self, callback):
+        """Sets the internal callback.
+
+        Parameters
+        ----------
+        callback : function or None
+            Value to set the intenal _callback to.
+        """
+        self._callback = callback
 
     def flush(self):
         """Flush the collector and mark the results_done = True in the

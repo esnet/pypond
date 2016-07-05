@@ -417,7 +417,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         raise NotImplementedError
 
-    def group_by(self, key):
+    def group_by(self, key='value'):
         """
         Sets a new groupBy expression. Returns a new Pipeline.
 
@@ -429,7 +429,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         key : function, list or string
-            The key tro group by. You can group_by using a function,
+            The key to group by. You can group_by using a function,
             a field_spec (field name or dot.delimited.path) or an array
             of field_specs
 
@@ -438,7 +438,27 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
-        raise NotImplementedError
+
+        grp = None
+
+        if callable(key):
+            grp = key
+        elif isinstance(key, list):
+            def list_gb(event):
+                """gb a list"""
+                return '::'.join([event.get(x) for x in key])
+            grp = list_gb
+        elif isinstance(key, str):
+            def str_gb(event):
+                """gb a column value."""
+                return event.get(key)
+            grp = str_gb
+        else:
+            grp = default_callback
+
+        new_d = self._d.update(dict(group_by=grp))
+
+        return Pipeline(new_d)
 
     def clear_group_by(self):
         """
