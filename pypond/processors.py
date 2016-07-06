@@ -14,6 +14,7 @@ from .bases import Observable
 from .event import Event
 from .exceptions import ProcessorException
 from .index import Index
+from .pipeline_io import Collector
 from .util import Options, is_pipeline, unique_id
 
 # Base for all pipeline processors
@@ -394,6 +395,123 @@ class Taker(Processor):
                 )
                 self._log('Taker.add_event', 'emitting: {0}'.format(event))
                 self.emit(event)
+
+
+class Aggregator(Processor):
+    """
+    An Aggregator takes incoming events and adds them to a Collector
+    with given windowing and grouping parameters. As each Collection is
+    emitted from the Collector it is aggregated into a new event
+    and emitted from this Processor.
+
+    Parameters
+    ----------
+    arg1 : Aggregator or Pipeline
+        Copy constructor or the pipeline.
+    options : Options
+        Options object.
+    """
+
+    def __init__(self, arg1, options=Options()):
+        """create the aggregator"""
+
+        super(Aggregator, self).__init__(arg1, options)
+
+        self._log('Aggregator.init', 'uid: {0}'.format(self._id))
+
+        self._fields = None
+        self._window_type = None
+        self._window_duration = None
+        self._group_by = None
+        self._emit_on = None
+
+        if isinstance(arg1, Aggregator):
+            # pylint: disable=protected-access
+            self._fields = arg1._fields
+            self._window_type = arg1._window_type
+            self._window_duration = arg1._window_duration
+            self._group_by = arg1._group_by
+            self._emit_on = arg1._emit_on
+
+        elif is_pipeline(arg1):
+
+            pipeline = arg1
+
+            self._window_type = pipeline.get_window_type()
+            self._window_duration = pipeline.get_window_duration()
+            self._group_by = pipeline.get_group_by()
+            self._emit_on = pipeline.get_emit_on()
+
+            # yes it does have a fields member pylint, it's just magic
+            # pylint: disable=no-member
+
+            if Options.fields is None:
+                msg = 'Aggregator: constructor needs an aggregator field mapping'
+                raise ProcessorException(msg)
+
+            if not isinstance(Options.fields, dict):
+                msg = 'Options.fields must be iterable'
+                raise ProcessorException(msg)
+
+            for i in list(Options.fields.keys()):
+                if not isinstance(i, str) and not isinstance(i, tuple):
+                    msg = 'Aggregator: field of unknown type: {0}'.format(i)
+                    raise ProcessorException(msg)
+
+            if pipeline.mode() == 'stream':
+                if pipeline.get_window_type() is None \
+                        or pipeline.get_window_duration() is None:
+                    msg = 'Unable to aggregate/no windowing strategy specified in pipeline'
+                    raise ProcessorException(msg)
+
+            self._fields = Options.fields
+
+        else:
+            msg = 'Unknown arg to Aggregator: {0}'.format(arg1)
+            raise ProcessorException(msg)
+
+        self._collector = Collector(
+            Options(
+                window_type=self._window_type,
+                window_duration=self._window_duration,
+                group_by=self._group_by,
+                emit_on=self._emit_on,
+            ),
+            self._collector_callback
+        )
+
+    def _collector_callback(self, collection, window_key, group_by_key='all'):
+        """
+        This is the callback passed to the collector, normally done
+        as an inline in the Javascript source.
+        """
+
+        self._log(
+            'Aggregator._collector_callback',
+            'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
+        )
+
+    def clone(self):
+        """clone it."""
+        return Aggregator(self)
+
+    def flush(self):
+        """flush."""
+        self._log('Aggregator.flush')
+        self._collector.flush_collections()
+        super(Aggregator, self).flush()
+
+    def add_event(self, event):
+        """Add an event to the collector.
+
+        Parameters
+        ----------
+        event : Event
+            An event object
+        """
+        if self.has_observers():
+            self._log('Aggregator.add_event', 'adding: {0}'.format(event))
+            self._collector.add_event(event)
 
 
 class Mapper(Processor):

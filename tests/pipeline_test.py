@@ -445,6 +445,13 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
 
 
+class TestAggregator(BaseTestPipeline):
+    """
+    Tests for the aggregator.
+    """
+    pass
+
+
 class TestOffsetPipeline(BaseTestPipeline):
     """
     Tests for the offset pipeline operations. This is a simple processor
