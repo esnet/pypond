@@ -443,16 +443,11 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         if callable(key):
             grp = key
-        elif isinstance(key, list):
-            def list_gb(event):
-                """gb a list"""
-                return '::'.join([event.get(x) for x in key])
-            grp = list_gb
-        elif isinstance(key, str):
-            def str_gb(event):
+        elif isinstance(key, (str, list)):
+            def get_callback(event):
                 """gb a column value."""
                 return event.get(key)
-            grp = str_gb
+            grp = get_callback  # pylint: disable=redefined-variable-type
         else:
             grp = default_callback
 

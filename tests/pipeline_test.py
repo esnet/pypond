@@ -378,6 +378,54 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('high').at(8).value(), 88)
         self.assertEqual(kcol.get('high').at(9).value(), 94)
 
+    def test_group_by_variants(self):
+        """test group by with strings and arrays."""
+
+        data = dict(
+            name="traffic",
+            columns=["time", "value", "status"],
+            points=[
+                [1400425947000, 52, "ok"],
+                [1400425948000, 18, "ok"],
+                [1400425949000, 26, "fail"],
+                [1400425950000, 93, "offline"]
+            ]
+        )
+
+        event_list = [
+            Event(1429673400000, {'direction': {'status': 'OK', 'in': 1, 'out': 2}}),
+            Event(1429673460000, {'direction': {'status': 'OK', 'in': 3, 'out': 4}}),
+            Event(1429673520000, {'direction': {'status': 'FAIL', 'in': 0, 'out': 0}}),
+        ]
+
+        # group on a single column with string input to group_by
+
+        kcol = (
+            Pipeline()
+            .from_source(TimeSeries(data))
+            .emit_on('flush')
+            .group_by('status')
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('ok').size(), 2)
+        self.assertEqual(kcol.get('fail').size(), 1)
+        self.assertEqual(kcol.get('offline').size(), 1)
+
+        # group on a deep/nested column with an array
+
+        ts = TimeSeries(dict(name='events', events=event_list))
+
+        # print(ts.to_string())
+
+        # kcol = (
+        #     Pipeline()
+        #     .from_source(TimeSeries(dict(name='events', events=event_list)))
+        #     .emit_on('flush')
+        #     .group_by(['direction', 'status'])
+        #     .to_keyed_collections()
+        # )
+
 
 class TestOffsetPipeline(BaseTestPipeline):
     """
