@@ -412,19 +412,37 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('fail').size(), 1)
         self.assertEqual(kcol.get('offline').size(), 1)
 
-        # group on a deep/nested column with an array
+        # group on a deep/nested column with an array arg
 
-        ts = TimeSeries(dict(name='events', events=event_list))
+        kcol = (
+            Pipeline()
+            .from_source(TimeSeries(dict(name='events', events=event_list)))
+            .emit_on('flush')
+            .group_by(['direction', 'status'])
+            .to_keyed_collections()
+        )
 
-        # print(ts.to_string())
+        self.assertEqual(kcol.get('OK').size(), 2)
+        self.assertEqual(kcol.get('FAIL').size(), 1)
+        self.assertEqual(kcol.get('OK').at(0).value('direction').get('out'), 2)
+        self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
+        self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
 
-        # kcol = (
-        #     Pipeline()
-        #     .from_source(TimeSeries(dict(name='events', events=event_list)))
-        #     .emit_on('flush')
-        #     .group_by(['direction', 'status'])
-        #     .to_keyed_collections()
-        # )
+        # same thing but with the old.school.style
+
+        kcol = (
+            Pipeline()
+            .from_source(TimeSeries(dict(name='events', events=event_list)))
+            .emit_on('flush')
+            .group_by('direction.status')
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('OK').size(), 2)
+        self.assertEqual(kcol.get('FAIL').size(), 1)
+        self.assertEqual(kcol.get('OK').at(0).value('direction').get('out'), 2)
+        self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
+        self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
 
 
 class TestOffsetPipeline(BaseTestPipeline):
