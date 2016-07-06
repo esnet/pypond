@@ -334,6 +334,31 @@ class TestInterop(unittest.TestCase):
         self.assertTrue(new_json.get('utc'))
         self.assertEqual(timerange_event_series.get('name'), new_json.get('name'))
 
+    def test_nested_wire_format(self):
+        """make sure nested format round trips correctly."""
+
+        data_flow = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': 2}],
+                [1400425948000, {'in': 3, 'out': 4}],
+                [1400425949000, {'in': 5, 'out': 6}],
+                [1400425950000, {'in': 7, 'out': 8}]
+            ]
+        )
+
+        series = TimeSeries(data_flow)
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        self.assertEqual(new_series.at(0).value('direction').get('in'), 1)
+        self.assertEqual(new_series.at(0).value('direction').get('out'), 2)
+        self.assertEqual(new_series.at(1).value('direction').get('in'), 3)
+        self.assertEqual(new_series.at(1).value('direction').get('out'), 4)
+
     def test_event_series_with_index(self):
         """test indexed data, not a series of IndexedEvent."""
         event_series_with_index = dict(
