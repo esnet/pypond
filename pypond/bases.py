@@ -78,6 +78,13 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
         """
         warnings.warn(msg, warn_type, stacklevel=2)
 
+    def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
+        """split the field spec if it is not already a list."""
+        if isinstance(fspec, list):
+            return fspec
+        elif isinstance(fspec, str):
+            return fspec.split('.')
+
 
 # base classes for pipeline sources, etc
 

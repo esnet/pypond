@@ -582,13 +582,6 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         return Collection(collapsed_events)
 
-    def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
-        """split the field spec if it is not already a list."""
-        if isinstance(fspec, list):
-            return fspec
-        elif isinstance(fspec, str):
-            return fspec.split('.')
-
     # sum/min/max etc
 
     def count(self):
