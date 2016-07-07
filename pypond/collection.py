@@ -145,7 +145,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return len(self._event_list)
 
-    def size_valid(self, field_spec=None):
+    def size_valid(self, field_path_array=None):
         """
         Returns the number of valid items in this collection.
 
@@ -155,20 +155,22 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
+        field_path_array : str, list, tuple, None, optional
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
+            If field_path_array is None, then ['value'] will be the default.
+
         Returns
         -------
         int
-            Number of valid <field_spec> values in all of the Events.
+            Number of valid <field_path_array> values in all of the Events.
         """
         count = 0
 
         for i in self.events():
-            if Event.is_valid_value(i, field_spec):
+            if Event.is_valid_value(i, field_path_array):
                 count += 1
 
         return count
@@ -526,7 +528,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         return Collection(mapped_events)
 
-    def clean(self, field_spec=None):
+    def clean(self, field_path_array=None):
         """
         Returns a new Collection by testing the fieldSpec
         values for being valid (not NaN, null or undefined).
@@ -534,10 +536,12 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
+        field_path_array : str, list, tuple, None, optional
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
+
+            If field_path_array is None, then ['value'] will be the default.
 
         Returns
         -------
@@ -547,7 +551,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         flt_events = list()
 
         for i in self.events():
-            if Event.is_valid_value(i, field_spec):
+            if Event.is_valid_value(i, field_path_array):
                 flt_events.append(i)
 
         return Collection(flt_events)

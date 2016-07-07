@@ -428,24 +428,27 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         end = self.bisect(timerange.end(), begin)
         return self.slice(begin, end)
 
-    def clean(self, field_spec):
+    def clean(self, field_path_array=None):
         """
-        Returns a new TimeSeries by testing the field_spec
+        Returns a new TimeSeries by testing the field_path_array
         values for being valid (not NaN, null or undefined).
         The resulting TimeSeries will be clean for that fieldSpec.
 
         Parameters
         ----------
-        field_spec : list
-            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
-            preferred
+        field_path_array : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path_array is None, then ['value'] will be the default.
 
         Returns
         -------
         TimeSeries
             New time series from clean values from the field spec.
         """
-        cleaned = self._collection.clean(field_spec)
+        cleaned = self._collection.clean(field_path_array)
         return self.set_collection(cleaned)
 
     def events(self):
@@ -570,20 +573,29 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.size()
 
-    def size_valid(self, field_spec):
-        """Returns the number of rows in the series.
+    def size_valid(self, field_path_array):
+        """
+        Returns the number of valid items in this collection.
+
+        Uses the fieldSpec to look up values in all events.
+        It then counts the number that are considered valid,
+        i.e. are not NaN, undefined or null.
 
         Parameters
         ----------
-        field_spec : list or string
-            Field spec of columns to validate.
+        field_path_array : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path_array is None, then ['value'] will be the default.
 
         Returns
         -------
         int
-            Number of valid <field_spec> values in the events.
+            Number of valid <field_path_array> values in the events.
         """
-        return self._collection.size_valid(field_spec)
+        return self._collection.size_valid(field_path_array)
 
     def count(self):
         """alias for size.
@@ -599,13 +611,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     # pylint: disable=dangerous-default-value
 
-    def sum(self, field_spec=['value']):
+    def sum(self, field_spec=None):
         """Get sum
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -614,13 +629,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.sum(field_spec)
 
-    def max(self, field_spec=['value']):
+    def max(self, field_spec=None):
         """Get max
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -629,13 +647,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.max(field_spec)
 
-    def min(self, field_spec=['value']):
+    def min(self, field_spec=None):
         """Get min
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -644,13 +665,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.min(field_spec)
 
-    def avg(self, field_spec=['value']):
+    def avg(self, field_spec=None):
         """Get avg
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -659,13 +683,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.avg(field_spec)
 
-    def mean(self, field_spec=['value']):
+    def mean(self, field_spec=None):
         """Get mean
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -674,13 +701,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.mean(field_spec)
 
-    def median(self, field_spec=['value']):
+    def median(self, field_spec=None):
         """Get median
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -689,13 +719,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.median(field_spec)
 
-    def stdev(self, field_spec=['value']):
+    def stdev(self, field_spec=None):
         """Get std dev
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -711,10 +744,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         func : function
-            Function to pass to map reduct to perform the aggregation.
-        field_spec : list, optional
-            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
-            preferred.
+            Function to pass to map reduce to aggregate.
+        field_spec : str, list, tuple, None
+            Column or columns to aggregate. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this. If None, then
+            all columns will be operated on.
 
         Returns
         -------
@@ -757,13 +792,17 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         coll = self.pipeline().map(op).to_keyed_collections()
         return coll.get('all')
 
-    def select(self, field_spec):  # pylint: disable=invalid-name
+    def select(self, field_spec=None):  # pylint: disable=invalid-name
         """call select on the pipeline.
 
         Parameters
         ----------
-        field_spec : list
-            A list of column names
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, the default 'value' column will be used.
 
         Returns
         -------
@@ -783,7 +822,8 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec_list : list
-            List of columns to collapse
+            List of columns to collapse. If you need to retrieve deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
         name : str
             Name of new column containing collapsed values.
         reducer : Function to pass to reducer.
@@ -867,9 +907,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             List of TimeSeries objects.
         reducer : function
             reducer function
-        field_spec : list, optional
-            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
-            preferred.
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            Can be set to None if the reducer does not require a field spec.
 
         Returns
         -------
@@ -941,8 +984,11 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             Data payload
         series_list : list
             List of TimeSeries objects
-        field_spec : list
-            Field spec for columns.
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
