@@ -145,7 +145,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return len(self._event_list)
 
-    def size_valid(self, field_spec='value'):
+    def size_valid(self, field_spec=None):
         """
         Returns the number of valid items in this collection.
 
@@ -155,18 +155,23 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, optional
-            Name of value to look up.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
         int
             Number of valid <field_spec> values in all of the Events.
         """
+
+        fspec = self._field_spec_to_array(field_spec)
+
         count = 0
 
         for i in self.events():
-            if Event.is_valid_value(i, field_spec):
+            if Event.is_valid_value(i, fspec):
                 count += 1
 
         return count
@@ -524,7 +529,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         return Collection(mapped_events)
 
-    def clean(self, field_spec):
+    def clean(self, field_spec=None):
         """
         Returns a new Collection by testing the fieldSpec
         values for being valid (not NaN, null or undefined).
@@ -532,16 +537,19 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : list or str
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
         Collection
             New collection containing only "clean" events.
         """
+
         fspec = self._field_spec_to_array(field_spec)
+
         flt_events = list()
 
         for i in self.events():
@@ -558,7 +566,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec_list : list
+        field_spec_list : list, tuple
             List of columns to collapse
         name : str
             Name of new column containing collapsed data.
@@ -594,7 +602,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.size()
 
-    def aggregate(self, func, field_spec=['value']):  # pylint: disable=dangerous-default-value
+    def aggregate(self, func, field_spec=None):
         """
         Aggregates the events down using a user defined function to
         do the reduction.
@@ -603,9 +611,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         ----------
         func : function
             Function to pass to map reduce to aggregate.
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -616,16 +625,18 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         result = Event.map_reduce(self.event_list_as_list(), fspec, func)
         return result
 
-        # pylint: disable=dangerous-default-value
+    # These are all canned calls to .aggregate() so the sanitizing
+    # method _field_spec_to_array() is called there.
 
-    def first(self, field_spec=['value']):
+    def first(self, field_spec=None):
         """Get first value in the collection for the fspec
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -634,14 +645,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.first, field_spec)
 
-    def last(self, field_spec=['value']):
+    def last(self, field_spec=None):
         """Get last value in the collection for the fspec
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -650,14 +662,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.last, field_spec)
 
-    def sum(self, field_spec=['value']):
+    def sum(self, field_spec=None):
         """Get sum
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -666,14 +679,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.sum, field_spec)
 
-    def avg(self, field_spec=['value']):
+    def avg(self, field_spec=None):
         """Get avg
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -682,14 +696,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.avg, field_spec)
 
-    def max(self, field_spec=['value']):
+    def max(self, field_spec=None):
         """Get max
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -698,14 +713,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.max, field_spec)
 
-    def min(self, field_spec=['value']):
+    def min(self, field_spec=None):
         """Get min
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -714,14 +730,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.min, field_spec)
 
-    def mean(self, field_spec=['value']):
+    def mean(self, field_spec=None):
         """Get mean
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -730,14 +747,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.avg(field_spec)
 
-    def median(self, field_spec=['value']):
+    def median(self, field_spec=None):
         """Get median
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -746,14 +764,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.median, field_spec)
 
-    def stdev(self, field_spec=['value']):
+    def stdev(self, field_spec=None):
         """Get std dev
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------

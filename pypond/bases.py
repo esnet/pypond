@@ -79,11 +79,22 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
         warnings.warn(msg, warn_type, stacklevel=2)
 
     def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
-        """split the field spec if it is not already a list."""
+        """Split the field spec if it is not already a list.
+
+        Also, allow for deep fields to be passed in as a tuple because
+        it will need to be used as a dict key in some of the processor
+        Options.
+        """
+
+        if fspec is None:
+            return ['value']
+
         if isinstance(fspec, list):
             return fspec
         elif isinstance(fspec, str):
             return fspec.split('.')
+        elif isinstance(fspec, tuple):
+            return list(fspec)
 
 
 # base classes for pipeline sources, etc
