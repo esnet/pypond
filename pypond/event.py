@@ -635,8 +635,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         field_spec : str, list, tuple, None, optional
             Column or columns to look up. If you need to retrieve multiple deep
             nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, nothing
-            will be selected.
+            A single deep value with a string.like.this.  If None, the default
+            column 'value' will be used.
 
         Returns
         -------
@@ -651,6 +651,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             for i in field_spec:
                 if isinstance(i, str):
                     new_dict[i] = event.get(i)
+        elif field_spec is None:
+            new_dict['value'] = event.get()
         else:
             return event
 

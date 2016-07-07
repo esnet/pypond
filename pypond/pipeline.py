@@ -417,7 +417,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         raise NotImplementedError
 
-    def group_by(self, key='value'):
+    def group_by(self, key=None):
         """
         Sets a new groupBy expression. Returns a new Pipeline.
 
@@ -425,13 +425,28 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         of the group specification will use that state. For example, an
         aggregation would occur over any grouping specified.
 
+        The key to group by. You can pass in a function that takes and
+        event as an arg and dynamically returns the group by key.
+
+        Otherwise key will be interpreted as a field_spec_array:
+
+        * a single field name or deep.column.path, or
+        * a field_path_array ['deep', 'column', 'path'] to a single
+          column.
+
+        This is not a list of multiple columns, it is the path to
+        a single column to pull group by keys from. For example,
+        a column called 'status' that contains the values 'OK' and
+        'FAIL' - they key would be 'status' and two collections
+        OK and FAIL will be generated.
+
+        If key is None, then the default column 'value' will
+        be used.
 
         Parameters
         ----------
         key : function, list or string
-            The key to group by. You can group_by using a function,
-            a field_spec (field name or dot.delimited.path) or an array
-            of field_specs
+            The key to group by. See above.
 
         Returns
         -------
@@ -443,7 +458,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         if callable(key):
             grp = key
-        elif isinstance(key, (str, list)):
+        elif isinstance(key, (str, list, tuple)):
             def get_callback(event):
                 """gb a column value."""
                 return event.get(key)
@@ -657,7 +672,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         raise NotImplementedError
 
-    def offset_by(self, offset_by, field_spec='value'):
+    def offset_by(self, offset_by, field_spec=None):
         """
         Processor to offset a set of fields by a value. Mostly used for
         testing processor and pipeline operations with a simple operation.
@@ -666,8 +681,12 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         offset_by : int, float
             The amout to offset by.
-        field_spec : string, list
-            The fields
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, the default 'value' column will be used.
 
         Returns
         -------
@@ -795,14 +814,18 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(flt)
 
-    def select(self, field_spec):
+    def select(self, field_spec=None):
         """
         Select a subset of columns.
 
         Parameters
         ----------
-        field_spec : list, string
-            The columns to include in the output.
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, the default 'value' column will be used.
 
         Returns
         -------
@@ -820,15 +843,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(sel)
 
-    def collapse(self, field_spec, name, reducer, append=True):
+    def collapse(self, field_spec_list, name, reducer, append=True):
         """
         Collapse a subset of columns using a reducer function.
 
 
         Parameters
         ----------
-        field_spec : list, string
-            The columns to collapse into the output.
+        field_spec_list : list
+            List of columns to collapse. If you need to retrieve deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
         name : string
             The resulting output column's name.
         reducer : function
@@ -845,7 +869,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         coll = Collapser(
             self,
             Options(
-                field_spec=field_spec,
+                field_spec=field_spec_list,
                 name=name,
                 reducer=reducer,
                 append=append,

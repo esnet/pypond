@@ -60,14 +60,6 @@ pypond.indexed_event module
     :undoc-members:
     :show-inheritance:
 
-pypond.offset module
---------------------
-
-.. automodule:: pypond.offset
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pypond.pipeline module
 ----------------------
 
@@ -80,6 +72,14 @@ pypond.pipeline_io module
 -------------------------
 
 .. automodule:: pypond.pipeline_io
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypond.processors module
+------------------------
+
+.. automodule:: pypond.processors
     :members:
     :undoc-members:
     :show-inheritance:
