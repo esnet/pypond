@@ -87,9 +87,6 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
         Options.
         """
 
-        if fspec is None:
-            return ['value']
-
         if isinstance(fspec, list):
             return fspec
         elif isinstance(fspec, str):
@@ -98,6 +95,9 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
             return list(fspec)
         elif callable(fspec):
             return fspec
+
+        if fspec is None:
+            return ['value']
 
 
 # base classes for pipeline sources, etc
