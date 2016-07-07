@@ -170,12 +170,12 @@ class Collapser(Processor):
 
         if isinstance(arg1, Collapser):
             # pylint: disable=protected-access
-            self._field_spec = arg1._field_spec
+            self._field_spec_list = arg1._field_spec_list
             self._name = arg1._name
             self._reducer = arg1._reducer
             self._append = arg1._append
         elif is_pipeline(arg1):
-            self._field_spec = options.field_spec
+            self._field_spec_list = options.field_spec_list
             self._name = options.name
             self._reducer = options.reducer
             self._append = options.append
@@ -198,7 +198,7 @@ class Collapser(Processor):
         """
         if self.has_observers():
             evn = event.collapse(
-                self._field_spec,
+                self._field_spec_list,
                 self._name,
                 self._reducer,
                 self._append

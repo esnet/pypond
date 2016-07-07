@@ -869,7 +869,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         coll = Collapser(
             self,
             Options(
-                field_spec=field_spec_list,
+                field_spec_list=field_spec_list,
                 name=name,
                 reducer=reducer,
                 append=append,
