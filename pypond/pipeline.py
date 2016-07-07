@@ -428,10 +428,10 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         The key to group by. You can pass in a function that takes and
         event as an arg and dynamically returns the group by key.
 
-        Otherwise key will be interpreted as a field_spec_array:
+        Otherwise key will be interpreted as a field_path:
 
         * a single field name or deep.column.path, or
-        * a field_path_array ['deep', 'column', 'path'] to a single
+        * a field_path ['deep', 'column', 'path'] to a single
           column.
 
         This is not a list of multiple columns, it is the path to

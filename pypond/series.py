@@ -428,27 +428,27 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         end = self.bisect(timerange.end(), begin)
         return self.slice(begin, end)
 
-    def clean(self, field_path_array=None):
+    def clean(self, field_path=None):
         """
-        Returns a new TimeSeries by testing the field_path_array
+        Returns a new TimeSeries by testing the field_path
         values for being valid (not NaN, null or undefined).
         The resulting TimeSeries will be clean for that fieldSpec.
 
         Parameters
         ----------
-        field_path_array : str, list, tuple, None, optional
+        field_path : str, list, tuple, None, optional
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
-            If field_path_array is None, then ['value'] will be the default.
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         TimeSeries
             New time series from clean values from the field spec.
         """
-        cleaned = self._collection.clean(field_path_array)
+        cleaned = self._collection.clean(field_path)
         return self.set_collection(cleaned)
 
     def events(self):
@@ -573,7 +573,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.size()
 
-    def size_valid(self, field_path_array):
+    def size_valid(self, field_path):
         """
         Returns the number of valid items in this collection.
 
@@ -583,19 +583,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_path_array : str, list, tuple, None, optional
+        field_path : str, list, tuple, None, optional
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
-            If field_path_array is None, then ['value'] will be the default.
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         int
-            Number of valid <field_path_array> values in the events.
+            Number of valid <field_path> values in the events.
         """
-        return self._collection.size_valid(field_path_array)
+        return self._collection.size_valid(field_path)
 
     def count(self):
         """alias for size.

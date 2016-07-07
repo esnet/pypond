@@ -79,7 +79,7 @@ class EventBase(PypondBase):
         """
         return self._d.get('data')
 
-    def get(self, field_path_array=None):
+    def get(self, field_path=None):
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
@@ -90,12 +90,12 @@ class EventBase(PypondBase):
 
         Parameters
         ----------
-        field_path_array : str, list, tuple, None, optional
+        field_path : str, list, tuple, None, optional
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
-            If field_path_array is None, then ['value'] will be the default.
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
@@ -103,29 +103,29 @@ class EventBase(PypondBase):
             Type depends on underyling data
         """
 
-        fspec = self._field_spec_to_array(field_path_array)
+        fspec = self._field_spec_to_array(field_path)
 
         return reduce(dict.get, fspec, thaw(self.data()))
 
-    def value(self, field_path_array=None):
+    def value(self, field_path=None):
         """
         Alias for get()
 
         Parameters
         ----------
-        field_path_array : str, list, tuple, None
+        field_path : str, list, tuple, None
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
-            If field_path_array is None, then ['value'] will be the default.
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         various
             Type depends on underlying data.
         """
-        return self.get(field_path_array)
+        return self.get(field_path)
 
     def to_json(self):
         """abstract, override in subclasses.
@@ -590,7 +590,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                     event1._d == event2._d)
 
     @staticmethod
-    def is_valid_value(event, field_path_array=None):
+    def is_valid_value(event, field_path=None):
         """
         The same as Event.value() only it will return false if the
         value is either undefined, NaN or Null.
@@ -599,19 +599,19 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         event : Event
             An event.
-        field_path_array : str, list, tuple, None, optional
+        field_path : str, list, tuple, None, optional
             Name of value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
-            If field_path_array is None, then ['value'] will be the default.
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         bool
             Return false if undefined, NaN, or None.
         """
-        val = event.value(field_path_array)
+        val = event.value(field_path)
 
         return not bool(val is None or val == '' or is_nan(val))
 
