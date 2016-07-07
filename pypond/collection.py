@@ -165,13 +165,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int
             Number of valid <field_spec> values in all of the Events.
         """
-
-        fspec = self._field_spec_to_array(field_spec)
-
         count = 0
 
         for i in self.events():
-            if Event.is_valid_value(i, fspec):
+            if Event.is_valid_value(i, field_spec):
                 count += 1
 
         return count
@@ -547,13 +544,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Collection
             New collection containing only "clean" events.
         """
-
-        fspec = self._field_spec_to_array(field_spec)
-
         flt_events = list()
 
         for i in self.events():
-            if Event.is_valid_value(i, fspec):
+            if Event.is_valid_value(i, field_spec):
                 flt_events.append(i)
 
         return Collection(flt_events)
@@ -566,8 +560,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec_list : list, tuple
-            List of columns to collapse
+        field_spec_list : list
+            List of columns to collapse. If you need to retrieve deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
         name : str
             Name of new column containing collapsed data.
         reducer : function
@@ -581,12 +576,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Collection
             New collection containing the collapsed data.
         """
-        fsl = self._field_spec_to_array(field_spec_list)
-
         collapsed_events = list()
 
         for evn in self.events():
-            collapsed_events.append(evn.collapse(fsl, name, reducer, append))
+            collapsed_events.append(evn.collapse(field_spec_list, name, reducer, append))
 
         return Collection(collapsed_events)
 
@@ -612,21 +605,18 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         func : function
             Function to pass to map reduce to aggregate.
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to aggregate. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this. If None, then
+            all columns will be operated on.
 
         Returns
         -------
         dict
             Dict of reduced/aggregated values.
         """
-        fspec = self._field_spec_to_array(field_spec)
-        result = Event.map_reduce(self.event_list_as_list(), fspec, func)
+        result = Event.map_reduce(self.event_list_as_list(), field_spec, func)
         return result
-
-    # These are all canned calls to .aggregate() so the sanitizing
-    # method _field_spec_to_array() is called there.
 
     def first(self, field_spec=None):
         """Get first value in the collection for the fspec
@@ -634,9 +624,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -651,9 +642,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -668,9 +660,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -685,9 +678,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -702,9 +696,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -719,9 +714,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -736,9 +732,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -753,9 +750,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -770,9 +768,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec : str, list, tuple, None
-            Name of value to look up. If None, defaults to ['value'].
-            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
-            or 'deep.value.'
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
 
         Returns
         -------

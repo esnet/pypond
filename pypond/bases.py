@@ -96,6 +96,8 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
             return fspec.split('.')
         elif isinstance(fspec, tuple):
             return list(fspec)
+        elif callable(fspec):
+            return fspec
 
 
 # base classes for pipeline sources, etc
