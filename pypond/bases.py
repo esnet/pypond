@@ -78,7 +78,8 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
         """
         warnings.warn(msg, warn_type, stacklevel=2)
 
-    def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
+    @staticmethod
+    def _field_spec_to_array(fspec):
         """Split the field spec if it is not already a list.
 
         Also, allow for deep fields to be passed in as a tuple because

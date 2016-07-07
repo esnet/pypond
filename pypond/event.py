@@ -605,12 +605,14 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         bool
             Return false if undefined, NaN, or None.
         """
-        val = event.value(field_spec)
+        fspec = Event._field_spec_to_array(field_spec)
+
+        val = event.value(fspec)
 
         return not bool(val is None or val == '' or is_nan(val))
 
     @staticmethod
-    def selector(event, field_spec):
+    def selector(event, field_spec=None):
         """
         Function to select specific fields of an event using
         a fieldSpec and return a new event with just those fields.
@@ -629,8 +631,10 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         event : Event
             Event to pull from.
-        field_spec : list or str
-            Fields to gather into a new object.
+        field_spec : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
 
         Returns
         -------
@@ -639,13 +643,14 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         new_dict = dict()
 
-        if isinstance(field_spec, str):
-            new_dict[field_spec] = event.get(field_spec)
-        elif isinstance(field_spec, list):
-            for i in field_spec:
+        fspec = Event._field_spec_to_array(field_spec)
+
+        if isinstance(fspec, list) and len(fspec) > 0:
+            for i in fspec:
                 if isinstance(i, str):
                     new_dict[i] = event.get(i)
         else:
+            # shouldn't happen, bulletproofing
             return event
 
         return event.set_data(new_dict)
