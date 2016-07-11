@@ -14,8 +14,10 @@ from .bases import Observable
 from .event import Event
 from .exceptions import ProcessorException
 from .index import Index
+from .indexed_event import IndexedEvent
 from .pipeline_io import Collector
-from .util import Options, is_pipeline, unique_id
+from .timerange_event import TimeRangeEvent
+from .util import Options, is_pipeline, unique_id, is_function
 
 # Base for all pipeline processors
 
@@ -426,6 +428,7 @@ class Aggregator(Processor):
         self._emit_on = None
 
         if isinstance(arg1, Aggregator):
+            self._log('Aggregator.init', 'copy ctor')
             # pylint: disable=protected-access
             self._fields = arg1._fields
             self._window_type = arg1._window_type
@@ -434,6 +437,7 @@ class Aggregator(Processor):
             self._emit_on = arg1._emit_on
 
         elif is_pipeline(arg1):
+            self._log('Aggregator.init', 'pipeline')
 
             pipeline = arg1
 
@@ -445,18 +449,21 @@ class Aggregator(Processor):
             # yes it does have a fields member pylint, it's just magic
             # pylint: disable=no-member
 
-            if Options.fields is None:
+            if options.fields is None:
                 msg = 'Aggregator: constructor needs an aggregator field mapping'
                 raise ProcessorException(msg)
 
-            if not isinstance(Options.fields, dict):
-                msg = 'Options.fields must be iterable'
+            if not isinstance(options.fields, dict):
+                msg = 'options.fields must be a dict'
                 raise ProcessorException(msg)
 
-            for i in list(Options.fields.keys()):
-                if not isinstance(i, str) and not isinstance(i, tuple):
-                    msg = 'Aggregator: field of unknown type: {0}'.format(i)
+            for k, v in list(options.fields.items()):
+                if not isinstance(k, str) and not isinstance(k, tuple):
+                    msg = 'Aggregator: field of unknown type: {0}'.format(k)
                     raise ProcessorException(msg)
+
+                if not is_function(v):
+                    msg = 'Aggregator: field values must be a function, got: {0}'.format(v)
 
             if pipeline.mode() == 'stream':
                 if pipeline.get_window_type() is None \
@@ -464,7 +471,7 @@ class Aggregator(Processor):
                     msg = 'Unable to aggregate/no windowing strategy specified in pipeline'
                     raise ProcessorException(msg)
 
-            self._fields = Options.fields
+            self._fields = options.fields
 
         else:
             msg = 'Unknown arg to Aggregator: {0}'.format(arg1)
@@ -490,6 +497,42 @@ class Aggregator(Processor):
             'Aggregator._collector_callback',
             'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
         )
+
+        new_d = dict()
+
+        for fld, func in list(self._fields.items()):
+            self._log(
+                'Aggregator._collector_callback',
+                'fld: {0}, func: {1}'.format(fld, func)
+            )
+            field_list = [fld] if isinstance(fld, str) else list(fld)
+            self._log(
+                'Aggregator._collector_callback',
+                'field_list: {0}'.format(field_list)
+            )
+            for fspec in field_list:
+                field_value = collection.aggregate(func, fspec)
+                self._log(
+                    'Aggregator._collector_callback',
+                    'field_value: {0}'.format(field_value)
+                )
+                field_name = fspec.split('.').pop()
+                new_d[field_name] = field_value
+
+        event = None
+
+        self._log(
+            'Aggregator._collector_callback',
+            'new_d: {0}'.format(new_d)
+        )
+
+        if window_key == 'global':
+            event = TimeRangeEvent(collection.range(), new_d)
+        else:
+            utc = bool(self._window_type == 'fixed')
+            event = IndexedEvent(window_key, new_d, utc)  # pylint: disable=redefined-variable-type
+
+        self.emit(event)
 
     def clone(self):
         """clone it."""

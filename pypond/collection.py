@@ -624,6 +624,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             Dict of reduced/aggregated values.
         """
         result = Event.map_reduce(self.event_list_as_list(), field_spec, func)
+        self._log('Collection.aggregate', 'result: {0}'.format(result))
         return result
 
     def first(self, field_spec=None):

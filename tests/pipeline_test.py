@@ -10,7 +10,7 @@ import pytz
 from pypond.event import Event
 from pypond.functions import Functions
 from pypond.pipeline import Pipeline
-from pypond.pipeline_io import CollectionOut
+from pypond.pipeline_io import CollectionOut, EventOut
 from pypond.series import TimeSeries
 from pypond.sources import UnboundedIn
 
@@ -449,7 +449,28 @@ class TestAggregator(BaseTestPipeline):
     """
     Tests for the aggregator.
     """
-    pass
+
+    def test_sum_and_find_max(self):
+        """sum elements, find max get result out."""
+
+        def cback(event):
+            """catch the return"""
+            print('xxx', event)
+            print('zzz', event.get('total'))
+
+        timeseries = TimeSeries(IN_OUT_DATA)
+
+        elist = (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .collapse(['in', 'out'], 'total', Functions.sum)
+            .aggregate(dict(total=Functions.max))
+            .to(EventOut, cback)
+            # .to_event_list()
+        )
+
+        print(elist)
 
 
 class TestOffsetPipeline(BaseTestPipeline):

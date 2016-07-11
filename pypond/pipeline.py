@@ -16,8 +16,9 @@ from pyrsistent import freeze
 
 from .bases import PypondBase
 from .exceptions import PipelineException
-from .pipeline_io import CollectionOut
+from .pipeline_io import CollectionOut, EventOut
 from .processors import (
+    Aggregator,
     Collapser,
     Filter,
     Mapper,
@@ -284,7 +285,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         self._results = None
         self._results_done = False
 
-    def add_result(self, arg1, arg2):
+    def add_result(self, arg1, arg2=None):
         """Add the incoming result from the processor callback.
 
         Parameters
@@ -568,7 +569,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         list or dict
             Returns the _results attribute with events.
         """
-        raise NotImplementedError
+        return self.to(EventOut)
 
     def to_keyed_collections(self):
         """Directly return the results from the processor rather than
@@ -734,7 +735,15 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
-        raise NotImplementedError
+        agg = Aggregator(
+            self,
+            Options(
+                fields=fields,
+                prev=self._chain_last()
+            )
+        )
+
+        return self._append(agg)
 
     def as_events(self, options):
         """
