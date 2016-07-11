@@ -644,7 +644,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         elif field_path is None:
             # map() needs a field name to use as a key. Normally
             # this case is normally handled by _field_spec_to_array()
-            # inside get()
+            # inside get(). Also, if map(func, field_spec=None) then
+            # it will map all the columns.
             fpath = 'value'
         else:
             msg = 'Collection.aggregate() takes a string/list/tuple field_path'
