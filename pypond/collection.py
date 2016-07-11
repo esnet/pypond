@@ -603,29 +603,48 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.size()
 
-    def aggregate(self, func, field_spec=None):
+    def aggregate(self, func, field_path=None):
         """
         Aggregates the events down using a user defined function to
-        do the reduction.
+        do the reduction. Only a single column can be aggregated on
+        so this takes a field_path, NOT a field_spec.
 
         Parameters
         ----------
         func : function
             Function to pass to map reduce to aggregate.
-        field_spec : str, list, tuple, None
-            Column or columns to aggregate. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this. If None, then
-            all columns will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
-        dict
-            Dict of reduced/aggregated values.
+        various
+            Returns the aggregated value, so it depends on what kind
+            of data are being handled/aggregation being done.
         """
-        result = Event.map_reduce(self.event_list_as_list(), field_spec, func)
-        self._log('Collection.aggregate', 'result: {0}'.format(result))
-        return result
+
+        fpath = None
+
+        if isinstance(field_path, str):
+            fpath = field_path
+        elif isinstance(field_path, (list, tuple)):
+            # if the ['array', 'style', 'field_path'] is being used,
+            # we need to turn it back into a string since we are
+            # using a subset of the the map() functionality on
+            # a single column
+            fpath = '.'.join(field_path)
+        elif field_path is None:
+            fpath = 'value'
+        else:
+            msg = 'Collection.aggregate() takes a string/list/tuple field_path'
+            raise CollectionException(msg)
+
+        result = Event.map_reduce(self.event_list_as_list(), fpath, func)
+        return result[fpath]
 
     def first(self, field_spec=None):
         """Get first value in the collection for the fspec

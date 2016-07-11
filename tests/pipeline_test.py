@@ -455,10 +455,20 @@ class TestAggregator(BaseTestPipeline):
 
         def cback(event):
             """catch the return"""
-            print('xxx', event)
-            print('zzz', event.get('total'))
+            self.assertEqual(event.get('total'), 117)
 
         timeseries = TimeSeries(IN_OUT_DATA)
+
+        (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .collapse(['in', 'out'], 'total', Functions.sum)
+            .aggregate(dict(total=Functions.max))
+            .to(EventOut, cback)
+        )
+
+        # Same test but as an event list
 
         elist = (
             Pipeline()
@@ -466,11 +476,11 @@ class TestAggregator(BaseTestPipeline):
             .emit_on('flush')
             .collapse(['in', 'out'], 'total', Functions.sum)
             .aggregate(dict(total=Functions.max))
-            .to(EventOut, cback)
-            # .to_event_list()
+            .to_event_list()
         )
 
-        print(elist)
+        self.assertEqual(len(elist), 1)
+        self.assertEqual(elist[0].get('total'), 117)
 
 
 class TestOffsetPipeline(BaseTestPipeline):
