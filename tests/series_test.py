@@ -330,15 +330,15 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(self._canned_event_series.count(), len(EVENT_LIST))
 
         tser = self._canned_event_series
-        self.assertEqual(tser.sum('in').get('in'), 9)
-        self.assertEqual(tser.avg('out').get('out'), 4)
-        self.assertEqual(tser.mean('out').get('out'), 4)
-        self.assertEqual(tser.min('in').get('in'), 1)
-        self.assertEqual(tser.max('in').get('in'), 5)
-        self.assertEqual(tser.median('out').get('out'), 4)
-        self.assertEqual(tser.stdev('out').get('out'), 1.632993161855452)
+        self.assertEqual(tser.sum('in'), 9)
+        self.assertEqual(tser.avg('out'), 4)
+        self.assertEqual(tser.mean('out'), 4)
+        self.assertEqual(tser.min('in'), 1)
+        self.assertEqual(tser.max('in'), 5)
+        self.assertEqual(tser.median('out'), 4)
+        self.assertEqual(tser.stdev('out'), 1.632993161855452)
         # redundant, but for coverage
-        self.assertEqual(tser.aggregate(Functions.sum, 'in').get('in'), 9)
+        self.assertEqual(tser.aggregate(Functions.sum, 'in'), 9)
 
     def test_equality_methods(self):
         """test equal/same static methods."""
@@ -561,15 +561,15 @@ class TestCollection(SeriesBase):
         """
 
         col = self._canned_collection
-        self.assertEqual(col.sum('in').get('in'), 9)
-        self.assertEqual(col.avg('out').get('out'), 4)
-        self.assertEqual(col.mean('out').get('out'), 4)
-        self.assertEqual(col.min('in').get('in'), 1)
-        self.assertEqual(col.max('in').get('in'), 5)
-        self.assertEqual(col.first('out').get('out'), 2)
-        self.assertEqual(col.last('out').get('out'), 6)
-        self.assertEqual(col.median('out').get('out'), 4)
-        self.assertEqual(col.stdev('out').get('out'), 1.632993161855452)
+        self.assertEqual(col.sum('in'), 9)
+        self.assertEqual(col.avg('out'), 4)
+        self.assertEqual(col.mean('out'), 4)
+        self.assertEqual(col.min('in'), 1)
+        self.assertEqual(col.max('in'), 5)
+        self.assertEqual(col.first('out'), 2)
+        self.assertEqual(col.last('out'), 6)
+        self.assertEqual(col.median('out'), 4)
+        self.assertEqual(col.stdev('out'), 1.632993161855452)
 
     def test_mutators(self):
         """test collection mutation."""
@@ -585,8 +585,8 @@ class TestCollection(SeriesBase):
         self.assertTrue(Event.same(sliced.at(0), EVENT_LIST[1]))
 
         # work stddev as well
-        self.assertEqual(new_coll.stdev('in').get('in'), 2.23606797749979)
-        self.assertEqual(new_coll.median('in').get('in'), 4)
+        self.assertEqual(new_coll.stdev('in'), 2.23606797749979)
+        self.assertEqual(new_coll.median('in'), 4)
 
     def test_bad_args(self):
         """pass in bad values"""

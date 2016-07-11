@@ -609,6 +609,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         do the reduction. Only a single column can be aggregated on
         so this takes a field_path, NOT a field_spec.
 
+        This is essentially a wrapper around map/reduce, constraining
+        it to a single column and returning the value, not the dict
+        from map().
+
         Parameters
         ----------
         func : function
@@ -638,6 +642,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             # a single column
             fpath = '.'.join(field_path)
         elif field_path is None:
+            # map() needs a field name to use as a key. Normally
+            # this case is normally handled by _field_spec_to_array()
+            # inside get()
             fpath = 'value'
         else:
             msg = 'Collection.aggregate() takes a string/list/tuple field_path'

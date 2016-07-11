@@ -178,6 +178,12 @@ IN_OUT_DATA = dict(
     ]
 )
 
+DEEP_EVENT_LIST = [
+    Event(1429673400000, {'direction': {'status': 'OK', 'in': 1, 'out': 2}}),
+    Event(1429673460000, {'direction': {'status': 'OK', 'in': 3, 'out': 4}}),
+    Event(1429673520000, {'direction': {'status': 'FAIL', 'in': 0, 'out': 0}}),
+]
+
 
 class BaseTestPipeline(unittest.TestCase):
     """
@@ -392,12 +398,6 @@ class TestFilterAndTake(BaseTestPipeline):
             ]
         )
 
-        event_list = [
-            Event(1429673400000, {'direction': {'status': 'OK', 'in': 1, 'out': 2}}),
-            Event(1429673460000, {'direction': {'status': 'OK', 'in': 3, 'out': 4}}),
-            Event(1429673520000, {'direction': {'status': 'FAIL', 'in': 0, 'out': 0}}),
-        ]
-
         # group on a single column with string input to group_by
 
         kcol = (
@@ -416,7 +416,7 @@ class TestFilterAndTake(BaseTestPipeline):
 
         kcol = (
             Pipeline()
-            .from_source(TimeSeries(dict(name='events', events=event_list)))
+            .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
             .group_by(['direction', 'status'])
             .to_keyed_collections()
@@ -432,7 +432,7 @@ class TestFilterAndTake(BaseTestPipeline):
 
         kcol = (
             Pipeline()
-            .from_source(TimeSeries(dict(name='events', events=event_list)))
+            .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
             .group_by('direction.status')
             .to_keyed_collections()
@@ -481,6 +481,31 @@ class TestAggregator(BaseTestPipeline):
 
         self.assertEqual(len(elist), 1)
         self.assertEqual(elist[0].get('total'), 117)
+
+    def test_aggregate_deep_path(self):
+        """Make sure that the aggregator will work on a deep path."""
+
+        elist = (
+            Pipeline()
+            .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+            .emit_on('flush')
+            .aggregate({'direction.out': Functions.max})
+            .to_event_list()
+        )
+
+        self.assertEqual(elist[0].get('out'), 4)
+
+        # Make sure it works with the the non-string version
+
+        elist = (
+            Pipeline()
+            .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+            .emit_on('flush')
+            .aggregate({'direction.out': Functions.max})
+            .to_event_list()
+        )
+
+        self.assertEqual(elist[0].get('out'), 4)
 
 
 class TestOffsetPipeline(BaseTestPipeline):
