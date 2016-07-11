@@ -532,6 +532,11 @@ class Aggregator(Processor):
             utc = bool(self._window_type == 'fixed')
             event = IndexedEvent(window_key, new_d, utc)  # pylint: disable=redefined-variable-type
 
+        self._log(
+            'Aggregator._collector_callback',
+            'emitting: {0}'.format(event)
+        )
+
         self.emit(event)
 
     def clone(self):
