@@ -28,7 +28,7 @@ from .processors import (
 )
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn
-from .util import is_pmap, Options
+from .util import is_pmap, Options, is_function
 
 
 class Runner(PypondBase):  # pylint: disable=too-few-public-methods
@@ -431,7 +431,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Otherwise key will be interpreted as a field_path:
 
         * a single field name or deep.column.path, or
-        * a field_path ['deep', 'column', 'path'] to a single
+        * a array style field_path ['deep', 'column', 'path'] to a single
           column.
 
         This is not a list of multiple columns, it is the path to
@@ -456,7 +456,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         grp = None
 
-        if callable(key):
+        if is_function(key):
             grp = key
         elif isinstance(key, (str, list, tuple)):
             def get_callback(event):

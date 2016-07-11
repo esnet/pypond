@@ -169,8 +169,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         count = 0
 
+        fpath = self._field_spec_to_array(field_path)
+
         for i in self.events():
-            if Event.is_valid_value(i, field_path):
+            if Event.is_valid_value(i, fpath):
                 count += 1
 
         return count
@@ -550,8 +552,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         flt_events = list()
 
+        fpath = self._field_spec_to_array(field_path)
+
         for i in self.events():
-            if Event.is_valid_value(i, field_path):
+            if Event.is_valid_value(i, fpath):
                 flt_events.append(i)
 
         return Collection(flt_events)

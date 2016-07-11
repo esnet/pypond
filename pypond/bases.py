@@ -13,6 +13,7 @@ Common base classes and mixins.
 import logging
 import os
 import time
+import types
 import warnings
 
 
@@ -85,16 +86,20 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
         Also, allow for deep fields to be passed in as a tuple because
         it will need to be used as a dict key in some of the processor
         Options.
+
+        This is deployed in Event.get() to process anything passed
+        to it, but this should also be deployed "upstream" to avoid
+        having that split() done over and over in a loop.
         """
 
-        if isinstance(fspec, list):
+        if isinstance(fspec, list) or isinstance(fspec, types.FunctionType):
+            # corner case, but Event.map() takes field_spec as a
+            # function, so let that pass through just in case.
             return fspec
-        elif isinstance(fspec, str):
-            return fspec.split('.')
         elif isinstance(fspec, tuple):
             return list(fspec)
-        elif callable(fspec):
-            return fspec
+        elif isinstance(fspec, str):
+            return fspec.split('.')
 
         if fspec is None:
             return ['value']
