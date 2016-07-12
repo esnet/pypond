@@ -378,12 +378,34 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
     def window_by(self, window_or_duration=None):
         """
-        Set the window, returning a new Pipeline. The argument here
-        is either a string or an object with string attrs type and
-        duration. The arg can be either a window or a duration.
+        Set the window, returning a new Pipeline. A new window will
+        have a type and duration associated with it. Current available
+        types are:
+
+        * fixed (e.g. every 5m)
+        * calendar based windows (e.g. every month)
+
+        Windows are a type of grouping. Typically you'd define a window
+        on the pipeline before doing an aggregation or some other operation
+        on the resulting grouped collection. You can combine window-based
+        grouping with key-grouping (see groupBy()).
+
+        There are several ways to define a window. The general format is
+        an options object containing a `type` field and a `duration` field.
+
+        Currently the only accepted type is `fixed`, but others are planned.
+        For duration, this is a duration string, for example "30s" or "1d".
+        Supported are: seconds (s), minutes (m), hours (h) and days (d).
+
+        The argument here is either a string or an object with string 
+        attrs type and duration. The arg can be either a window or a duration.
 
         If no arg is supplied or set to None, the window_type is set
         to 'global' and there is no duration.
+
+        There is also a short-cut notation for a fixed window or a calendar
+        window. Simply supplying the duration string ("30s" for example) will
+        result in a `fixed` window type with the supplied duration.
 
         Window *window_or_duration* may be:
 
