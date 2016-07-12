@@ -510,13 +510,13 @@ class Aggregator(Processor):
                 'Aggregator._collector_callback',
                 'field_list: {0}'.format(field_list)
             )
-            for fspec in field_list:
-                field_value = collection.aggregate(func, fspec)
+            for field_path in field_list:
+                field_value = collection.aggregate(func, field_path)
                 self._log(
                     'Aggregator._collector_callback',
                     'field_value: {0}'.format(field_value)
                 )
-                field_name = fspec.split('.').pop()
+                field_name = field_path.split('.').pop()
                 new_d[field_name] = field_value
 
         event = None
