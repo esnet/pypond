@@ -562,6 +562,122 @@ class Aggregator(Processor):
             self._collector.add_event(event)
 
 
+class Converter(Processor):
+    """
+    A processor that converts an event type to another event type.
+
+    Parameters
+    ----------
+    arg1 : Converter or Pipeline
+        Copy constructor or the pipeline.
+    options : Options
+        Options object.
+    """
+
+    def __init__(self, arg1, options=Options()):
+        """create the aggregator"""
+
+        super(Converter, self).__init__(arg1, options)
+
+        self._log('Converter.init', 'uid: {0}'.format(self._id))
+
+        self._convert_to = None
+        self._duration = None
+        self._duration_string = None
+        self._alignment = None
+
+        if isinstance(arg1, Converter):
+            # pylint: disable=protected-access
+            self._convert_to = arg1._convert_to
+            self._duration = arg1._duration
+            self._duration_string = arg1._duration_string
+            self._alignment = arg1._alignment
+        elif is_pipeline(arg1):
+
+            if options.type is None:
+                msg = 'Converter: ctor needs type in options'
+                raise ProcessorException(msg)
+
+            if options.type == Event or options.type == TimeRangeEvent \
+                    or options.type == IndexedEvent:
+                self._convert_to = options.type
+            else:
+                msg = 'Unable to interpret type argument passed to Converter constructor'
+                raise ProcessorException(msg)
+
+            if options.type == TimeRangeEvent or options.type == IndexedEvent:
+                if options.duration is not None and isinstance(options.duration, str):
+                    self._duration = Index.window_duration(options.duration)
+                    self._duration_string = options.duration
+
+            self._alignment = options.alignment if options.alignment is not None \
+                else 'center'
+
+        else:
+            msg = 'Unknown arg to Converter: {0}'.format(arg1)
+            raise ProcessorException(msg)
+
+    def clone(self):
+        """clone it."""
+        return Converter(self)
+
+    def convert_event(self, event):
+        """Convert an Event
+
+        Parameters
+        ----------
+        event : Event
+            An incoming Event object for conversion.
+
+        Returns
+        -------
+        TimeRangeEvent or IndexedEvent
+            The converted Event.
+        """
+        pass
+
+    def convert_time_range_event(self, event):
+        """Convert a TimeRangeEvent
+
+        Parameters
+        ----------
+        event : TimeRangeEvent
+            An incoming TimeRangeEvent object for conversion.
+
+        Returns
+        -------
+        Event or IndexedEvent
+            The converted TimeRangeEvent.
+        """
+        pass
+
+    def convert_indexed_event(self, event):
+        """Convert an IndexedEvent
+
+        Parameters
+        ----------
+        event : IndexedEvent
+            An incoming IndexedEvent object for conversion.
+
+        Returns
+        -------
+        TimeRangeEvent or Event
+            The converted IndexedEvent.
+        """
+        pass
+
+    def add_event(self, event):
+        """
+        Perform the conversion on the event and emit.
+
+        Parameters
+        ----------
+        event : Event, IndexedEvent, TimerangeEvent
+            Any of the three event variants.
+        """
+        pass
+
+
 class Mapper(Processor):
     """
     A processor which takes an operator as its only option
