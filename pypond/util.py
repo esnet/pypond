@@ -450,6 +450,9 @@ class Options(object):  # pylint: disable=too-few-public-methods
     def __setattr__(self, name, value):
         self.__dict__['_data'][name] = value
 
+    def __str__(self):
+        return str(self.to_dict())
+
     def to_dict(self):  # pylint: disable=missing-docstring
         return self._data
 
