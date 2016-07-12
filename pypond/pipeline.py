@@ -376,24 +376,29 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
     # Pipeline state chained methods
 
-    def window_by(self, win):
+    def window_by(self, window_or_duration=None):
         """
         Set the window, returning a new Pipeline. The argument here
-        is an object with {type, duration}.
+        is either a string or an object with string attrs type and
+        duration. The arg can be either a window or a duration.
 
-        Window *win* may be:
+        If no arg is supplied or set to None, the window_type is set
+        to 'global' and there is no duration.
+
+        Window *window_or_duration* may be:
 
         * A fixed interval: "fixed"
-        * A calendar interval: "day," "month" or "year"
+        * A calendar interval: "daily," "monthly" or "yearly"
 
         Duration is of the form:
 
         * "30s" or "1d" etc - supports seconds (s), minutes (m), hours (h),
-          days (d)
+          days (d). When duration is passed as the arg, window_type is
+          set to 'fixed'.
 
         Parameters
         ----------
-        win : string
+        window_or_duration : string, Capsule
             See above.
 
         Returns
@@ -404,15 +409,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         w_type = None
         duration = None
 
-        if isinstance(win, str):
-            if win == 'daily' or win == 'month' or win == 'year':
-                w_type = win
+        if isinstance(window_or_duration, str):
+            if window_or_duration == 'daily' or window_or_duration == 'monthly' \
+                    or window_or_duration == 'yearly':
+                w_type = window_or_duration
             else:
                 w_type = 'fixed'
-                duration = win
-        elif isinstance(win, Capsule):
-            w_type = win.type
-            duration = win.duration
+                duration = window_or_duration
+        elif isinstance(window_or_duration, Capsule):
+            w_type = window_or_duration.type
+            duration = window_or_duration.duration
         else:
             w_type = 'global'
             duration = None
