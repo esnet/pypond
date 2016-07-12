@@ -182,6 +182,7 @@ DEEP_EVENT_LIST = [
     Event(1429673400000, {'direction': {'status': 'OK', 'in': 1, 'out': 2}}),
     Event(1429673460000, {'direction': {'status': 'OK', 'in': 3, 'out': 4}}),
     Event(1429673520000, {'direction': {'status': 'FAIL', 'in': 0, 'out': 0}}),
+    Event(1429673580000, {'direction': {'status': 'OK', 'in': 8, 'out': 0}})
 ]
 
 
@@ -495,17 +496,19 @@ class TestAggregator(BaseTestPipeline):
 
         self.assertEqual(elist[0].get('out'), 4)
 
-        # Make sure it works with the the non-string version
+        # Make sure it works with the the non-string version to aggregate
+        # multiple columns
 
         elist = (
             Pipeline()
             .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
-            .aggregate({'direction.out': Functions.max})
+            .aggregate({('direction.out', 'direction.in'): Functions.max})
             .to_event_list()
         )
 
         self.assertEqual(elist[0].get('out'), 4)
+        self.assertEqual(elist[0].get('in'), 8)
 
 
 class TestOffsetPipeline(BaseTestPipeline):
