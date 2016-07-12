@@ -15,11 +15,14 @@ http://software.es.net/pond/#/pipeline
 from pyrsistent import freeze
 
 from .bases import PypondBase
+from .event import Event
 from .exceptions import PipelineException
+from .indexed_event import IndexedEvent
 from .pipeline_io import CollectionOut, EventOut
 from .processors import (
     Aggregator,
     Collapser,
+    Converter,
     Filter,
     Mapper,
     Offset,
@@ -29,6 +32,7 @@ from .processors import (
 )
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn
+from .timerange_event import TimeRangeEvent
 from .util import is_pmap, Options, is_function, Capsule
 
 
@@ -397,7 +401,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         For duration, this is a duration string, for example "30s" or "1d".
         Supported are: seconds (s), minutes (m), hours (h) and days (d).
 
-        The argument here is either a string or an object with string 
+        The argument here is either a string or an object with string
         attrs type and duration. The arg can be either a window or a duration.
 
         If no arg is supplied or set to None, the window_type is set
@@ -791,31 +795,6 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(agg)
 
-    def as_events(self, options):
-        """
-        Converts incoming TimeRangeEvents or IndexedEvents to
-        Events. This is helpful since some processors will
-        emit TimeRangeEvents or IndexedEvents, which may be
-        unsuitable for some applications.
-
-        There are three options:
-
-        1. use the beginning time (options = Options(alignment='lag')
-        2. use the center time (options = Options(alignment='center')
-        3. use the end time (options = Options(alignment='lead')
-
-        Parameters
-        ----------
-        options : Options
-            The options, see above.
-
-        Returns
-        -------
-        Pipeline
-            The Pipeline.
-        """
-        raise NotImplementedError
-
     def _chain_last(self):
         """Get the operative last for the processors
 
@@ -959,6 +938,41 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(take)
 
+    def as_events(self, options):
+        """
+        Converts incoming TimeRangeEvents or IndexedEvents to
+        Events. This is helpful since some processors will
+        emit TimeRangeEvents or IndexedEvents, which may be
+        unsuitable for some applications.
+
+        There are three options:
+
+        1. use the beginning time (options = Options(alignment='lag')
+        2. use the center time (options = Options(alignment='center')
+        3. use the end time (options = Options(alignment='lead')
+
+        Parameters
+        ----------
+        options : Options
+            The options, see above.
+
+        Returns
+        -------
+        Pipeline
+            The Pipeline.
+        """
+
+        conv = Converter(
+            self,
+            Options(
+                type=Event,
+                prev=self._chain_last(),
+                **options
+            ),
+        )
+
+        return self._append(conv)
+
     def as_time_range_events(self, options):
         """
         Converts incoming Events or IndexedEvents to TimeRangeEvents.
@@ -976,15 +990,25 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        options : Options
-            Options - see above.
+        options : dict
+            Args to add to Options - duration and alignment.
 
         Returns
         -------
         Pipeline
             The Pipeline
         """
-        raise NotImplementedError
+
+        conv = Converter(
+            self,
+            Options(
+                type=TimeRangeEvent,
+                prev=self._chain_last(),
+                **options
+            ),
+        )
+
+        return self._append(conv)
 
     def as_indexed_events(self, options):
         """
@@ -1013,7 +1037,17 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
 
         """
-        raise NotImplementedError
+
+        conv = Converter(
+            self,
+            Options(
+                type=IndexedEvent,
+                prev=self._chain_last(),
+                **options
+            ),
+        )
+
+        return self._append(conv)
 
 # module functions
 

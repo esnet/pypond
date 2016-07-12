@@ -16,8 +16,9 @@ from .exceptions import ProcessorException
 from .index import Index
 from .indexed_event import IndexedEvent
 from .pipeline_io import Collector
+from .range import TimeRange
 from .timerange_event import TimeRangeEvent
-from .util import Options, is_pipeline, unique_id, is_function
+from .util import Options, is_pipeline, unique_id, is_function, ms_from_dt
 
 # Base for all pipeline processors
 
@@ -617,6 +618,8 @@ class Converter(Processor):
             msg = 'Unknown arg to Converter: {0}'.format(arg1)
             raise ProcessorException(msg)
 
+        self._log('Converter.init', 'options: {0}'.format(options))
+
     def clone(self):
         """clone it."""
         return Converter(self)
@@ -634,7 +637,41 @@ class Converter(Processor):
         TimeRangeEvent or IndexedEvent
             The converted Event.
         """
-        pass
+        if self._convert_to == Event:
+            return event
+        elif self._convert_to == TimeRangeEvent:
+
+            begin = None
+            end = None
+
+            if self._duration is None:
+                msg = 'Duration expected in converter'
+                raise ProcessorException(msg)
+
+            if self._alignment == 'front':
+                begin = ms_from_dt(event.timestamp())
+                end = begin + self._duration
+            elif self._alignment == 'center':
+                begin = ms_from_dt(event.timestamp()) - int(self._duration) / 2
+                end = ms_from_dt(event.timestamp()) + int(self._duration) / 2
+            elif self._alignment == 'behind':
+                end = ms_from_dt(event.timestamp())
+                begin = end - self._duration
+            else:
+                msg = 'Unknown alignment of converter'
+                raise ProcessorException(msg)
+
+            range_list = [int(begin), int(end)]
+
+            self._log('Converter.convert_event', 'range: {0}'.format(range_list))
+
+            rng = TimeRange(range_list)
+            return TimeRangeEvent(rng, event.data())
+
+        elif self._convert_to == IndexedEvent:
+            ts = event.timestamp()
+            istr = Index.get_index_string(self._duration_string, ts)
+            return IndexedEvent(istr, event.data())
 
     def convert_time_range_event(self, event):
         """Convert a TimeRangeEvent
@@ -649,7 +686,7 @@ class Converter(Processor):
         Event or IndexedEvent
             The converted TimeRangeEvent.
         """
-        pass
+        raise NotImplementedError
 
     def convert_indexed_event(self, event):
         """Convert an IndexedEvent
@@ -664,7 +701,7 @@ class Converter(Processor):
         TimeRangeEvent or Event
             The converted IndexedEvent.
         """
-        pass
+        raise NotImplementedError
 
     def add_event(self, event):
         """
@@ -675,7 +712,22 @@ class Converter(Processor):
         event : Event, IndexedEvent, TimerangeEvent
             Any of the three event variants.
         """
-        pass
+        if self.has_observers():
+            output_event = None
+
+            if isinstance(event, Event):
+                output_event = self.convert_event(event)
+            elif isinstance(event, TimeRangeEvent):
+                output_event = self.convert_time_range_event(event)
+            elif isinstance(event, IndexedEvent):
+                output_event = self.convert_indexed_event(event)
+            else:
+                msg = 'Unknown event type received'
+                raise ProcessorException(msg)
+
+            self._log('Converter.add_event', 'emitting: {0}'.format(output_event))
+
+            self.emit(output_event)
 
 
 class Mapper(Processor):

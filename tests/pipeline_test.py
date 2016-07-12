@@ -13,7 +13,7 @@ from pypond.pipeline import Pipeline
 from pypond.pipeline_io import CollectionOut, EventOut
 from pypond.series import TimeSeries
 from pypond.sources import UnboundedIn
-from pypond.util import aware_dt_from_args
+from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt
 
 # global variables for the callbacks to write to.
 # they are alwasy reset to None by setUp()
@@ -617,6 +617,107 @@ class TestAggregator(BaseTestPipeline):
         self.assertEqual(RESULTS.get('1h-396200:a').get('out'), 7)
         self.assertEqual(RESULTS.get('1h-396200:b').get('in'), 5)
         self.assertEqual(RESULTS.get('1h-396200:b').get('out'), 9)
+
+
+class TestConverter(BaseTestPipeline):
+    """
+    Tests for the Converter processor
+    """
+
+    def setUp(self):
+        super(TestConverter, self).setUp()
+
+        self._event = Event(dt_from_ms(1426316400000), 3)
+
+    def test_event_to_tre_conversion(self):
+        """test converting Event objects to TimeRangeEvent."""
+
+        # pylint: disable=missing-docstring
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):
+            self.assertEqual(ms_from_dt(event.begin()), 1426316400000)
+            self.assertEqual(ms_from_dt(event.end()), 1426320000000)
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_time_range_events(dict(alignment='front', duration='1h'))
+            .to(EventOut, cback1)
+        )
+
+        stream1.add_event(self._event)
+
+        stream2 = UnboundedIn()
+
+        def cback2(event):
+            self.assertEqual(ms_from_dt(event.begin()), 1426314600000)
+            self.assertEqual(ms_from_dt(event.end()), 1426318200000)
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream2)
+            .as_time_range_events(dict(alignment='center', duration='1h'))
+            .to(EventOut, cback2)
+        )
+
+        stream2.add_event(self._event)
+
+        stream3 = UnboundedIn()
+
+        def cback3(event):
+            self.assertEqual(ms_from_dt(event.begin()), 1426312800000)
+            self.assertEqual(ms_from_dt(event.end()), 1426316400000)
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream3)
+            .as_time_range_events(dict(alignment='behind', duration='1h'))
+            .to(EventOut, cback3)
+        )
+
+        stream3.add_event(self._event)
+
+    def test_event_to_idxe_conversion(self):
+        """Test converting Event object to IndexedEvent."""
+
+        # pylint: disable=missing-docstring
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):
+            self.assertEqual(event.index_as_string(), '1h-396199')
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_indexed_events(dict(duration='1h'))
+            .to(EventOut, cback1)
+        )
+
+        stream1.add_event(self._event)
+
+    def test_event_to_event_noop(self):
+        """Event to Event as a noop."""
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):  # pylint: disable=missing-docstring
+            self.assertEqual(event, self._event)
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_events({})
+            .to(EventOut, cback1)
+        )
+
+        stream1.add_event(self._event)
 
 
 class TestOffsetPipeline(BaseTestPipeline):
