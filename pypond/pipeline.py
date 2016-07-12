@@ -29,7 +29,7 @@ from .processors import (
 )
 from .series import TimeSeries
 from .sources import BoundedIn, UnboundedIn
-from .util import is_pmap, Options, is_function
+from .util import is_pmap, Options, is_function, Capsule
 
 
 class Runner(PypondBase):  # pylint: disable=too-few-public-methods
@@ -401,7 +401,25 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+        w_type = None
+        duration = None
+
+        if isinstance(win, str):
+            if win == 'daily' or win == 'month' or win == 'year':
+                w_type = win
+            else:
+                w_type = 'fixed'
+                duration = win
+        elif isinstance(win, Capsule):
+            w_type = win.type
+            duration = win.duration
+        else:
+            w_type = 'global'
+            duration = None
+
+        new_d = self._d.update(dict(window_type=w_type, window_duration=duration))
+
+        return Pipeline(new_d)
 
     def clear_window(self):
         """

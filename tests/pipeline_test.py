@@ -13,6 +13,7 @@ from pypond.pipeline import Pipeline
 from pypond.pipeline_io import CollectionOut, EventOut
 from pypond.series import TimeSeries
 from pypond.sources import UnboundedIn
+from pypond.util import aware_dt_from_args
 
 # global variables for the callbacks to write to.
 # they are alwasy reset to None by setUp()
@@ -423,7 +424,7 @@ class TestFilterAndTake(BaseTestPipeline):
             .to_keyed_collections()
         )
 
-        self.assertEqual(kcol.get('OK').size(), 2)
+        self.assertEqual(kcol.get('OK').size(), 3)
         self.assertEqual(kcol.get('FAIL').size(), 1)
         self.assertEqual(kcol.get('OK').at(0).value('direction').get('out'), 2)
         self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
@@ -439,7 +440,7 @@ class TestFilterAndTake(BaseTestPipeline):
             .to_keyed_collections()
         )
 
-        self.assertEqual(kcol.get('OK').size(), 2)
+        self.assertEqual(kcol.get('OK').size(), 3)
         self.assertEqual(kcol.get('FAIL').size(), 1)
         self.assertEqual(kcol.get('OK').at(0).value('direction').get('out'), 2)
         self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
@@ -510,6 +511,113 @@ class TestAggregator(BaseTestPipeline):
         self.assertEqual(elist[0].get('out'), 4)
         self.assertEqual(elist[0].get('in'), 8)
 
+    def test_windowed_average(self):
+        """aggregate events into by windowed avg."""
+        events_in = [
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=7, minute=57)),
+                {'in': 3, 'out': 1}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=7, minute=58)),
+                {'in': 9, 'out': 2}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=7, minute=59)),
+                {'in': 6, 'out': 6}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=8, minute=0)),
+                {'in': 4, 'out': 7}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=8, minute=1)),
+                {'in': 5, 'out': 9}
+            ),
+        ]
+
+        def cback(event):
+            """callback to pass in."""
+            global RESULTS  # pylint: disable=global-statement
+            if RESULTS is None:
+                RESULTS = dict()
+            RESULTS['{0}'.format(event.index())] = event
+
+        uin = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(uin)
+            .window_by('1h')
+            .emit_on('eachEvent')
+            .aggregate({'in': Functions.avg, 'out': Functions.avg})
+            .to(EventOut, cback)
+        )
+
+        for i in events_in:
+            uin.add_event(i)
+
+        self.assertEqual(RESULTS.get('1h-396199').get('in'), 6)
+        self.assertEqual(RESULTS.get('1h-396199').get('out'), 3)
+        self.assertEqual(RESULTS.get('1h-396200').get('in'), 4.5)
+        self.assertEqual(RESULTS.get('1h-396200').get('out'), 8)
+
+    def test_collect_and_aggregate(self):
+        """collect events together and aggregate."""
+        events_in = [
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=7, minute=57)),
+                {'type': 'a', 'in': 3, 'out': 1}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=7, minute=58)),
+                {'type': 'a', 'in': 9, 'out': 2}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=7, minute=59)),
+                {'type': 'b', 'in': 6, 'out': 6}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=8, minute=0)),
+                {'type': 'a', 'in': 4, 'out': 7}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=8, minute=1)),
+                {'type': 'b', 'in': 5, 'out': 9}
+            ),
+        ]
+
+        def cback(event):
+            """callback to pass in."""
+            global RESULTS  # pylint: disable=global-statement
+            if RESULTS is None:
+                RESULTS = dict()
+            RESULTS['{0}:{1}'.format(event.index(), event.get('type'))] = event
+
+        uin = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(uin)
+            .group_by('type')
+            .window_by('1h')
+            .emit_on('eachEvent')
+            .aggregate({'type': Functions.keep, 'in': Functions.avg, 'out': Functions.avg})
+            .to(EventOut, cback)
+        )
+
+        for i in events_in:
+            uin.add_event(i)
+
+        self.assertEqual(RESULTS.get('1h-396199:a').get('in'), 6)
+        self.assertEqual(RESULTS.get('1h-396199:a').get('out'), 1.5)
+        self.assertEqual(RESULTS.get('1h-396199:b').get('in'), 6)
+        self.assertEqual(RESULTS.get('1h-396199:b').get('out'), 6)
+        self.assertEqual(RESULTS.get('1h-396200:a').get('in'), 4)
+        self.assertEqual(RESULTS.get('1h-396200:a').get('out'), 7)
+        self.assertEqual(RESULTS.get('1h-396200:b').get('in'), 5)
+        self.assertEqual(RESULTS.get('1h-396200:b').get('out'), 9)
+
 
 class TestOffsetPipeline(BaseTestPipeline):
     """
@@ -567,6 +675,10 @@ class TestOffsetPipeline(BaseTestPipeline):
             .to(CollectionOut, cback)
         )
 
+        # Spurious lint error due to upstream tinkering
+        # with the global variable
+        # pylint: disable=no-member
+
         self.assertEqual(RESULTS.at(0).get(), 55)
         self.assertEqual(RESULTS.at(1).get(), 21)
         self.assertEqual(RESULTS.at(2).get(), 29)
@@ -599,6 +711,10 @@ class TestOffsetPipeline(BaseTestPipeline):
 
         source.add_event(EVENTLIST1[0])
 
+        # Spurious lint error due to upstream tinkering
+        # with the global variable
+        # pylint: disable=no-member
+
         self.assertEqual(RESULTS.size(), 1)
         self.assertEqual(RESULTS2.size(), 1)
 
@@ -623,6 +739,10 @@ class TestOffsetPipeline(BaseTestPipeline):
         )
         source.add_event(EVENTLIST1[0])
         source.add_event(EVENTLIST1[1])
+
+        # Spurious lint error due to upstream tinkering
+        # with the global variable
+        # pylint: disable=no-member
 
         self.assertEqual(RESULTS.size(), 2)
         self.assertEqual(RESULTS.at(0).get('in'), 4)
