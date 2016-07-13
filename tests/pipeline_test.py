@@ -621,6 +621,60 @@ class TestAggregator(BaseTestPipeline):
         self.assertEqual(RESULTS.get('1h-396200:b').get('in'), 5)
         self.assertEqual(RESULTS.get('1h-396200:b').get('out'), 9)
 
+    def test_aggregate_and_conversion(self):
+        """Aggregate/average and convert to TimeRangeEvent."""
+
+        events_in = [
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=1, minute=57)),
+                {'in': 3, 'out': 1}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=1, minute=58)),
+                {'in': 9, 'out': 2}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=1, minute=59)),
+                {'in': 6, 'out': 6}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=2, minute=0)),
+                {'in': 4, 'out': 7}
+            ),
+            Event(
+                aware_dt_from_args(dict(year=2015, month=3, day=14, hour=2, minute=1)),
+                {'in': 5, 'out': 9}
+            ),
+        ]
+
+        def cback(event):
+            """callback to pass in."""
+            global RESULTS  # pylint: disable=global-statement
+            if RESULTS is None:
+                RESULTS = dict()
+            RESULTS['{0}'.format(ms_from_dt(event.timestamp()))] = event
+
+        uin = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(uin)
+            .window_by('1h')
+            .emit_on('eachEvent')
+            .aggregate({'in': Functions.avg, 'out': Functions.avg})
+            .as_time_range_events(dict(alignment='lag'))
+            .to(EventOut, cback)
+        )
+
+        for i in events_in:
+            uin.add_event(i)
+
+        self.assertEqual(RESULTS.get('1426294800000').get('in'), 6)
+        self.assertEqual(RESULTS.get('1426294800000').get('out'), 3)
+
+        self.assertEqual(RESULTS.get('1426298400000').get('in'), 4.5)
+        self.assertEqual(RESULTS.get('1426298400000').get('out'), 8)
+
 
 class TestConverter(BaseTestPipeline):
     """
