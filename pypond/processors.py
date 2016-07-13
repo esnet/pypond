@@ -700,6 +700,11 @@ class Converter(Processor):
             elif self._alignment == 'lead':
                 ts = event.end()
 
+            self._log(
+                'Converter.convert_time_range_event',
+                'align: {0} ts: {1}'.format(self._alignment, ts)
+            )
+
             return Event(ts, event.data())
 
         elif self._convert_to == IndexedEvent:
