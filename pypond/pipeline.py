@@ -466,7 +466,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
-        raise NotImplementedError
+        return self.window_by()
 
     def group_by(self, key=None):
         """
@@ -531,7 +531,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
-        raise NotImplementedError
+        return self.group_by()
 
     def emit_on(self, trigger):
         """
@@ -673,7 +673,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         self._log(
             'Pipeline.to',
             'out: {0}, obs: {1}, opt: {2} mode: {3}'.format(
-                out, observer, options.to_dict(), self.mode())
+                out, observer, options, self.mode())
         )
 
         Out = out  # pylint: disable=invalid-name
@@ -710,8 +710,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         observer : function
-            The callback function. This will be passed the count, the window_key
-            and the group_by_key.
+            The callback function. This function will be passed collection.size(),
+            window_key, group_by_key) as args.
         force : bool, optional
             Flush at the end of processing batch events, output again with possibly
             partial result
@@ -721,7 +721,16 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        raise NotImplementedError
+
+        def override(collection, window_key, group_by_key):
+            """
+            This overrides the default behavior of CollectionOut
+            that passes collection/wkey/gbkey to the callback
+            passed in.
+            """
+            observer(collection.size(), window_key, group_by_key)
+
+        return self.to(CollectionOut, override, force)
 
     def offset_by(self, offset_by, field_spec=None):
         """
@@ -1036,13 +1045,6 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         -------
         TYPE
             Description
-
-        Raises
-        ------
-        NotImplementedError
-            Description
-
-
         """
 
         conv = Converter(

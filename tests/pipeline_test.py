@@ -449,6 +449,36 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
         self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
 
+    def test_group_by_and_count(self):
+        """group by and also count."""
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        # pylint: disable=missing-docstring
+
+        def gb_callback(event):
+            """group into two groups."""
+            return 'high' if event.value() > 65 else 'low'
+
+        def cback(count, window_key, group_by):  # pylint: disable=unused-argument
+            """callback to pass in."""
+            global RESULTS  # pylint: disable=global-statement
+            if RESULTS is None:
+                RESULTS = dict()
+            RESULTS[group_by] = count
+
+        (
+            Pipeline()
+            .from_source(timeseries)
+            .take(10)
+            .group_by(gb_callback)
+            .emit_on('flush')
+            .count(cback)
+        )
+
+        self.assertEqual(RESULTS.get('high'), 4)
+        self.assertEqual(RESULTS.get('low'), 6)
+
 
 class TestAggregator(BaseTestPipeline):
     """
