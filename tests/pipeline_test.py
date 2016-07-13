@@ -2,6 +2,9 @@
 Tests for the pipeline.
 """
 
+# sorry pylint, unit tests get long
+# pylint: disable=too-many-lines
+
 import datetime
 import unittest
 
@@ -11,10 +14,10 @@ from pypond.event import Event
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
-from pypond.pipeline_io import CollectionOut, EventOut
+from pypond.pipeline_in import UnboundedIn
+from pypond.pipeline_out import CollectionOut, EventOut
 from pypond.range import TimeRange
 from pypond.series import TimeSeries
-from pypond.sources import UnboundedIn
 from pypond.timerange_event import TimeRangeEvent
 from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt
 

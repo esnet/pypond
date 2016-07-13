@@ -24,6 +24,7 @@ from pypond.exceptions import (
     CollectionException,
     CollectionWarning,
     PipelineException,
+    PipelineIOException,
     TimeSeriesException,
 )
 from pypond.functions import Functions
@@ -612,16 +613,16 @@ class TestCollection(SeriesBase):
 
     def test_other_exceptions(self):
         """trigger other exceptions"""
-        with self.assertRaises(PipelineException):
+        with self.assertRaises(PipelineIOException):
             self._canned_collection.start()
 
-        with self.assertRaises(PipelineException):
+        with self.assertRaises(PipelineIOException):
             self._canned_collection.stop()
 
-        with self.assertRaises(PipelineException):
+        with self.assertRaises(PipelineIOException):
             self._canned_collection.on_emit()
 
-        with self.assertRaises(PipelineException):
+        with self.assertRaises(PipelineIOException):
             ie1 = IndexedEvent('1d-12355', {'value': 42})
             self._canned_collection.add_event(ie1)
 

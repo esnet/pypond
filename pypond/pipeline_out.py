@@ -7,7 +7,7 @@
 #  LICENSE file in the root directory of this source tree.
 
 """
-Objects to handle Pipeline I/O.
+Objects to handle Pipeline output and event collection.
 """
 
 from .bases import PypondBase

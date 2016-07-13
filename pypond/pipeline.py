@@ -6,6 +6,9 @@
 #  This source code is licensed under the BSD-style license found in the
 #  LICENSE file in the root directory of this source tree.
 
+# sorry pylint, numpy makes things long
+# pylint: disable=too-many-lines
+
 """
 Implementation of the Pond Pipeline classes.
 
@@ -18,7 +21,8 @@ from .bases import PypondBase
 from .event import Event
 from .exceptions import PipelineException
 from .indexed_event import IndexedEvent
-from .pipeline_io import CollectionOut, EventOut
+from .pipeline_out import CollectionOut, EventOut
+from .pipeline_in import BoundedIn, UnboundedIn
 from .processors import (
     Aggregator,
     Collapser,
@@ -31,7 +35,6 @@ from .processors import (
     Taker,
 )
 from .series import TimeSeries
-from .sources import BoundedIn, UnboundedIn
 from .timerange_event import TimeRangeEvent
 from .util import is_pmap, Options, is_function, Capsule
 

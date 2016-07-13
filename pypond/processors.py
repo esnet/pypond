@@ -15,7 +15,7 @@ from .event import Event
 from .exceptions import ProcessorException
 from .index import Index
 from .indexed_event import IndexedEvent
-from .pipeline_io import Collector
+from .pipeline_out import Collector
 from .range import TimeRange
 from .timerange_event import TimeRangeEvent
 from .util import Options, is_pipeline, unique_id, is_function, ms_from_dt, dt_from_ms

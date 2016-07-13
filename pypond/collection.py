@@ -15,10 +15,10 @@ import json
 
 from pyrsistent import freeze, thaw
 
-from .sources import BoundedIn
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions
+from .pipeline_in import BoundedIn
 from .range import TimeRange
 from .util import unique_id, is_pvector, ObjectEncoder, _check_dt
 

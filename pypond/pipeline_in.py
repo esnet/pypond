@@ -7,12 +7,12 @@
 #  LICENSE file in the root directory of this source tree.
 
 """
-Base classes and components of pipeline sources and processors.
+Classes to handle pipeline input.
 """
 
 from .event import Event
 from .bases import Observable
-from .exceptions import PipelineException
+from .exceptions import PipelineIOException
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
 from .util import unique_id
@@ -46,7 +46,7 @@ class In(Observable):
 
         Raises
         ------
-        PipelineException
+        PipelineIOException
             Raised if events are not all of one type.
         """
 
@@ -59,7 +59,7 @@ class In(Observable):
                 self._type = IndexedEvent
         else:
             if not isinstance(event, self._type):
-                raise PipelineException('Homogeneous events expected')
+                raise PipelineIOException('Homogeneous events expected')
 
 
 class BoundedIn(In):
@@ -71,13 +71,13 @@ class BoundedIn(In):
     # pylint: disable=no-self-use, missing-docstring
 
     def start(self):
-        raise PipelineException('start() not supported on bounded source')
+        raise PipelineIOException('start() not supported on bounded source')
 
     def stop(self):
-        raise PipelineException('stop() not supported on bounded source')
+        raise PipelineIOException('stop() not supported on bounded source')
 
     def on_emit(self):
-        raise PipelineException('You can not setup a listener to a bounded source')
+        raise PipelineIOException('You can not setup a listener to a bounded source')
 
 
 class UnboundedIn(In):
@@ -110,4 +110,4 @@ class UnboundedIn(In):
     def events(self):  # pylint: disable=no-self-use
         """Raise an exception - can't iterate an unbounded source."""
         msg = 'Iteration across unbounded sources is not suported.'
-        raise PipelineException(msg)
+        raise PipelineIOException(msg)
