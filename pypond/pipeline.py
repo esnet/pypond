@@ -938,7 +938,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(take)
 
-    def as_events(self, options):
+    def as_events(self, options=None):
         """
         Converts incoming TimeRangeEvents or IndexedEvents to
         Events. This is helpful since some processors will

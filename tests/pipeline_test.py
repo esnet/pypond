@@ -11,8 +11,10 @@ from pypond.event import Event
 from pypond.functions import Functions
 from pypond.pipeline import Pipeline
 from pypond.pipeline_io import CollectionOut, EventOut
+from pypond.range import TimeRange
 from pypond.series import TimeSeries
 from pypond.sources import UnboundedIn
+from pypond.timerange_event import TimeRangeEvent
 from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt
 
 # global variables for the callbacks to write to.
@@ -628,6 +630,7 @@ class TestConverter(BaseTestPipeline):
         super(TestConverter, self).setUp()
 
         self._event = Event(dt_from_ms(1426316400000), 3)
+        self._tre = TimeRangeEvent(TimeRange([1426316400000, 1426320000000]), 3)
 
     def test_event_to_tre_conversion(self):
         """test converting Event objects to TimeRangeEvent."""
@@ -718,6 +721,75 @@ class TestConverter(BaseTestPipeline):
         )
 
         stream1.add_event(self._event)
+
+    def test_tre_to_event(self):
+        """TimeRangeEvent to Event conversion."""
+
+        stream1 = UnboundedIn()
+
+        # pylint: disable=missing-docstring
+
+        def cback1(event):
+            self.assertEqual(ms_from_dt(event.timestamp()), 1426318200000)
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_events(dict(alignment='center'))
+            .to(EventOut, cback1)
+        )
+
+        stream1.add_event(self._tre)
+
+        stream2 = UnboundedIn()
+
+        def cback2(event):
+            self.assertEqual(ms_from_dt(event.timestamp()), 1426316400000)
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream2)
+            .as_events(dict(alignment='lag'))
+            .to(EventOut, cback2)
+        )
+
+        stream2.add_event(self._tre)
+
+        stream3 = UnboundedIn()
+
+        def cback3(event):
+            self.assertEqual(ms_from_dt(event.timestamp()), 1426320000000)
+            self.assertEqual(event.get(), 3)
+
+        (
+            Pipeline()
+            .from_source(stream3)
+            .as_events(dict(alignment='lead'))
+            .to(EventOut, cback3)
+        )
+
+        stream3.add_event(self._tre)
+
+    def test_tre_to_tre_noop(self):
+        """TimeRangeEvent -> TimeRangeEvent noop."""
+
+        stream1 = UnboundedIn()
+
+        # pylint: disable=missing-docstring
+
+        def cback1(event):
+            self.assertEqual(event, self._tre)
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_time_range_events({})
+            .to(EventOut, cback1)
+        )
+
+        stream1.add_event(self._tre)
 
 
 class TestOffsetPipeline(BaseTestPipeline):

@@ -18,7 +18,7 @@ from .indexed_event import IndexedEvent
 from .pipeline_io import Collector
 from .range import TimeRange
 from .timerange_event import TimeRangeEvent
-from .util import Options, is_pipeline, unique_id, is_function, ms_from_dt
+from .util import Options, is_pipeline, unique_id, is_function, ms_from_dt, dt_from_ms
 
 # Base for all pipeline processors
 
@@ -686,7 +686,25 @@ class Converter(Processor):
         Event or IndexedEvent
             The converted TimeRangeEvent.
         """
-        raise NotImplementedError
+        if self._convert_to == TimeRangeEvent:
+            return event
+        elif self._convert_to == Event:
+
+            ts = None
+
+            if self._alignment == 'lag':
+                ts = event.begin()
+            elif self._alignment == 'center':
+                epoch = (ms_from_dt(event.begin()) + ms_from_dt(event.end())) // 2
+                ts = dt_from_ms(epoch)
+            elif self._alignment == 'lead':
+                ts = event.end()
+
+            return Event(ts, event.data())
+
+        elif self._convert_to == IndexedEvent:
+            msg = 'Can not convert TimeRangeEvent to an IndexedEvent'
+            raise ProcessorException(msg)
 
     def convert_indexed_event(self, event):
         """Convert an IndexedEvent
