@@ -683,8 +683,8 @@ class Converter(Processor):
 
         Returns
         -------
-        Event or IndexedEvent
-            The converted TimeRangeEvent.
+        Event
+            The converted TimeRangeEvent. Can not convert to IndexedEvent.
         """
         if self._convert_to == TimeRangeEvent:
             return event
@@ -702,7 +702,7 @@ class Converter(Processor):
 
             self._log(
                 'Converter.convert_time_range_event',
-                'align: {0} ts: {1}'.format(self._alignment, ts)
+                'Event - align: {0} ts: {1}'.format(self._alignment, ts)
             )
 
             return Event(ts, event.data())
@@ -724,7 +724,29 @@ class Converter(Processor):
         TimeRangeEvent or Event
             The converted IndexedEvent.
         """
-        raise NotImplementedError
+
+        if self._convert_to == IndexedEvent:
+            return event
+        elif self._convert_to == Event:
+
+            ts = None
+
+            if self._alignment == 'lag':
+                ts = event.begin()
+            elif self._alignment == 'center':
+                epoch = (ms_from_dt(event.begin()) + ms_from_dt(event.end())) // 2
+                ts = dt_from_ms(epoch)
+            elif self._alignment == 'lead':
+                ts = event.end()
+
+            self._log(
+                'Converter.convert_indexed_event',
+                'Event - align: {0} ts: {1}'.format(self._alignment, ts)
+            )
+
+            return Event(ts, event.data())
+        elif self._convert_to == TimeRangeEvent:
+            return TimeRangeEvent(event.timerange(), event.data())
 
     def add_event(self, event):
         """
@@ -737,6 +759,8 @@ class Converter(Processor):
         """
         if self.has_observers():
             output_event = None
+
+            # pylint: disable=redefined-variable-type
 
             if isinstance(event, Event):
                 output_event = self.convert_event(event)

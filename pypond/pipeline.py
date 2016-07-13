@@ -938,6 +938,13 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(take)
 
+    def _convert_opts(self, options):  # pylint: disable=no-self-use
+
+        if options is None:
+            return dict()
+        else:
+            return options
+
     def as_events(self, options=None):
         """
         Converts incoming TimeRangeEvents or IndexedEvents to
@@ -967,13 +974,13 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             Options(
                 type=Event,
                 prev=self._chain_last(),
-                **options
+                **self._convert_opts(options)
             ),
         )
 
         return self._append(conv)
 
-    def as_time_range_events(self, options):
+    def as_time_range_events(self, options=None):
         """
         Converts incoming Events or IndexedEvents to TimeRangeEvents.
 
@@ -1004,13 +1011,13 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             Options(
                 type=TimeRangeEvent,
                 prev=self._chain_last(),
-                **options
+                **self._convert_opts(options)
             ),
         )
 
         return self._append(conv)
 
-    def as_indexed_events(self, options):
+    def as_indexed_events(self, options=None):
         """
         Converts incoming Events to IndexedEvents.
 
@@ -1043,7 +1050,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             Options(
                 type=IndexedEvent,
                 prev=self._chain_last(),
-                **options
+                **self._convert_opts(options)
             ),
         )
 

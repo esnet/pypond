@@ -434,7 +434,7 @@ class Options(object):  # pylint: disable=too-few-public-methods
     Parameters
     ----------
     initial : dict, optional
-        Can supply a dict of initial values.
+        Can supply keyword args for initial values.
     """
 
     def __init__(self, **kwargs):
