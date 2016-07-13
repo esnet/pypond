@@ -344,21 +344,23 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return Pipeline(new_d)
 
-    def _set_first(self, i):
+    def _set_first(self, node):
         """
         Set the first processing node pointed to, returning
         a new Pipeline. The original pipeline will still point
         to its orginal processing node.
         """
-        raise NotImplementedError
+        new_d = self._d.set('first', node)
+        return Pipeline(new_d)
 
-    def _set_last(self, i):
+    def _set_last(self, node):
         """
         Set the last processing node pointed to, returning
         a new Pipeline. The original pipeline will still point
         to its orginal processing node.
         """
-        raise NotImplementedError
+        new_d = self._d.set('last', node)
+        return Pipeline(new_d)
 
     def _append(self, processor):
 
