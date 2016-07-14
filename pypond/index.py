@@ -125,6 +125,9 @@ class Index(PypondBase):
         that calendar range as a human readable format, e.g. "June, 2014".
         The format specified is a Moment.format.
 
+        Originally implemented at Util.niceIndexString in the JS source,
+        this is just a greatly simplified version using self._index_type.
+
         Parameters
         ----------
         fmt : str, optional
@@ -225,7 +228,8 @@ class Index(PypondBase):
 
         This was in src/util.js in the original project, but the only thing using
         the code in that util.js was the Index class, and it makes more sense
-        having this as a class method.
+        having this as a class method and setting self._index_type makes further
+        regex analysis of the index unnecessary.
 
         Parameters
         ----------

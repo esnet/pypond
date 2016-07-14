@@ -68,10 +68,18 @@ pypond.pipeline module
     :undoc-members:
     :show-inheritance:
 
-pypond.pipeline_io module
+pypond.pipeline_in module
 -------------------------
 
-.. automodule:: pypond.pipeline_io
+.. automodule:: pypond.pipeline_in
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypond.pipeline_out module
+--------------------------
+
+.. automodule:: pypond.pipeline_out
     :members:
     :undoc-members:
     :show-inheritance:
@@ -96,14 +104,6 @@ pypond.series module
 --------------------
 
 .. automodule:: pypond.series
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pypond.sources module
----------------------
-
-.. automodule:: pypond.sources
     :members:
     :undoc-members:
     :show-inheritance:
