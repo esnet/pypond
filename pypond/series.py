@@ -849,6 +849,187 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """call to_string()"""
         return self.to_string()  # pragma: no cover
 
+    # Windowing and rollups
+
+    def fixed_window_rollup(self, window_size, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events within the TimeSeries
+        across multiple fixed windows of size `windowSize`.
+
+        Note that these are windows defined relative to Jan 1st, 1970,
+        and are UTC, so this is best suited to smaller window sizes
+        (hourly, 5m, 30s, 1s etc), or in situations where you don't care
+        about the specific window, just that the data is smaller.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example:
+        ```
+        {in: avg, out: avg}
+        ```
+        will aggregate both "in" and "out" using the average aggregation
+        function.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg})
+
+        Parameters
+        ----------
+        window_size : str
+            The size of the window, e.g. '6h' or '5m'
+        aggregation : Options
+            The aggregation specification
+        to_events : bool, optional
+            Convert to events
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries
+        """
+        raise NotImplementedError
+
+    def hourly_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into hours. The hours are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each hour.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max})
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self.fixed_window_rollup('1h', aggregation, to_events)
+
+    def daily_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into days. The days are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each day.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self._rollup('daily', aggregation, to_events)
+
+    def monthly_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into months. The months are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each month.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self._rollup('monthly', aggregation, to_events)
+
+    def yearly_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into years. The years are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each year.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self._rollup('yearly', aggregation, to_events)
+
+    def _rollup(self, interval, aggregation, to_events=False):
+        raise NotImplementedError
+
     # Static methods
 
     @staticmethod

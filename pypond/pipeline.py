@@ -653,9 +653,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         ::
 
-            p = Pipeline()
+            def cback(event):
+                do_something_with_the_event(event)
 
-            XXX FLESH OUT EXAMPLE
+            timeseries = TimeSeries(IN_OUT_DATA)
+
+            (
+                Pipeline()
+                .from_source(timeseries)
+                .emit_on('flush')
+                .collapse(['in', 'out'], 'total', Functions.sum)
+                .aggregate(dict(total=Functions.max))
+                .to(EventOut, cback)
+            )
 
         NOTE: arg list has been changed from the ordering in the JS source
         to conform to python convention.
@@ -786,13 +796,35 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         ::
 
-            XXX FLESH OUT EXAMPLE
+            uin = UnboundedIn()
+
+            (
+                Pipeline()
+                .from_source(uin)
+                .window_by('1h')
+                .emit_on('eachEvent')
+                .aggregate({'in': Functions.avg, 'out': Functions.avg})
+                .to(EventOut, cback)
+            )
+
+        A more complex example - this will aggregate two deep fields into a
+        single object::
+
+            elist = (
+                Pipeline()
+                .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+                .emit_on('flush')
+                .aggregate({('direction.out', 'direction.in'): Functions.max})
+                .to_event_list()
+            )
 
 
         Parameters
         ----------
-        fields : instance
-            Fields and operators to be aggregated
+        fields : dict
+            Fields and operators to be aggregated. Deep fields may be
+            indicated by using this.style.notation and multiple fields
+            can be aggregated by using a tuple as a key
 
         Returns
         -------
