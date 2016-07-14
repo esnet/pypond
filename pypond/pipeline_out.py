@@ -121,6 +121,8 @@ class Collector(PypondBase):
         collection_key = '{wk}::{gbk}'.format(wk=window_key, gbk=group_by_key) if \
             group_by_key is not None else window_key
 
+        self._log('Collector.add_event', 'collection_key: {0}'.format(collection_key))
+
         discard = False
 
         if collection_key not in self._collections:
@@ -284,7 +286,8 @@ class CollectionOut(PipelineOut):
 
         self._log(
             'CollectionOut._collector_callback',
-            'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
+            'coll:{0}, wkey: {1}, gbkey: {2} cback: {3}'.format(
+                collection, window_key, group_by_key, self._callback)
         )
 
         group_by = group_by_key

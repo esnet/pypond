@@ -889,7 +889,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries
         """
-        raise NotImplementedError
+
+        aggregator_pipeline = (
+            self.pipeline()
+            .window_by(window_size)
+            .emit_on('discard')  # XXX what's up with this?
+            .aggregate(aggregation)
+        )
+
+        event_type_pipeline = aggregator_pipeline.as_events() if to_events \
+            else aggregator_pipeline
+
+        colls = event_type_pipeline.clear_window().to_keyed_collections()
+
+        return self.set_collection(colls.get('all'))
 
     def hourly_rollup(self, aggregation, to_events=False):
         """
@@ -1028,7 +1041,20 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         return self._rollup('yearly', aggregation, to_events)
 
     def _rollup(self, interval, aggregation, to_events=False):
-        raise NotImplementedError
+
+        aggregator_pipeline = (
+            self.pipeline()
+            .window_by(interval)
+            .emit_on('discard')  # XXX what's up with this?
+            .aggregate(aggregation)
+        )
+
+        event_type_pipeline = aggregator_pipeline.as_events() if to_events \
+            else aggregator_pipeline
+
+        colls = event_type_pipeline.clear_window().to_keyed_collections()
+
+        return self.set_collection(colls.get('all'))
 
     # Static methods
 

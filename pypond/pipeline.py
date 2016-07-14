@@ -437,6 +437,12 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
+
+        self._log(
+            'Pipeline.window_by',
+            'window_or_duration: {0}'.format(window_or_duration)
+        )
+
         w_type = None
         duration = None
 
@@ -455,6 +461,11 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             duration = None
 
         new_d = self._d.update(dict(window_type=w_type, window_duration=duration))
+
+        self._log(
+            'Pipeline.window_by',
+            'new_d: {0}'.format(new_d)
+        )
 
         return Pipeline(new_d)
 
