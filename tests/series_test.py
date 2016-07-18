@@ -568,6 +568,15 @@ class TestRollups(SeriesBase):
         self.assertEqual(daily_avg.at(2).value(), 54.083333333333336)
         self.assertEqual(daily_avg.at(4).value(), 51.85)
 
+    def test_fixed_window_collect(self):
+        """Make collections for each day in the timeseries."""
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+        colls = timeseries.collect_by_fixed_window('1d')
+
+        self.assertEqual(colls.get('1d-16314').size(), 24)
+        self.assertEqual(colls.get('1d-16318').size(), 20)
+
 
 class TestCollection(SeriesBase):
     """

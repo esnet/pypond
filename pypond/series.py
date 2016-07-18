@@ -1045,7 +1045,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         aggregator_pipeline = (
             self.pipeline()
             .window_by(interval)
-            .emit_on('discard')  # XXX what's up with this?
+            .emit_on('discard')
             .aggregate(aggregation)
         )
 
@@ -1055,6 +1055,27 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         colls = event_type_pipeline.clear_window().to_keyed_collections()
 
         return self.set_collection(colls.get('all'))
+
+    def collect_by_fixed_window(self, window_size):
+        """Summary
+
+        Parameters
+        ----------
+        window_size : str
+            The window size - 1d, 6h, etc
+
+        Returns
+        -------
+        list or dict
+            Returns the _results attribute from a Pipeline object after processing.
+            Will contain Collection objects.
+        """
+        return (
+            self.pipeline()
+            .window_by(window_size)
+            .emit_on('discard')
+            .to_keyed_collections()
+        )
 
     # Static methods
 
