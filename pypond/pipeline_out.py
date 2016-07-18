@@ -141,14 +141,30 @@ class Collector(PypondBase):
         # if fixed windows, collect together old collections that
         # will be discarded.
 
-        discards = dict()
+        # OK, so what is happening here is that when we are processing
+        # fixed windows and self._emit_on == 'discards' the Collector
+        # starts adding the events to the internal self._collections
+        # structure and will continue doing so until we see the "next"
+        # window key i.e.: the first point of the next day when the
+        # duration is '1d'. At that point, all of the points from
+        # the previous day are copied from self._collections into
+        # the discards dict, the discards dict is emitted, and then
+        # those values are pop()'ed out of self._collections.
+
+        discards = OrderedDict()
 
         if discard is True and self._window_type == 'fixed':
             for k, v in list(self._collections.items()):
-                if v.window_key == window_key:
+                if v.window_key != window_key:
                     discards[k] = v
 
         # emit
+
+        self._log(
+            'Collector.add_event',
+            'emit_on: {0}, discard: {1} discards: {2}'.format(
+                self._emit_on, discard, discards)
+        )
 
         if self._emit_on == 'eachEvent':  # keeping mixedCase tokens for consistancy.
             self.emit_collections(self._collections)

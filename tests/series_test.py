@@ -556,20 +556,17 @@ class TestRollups(SeriesBase):
     Tests for the rollup methods
     """
 
-    @unittest.skip('Skipping while hammering out issues.')
     def test_fixed_window(self):
         """Test fixed window rollup"""
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
-        # daily_avg = timeseries.fixed_window_rollup('1d', dict(value=Functions.avg))
-        daily_avg = timeseries.daily_rollup(dict(value=Functions.avg))
+        daily_avg = timeseries.fixed_window_rollup('1d', dict(value=Functions.avg))
 
-        # XXX: what's up with the UTC=False issue with this data?
-
-        print(daily_avg)
-
-        print(daily_avg.size())
+        self.assertEqual(daily_avg.size(), 5)
+        self.assertEqual(daily_avg.at(0).value(), 46.875)
+        self.assertEqual(daily_avg.at(2).value(), 54.083333333333336)
+        self.assertEqual(daily_avg.at(4).value(), 51.85)
 
 
 class TestCollection(SeriesBase):
