@@ -530,6 +530,8 @@ class Aggregator(Processor):
         if window_key == 'global':
             event = TimeRangeEvent(collection.range(), new_d)
         else:
+            # by defintion, fixed window type forces to UTC, otherwise
+            # local.
             utc = bool(self._window_type == 'fixed')
             event = IndexedEvent(window_key, new_d, utc)  # pylint: disable=redefined-variable-type
 

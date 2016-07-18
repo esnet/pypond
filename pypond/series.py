@@ -893,7 +893,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         aggregator_pipeline = (
             self.pipeline()
             .window_by(window_size)
-            .emit_on('discard')  # XXX what's up with this?
+            .emit_on('discard')
             .aggregate(aggregation)
         )
 
