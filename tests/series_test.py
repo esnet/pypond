@@ -556,7 +556,7 @@ class TestRollups(SeriesBase):
     Tests for the rollup methods
     """
 
-    @unittest.skip('Skipping this while hammering out the bugs.')
+    @unittest.skip('Skipping while hammering out issues.')
     def test_fixed_window(self):
         """Test fixed window rollup"""
 
@@ -567,7 +567,7 @@ class TestRollups(SeriesBase):
 
         # XXX: what's up with the UTC=False issue with this data?
 
-        # print(daily_avg)
+        print(daily_avg)
 
         print(daily_avg.size())
 

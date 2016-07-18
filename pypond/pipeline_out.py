@@ -10,6 +10,8 @@
 Objects to handle Pipeline output and event collection.
 """
 
+from collections import OrderedDict
+
 from .bases import PypondBase
 from .collection import Collection
 from .exceptions import PipelineIOException
@@ -36,7 +38,7 @@ class Collector(PypondBase):
     options : Options
         A pipeline options instance
     on_trigger : function
-        Callback to handle the emitted collection
+        Callback to handle the emitted Collection
     """
 
     def __init__(self, options, on_trigger):
@@ -54,7 +56,7 @@ class Collector(PypondBase):
         self._on_trigger = on_trigger
 
         # maintained collections
-        self._collections = dict()
+        self._collections = OrderedDict()
 
     def flush_collections(self):
         """Emit the remaining collections."""
