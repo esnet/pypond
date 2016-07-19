@@ -11,6 +11,7 @@ Tests for the Index class
 """
 
 import datetime
+import time
 import unittest
 import warnings
 
@@ -108,16 +109,23 @@ class TestIndexCreation(BaseTestIndex):
 
         self.assertEqual(hour_utc.begin(), hour_local.begin())
 
-        # month/hour/day indexes are immediately converted to UTC.
+        # month/hour/day indexes create a localized datetime object
+        # in Index.range_from_index_string() and then that gets
+        # sanitized back to UTC when passed to the TimeRange() - so
+        # Index.range_from_index_string() will generate one
+        # warning and TimeRange() will generate two.
 
         year_utc = Index(self._year_index, utc=True)
 
         with warnings.catch_warnings(record=True) as wrn:
             year_local = Index(self._year_index, utc=False)
-            self.assertEqual(len(wrn), 1)
+            self.assertEqual(len(wrn), 3)
             self.assertTrue(issubclass(wrn[0].category, IndexWarning))
+            self.assertTrue(issubclass(wrn[1].category, UtilityWarning))
 
-        self.assertEqual(year_utc.begin(), year_local.begin())
+        self.assertEqual(
+            year_utc.begin(),
+            year_local.begin() + datetime.timedelta(seconds=-time.timezone))
 
     def test_bad_args(self):
         """pass bogus args."""
