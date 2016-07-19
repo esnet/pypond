@@ -126,6 +126,7 @@ class TestIndexCreation(BaseTestIndex):
         self.assertEqual(
             year_utc.begin(),
             year_local.begin() + datetime.timedelta(seconds=-time.timezone))
+        self.assertFalse(year_local.utc)
 
     def test_bad_args(self):
         """pass bogus args."""
