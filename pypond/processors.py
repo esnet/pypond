@@ -502,15 +502,14 @@ class Aggregator(Processor):
         new_d = dict()
 
         for fld, func in list(self._fields.items()):
-            self._log(
-                'Aggregator._collector_callback',
-                'fld: {0}, func: {1}'.format(fld, func)
-            )
+
             field_list = [fld] if isinstance(fld, str) else list(fld)
+
             self._log(
                 'Aggregator._collector_callback',
-                'field_list: {0}'.format(field_list)
+                'fld: {0}, func: {1} field_list: {2}'.format(fld, func, field_list)
             )
+
             for field_path in field_list:
                 field_value = collection.aggregate(func, field_path)
                 self._log(
