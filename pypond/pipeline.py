@@ -19,7 +19,7 @@ from pyrsistent import freeze
 
 from .bases import PypondBase
 from .event import Event
-from .exceptions import PipelineException
+from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
 from .pipeline_out import CollectionOut, EventOut
 from .pipeline_in import BoundedIn, UnboundedIn
@@ -202,7 +202,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                     group_by=default_callback,
                     window_type='global',
                     window_duration=None,
-                    emit_on='eachEvent'
+                    emit_on='eachEvent',
+                    utc=True,
                 )
             )
 
@@ -281,9 +282,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Returns
         -------
         str
-            Description
+            The emit on string (discards, flush, etc).
         """
         return self._d.get('emit_on')
+
+    def get_utc(self):
+        """Get the UTC state..
+
+        Returns
+        -------
+        bool
+            In UTC or not.
+        """
+        return self._d.get('utc')
 
     # Results
 
@@ -385,7 +396,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
     # Pipeline state chained methods
 
-    def window_by(self, window_or_duration=None):
+    def window_by(self, window_or_duration=None, utc=True):
         """
         Set the window, returning a new Pipeline. A new window will
         have a type and duration associated with it. Current available
@@ -440,7 +451,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.window_by',
-            'window_or_duration: {0}'.format(window_or_duration)
+            'window_or_duration: {0} utc: {1}'.format(window_or_duration, utc)
         )
 
         w_type = None
@@ -453,6 +464,12 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             else:
                 w_type = 'fixed'
                 duration = window_or_duration
+                if utc is False:
+                    self._warn(
+                        PipelineWarning,
+                        'Can not set utc=False w/a fixed window size - resetting to utc=True'
+                    )
+                    utc = True
         elif isinstance(window_or_duration, Capsule):
             w_type = window_or_duration.type
             duration = window_or_duration.duration
@@ -460,7 +477,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             w_type = 'global'
             duration = None
 
-        new_d = self._d.update(dict(window_type=w_type, window_duration=duration))
+        new_d = self._d.update(dict(window_type=w_type, window_duration=duration, utc=utc))
 
         self._log(
             'Pipeline.window_by',
@@ -473,7 +490,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         Remove windowing from the Pipeline. This will
         return the pipeline to no window grouping. This is
-        useful if you have first done some aggregated by
+        useful if you have first done some aggregation by
         some window size and then wish to collect together
         the all resulting events.
 
@@ -482,6 +499,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
+        self._log('Pipeline.clear_window')
         return self.window_by()
 
     def group_by(self, key=None):

@@ -427,6 +427,7 @@ class Aggregator(Processor):
         self._window_duration = None
         self._group_by = None
         self._emit_on = None
+        self._utc = None
 
         if isinstance(arg1, Aggregator):
             self._log('Aggregator.init', 'copy ctor')
@@ -436,6 +437,7 @@ class Aggregator(Processor):
             self._window_duration = arg1._window_duration
             self._group_by = arg1._group_by
             self._emit_on = arg1._emit_on
+            self._utc = arg1._utc
 
         elif is_pipeline(arg1):
             self._log('Aggregator.init', 'pipeline')
@@ -446,6 +448,7 @@ class Aggregator(Processor):
             self._window_duration = pipeline.get_window_duration()
             self._group_by = pipeline.get_group_by()
             self._emit_on = pipeline.get_emit_on()
+            self._utc = pipeline.get_utc()
 
             # yes it does have a fields member pylint, it's just magic
             # pylint: disable=no-member
@@ -484,6 +487,7 @@ class Aggregator(Processor):
                 window_duration=self._window_duration,
                 group_by=self._group_by,
                 emit_on=self._emit_on,
+                utc=self._utc,
             ),
             self._collector_callback
         )
@@ -529,10 +533,10 @@ class Aggregator(Processor):
         if window_key == 'global':
             event = TimeRangeEvent(collection.range(), new_d)
         else:
-            # by defintion, fixed window type forces to UTC, otherwise
-            # local.
-            utc = bool(self._window_type == 'fixed')
-            event = IndexedEvent(window_key, new_d, utc)  # pylint: disable=redefined-variable-type
+            # Pipeline.window_by() will force utc=True if
+            # a fixed window size is being used. Otherwise,
+            # the default is True but can be changed.
+            event = IndexedEvent(window_key, new_d, self._utc)  # pylint: disable=redefined-variable-type
 
         self._log(
             'Aggregator._collector_callback',
