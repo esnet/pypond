@@ -138,7 +138,7 @@ SEPT_2014_DATA = dict(
         [1409540400000, 80],
         [1409544000000, 26],
         [1409547600000, 37],
-        [1409551200000, 6],
+        [1409551200000, 6],  # end of 8-31 pacific time
         [1409554800000, 32],
         [1409558400000, 69],
         [1409562000000, 21],
@@ -576,6 +576,20 @@ class TestRollups(SeriesBase):
 
         self.assertEqual(colls.get('1d-16314').size(), 24)
         self.assertEqual(colls.get('1d-16318').size(), 20)
+
+    def test_non_fixed_rollups(self):
+        """Work the calendar rollup logic / utc / etc."""
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        daily_avg = timeseries.daily_rollup(dict(value=Functions.avg))
+
+        ts_1 = SEPT_2014_DATA.get('points')[0][0]
+
+        self.assertEqual(
+            Index.get_daily_index_string(dt_from_ms(ts_1), utc=False),
+            daily_avg.at(0).index().to_string()
+        )
 
 
 class TestCollection(SeriesBase):
