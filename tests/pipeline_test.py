@@ -21,7 +21,7 @@ from pypond.pipeline_out import CollectionOut, EventOut
 from pypond.range import TimeRange
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
-from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt
+from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt, Capsule
 
 # global variables for the callbacks to write to.
 # they are alwasy reset to None by setUp()
@@ -671,7 +671,12 @@ class TestAggregator(BaseTestPipeline):
             Pipeline()
             .from_source(uin)
             .group_by('type')
-            .window_by('1h')
+            .window_by(
+                Capsule(
+                    duration='1h',
+                    type='fixed'
+                )
+            )
             .emit_on('eachEvent')
             .aggregate({'type': Functions.keep, 'in': Functions.avg, 'out': Functions.avg})
             .to(EventOut, cback)
@@ -754,10 +759,10 @@ class TestAggregator(BaseTestPipeline):
             self.assertTrue(issubclass(wrn[0].category, PipelineWarning))
 
         with self.assertRaises(PipelineException):
-            (
-                Pipeline()
-                .from_source(dict())
-            )
+            Pipeline().from_source(dict())
+
+        with self.assertRaises(PipelineException):
+            Pipeline().to_keyed_collections()
 
 
 class TestConverter(BaseTestPipeline):
