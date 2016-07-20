@@ -640,10 +640,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         self._log('Pipeline.from_source', 'called with: {0}'.format(src))
 
-        if isinstance(src, Pipeline):
-            pipeline_in = src.input()
-            return self._set_in(pipeline_in)
-        elif isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
+        if isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
             return self._set_in(src)
         else:
             msg = 'from_source() only takes Pipeline, BoundedIn or UnboundedIn'
