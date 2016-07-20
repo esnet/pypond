@@ -606,6 +606,20 @@ class TestRollups(SeriesBase):
             daily_avg.at(0).index().to_string()
         )
 
+        monthly_avg = timeseries.monthly_rollup(dict(value=Functions.avg))
+
+        self.assertEqual(
+            Index.get_monthly_index_string(dt_from_ms(ts_1), utc=False),
+            monthly_avg.at(0).index().to_string()
+        )
+
+        yearly_avg = timeseries.yearly_rollup(dict(value=Functions.avg))
+
+        self.assertEqual(
+            Index.get_yearly_index_string(dt_from_ms(ts_1), utc=False),
+            yearly_avg.at(0).index().to_string()
+        )
+
 
 class TestCollection(SeriesBase):
     """

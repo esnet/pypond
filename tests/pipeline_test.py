@@ -758,14 +758,29 @@ class TestAggregator(BaseTestPipeline):
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, PipelineWarning))
 
+        # bad arg
         with self.assertRaises(PipelineException):
             Pipeline().from_source(dict())
 
+        # no source
         with self.assertRaises(PipelineException):
             Pipeline().to_keyed_collections()
 
+        # can't iterate on unbounded source
         with self.assertRaises(PipelineIOException):
             list(uin.events())
+
+        # bad emit on type
+        with self.assertRaises(PipelineIOException):
+            (
+                Pipeline()
+                .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+                .emit_on('BOGUS')
+                .aggregate({('direction.out', 'direction.in'): Functions.max})
+                .to_event_list()
+            )
+
+
 
 
 class TestConverter(BaseTestPipeline):
