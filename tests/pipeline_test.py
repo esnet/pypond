@@ -7,10 +7,12 @@ Tests for the pipeline.
 
 import datetime
 import unittest
+import warnings
 
 import pytz
 
 from pypond.event import Event
+from pypond.exceptions import PipelineException, PipelineWarning
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
@@ -222,8 +224,11 @@ class TestMapCollapseSelect(BaseTestPipeline):
 
         timeseries = TimeSeries(IN_OUT_DATA)
 
+        # this pointless bit is for coverage
+        pip = Pipeline()
+
         kcol = (
-            Pipeline()
+            Pipeline(pip)
             .from_source(timeseries.collection())
             .map(mapper)
             .emit_on('flush')
@@ -391,6 +396,20 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('high').at(1).value(), 88)
         self.assertEqual(kcol.get('high').at(8).value(), 88)
         self.assertEqual(kcol.get('high').at(9).value(), 94)
+
+        # test clearing it - recombines them into a single key
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .group_by(gb_callback)
+            .take(10)
+            .clear_group_by()
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('all').size(), 20)
 
     def test_group_by_variants(self):
         """test group by with strings and arrays."""
@@ -723,6 +742,22 @@ class TestAggregator(BaseTestPipeline):
 
         self.assertEqual(RESULTS.get('1426298400000').get('in'), 4.5)
         self.assertEqual(RESULTS.get('1426298400000').get('out'), 8)
+
+    def test_bad_args(self):
+        """Trigger exceptions and warnings, etc."""
+
+        uin = UnboundedIn()
+
+        with warnings.catch_warnings(record=True) as wrn:
+            Pipeline().from_source(uin).window_by('1h', utc=False)
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, PipelineWarning))
+
+        with self.assertRaises(PipelineException):
+            (
+                Pipeline()
+                .from_source(dict())
+            )
 
 
 class TestConverter(BaseTestPipeline):

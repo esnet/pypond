@@ -350,7 +350,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             mode = 'batch'
         elif isinstance(pipe_in, UnboundedIn):
             mode = 'stream'
-        else:
+        else:  # pragma: no cover
+            # .from_source() already bulletproofs against this
             msg = 'Unknown input type'
             raise PipelineException(msg)
 
@@ -358,20 +359,24 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return Pipeline(new_d)
 
-    def _set_first(self, node):
+    def _set_first(self, node):  # pragma: no cover
         """
         Set the first processing node pointed to, returning
         a new Pipeline. The original pipeline will still point
         to its orginal processing node.
+
+        Currently unused.
         """
         new_d = self._d.set('first', node)
         return Pipeline(new_d)
 
-    def _set_last(self, node):
+    def _set_last(self, node):  # pragma: no cover
         """
         Set the last processing node pointed to, returning
         a new Pipeline. The original pipeline will still point
         to its orginal processing node.
+
+        Currently unused.
         """
         new_d = self._d.set('last', node)
         return Pipeline(new_d)
@@ -466,8 +471,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 duration = window_or_duration
                 if utc is False:
                     self._warn(
-                        PipelineWarning,
-                        'Can not set utc=False w/a fixed window size - resetting to utc=True'
+                        'Can not set utc=False w/a fixed window size - resetting to utc=True',
+                        PipelineWarning
                     )
                     utc = True
         elif isinstance(window_or_duration, Capsule):
@@ -1125,11 +1130,3 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         return self._append(conv)
 
 # module functions
-
-# def pipeline(args):
-#     return Pipeline(args)
-
-
-def is_pipeline(pline):
-    """Boolean test to see if something is a Pipeline instance."""
-    return isinstance(pline, Pipeline)
