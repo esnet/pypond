@@ -468,6 +468,7 @@ class Aggregator(Processor):
 
                 if not is_function(v):
                     msg = 'Aggregator: field values must be a function, got: {0}'.format(v)
+                    raise ProcessorException(msg)
 
             if pipeline.mode() == 'stream':
                 if pipeline.get_window_type() is None \

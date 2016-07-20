@@ -12,16 +12,32 @@ import warnings
 import pytz
 
 from pypond.event import Event
-from pypond.exceptions import PipelineException, PipelineWarning, PipelineIOException
+from pypond.exceptions import (
+    PipelineException,
+    PipelineIOException,
+    PipelineWarning,
+    ProcessorException,
+)
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
 from pypond.pipeline_out import CollectionOut, EventOut
+from pypond.processors import (
+    Aggregator,
+    Collapser,
+    Converter,
+    Filter,
+    Mapper,
+    Offset,
+    Processor,
+    Selector,
+    Taker,
+)
 from pypond.range import TimeRange
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
-from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt, Capsule
+from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt, Capsule, Options
 
 # global variables for the callbacks to write to.
 # they are alwasy reset to None by setUp()
@@ -411,6 +427,22 @@ class TestFilterAndTake(BaseTestPipeline):
 
         self.assertEqual(kcol.get('all').size(), 20)
 
+        # group by as above but window and take the first two in each window
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .window_by('1d')
+            .group_by(gb_callback)
+            .take(2)
+            .to_keyed_collections()
+        )
+
+        for k, v in list(kcol.items()):
+            self.assertTrue(k.startswith('1d'))
+            self.assertTrue((k.endswith('high') or k.endswith('low')))
+            self.assertEqual(v.size(), 2)
+
     def test_group_by_variants(self):
         """test group by with strings and arrays."""
 
@@ -780,7 +812,95 @@ class TestAggregator(BaseTestPipeline):
                 .to_event_list()
             )
 
+    def test_bad_processor_args(self):
+        """Feed the Processors bad args."""
 
+        # neither Pipeline or copy ctor
+        with self.assertRaises(ProcessorException):
+            Aggregator(dict())
+        with self.assertRaises(ProcessorException):
+            Collapser(dict())
+        with self.assertRaises(ProcessorException):
+            Converter(dict())
+        with self.assertRaises(ProcessorException):
+            Filter(dict())
+        with self.assertRaises(ProcessorException):
+            Mapper(dict())
+        with self.assertRaises(ProcessorException):
+            Offset(dict())
+        with self.assertRaises(ProcessorException):
+            Selector(dict())
+        with self.assertRaises(ProcessorException):
+            Taker(dict())
+
+        pip = Pipeline()
+
+        # not passed a callable function
+        with self.assertRaises(ProcessorException):
+            Filter(pip)
+
+        # bad agg args
+        # no opts
+        with self.assertRaises(ProcessorException):
+            Aggregator(pip)
+
+        # wrong opt type
+        with self.assertRaises(ProcessorException):
+            Aggregator(
+                pip,
+                Options(
+                    fields=list()
+                )
+            )
+
+        # bad opt keys
+        with self.assertRaises(ProcessorException):
+            Aggregator(
+                pip,
+                Options(
+                    fields={1: 'foo'}
+                )
+            )
+
+        # bad opt value
+        with self.assertRaises(ProcessorException):
+            Aggregator(
+                pip,
+                Options(
+                    fields={'in': 'foo'}
+                )
+            )
+
+        # stream w/no window strat
+        with self.assertRaises(ProcessorException):
+            pip2 = Pipeline(pip._d.update(dict(mode='stream')))  # pylint: disable=protected-access
+
+            Aggregator(
+                pip2,
+                Options(
+                    fields={'in': Functions.avg}
+                )
+            )
+
+        # bad Converter args
+        # no type in opts
+        with self.assertRaises(ProcessorException):
+            Converter(pip)
+
+        # bad opt type
+        with self.assertRaises(ProcessorException):
+            Converter(
+                pip,
+                Options(
+                    type=Pipeline
+                )
+            )
+
+        # bad Mapper Args
+        with self.assertRaises(ProcessorException):
+            Mapper(dict())
+        with self.assertRaises(ProcessorException):
+            Mapper(pip)
 
 
 class TestConverter(BaseTestPipeline):
@@ -867,6 +987,46 @@ class TestConverter(BaseTestPipeline):
         )
 
         stream1.add_event(self._event)
+
+    def test_tre_to_idxe_error(self):
+        """Test converting TimeRangeEvent object to IndexedEvent error."""
+
+        # pylint: disable=missing-docstring
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):  # pylint: disable=unused-argument
+            pass
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_indexed_events(dict(duration='1h'))
+            .to(EventOut, cback1)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream1.add_event(self._tre)
+
+    def test_bad_conversion_error(self):
+        """Test converting a non-Event."""
+
+        # pylint: disable=missing-docstring
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):  # pylint: disable=unused-argument
+            pass
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_indexed_events(dict(duration='1h'))
+            .to(EventOut, cback1)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream1.add_event(Pipeline())
 
     def test_event_to_event_noop(self):
         """Event to Event as a noop."""
@@ -1037,6 +1197,20 @@ class TestConverter(BaseTestPipeline):
         )
 
         stream1.add_event(self._idxe)
+
+    def test_copy_ctor(self):
+        """work the copy constructor for coverage."""
+
+        con = Converter(
+            Pipeline(),
+            Options(
+                type=Event
+            )
+        )
+
+        con2 = Converter(con)
+
+        self.assertEqual(con._convert_to, con2._convert_to)  # pylint: disable=protected-access
 
 
 class TestOffsetPipeline(BaseTestPipeline):

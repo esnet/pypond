@@ -609,28 +609,31 @@ class TestRollups(SeriesBase):
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
-        daily_avg = timeseries.daily_rollup(dict(value=Functions.avg))
+        # just silence the warnings, not do anything with them.
+        with warnings.catch_warnings(record=True):
 
-        ts_1 = SEPT_2014_DATA.get('points')[0][0]
+            daily_avg = timeseries.daily_rollup(dict(value=Functions.avg))
 
-        self.assertEqual(
-            Index.get_daily_index_string(dt_from_ms(ts_1), utc=False),
-            daily_avg.at(0).index().to_string()
-        )
+            ts_1 = SEPT_2014_DATA.get('points')[0][0]
 
-        monthly_avg = timeseries.monthly_rollup(dict(value=Functions.avg))
+            self.assertEqual(
+                Index.get_daily_index_string(dt_from_ms(ts_1), utc=False),
+                daily_avg.at(0).index().to_string()
+            )
 
-        self.assertEqual(
-            Index.get_monthly_index_string(dt_from_ms(ts_1), utc=False),
-            monthly_avg.at(0).index().to_string()
-        )
+            monthly_avg = timeseries.monthly_rollup(dict(value=Functions.avg))
 
-        yearly_avg = timeseries.yearly_rollup(dict(value=Functions.avg))
+            self.assertEqual(
+                Index.get_monthly_index_string(dt_from_ms(ts_1), utc=False),
+                monthly_avg.at(0).index().to_string()
+            )
 
-        self.assertEqual(
-            Index.get_yearly_index_string(dt_from_ms(ts_1), utc=False),
-            yearly_avg.at(0).index().to_string()
-        )
+            yearly_avg = timeseries.yearly_rollup(dict(value=Functions.avg))
+
+            self.assertEqual(
+                Index.get_yearly_index_string(dt_from_ms(ts_1), utc=False),
+                yearly_avg.at(0).index().to_string()
+            )
 
 
 class TestCollection(SeriesBase):
