@@ -12,7 +12,7 @@ import warnings
 import pytz
 
 from pypond.event import Event
-from pypond.exceptions import PipelineException, PipelineWarning
+from pypond.exceptions import PipelineException, PipelineWarning, PipelineIOException
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
@@ -763,6 +763,9 @@ class TestAggregator(BaseTestPipeline):
 
         with self.assertRaises(PipelineException):
             Pipeline().to_keyed_collections()
+
+        with self.assertRaises(PipelineIOException):
+            list(uin.events())
 
 
 class TestConverter(BaseTestPipeline):
