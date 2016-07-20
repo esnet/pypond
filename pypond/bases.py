@@ -17,7 +17,7 @@ import types
 import warnings
 
 
-def setup_log(log_path=None):
+def setup_log(log_path=None):  # pragma: no cover
     """
     Usage:
     _log('main.start', 'happy simple log event')

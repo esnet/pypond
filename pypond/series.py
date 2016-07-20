@@ -737,7 +737,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.stdev(field_spec)
 
-    def aggregate(self, func, field_spec=['value']):
+    def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to
         do the reduction.
 

@@ -20,7 +20,7 @@ from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions
 from .pipeline_in import BoundedIn
 from .range import TimeRange
-from .util import unique_id, is_pvector, ObjectEncoder, _check_dt
+from .util import unique_id, is_pvector, ObjectEncoder, _check_dt, is_function
 
 
 class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
@@ -630,6 +630,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             Returns the aggregated value, so it depends on what kind
             of data are being handled/aggregation being done.
         """
+
+        if not is_function(func):
+            msg = 'First arg to aggregate() must be a function'
+            raise CollectionException(msg)
 
         fpath = None
 

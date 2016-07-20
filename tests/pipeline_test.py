@@ -452,6 +452,22 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
         self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
 
+        # and with a tuple
+
+        kcol = (
+            Pipeline()
+            .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+            .emit_on('flush')
+            .group_by(('direction', 'status',))
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('OK').size(), 3)
+        self.assertEqual(kcol.get('FAIL').size(), 1)
+        self.assertEqual(kcol.get('OK').at(0).value('direction').get('out'), 2)
+        self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
+        self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
+
     def test_group_by_and_count(self):
         """group by and also count."""
 

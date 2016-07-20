@@ -463,6 +463,21 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(tser.stdev('out'), 1.632993161855452)
         # redundant, but for coverage
         self.assertEqual(tser.aggregate(Functions.sum, 'in'), 9)
+        self.assertEqual(tser.aggregate(Functions.sum, ('in',)), 9)
+
+        ser1 = TimeSeries(DATA)
+        self.assertEqual(ser1.aggregate(Functions.sum), 189)
+
+    def test_various_bad_args(self):
+        """ensure proper exceptions are being raised."""
+
+        ser1 = TimeSeries(DATA)
+
+        with self.assertRaises(CollectionException):
+            ser1.aggregate(dict())
+
+        with self.assertRaises(CollectionException):
+            ser1.aggregate(Functions.sum, dict())
 
     def test_equality_methods(self):
         """test equal/same static methods."""
@@ -760,6 +775,9 @@ class TestCollection(SeriesBase):
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, CollectionWarning))
             self.assertEqual(bad_col.size(), 0)
+
+        with self.assertRaises(CollectionException):
+            self._canned_collection.set_events(dict())
 
     def test_sort_by_time(self):
         """test Collection.sort_by_time()"""
