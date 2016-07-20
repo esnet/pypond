@@ -583,6 +583,18 @@ class TestRollups(SeriesBase):
         self.assertEqual(daily_avg.at(2).value(), 54.083333333333336)
         self.assertEqual(daily_avg.at(4).value(), 51.85)
 
+        # not really a rollup, each data point will create one
+        # aggregation index.
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        hourly_avg = timeseries.hourly_rollup(dict(value=Functions.avg))
+
+        self.assertEqual(hourly_avg.size(), len(SEPT_2014_DATA.get('points')))
+        self.assertEqual(hourly_avg.at(0).value(), 80.0)
+        self.assertEqual(hourly_avg.at(2).value(), 52.0)
+        self.assertEqual(hourly_avg.at(4).value(), 26.0)
+
     def test_fixed_window_collect(self):
         """Make collections for each day in the timeseries."""
 
