@@ -60,6 +60,38 @@ pypond.indexed_event module
     :undoc-members:
     :show-inheritance:
 
+pypond.pipeline module
+----------------------
+
+.. automodule:: pypond.pipeline
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypond.pipeline_in module
+-------------------------
+
+.. automodule:: pypond.pipeline_in
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypond.pipeline_out module
+--------------------------
+
+.. automodule:: pypond.pipeline_out
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pypond.processors module
+------------------------
+
+.. automodule:: pypond.processors
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pypond.range module
 -------------------
 
@@ -72,14 +104,6 @@ pypond.series module
 --------------------
 
 .. automodule:: pypond.series
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pypond.sources module
----------------------
-
-.. automodule:: pypond.sources
     :members:
     :undoc-members:
     :show-inheritance:

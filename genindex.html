@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; pypond 0.2 documentation</title>
+    <title>Index &mdash; pypond 0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -31,7 +31,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.2 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.3 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -68,6 +68,7 @@
       aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
 </ul>
 </ul>
@@ -125,6 +126,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -136,6 +138,7 @@
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
  
 </div>
 <h2 id="_">_</h2>
@@ -179,8 +182,66 @@
   <dt><a href="pypond.html#pypond.collection.Collection.add_event">add_event() (pypond.collection.Collection method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline_in.UnboundedIn.add_event">(pypond.pipeline_in.UnboundedIn method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.CollectionOut.add_event">(pypond.pipeline_out.CollectionOut method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.Collector.add_event">(pypond.pipeline_out.Collector method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.EventOut.add_event">(pypond.pipeline_out.EventOut method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Aggregator.add_event">(pypond.processors.Aggregator method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Collapser.add_event">(pypond.processors.Collapser method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Converter.add_event">(pypond.processors.Converter method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Filter.add_event">(pypond.processors.Filter method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Mapper.add_event">(pypond.processors.Mapper method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Offset.add_event">(pypond.processors.Offset method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Selector.add_event">(pypond.processors.Selector method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Taker.add_event">(pypond.processors.Taker method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.bases.Observable.add_observer">add_observer() (pypond.bases.Observable method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.add_prev_to_chain">add_prev_to_chain() (in module pypond.processors)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.add_result">add_result() (pypond.pipeline.Pipeline method)</a>
   </dt>
 
       
@@ -189,14 +250,36 @@
 
       <dd><dl>
         
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.aggregate">(pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+        
   <dt><a href="pypond.html#pypond.series.TimeSeries.aggregate">(pypond.series.TimeSeries method)</a>
   </dt>
 
       </dl></dd>
       
+  <dt><a href="pypond.html#pypond.processors.Aggregator">Aggregator (class in pypond.processors)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.as_events">as_events() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.as_indexed_events">as_indexed_events() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.index.Index.as_string">as_string() (pypond.index.Index method)</a>
   </dt>
 
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.as_time_range_events">as_time_range_events() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.index.Index.as_timerange">as_timerange() (pypond.index.Index method)</a>
   </dt>
@@ -215,16 +298,32 @@
   <dt><a href="pypond.html#pypond.collection.Collection.at_first">at_first() (pypond.collection.Collection method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.series.TimeSeries.at_first">(pypond.series.TimeSeries method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.collection.Collection.at_last">at_last() (pypond.collection.Collection method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.series.TimeSeries.at_last">(pypond.series.TimeSeries method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.collection.Collection.at_time">at_time() (pypond.collection.Collection method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.series.TimeSeries.at_time">(pypond.series.TimeSeries method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.collection.Collection.avg">avg() (pypond.collection.Collection method)</a>
   </dt>
@@ -304,7 +403,7 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.sources.BoundedIn">BoundedIn (class in pypond.sources)</a>
+  <dt><a href="pypond.html#pypond.pipeline_in.BoundedIn">BoundedIn (class in pypond.pipeline_in)</a>
   </dt>
 
       
@@ -318,12 +417,66 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="pypond.html#pypond.util.Capsule">Capsule (class in pypond.util)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Processor.chain">chain() (pypond.processors.Processor method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.clean">clean() (pypond.collection.Collection method)</a>
   </dt>
 
       <dd><dl>
         
   <dt><a href="pypond.html#pypond.series.TimeSeries.clean">(pypond.series.TimeSeries method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.clear_group_by">clear_group_by() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.clear_results">clear_results() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.clear_window">clear_window() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Aggregator.clone">clone() (pypond.processors.Aggregator method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.processors.Collapser.clone">(pypond.processors.Collapser method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Converter.clone">(pypond.processors.Converter method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Filter.clone">(pypond.processors.Filter method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Mapper.clone">(pypond.processors.Mapper method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Offset.clone">(pypond.processors.Offset method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Selector.clone">(pypond.processors.Selector method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Taker.clone">(pypond.processors.Taker method)</a>
   </dt>
 
       </dl></dd>
@@ -337,10 +490,22 @@
   </dt>
 
         
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.collapse">(pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+        
   <dt><a href="pypond.html#pypond.series.TimeSeries.collapse">(pypond.series.TimeSeries method)</a>
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.processors.Collapser">Collapser (class in pypond.processors)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.collect_by_fixed_window">collect_by_fixed_window() (pypond.series.TimeSeries method)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.collection.Collection">Collection (class in pypond.collection)</a>
   </dt>
@@ -356,7 +521,15 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="pypond.html#pypond.pipeline_out.CollectionOut">CollectionOut (class in pypond.pipeline_out)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.exceptions.CollectionWarning">CollectionWarning</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline_out.Collector">Collector (class in pypond.pipeline_out)</a>
   </dt>
 
       
@@ -372,6 +545,22 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.processors.Converter.convert_event">convert_event() (pypond.processors.Converter method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Converter.convert_indexed_event">convert_indexed_event() (pypond.processors.Converter method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Converter.convert_time_range_event">convert_time_range_event() (pypond.processors.Converter method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Converter">Converter (class in pypond.processors)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.count">count() (pypond.collection.Collection method)</a>
   </dt>
 
@@ -381,16 +570,28 @@
   </dt>
 
         
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.count">(pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+        
   <dt><a href="pypond.html#pypond.series.TimeSeries.count">(pypond.series.TimeSeries method)</a>
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.crop">crop() (pypond.series.TimeSeries method)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.daily_rollup">daily_rollup() (pypond.series.TimeSeries method)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.event.EventBase.data">data() (pypond.event.EventBase method)</a>
   </dt>
@@ -404,11 +605,15 @@
   </dt>
 
       
-  <dt><a href="pypond.html#pypond.functions.Functions.difference">difference() (pypond.functions.Functions static method)</a>
+  <dt><a href="pypond.html#pypond.pipeline.default_callback">default_callback() (in module pypond.pipeline)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.functions.Functions.difference">difference() (pypond.functions.Functions static method)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.range.TimeRange.disjoint">disjoint() (pypond.range.TimeRange method)</a>
   </dt>
@@ -433,6 +638,14 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.bases.Observable.emit">emit() (pypond.bases.Observable method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline_out.Collector.emit_collections">emit_collections() (pypond.pipeline_out.Collector method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.emit_on">emit_on() (pypond.pipeline.Pipeline method)</a>
   </dt>
 
       
@@ -487,12 +700,12 @@
   <dt><a href="pypond.html#pypond.collection.Collection.event_list">event_list() (pypond.collection.Collection method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.collection.Collection.event_list_as_list">event_list_as_list() (pypond.collection.Collection method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.series.TimeSeries.event_type_map">event_type_map (pypond.series.TimeSeries attribute)</a>, <a href="pypond.html#pypond.series.TimeSeries.event_type_map">[1]</a>
   </dt>
@@ -506,10 +719,18 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.pipeline_out.EventOut">EventOut (class in pypond.pipeline_out)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.events">events() (pypond.collection.Collection method)</a>
   </dt>
 
       <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline_in.UnboundedIn.events">(pypond.pipeline_in.UnboundedIn method)</a>
+  </dt>
+
         
   <dt><a href="pypond.html#pypond.series.TimeSeries.events">(pypond.series.TimeSeries method)</a>
   </dt>
@@ -530,9 +751,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="pypond.html#pypond.processors.Filter">Filter (class in pypond.processors)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.filter">filter() (pypond.collection.Collection method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.filter">(pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.collection.Collection.first">first() (pypond.collection.Collection method)</a>
   </dt>
@@ -542,15 +773,45 @@
   <dt><a href="pypond.html#pypond.functions.Functions.first">(pypond.functions.Functions static method)</a>
   </dt>
 
+        
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.first">(pypond.pipeline.Pipeline method)</a>
+  </dt>
+
       </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.fixed_window_rollup">fixed_window_rollup() (pypond.series.TimeSeries method)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.bases.Observable.flush">flush() (pypond.bases.Observable method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.CollectionOut.flush">(pypond.pipeline_out.CollectionOut method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.EventOut.flush">(pypond.pipeline_out.EventOut method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.processors.Aggregator.flush">(pypond.processors.Aggregator method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="pypond.html#pypond.pipeline_out.Collector.flush_collections">flush_collections() (pypond.pipeline_out.Collector method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.util.format_dt">format_dt() (in module pypond.util)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.from_source">from_source() (pypond.pipeline.Pipeline method)</a>
   </dt>
 
       
@@ -568,13 +829,49 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.index.Index.get_daily_index_string">get_daily_index_string() (pypond.index.Index static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.get_emit_on">get_emit_on() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.get_group_by">get_group_by() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.index.Index.get_index_string">get_index_string() (pypond.index.Index static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.index.Index.get_index_string_list">get_index_string_list() (pypond.index.Index static method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.index.Index.get_index_string_list">get_index_string_list() (pypond.index.Index static method)</a>
+  <dt><a href="pypond.html#pypond.index.Index.get_monthly_index_string">get_monthly_index_string() (pypond.index.Index static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.get_utc">get_utc() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.get_window_duration">get_window_duration() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.get_window_type">get_window_type() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.index.Index.get_yearly_index_string">get_yearly_index_string() (pypond.index.Index static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.group_by">group_by() (pypond.pipeline.Pipeline method)</a>
   </dt>
 
   </dl></td>
@@ -588,15 +885,19 @@
   </dt>
 
       
-  <dt><a href="pypond.html#pypond.range.TimeRange.humanize">humanize() (pypond.range.TimeRange method)</a>
+  <dt><a href="pypond.html#pypond.series.TimeSeries.hourly_rollup">hourly_rollup() (pypond.series.TimeSeries method)</a>
   </dt>
 
       
-  <dt><a href="pypond.html#pypond.util.humanize_dt">humanize_dt() (in module pypond.util)</a>
+  <dt><a href="pypond.html#pypond.range.TimeRange.humanize">humanize() (pypond.range.TimeRange method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.util.humanize_dt">humanize_dt() (in module pypond.util)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.util.humanize_dt_ago">humanize_dt_ago() (in module pypond.util)</a>
   </dt>
@@ -622,7 +923,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.sources.In">In (class in pypond.sources)</a>
+  <dt><a href="pypond.html#pypond.pipeline_in.In">In (class in pypond.pipeline_in)</a>
   </dt>
 
       
@@ -665,14 +966,22 @@
   <dt><a href="pypond.html#pypond.exceptions.IndexException">IndexException</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.exceptions.IndexWarning">IndexWarning</a>
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.input">input() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="pypond.html#pypond.range.TimeRange.intersection">intersection() (pypond.range.TimeRange method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.collection.Collection.is_chronological">is_chronological() (pypond.collection.Collection method)</a>
   </dt>
 
       
@@ -681,6 +990,10 @@
 
       
   <dt><a href="pypond.html#pypond.util.is_nan">is_nan() (in module pypond.util)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.util.is_pipeline">is_pipeline() (in module pypond.util)</a>
   </dt>
 
       
@@ -702,6 +1015,16 @@
   </dl></td>
 </tr></table>
 
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.functions.Functions.keep">keep() (pypond.functions.Functions static method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
@@ -712,6 +1035,10 @@
       <dd><dl>
         
   <dt><a href="pypond.html#pypond.functions.Functions.last">(pypond.functions.Functions static method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.last">(pypond.pipeline.Pipeline method)</a>
   </dt>
 
       </dl></dd>
@@ -741,6 +1068,10 @@
   <dt><a href="pypond.html#pypond.util.localtime_from_ms">localtime_from_ms() (in module pypond.util)</a>
   </dt>
 
+      
+  <dt><a href="pypond.html#pypond.util.localtime_info_from_utc">localtime_info_from_utc() (in module pypond.util)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -757,12 +1088,20 @@
   </dt>
 
         
-  <dt><a href="pypond.html#pypond.series.TimeSeries.map">(pypond.series.TimeSeries static method)</a>
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.map">(pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.series.TimeSeries.map">(pypond.series.TimeSeries method)</a>
   </dt>
 
       </dl></dd>
       
   <dt><a href="pypond.html#pypond.event.Event.map_reduce">map_reduce() (pypond.event.Event static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Mapper">Mapper (class in pypond.processors)</a>
   </dt>
 
       
@@ -807,12 +1146,6 @@
   <dt><a href="pypond.html#pypond.event.Event.merge">merge() (pypond.event.Event static method)</a>
   </dt>
 
-      <dd><dl>
-        
-  <dt><a href="pypond.html#pypond.series.TimeSeries.merge">(pypond.series.TimeSeries static method)</a>
-  </dt>
-
-      </dl></dd>
       
   <dt><a href="pypond.html#pypond.event.Event.merge_events">merge_events() (pypond.event.Event static method)</a>
   </dt>
@@ -846,7 +1179,15 @@
 
       </dl></dd>
       
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.mode">mode() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.util.monthdelta">monthdelta() (in module pypond.util)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.monthly_rollup">monthly_rollup() (pypond.series.TimeSeries method)</a>
   </dt>
 
       
@@ -877,10 +1218,32 @@
   <dt><a href="pypond.html#pypond.bases.Observable">Observable (class in pypond.bases)</a>
   </dt>
 
+      
+  <dt><a href="pypond.html#pypond.processors.Offset">Offset (class in pypond.processors)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.offset_by">offset_by() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.sources.BoundedIn.on_emit">on_emit() (pypond.sources.BoundedIn method)</a>
+  <dt><a href="pypond.html#pypond.pipeline_in.BoundedIn.on_emit">on_emit() (pypond.pipeline_in.BoundedIn method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.CollectionOut.on_emit">(pypond.pipeline_out.CollectionOut method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline_out.EventOut.on_emit">(pypond.pipeline_out.EventOut method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.util.Options">Options (class in pypond.util)</a>
   </dt>
 
       
@@ -894,15 +1257,53 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.series.TimeSeries.pipeline">pipeline() (pypond.series.TimeSeries method)</a>
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline">Pipeline (class in pypond.pipeline)</a>
   </dt>
 
+      
+  <dt><a href="pypond.html#pypond.processors.Processor.pipeline">pipeline() (pypond.processors.Processor method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.series.TimeSeries.pipeline">(pypond.series.TimeSeries method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.exceptions.PipelineException">PipelineException</a>
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.exceptions.PipelineIOException">PipelineIOException</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.exceptions.PipelineIOWarning">PipelineIOWarning</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline_out.PipelineOut">PipelineOut (class in pypond.pipeline_out)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.exceptions.PipelineWarning">PipelineWarning</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Processor.prev">prev() (pypond.processors.Processor method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Processor">Processor (class in pypond.processors)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.exceptions.ProcessorException">ProcessorException</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.exceptions.ProcessorWarning">ProcessorWarning</a>
   </dt>
 
       
@@ -917,6 +1318,8 @@
   <dt><a href="pypond.html#module-pypond.collection">pypond.collection (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#module-pypond.event">pypond.event (module)</a>
   </dt>
@@ -929,8 +1332,6 @@
   <dt><a href="pypond.html#module-pypond.functions">pypond.functions (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#module-pypond.index">pypond.index (module)</a>
   </dt>
@@ -940,15 +1341,27 @@
   </dt>
 
       
+  <dt><a href="pypond.html#module-pypond.pipeline">pypond.pipeline (module)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#module-pypond.pipeline_in">pypond.pipeline_in (module)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#module-pypond.pipeline_out">pypond.pipeline_out (module)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#module-pypond.processors">pypond.processors (module)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#module-pypond.range">pypond.range (module)</a>
   </dt>
 
       
   <dt><a href="pypond.html#module-pypond.series">pypond.series (module)</a>
-  </dt>
-
-      
-  <dt><a href="pypond.html#module-pypond.sources">pypond.sources (module)</a>
   </dt>
 
       
@@ -987,14 +1400,22 @@
   <dt><a href="pypond.html#pypond.index.Index.range_from_index_string">range_from_index_string() (pypond.index.Index method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.event.Event.reduce">reduce() (pypond.event.Event static method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.range.TimeRange.relative_string">relative_string() (pypond.range.TimeRange method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.results_done">results_done() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Runner">Runner (class in pypond.pipeline)</a>
   </dt>
 
   </dl></td>
@@ -1026,7 +1447,17 @@
   </dt>
 
       
-  <dt><a href="pypond.html#pypond.series.TimeSeries.select">select() (pypond.series.TimeSeries method)</a>
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.select">select() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.series.TimeSeries.select">(pypond.series.TimeSeries method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.processors.Selector">Selector (class in pypond.processors)</a>
   </dt>
 
       
@@ -1060,6 +1491,16 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.collection.Collection.set_events">set_events() (pypond.collection.Collection method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.bases.setup_log">setup_log() (in module pypond.bases)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.size">size() (pypond.collection.Collection method)</a>
   </dt>
 
@@ -1069,8 +1510,6 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.collection.Collection.size_valid">size_valid() (pypond.collection.Collection method)</a>
   </dt>
@@ -1092,9 +1531,23 @@
 
       </dl></dd>
       
-  <dt><a href="pypond.html#pypond.sources.BoundedIn.start">start() (pypond.sources.BoundedIn method)</a>
+  <dt><a href="pypond.html#pypond.collection.Collection.sort_by_time">sort_by_time() (pypond.collection.Collection method)</a>
   </dt>
 
+      
+  <dt><a href="pypond.html#pypond.pipeline.Runner.start">start() (pypond.pipeline.Runner method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline_in.BoundedIn.start">(pypond.pipeline_in.BoundedIn method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.pipeline_in.UnboundedIn.start">(pypond.pipeline_in.UnboundedIn method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.functions.Functions.stddev">stddev() (pypond.functions.Functions static method)</a>
   </dt>
@@ -1110,9 +1563,15 @@
 
       </dl></dd>
       
-  <dt><a href="pypond.html#pypond.sources.BoundedIn.stop">stop() (pypond.sources.BoundedIn method)</a>
+  <dt><a href="pypond.html#pypond.pipeline_in.BoundedIn.stop">stop() (pypond.pipeline_in.BoundedIn method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.pipeline_in.UnboundedIn.stop">(pypond.pipeline_in.UnboundedIn method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="pypond.html#pypond.event.EventBase.stringify">stringify() (pypond.event.EventBase method)</a>
   </dt>
@@ -1135,16 +1594,20 @@
   </dt>
 
       </dl></dd>
-      
-  <dt><a href="pypond.html#pypond.series.TimeSeries.sum_list">sum_list() (pypond.series.TimeSeries static method)</a>
-  </dt>
-
   </dl></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.take">take() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.processors.Taker">Taker (class in pypond.processors)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.range.TimeRange">TimeRange (class in pypond.range)</a>
   </dt>
@@ -1208,6 +1671,18 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.series.TimeSeries.timeseries_list_merge">timeseries_list_merge() (pypond.series.TimeSeries static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.timeseries_list_reduce">timeseries_list_reduce() (pypond.series.TimeSeries static method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.timeseries_list_sum">timeseries_list_sum() (pypond.series.TimeSeries static method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.exceptions.TimeSeriesException">TimeSeriesException</a>
   </dt>
 
@@ -1248,6 +1723,18 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.to">to() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.util.Options.to_dict">to_dict() (pypond.util.Options method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.to_event_list">to_event_list() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.to_json">to_json() (pypond.collection.Collection method)</a>
   </dt>
 
@@ -1281,6 +1768,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.to_keyed_collections">to_keyed_collections() (pypond.pipeline.Pipeline method)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.range.TimeRange.to_local_string">to_local_string() (pypond.range.TimeRange method)</a>
   </dt>
@@ -1334,6 +1825,10 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.event.EventBase.ts">ts (pypond.event.EventBase attribute)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.collection.Collection.type">type() (pypond.collection.Collection method)</a>
   </dt>
 
@@ -1344,11 +1839,15 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.sources.UnboundedIn">UnboundedIn (class in pypond.sources)</a>
+  <dt><a href="pypond.html#pypond.pipeline_in.UnboundedIn">UnboundedIn (class in pypond.pipeline_in)</a>
   </dt>
 
       
   <dt><a href="pypond.html#pypond.util.unique_id">unique_id() (in module pypond.util)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.index.Index.utc">utc (pypond.index.Index attribute)</a>
   </dt>
 
   </dl></td>
@@ -1384,17 +1883,31 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pypond.html#pypond.index.Index.window_duration">window_duration() (pypond.index.Index static method)</a>
+  <dt><a href="pypond.html#pypond.pipeline.Pipeline.window_by">window_by() (pypond.pipeline.Pipeline method)</a>
   </dt>
 
       
-  <dt><a href="pypond.html#pypond.index.Index.window_position_from_date">window_position_from_date() (pypond.index.Index static method)</a>
+  <dt><a href="pypond.html#pypond.index.Index.window_duration">window_duration() (pypond.index.Index static method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="pypond.html#pypond.index.Index.window_position_from_date">window_position_from_date() (pypond.index.Index static method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.range.TimeRange.within">within() (pypond.range.TimeRange method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.series.TimeSeries.yearly_rollup">yearly_rollup() (pypond.series.TimeSeries method)</a>
   </dt>
 
   </dl></td>

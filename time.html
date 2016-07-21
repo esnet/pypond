@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Notes on time handling &mdash; pypond 0.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/esnet/esnet.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pypond 0.3 documentation" href="index.html" />
+    <link rel="next" title="Running the tests" href="tests.html" />
+    <link rel="prev" title="API Documentation" href="api.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          <!-- LOGO:  _static/ -->
+          pypond</a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Section <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Notes on time handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="api.html" title="Previous Chapter: API Documentation">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="hidden-sm">
+        API Documenta...
+      </span>
+    </a>
+  </li>
+  <li>
+    <a href="tests.html" title="Next Chapter: Running the tests">
+      <span class="hidden-sm">
+        Running the t...
+      </span>
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+  </li>
+              
+            
+            <li class="divider-vertical"></li>
+            
+                <li><a href="genindex.html">Index</a></li>
+                <li><a href="https://www.es.net">ESnet</a></li>
+            
+            <li><a href="https://github.com/esnet/pypond"><img src="_static/esnet/icon-github.png" height="20" width="20"></a></li>
+            
+            
+            
+          </ul>
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Notes on time handling</a><ul>
+<li><a class="reference internal" href="#utc-vs-local-time">UTC vs. local time</a><ul>
+<li><a class="reference internal" href="#initializing-event-objects">Initializing Event objects</a></li>
+<li><a class="reference internal" href="#rendering-in-local-time">Rendering in local time</a><ul>
+<li><a class="reference internal" href="#conversion-to-local-time">Conversion to local time</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#local-time-and-the-indexedevent-class">Local time and the IndexedEvent class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#precision">Precision</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="notes-on-time-handling">
+<span id="notes-on-time-handling"></span><h1>Notes on time handling<a class="headerlink" href="#notes-on-time-handling" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="utc-vs-local-time">
+<span id="utc-vs-local-time"></span><h2>UTC vs. local time<a class="headerlink" href="#utc-vs-local-time" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="initializing-event-objects">
+<span id="initializing-event-objects"></span><h3>Initializing Event objects<a class="headerlink" href="#initializing-event-objects" title="Permalink to this headline">¶</a></h3>
+<p>All of the Event variants can be initialized with  UTC milliseconds since the epoch, or an <strong>aware</strong> python <code class="docutils literal"><span class="pre">datetime</span></code> object. If a <strong>naive</strong> <code class="docutils literal"><span class="pre">datetime</span></code> object is passed in, an exception will be raised. When passing in a <code class="docutils literal"><span class="pre">datetime</span></code> object, <a class="reference external" href="https://www.youtube.com/watch?v=-5wpm-gesOY">it is encouraged</a> that they be in UTC as well.</p>
+<p>Be aware that if an aware non-UTC/local time <code class="docutils literal"><span class="pre">datetime</span></code> object is passed in, a warning will be issued, it will be converted to a UTC <code class="docutils literal"><span class="pre">datetime</span></code> object and that&#8217;s what will be used internally.  The conversion will be done like this using the python <code class="docutils literal"><span class="pre">datetime</span></code> library and the third party <code class="docutils literal"><span class="pre">pytz</span></code> library thusly:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">dtime</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And the resulting <code class="docutils literal"><span class="pre">datetime</span></code> object will be converted to milliseconds (see section on precision).</p>
+<p>This is for consistency, for parity with the JavaScript Date library that uses epoch ms at its core, and because the Pond/PyPond wire format relies on epoch ms. One really can&#8217;t go wrong with initially reporting all of their events using milliseconds since the epoch. <em>Please consider doing that.</em></p>
+</div>
+<div class="section" id="rendering-in-local-time">
+<span id="rendering-in-local-time"></span><h3>Rendering in local time<a class="headerlink" href="#rendering-in-local-time" title="Permalink to this headline">¶</a></h3>
+<p>Of course there are cases where is desirable to represent time series data in the user&#8217;s local time zone. Like in a graphing application. Even though PyPond does only business in UTC internally, this is possible. This can be changed on how you window and aggregate the data.</p>
+<p>See the section on Aggregation in the <a class="reference external" href="http://software.es.net/pond/#/pipeline">main Pond Pipeline documentation</a>. Note how you specify the <code class="docutils literal"><span class="pre">.windowBy()</span></code> (<code class="docutils literal"><span class="pre">.window_by()</span></code> in PyPond) value in the pipeline chain. This can be a fixed value like <code class="docutils literal"><span class="pre">1d</span></code> where it will aggregate the data into daily buckets. Fixed windows like that can <strong>only</strong> be rendered in UTC. Or it can be a non-fixed value like <code class="docutils literal"><span class="pre">daily</span></code> which will also aggregate the data into daily buckets, but the user can choose how to render the data in that case.</p>
+<p>The default will be to render in UTC - any such choice will always default to UTC, the user will always need to set <code class="docutils literal"><span class="pre">utc=False</span></code> where appropriate. But when using a non-fixed window, the optional utc boolean can be set:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">kcol</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Pipeline</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">from_source</span><span class="p">(</span><span class="n">timeseries</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">window_by</span><span class="p">(</span><span class="s1">&#39;daily&#39;</span><span class="p">,</span> <span class="n">utc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">emit_on</span><span class="p">(</span><span class="s1">&#39;eachEvent&#39;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">aggregate</span><span class="p">({</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">to_keyed_collections</span><span class="p">()</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Then the aggregation key/buckets be daily averages in the local time zone.</p>
+<p>There is also a trio of helper functions in the <code class="docutils literal"><span class="pre">TimeSeries</span></code> class that presents a higher level access to this functionality:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">TimeSeries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">()</span>
+    <span class="n">TimeSeries</span><span class="o">.</span><span class="n">monthly_rollup</span><span class="p">()</span>
+    <span class="n">TimeSeries</span><span class="o">.</span><span class="n">yearly_rollup</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>They all take a <code class="docutils literal"><span class="pre">dict</span></code> of a column name and an aggregation function as in the above example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">TimeSeries</span><span class="o">.</span><span class="n">monthly_rollup</span><span class="p">({</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>And the data will automatically be rendered in local time.</p>
+<div class="section" id="conversion-to-local-time">
+<span id="conversion-to-local-time"></span><h4>Conversion to local time<a class="headerlink" href="#conversion-to-local-time" title="Permalink to this headline">¶</a></h4>
+<p>When the conversion covered in the previous section happens, the user has no control over <strong>what</strong> time zone it will be rendered to.  All conversions will automatically happen using the local time zone as determined by the <code class="docutils literal"><span class="pre">tzlocal</span></code> library:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">LOCAL_TZ</span> <span class="o">=</span> <span class="n">tzlocal</span><span class="o">.</span><span class="n">get_localzone</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is primarily for parity with the JavaScript library which will be running browser-side and will be localizing as apropos. Moreover, the scope of this library is not to be a time handling swiss army knife.</p>
+</div>
+</div>
+<div class="section" id="local-time-and-the-indexedevent-class">
+<span id="local-time-and-the-indexedevent-class"></span><h3>Local time and the IndexedEvent class<a class="headerlink" href="#local-time-and-the-indexedevent-class" title="Permalink to this headline">¶</a></h3>
+<p>The only <code class="docutils literal"><span class="pre">Event</span></code> class that explicitly takes a <code class="docutils literal"><span class="pre">utc=False</span></code> flag is the <code class="docutils literal"><span class="pre">IndexedEvent</span></code> class. It behaves somewhat differently than the <code class="docutils literal"><span class="pre">Event</span></code> and <code class="docutils literal"><span class="pre">TimeRangeEvent</span></code> classes which do not.  Rather than being initialized with an epoch ms timestamp or a <code class="docutils literal"><span class="pre">datetime</span></code> object they are initialized with strings of the following formats:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>        <span class="n">The</span> <span class="n">index</span> <span class="n">string</span> <span class="n">arg</span> <span class="n">will</span> <span class="n">may</span> <span class="n">be</span> <span class="n">of</span> <span class="n">two</span> <span class="n">forms</span><span class="p">:</span>
+
+        <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">14</span>  <span class="p">(</span><span class="n">day</span><span class="p">)</span>
+        <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span>     <span class="p">(</span><span class="n">month</span><span class="p">)</span>
+        <span class="o">-</span> <span class="mi">2015</span>        <span class="p">(</span><span class="n">year</span><span class="p">)</span>
+
+        <span class="ow">or</span><span class="p">:</span>
+
+        <span class="o">-</span> <span class="mi">1</span><span class="n">d</span><span class="o">-</span><span class="mi">278</span>      <span class="p">(</span><span class="nb">range</span><span class="p">,</span> <span class="ow">in</span> <span class="n">n</span> <span class="n">x</span> <span class="n">days</span><span class="p">,</span> <span class="n">hours</span><span class="p">,</span> <span class="n">minutes</span> <span class="ow">or</span> <span class="n">seconds</span><span class="p">)</span>
+
+        <span class="ow">and</span> <span class="k">return</span> <span class="n">a</span> <span class="n">TimeRange</span> <span class="k">for</span> <span class="n">that</span> <span class="n">time</span><span class="o">.</span> <span class="n">The</span> <span class="n">TimeRange</span> <span class="n">may</span> <span class="n">be</span> <span class="n">considered</span> <span class="n">to</span> <span class="n">be</span>
+        <span class="n">local</span> <span class="n">time</span> <span class="ow">or</span> <span class="n">UTC</span> <span class="n">time</span><span class="p">,</span> <span class="n">depending</span> <span class="n">on</span> <span class="n">the</span> <span class="n">utc</span> <span class="n">flag</span> <span class="n">passed</span> <span class="ow">in</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>A UTC conversion will still happen under the hood, just a little differently.</p>
+<p>If an <code class="docutils literal"><span class="pre">Index</span></code> (which is the underlying time-handling structure to <code class="docutils literal"><span class="pre">IndexedEvent</span></code>) is initialized thusly:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">utc</span> <span class="o">=</span> <span class="n">Index</span><span class="p">(</span><span class="s1">&#39;2015-07-14&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That is a daily index and is internally creating a range spanning that entire day. So looking at the internal timestamps yields this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="nb">print</span><span class="p">(</span><span class="n">utc</span><span class="o">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">utc</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+    <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">14</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="o">+</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">14</span> <span class="mi">23</span><span class="p">:</span><span class="mi">59</span><span class="p">:</span><span class="mi">59</span><span class="o">+</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
+</pre></div>
+</div>
+<p>But doing the same thing with <code class="docutils literal"><span class="pre">utc=False</span></code> (if you are in Pacific Time) yields this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">local</span> <span class="o">=</span> <span class="n">Index</span><span class="p">(</span><span class="s1">&#39;2015-07-14&#39;</span><span class="p">,</span> <span class="n">utc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">local</span><span class="o">.</span><span class="n">end</span><span class="p">())</span>
+    <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">14</span> <span class="mi">07</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="o">+</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">15</span> <span class="mi">06</span><span class="p">:</span><span class="mi">59</span><span class="p">:</span><span class="mi">59</span><span class="o">+</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>
+</pre></div>
+</div>
+<p>The time range is <strong>not</strong> internally held as spanning that day in the local time zone, it is converted and reflected in UTC.</p>
+<p>Yet another example of why it is preferred to input and store the data in UTC and view it in a localized way.</p>
+</div>
+</div>
+<div class="section" id="precision">
+<span id="precision"></span><h2>Precision<a class="headerlink" href="#precision" title="Permalink to this headline">¶</a></h2>
+<p>Internal timestamps are precise down to the millisecond even though the python <code class="docutils literal"><span class="pre">datetime</span></code> object is precise down to the microsecond.  This is primarily for parity with the JavaScript library - the JS <code class="docutils literal"><span class="pre">Date</span></code> object is only accurate down to the millisecond. Unit testing showed that allowing microsecond accuracy exposed discrepancies between times that should have been &#8220;the same.&#8221;</p>
+<p>It is perfectly fine to pass in python <code class="docutils literal"><span class="pre">datetime</span></code> objects that have microsecond accuracy, just be aware that it will be rounded to milliseconds automatically.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <a href="http://www.es.net/"><img src="_static/esnet/logo-esnet.png" alt="[ESnet]"></a>
+      </div>
+      <div class="col-md-11">
+        <p class="pull-right">
+        <a href="#">Back to top</a>
+        
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/time.txt"
+     rel="nofollow">Source</a>
+</div>
+        
+        </p>
+        <p>
+            &copy; Copyright 2016, The Regents of the University of California.<br/>
+          Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.1.<br/>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>
