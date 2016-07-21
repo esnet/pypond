@@ -20,6 +20,14 @@ class Functions(object):
     """
     # pylint: disable=missing-docstring
     @staticmethod
+    def keep(values):
+        result = Functions.first(values)
+        for i in values:
+            if i is not None and i != result:
+                return None  # pragma: no cover
+        return result
+
+    @staticmethod
     def sum(values):
         return reduce(lambda x, y: x + y, values, 0)
 

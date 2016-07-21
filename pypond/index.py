@@ -23,6 +23,7 @@ from .util import (
     aware_dt_from_args,
     dt_from_ms,
     localtime_from_ms,
+    localtime_info_from_utc,
     monthdelta,
     ms_from_dt,
     sanitize_dt,
@@ -124,6 +125,9 @@ class Index(PypondBase):
         that calendar range as a human readable format, e.g. "June, 2014".
         The format specified is a Moment.format.
 
+        Originally implemented at Util.niceIndexString in the JS source,
+        this is just a greatly simplified version using self._index_type.
+
         Parameters
         ----------
         fmt : str, optional
@@ -197,6 +201,11 @@ class Index(PypondBase):
         """
         return self.to_string()
 
+    @property
+    def utc(self):
+        """accessor for internal utc boolean."""
+        return self._utc
+
     # utility methods
 
     def _local_idx_warning(self, local=False):
@@ -224,7 +233,8 @@ class Index(PypondBase):
 
         This was in src/util.js in the original project, but the only thing using
         the code in that util.js was the Index class, and it makes more sense
-        having this as a class method.
+        having this as a class method and setting self._index_type makes further
+        regex analysis of the index unnecessary.
 
         Parameters
         ----------
@@ -266,7 +276,7 @@ class Index(PypondBase):
 
             dtargs = dict(year=year, month=month, day=day)
 
-            begin_time = aware_dt_from_args(dtargs)
+            begin_time = aware_dt_from_args(dtargs, localize=local)
 
             end_time = (begin_time + datetime.timedelta(days=1)) - datetime.timedelta(seconds=1)
 
@@ -313,7 +323,7 @@ class Index(PypondBase):
 
                 dtargs = dict(year=year, month=month, day=1)
 
-                begin_time = aware_dt_from_args(dtargs)
+                begin_time = aware_dt_from_args(dtargs, localize=local)
 
                 end_time = monthdelta(begin_time, 1) - datetime.timedelta(seconds=1)
 
@@ -330,7 +340,7 @@ class Index(PypondBase):
 
             dtargs = dict(year=year, month=1, day=1)
 
-            begin_time = aware_dt_from_args(dtargs)
+            begin_time = aware_dt_from_args(dtargs, localize=local)
 
             end_time = begin_time.replace(year=year + 1) - datetime.timedelta(seconds=1)
 
@@ -471,3 +481,66 @@ class Index(PypondBase):
                 pos += 1
 
         return idx_list
+
+    @staticmethod
+    def get_daily_index_string(date, utc=True):
+        """Generate an index string with day granularity.
+
+        Parameters
+        ----------
+        date : datetime.datetime
+            An aware UTC datetime object
+        utc : bool, optional
+            Render the index in local time this is used for display purposes
+            to render charts in a localized way.
+
+        Returns
+        -------
+        string
+            The formatted index string.
+        """
+        year = date.year if utc else localtime_info_from_utc(date).get('year')
+        month = date.strftime('%m') if utc else localtime_info_from_utc(date).get('month')
+        day = date.strftime('%d') if utc else localtime_info_from_utc(date).get('day')
+        return '{y}-{m}-{d}'.format(y=year, m=month, d=day)
+
+    @staticmethod
+    def get_monthly_index_string(date, utc=True):
+        """Generate an index string with month granularity.
+
+        Parameters
+        ----------
+        date : datetime.datetime
+            An aware UTC datetime object
+        utc : bool, optional
+            Render the index in local time this is used for display purposes
+            to render charts in a localized way.
+
+        Returns
+        -------
+        string
+            The formatted index string.
+        """
+        year = date.year if utc else localtime_info_from_utc(date).get('year')
+        month = date.strftime('%m') if utc else localtime_info_from_utc(date).get('month')
+        return '{y}-{m}'.format(y=year, m=month)
+
+    @staticmethod
+    def get_yearly_index_string(date, utc=True):
+        """Generate an index string with year granularity.
+
+        Parameters
+        ----------
+        date : datetime.datetime
+            An aware UTC datetime object
+        utc : bool, optional
+            Render the index in local time this is used for display purposes
+            to render charts in a localized way.
+
+        Returns
+        -------
+        string
+            The formatted index string.
+        """
+        year = date.year if utc else localtime_info_from_utc(date).get('year')
+        return '{y}'.format(y=year)

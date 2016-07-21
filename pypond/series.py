@@ -163,6 +163,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             msg = 'arg must be a TimeSeries instance or dict'
             raise TimeSeriesException(msg)
 
+        if self._collection.is_chronological() is not True:
+            msg = 'Events supplied to TimeSeries constructor must be chronological'
+            raise TimeSeriesException(msg)
+
     @staticmethod
     def build_metadata(meta):
         """
@@ -307,6 +311,42 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.at(i)
 
+    def at_time(self, time):
+        """Return an event in the series by its time. This is the same
+        as calling `bisect` first and then using `at` with the index.
+
+        Parameters
+        ----------
+        time : datetime.datetime
+            A datetime object
+
+        Returns
+        -------
+        Event
+            The event at the designated time.
+        """
+        return self._collection.at_time(time)
+
+    def at_first(self):
+        """Return first event in the series
+
+        Returns
+        -------
+        Event
+            The first event in the series.
+        """
+        return self._collection.at_first()
+
+    def at_last(self):
+        """Return last event in the series
+
+        Returns
+        -------
+        Event
+            The last event in the series.
+        """
+        return self._collection.at_last()
+
     def set_collection(self, coll):
         """Sets a new underlying collection for this TimeSeries.
 
@@ -369,50 +409,47 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         sliced = self._collection.slice(begin, end)
         return self.set_collection(sliced)
 
-    def clean(self, field_spec):
+    def crop(self, timerange):
+        """Crop the TimeSeries to the specified TimeRange and return
+        a new TimeSeries
+
+        Parameters
+        ----------
+        timerange : TimeRange
+            Bounds of the new TimeSeries
+
+        Returns
+        -------
+        TimeSeries
+            The new cropped TimeSeries instance.
         """
-        Returns a new TimeSeries by testing the field_spec
+
+        begin = self.bisect(timerange.begin())
+        end = self.bisect(timerange.end(), begin)
+        return self.slice(begin, end)
+
+    def clean(self, field_path=None):
+        """
+        Returns a new TimeSeries by testing the field_path
         values for being valid (not NaN, null or undefined).
         The resulting TimeSeries will be clean for that fieldSpec.
 
         Parameters
         ----------
-        field_spec : list
-            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
-            preferred
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         TimeSeries
             New time series from clean values from the field spec.
         """
-        cleaned = self._collection.clean(field_spec)
+        cleaned = self._collection.clean(field_path)
         return self.set_collection(cleaned)
-
-    def collapse(self, field_spec_list, name, reducer, append=True):
-        """
-        Takes a fieldSpecList (list of column names) and collapses
-        them to a new column which is the reduction of the matched columns
-        in the fieldSpecList.
-
-        Parameters
-        ----------
-        field_spec_list : list
-            List of columns to collapse
-        name : str
-            Name of new column containing collapsed values.
-        reducer : Function to pass to reducer.
-            function
-        append : bool, optional
-            Append collapsed column to existing data or fresh data payload.
-
-        Returns
-        -------
-        TimeSeries
-            A new time series from the collapsed columns.
-        """
-        collapsed = self._collection.collapse(field_spec_list, name, reducer, append)
-        return self.set_collection(collapsed)
 
     def events(self):
         """
@@ -536,20 +573,29 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.size()
 
-    def size_valid(self, field_spec):
-        """Returns the number of rows in the series.
+    def size_valid(self, field_path):
+        """
+        Returns the number of valid items in this collection.
+
+        Uses the fieldSpec to look up values in all events.
+        It then counts the number that are considered valid,
+        i.e. are not NaN, undefined or null.
 
         Parameters
         ----------
-        field_spec : list or string
-            Field spec of columns to validate.
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         int
-            Number of valid <field_spec> values in the events.
+            Number of valid <field_path> values in the events.
         """
-        return self._collection.size_valid(field_spec)
+        return self._collection.size_valid(field_path)
 
     def count(self):
         """alias for size.
@@ -565,13 +611,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     # pylint: disable=dangerous-default-value
 
-    def sum(self, field_spec=['value']):
+    def sum(self, field_spec=None):
         """Get sum
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -580,13 +629,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.sum(field_spec)
 
-    def max(self, field_spec=['value']):
+    def max(self, field_spec=None):
         """Get max
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -595,13 +647,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.max(field_spec)
 
-    def min(self, field_spec=['value']):
+    def min(self, field_spec=None):
         """Get min
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -610,13 +665,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.min(field_spec)
 
-    def avg(self, field_spec=['value']):
+    def avg(self, field_spec=None):
         """Get avg
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -625,13 +683,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.avg(field_spec)
 
-    def mean(self, field_spec=['value']):
+    def mean(self, field_spec=None):
         """Get mean
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -640,13 +701,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.mean(field_spec)
 
-    def median(self, field_spec=['value']):
+    def median(self, field_spec=None):
         """Get median
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -655,13 +719,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.median(field_spec)
 
-    def stdev(self, field_spec=['value']):
+    def stdev(self, field_spec=None):
         """Get std dev
 
         Parameters
         ----------
-        field_spec : list, optional
-            Specific fields to process
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -670,17 +737,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.stdev(field_spec)
 
-    def aggregate(self, func, field_spec=['value']):
+    def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to
         do the reduction.
 
         Parameters
         ----------
         func : function
-            Function to pass to map reduct to perform the aggregation.
-        field_spec : list, optional
-            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
-            preferred.
+            Function to pass to map reduce to aggregate.
+        field_spec : str, list, tuple, None
+            Column or columns to aggregate. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this. If None, then
+            all columns will be operated on.
 
         Returns
         -------
@@ -690,16 +759,335 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         return self._collection.aggregate(func, field_spec)
 
     def pipeline(self):
-        """get a pipeline from the collection."""
-        raise NotImplementedError
+        """Returns a new Pipeline with input source being initialized to
+        this TimeSeries collection. This allows pipeline operations
+        to be chained directly onto the TimeSeries to produce a new
+        TimeSeries or Event result.
 
-    def select(self, field_spec, cb):  # pylint: disable=invalid-name
-        """call select on the pipeline."""
-        raise NotImplementedError
+        Returns
+        -------
+        Pipeline
+            New pipline.
+        """
+        # gotta avoid circular imports by deferring
+        from .pipeline import Pipeline
+        return Pipeline().from_source(self._collection)
+
+    def map(self, op):  # pylint: disable=invalid-name
+        """Takes an operator that is used to remap events from this TimeSeries to
+         new set of Events. The result is returned via the callback.
+
+        Parameters
+        ----------
+        op : function
+            An operator which will be passed each event and which should
+            return a new event.
+
+        Returns
+        -------
+        TimeSeries
+            A clone of this TimeSeries with a new Collection generated by
+            the map operation.
+        """
+        coll = self.pipeline().map(op).to_keyed_collections()
+        return coll.get('all')
+
+    def select(self, field_spec=None):  # pylint: disable=invalid-name
+        """call select on the pipeline.
+
+        Parameters
+        ----------
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, the default 'value' column will be used.
+
+        Returns
+        -------
+        TimeSeries
+            A clone of this TimeSeries with a new Collection generated by
+            the select operation.
+        """
+        coll = self.pipeline().select(field_spec).to_keyed_collections()
+        return coll.get('all')
+
+    def collapse(self, field_spec_list, name, reducer, append=True):
+        """
+        Takes a fieldSpecList (list of column names) and collapses
+        them to a new column which is the reduction of the matched columns
+        in the fieldSpecList.
+
+        Parameters
+        ----------
+        field_spec_list : list
+            List of columns to collapse. If you need to retrieve deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+        name : str
+            Name of new column containing collapsed values.
+        reducer : Function to pass to reducer.
+            function
+        append : bool, optional
+            Append collapsed column to existing data or fresh data payload.
+
+        Returns
+        -------
+        TimeSeries
+            A new time series from the collapsed columns.
+        """
+
+        coll = (
+            self.pipeline()
+            .collapse(field_spec_list, name, reducer, append)
+            .to_keyed_collections()
+        )
+
+        return coll.get('all')
 
     def __str__(self):
         """call to_string()"""
         return self.to_string()  # pragma: no cover
+
+    # Windowing and rollups
+
+    def fixed_window_rollup(self, window_size, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events within the TimeSeries
+        across multiple fixed windows of size `windowSize`.
+
+        Note that these are windows defined relative to Jan 1st, 1970,
+        and are UTC, so this is best suited to smaller window sizes
+        (hourly, 5m, 30s, 1s etc), or in situations where you don't care
+        about the specific window, just that the data is smaller.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example:
+        ```
+        {in: avg, out: avg}
+        ```
+        will aggregate both "in" and "out" using the average aggregation
+        function.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg})
+
+        Parameters
+        ----------
+        window_size : str
+            The size of the window, e.g. '6h' or '5m'
+        aggregation : Options
+            The aggregation specification
+        to_events : bool, optional
+            Convert to events
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries
+        """
+
+        aggregator_pipeline = (
+            self.pipeline()
+            .window_by(window_size)
+            .emit_on('discard')
+            .aggregate(aggregation)
+        )
+
+        event_type_pipeline = aggregator_pipeline.as_events() if to_events \
+            else aggregator_pipeline
+
+        colls = event_type_pipeline.clear_window().to_keyed_collections()
+
+        return self.set_collection(colls.get('all'))
+
+    def hourly_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into hours. The hours are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each hour.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max})
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self.fixed_window_rollup('1h', aggregation, to_events)
+
+    def daily_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into days. The days are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each day.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+
+        This helper function renders the aggregations in localtime. If you
+        want to render in UTC use .fixed_window_rollup() with the appropriate
+        window size.
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self._rollup('daily', aggregation, to_events, utc=False)
+
+    def monthly_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into months. The months are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each month.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+
+        This helper function renders the aggregations in localtime. If you
+        want to render in UTC use .fixed_window_rollup() with the appropriate
+        window size.
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self._rollup('monthly', aggregation, to_events, utc=False)
+
+    def yearly_rollup(self, aggregation, to_events=False):
+        """
+        Builds a new TimeSeries by dividing events into years. The years are
+        in either local or UTC time, depending on if utc(true) is set on the
+        Pipeline.
+
+        Each window then has an aggregation specification applied as
+        `aggregation`. This specification describes a mapping of fieldNames
+        to aggregation functions. For example::
+
+            {'in': Functions.avg, 'out': Functions.avg}
+
+        will aggregate both "in" and "out" using the average aggregation
+        function across all events within each year.
+
+        Example::
+
+            timeseries = TimeSeries(data)
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+
+        This helper function renders the aggregations in localtime. If you
+        want to render in UTC use .fixed_window_rollup() with the appropriate
+        window size.
+
+        Parameters
+        ----------
+        aggregation : dict
+            The aggregation specification e.g. {'temperature': Functions.max}
+        to_event : bool, optional
+            Do conversion to Event objects
+
+        Returns
+        -------
+        TimeSeries
+            The resulting rolled up TimeSeries.
+        """
+        return self._rollup('yearly', aggregation, to_events, utc=False)
+
+    def _rollup(self, interval, aggregation, to_events=False, utc=True):
+
+        aggregator_pipeline = (
+            self.pipeline()
+            .window_by(interval, utc=utc)
+            .emit_on('discard')
+            .aggregate(aggregation)
+        )
+
+        event_type_pipeline = aggregator_pipeline.as_events() if to_events \
+            else aggregator_pipeline
+
+        colls = event_type_pipeline.clear_window().to_keyed_collections()
+
+        return self.set_collection(colls.get('all'))
+
+    def collect_by_fixed_window(self, window_size):
+        """Summary
+
+        Parameters
+        ----------
+        window_size : str
+            The window size - 1d, 6h, etc
+
+        Returns
+        -------
+        list or dict
+            Returns the _results attribute from a Pipeline object after processing.
+            Will contain Collection objects.
+        """
+        return (
+            self.pipeline()
+            .window_by(window_size)
+            .emit_on('discard')
+            .to_keyed_collections()
+        )
 
     # Static methods
 
@@ -748,7 +1136,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
     @staticmethod
-    def map(data, series_list, mapper, field_spec=None):
+    def timeseries_list_reduce(data, series_list, reducer, field_spec=None):
         """for each series, map events to the same timestamp/index
 
         Parameters
@@ -757,11 +1145,14 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             Data payload
         series_list : list
             List of TimeSeries objects.
-        mapper : function
-            Mapper function
-        field_spec : list, optional
-            "Deep" syntax either ['deep', 'value'] or 'deep.value' - list version
-            preferred.
+        reducer : function
+            reducer function
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            Can be set to None if the reducer does not require a field spec.
 
         Returns
         -------
@@ -791,16 +1182,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         for v in list(event_map.values()):
             if field_spec is None:
-                event = mapper(v)
+                event = reducer(v)
             else:
-                event = mapper(v, field_spec)
+                event = reducer(v, field_spec)
 
             events.append(event)
 
         return TimeSeries(dict(events=events, **data))
 
     @staticmethod
-    def merge(data, series_list):
+    def timeseries_list_merge(data, series_list):
         """Merge a list of time series.
 
         Parameters
@@ -815,10 +1206,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             New TimeSeries from merge.
         """
-        return TimeSeries.map(data, series_list, Event.merge)
+        return TimeSeries.timeseries_list_reduce(data, series_list, Event.merge)
 
     @staticmethod
-    def sum_list(data, series_list, field_spec):
+    def timeseries_list_sum(data, series_list, field_spec):
         """
         Takes a list of TimeSeries and sums them together to form a new
         Timeseries.
@@ -833,12 +1224,15 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             Data payload
         series_list : list
             List of TimeSeries objects
-        field_spec : list
-            Field spec for columns.
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
         TimeSeries
             New time series with summed values.
         """
-        return TimeSeries.map(data, series_list, Event.sum, field_spec)
+        return TimeSeries.timeseries_list_reduce(data, series_list, Event.sum, field_spec)

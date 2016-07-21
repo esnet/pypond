@@ -15,12 +15,12 @@ import json
 
 from pyrsistent import freeze, thaw
 
-from .sources import BoundedIn
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions
+from .pipeline_in import BoundedIn
 from .range import TimeRange
-from .util import unique_id, is_pvector, ObjectEncoder, _check_dt
+from .util import unique_id, is_pvector, ObjectEncoder, _check_dt, is_function
 
 
 class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
@@ -53,7 +53,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         new object has an emtpy event list.
     """
 
-    def __init__(self, instance_or_list, copy_events=True):
+    def __init__(self, instance_or_list=None, copy_events=True):
         """
         Create a collection object.
         """
@@ -63,7 +63,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         self._event_list = None
         self._type = None
 
-        if isinstance(instance_or_list, Collection):
+        if instance_or_list is None:
+            self._event_list = freeze(list())
+        elif isinstance(instance_or_list, Collection):
             other = instance_or_list
             if copy_events:
                 # pylint: disable=protected-access
@@ -143,7 +145,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return len(self._event_list)
 
-    def size_valid(self, field_spec='value'):
+    def size_valid(self, field_path=None):
         """
         Returns the number of valid items in this collection.
 
@@ -153,18 +155,24 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, optional
-            Name of value to look up.
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         int
-            Number of valid <field_spec> values in all of the Events.
+            Number of valid <field_path> values in all of the Events.
         """
         count = 0
 
+        fpath = self._field_spec_to_array(field_path)
+
         for i in self.events():
-            if Event.is_valid_value(i, field_spec):
+            if Event.is_valid_value(i, fpath):
                 count += 1
 
         return count
@@ -314,6 +322,34 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return iter(self._event_list)
 
+    def set_events(self, events):
+        """Create a new Collection from this one and set the internal
+        list of events
+
+        Parameters
+        ----------
+        events : list or pyrsistent.pvector
+            A list of events
+
+        Returns
+        -------
+        Collection
+            Returns a new collection with the event list set to the
+            everts arg
+
+        Raises
+        ------
+        CollectionException
+            Raised if wrong arg type.
+        """
+        if not isinstance(events, list) and not is_pvector(events):
+            msg = 'arg must be a list or pvector'
+            raise CollectionException(msg)
+
+        ret = Collection(self)
+        ret._event_list = events  # pylint: disable=protected-access
+        return ret
+
     def event_list(self):
         """Returns the raw Immutable event list.
 
@@ -333,6 +369,41 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             Thawed version of internal immutable data structure.
         """
         return thaw(self.event_list())
+
+    def sort_by_time(self):
+        """Return a new instance of this collection after making sure
+        that all of the events are sorted by timestamp.
+
+        Returns
+        -------
+        Collection
+            A copy of this collection with the events chronologically
+            sorted.
+        """
+        ordered = sorted(self._event_list, key=lambda x: x.ts)
+        return self.set_events(ordered)
+
+    def is_chronological(self):
+        """Checks that the events in this collection are in chronological
+        order.
+
+        Returns
+        -------
+        bool
+            True if events are in chronologcal order.
+        """
+        ret = True
+        current_ts = None
+
+        for i in self._event_list:
+            if current_ts is None:
+                current_ts = i.timestamp()
+            else:
+                if i.timestamp() < current_ts:
+                    ret = False
+                current_ts = i.timestamp()
+
+        return ret
 
     # Series range
 
@@ -459,7 +530,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         return Collection(mapped_events)
 
-    def clean(self, field_spec):
+    def clean(self, field_path=None):
         """
         Returns a new Collection by testing the fieldSpec
         values for being valid (not NaN, null or undefined).
@@ -467,20 +538,24 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : list or str
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         Collection
             New collection containing only "clean" events.
         """
-        fspec = self._field_spec_to_array(field_spec)
         flt_events = list()
 
+        fpath = self._field_spec_to_array(field_path)
+
         for i in self.events():
-            if Event.is_valid_value(i, fspec):
+            if Event.is_valid_value(i, fpath):
                 flt_events.append(i)
 
         return Collection(flt_events)
@@ -494,7 +569,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec_list : list
-            List of columns to collapse
+            List of columns to collapse. If you need to retrieve deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
         name : str
             Name of new column containing collapsed data.
         reducer : function
@@ -508,21 +584,12 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         Collection
             New collection containing the collapsed data.
         """
-        fsl = self._field_spec_to_array(field_spec_list)
-
         collapsed_events = list()
 
         for evn in self.events():
-            collapsed_events.append(evn.collapse(fsl, name, reducer, append))
+            collapsed_events.append(evn.collapse(field_spec_list, name, reducer, append))
 
         return Collection(collapsed_events)
-
-    def _field_spec_to_array(self, fspec):  # pylint: disable=no-self-use
-        """split the field spec if it is not already a list."""
-        if isinstance(fspec, list):
-            return fspec
-        elif isinstance(fspec, str):
-            return fspec.split('.')
 
     # sum/min/max etc
 
@@ -536,38 +603,71 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.size()
 
-    def aggregate(self, func, field_spec=['value']):  # pylint: disable=dangerous-default-value
+    def aggregate(self, func, field_path=None):
         """
         Aggregates the events down using a user defined function to
-        do the reduction.
+        do the reduction. Only a single column can be aggregated on
+        so this takes a field_path, NOT a field_spec.
+
+        This is essentially a wrapper around map/reduce, constraining
+        it to a single column and returning the value, not the dict
+        from map().
 
         Parameters
         ----------
         func : function
             Function to pass to map reduce to aggregate.
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
-        dict
-            Dict of reduced/aggregated values.
+        various
+            Returns the aggregated value, so it depends on what kind
+            of data are being handled/aggregation being done.
         """
-        fspec = self._field_spec_to_array(field_spec)
-        result = Event.map_reduce(self.event_list_as_list(), fspec, func)
-        return result
 
-        # pylint: disable=dangerous-default-value
+        if not is_function(func):
+            msg = 'First arg to aggregate() must be a function'
+            raise CollectionException(msg)
 
-    def first(self, field_spec=['value']):
+        fpath = None
+
+        if isinstance(field_path, str):
+            fpath = field_path
+        elif isinstance(field_path, (list, tuple)):
+            # if the ['array', 'style', 'field_path'] is being used,
+            # we need to turn it back into a string since we are
+            # using a subset of the the map() functionality on
+            # a single column
+            fpath = '.'.join(field_path)
+        elif field_path is None:
+            # map() needs a field name to use as a key. Normally
+            # this case is normally handled by _field_spec_to_array()
+            # inside get(). Also, if map(func, field_spec=None) then
+            # it will map all the columns.
+            fpath = 'value'
+        else:
+            msg = 'Collection.aggregate() takes a string/list/tuple field_path'
+            raise CollectionException(msg)
+
+        result = Event.map_reduce(self.event_list_as_list(), fpath, func)
+        return result[fpath]
+
+    def first(self, field_spec=None):
         """Get first value in the collection for the fspec
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -576,14 +676,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.first, field_spec)
 
-    def last(self, field_spec=['value']):
+    def last(self, field_spec=None):
         """Get last value in the collection for the fspec
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -592,14 +694,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.last, field_spec)
 
-    def sum(self, field_spec=['value']):
+    def sum(self, field_spec=None):
         """Get sum
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -608,14 +712,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.sum, field_spec)
 
-    def avg(self, field_spec=['value']):
+    def avg(self, field_spec=None):
         """Get avg
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -624,14 +730,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.avg, field_spec)
 
-    def max(self, field_spec=['value']):
+    def max(self, field_spec=None):
         """Get max
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -640,14 +748,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.max, field_spec)
 
-    def min(self, field_spec=['value']):
+    def min(self, field_spec=None):
         """Get min
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -656,14 +766,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.min, field_spec)
 
-    def mean(self, field_spec=['value']):
+    def mean(self, field_spec=None):
         """Get mean
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -672,14 +784,16 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.avg(field_spec)
 
-    def median(self, field_spec=['value']):
+    def median(self, field_spec=None):
         """Get median
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -688,14 +802,15 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         return self.aggregate(Functions.median, field_spec)
 
-    def stdev(self, field_spec=['value']):
+    def stdev(self, field_spec=None):
         """Get std dev
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec to values. "Deep" syntax either ['deep', 'value']
-            or 'deep.value.' Favor using the list version pls.
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
 
         Returns
         -------

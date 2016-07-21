@@ -257,18 +257,18 @@ class TestInterop(unittest.TestCase):
             name="availability",
             columns=["index", "uptime"],
             points=[
-                ["2015-06", "100%"],
-                ["2015-05", "92%"],
-                ["2015-04", "87%"],
-                ["2015-03", "99%"],
-                ["2015-02", "92%"],
-                ["2015-01", "100%"],
-                ["2014-12", "99%"],
-                ["2014-11", "91%"],
-                ["2014-10", "99%"],
-                ["2014-09", "95%"],
+                ["2014-07", "100%"],
                 ["2014-08", "88%"],
-                ["2014-07", "100%"]
+                ["2014-09", "95%"],
+                ["2014-10", "99%"],
+                ["2014-11", "91%"],
+                ["2014-12", "99%"],
+                ["2015-01", "100%"],
+                ["2015-02", "92%"],
+                ["2015-03", "99%"],
+                ["2015-04", "87%"],
+                ["2015-05", "92%"],
+                ["2015-06", "100%"],
             ]
         )
 
@@ -288,18 +288,18 @@ class TestInterop(unittest.TestCase):
             name="availability",
             columns=["index", "uptime", "notes", "outages"],
             points=[
-                ["2015-06", 100, "", 0],
-                ["2015-05", 92, "Router failure June 12", 26],
-                ["2015-04", 87, "Planned downtime in April", 82],
-                ["2015-03", 99, "Minor outage March 2", 4],
-                ["2015-02", 92, "", 12],
-                ["2015-01", 100, "", 0],
-                ["2014-12", 99, "", 3],
-                ["2014-11", 91, "", 14],
-                ["2014-10", 99, "", 3],
-                ["2014-09", 95, "", 6],
                 ["2014-08", 88, "", 17],
-                ["2014-09", 100, "", 2]
+                ["2014-09", 100, "", 2],
+                ["2014-09", 95, "", 6],
+                ["2014-10", 99, "", 3],
+                ["2014-11", 91, "", 14],
+                ["2014-12", 99, "", 3],
+                ["2015-01", 100, "", 0],
+                ["2015-02", 92, "", 12],
+                ["2015-03", 99, "Minor outage March 2", 4],
+                ["2015-04", 87, "Planned downtime in April", 82],
+                ["2015-05", 92, "Router failure June 12", 26],
+                ["2015-06", 100, "", 0],
             ]
         )
 
@@ -333,6 +333,31 @@ class TestInterop(unittest.TestCase):
         self._validate_wire_points(timerange_event_series, new_json)
         self.assertTrue(new_json.get('utc'))
         self.assertEqual(timerange_event_series.get('name'), new_json.get('name'))
+
+    def test_nested_wire_format(self):
+        """make sure nested format round trips correctly."""
+
+        data_flow = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': 2}],
+                [1400425948000, {'in': 3, 'out': 4}],
+                [1400425949000, {'in': 5, 'out': 6}],
+                [1400425950000, {'in': 7, 'out': 8}]
+            ]
+        )
+
+        series = TimeSeries(data_flow)
+
+        wire = self._call_interop_script('event', series.to_string())
+
+        new_series = TimeSeries(wire)
+
+        self.assertEqual(new_series.at(0).value('direction').get('in'), 1)
+        self.assertEqual(new_series.at(0).value('direction').get('out'), 2)
+        self.assertEqual(new_series.at(1).value('direction').get('in'), 3)
+        self.assertEqual(new_series.at(1).value('direction').get('out'), 4)
 
     def test_event_series_with_index(self):
         """test indexed data, not a series of IndexedEvent."""

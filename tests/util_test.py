@@ -22,6 +22,7 @@ from pypond.util import (
     dt_is_aware,
     EPOCH,
     localtime_from_ms,
+    localtime_info_from_utc,
     monthdelta,
     ms_from_dt,
     sanitize_dt,
@@ -191,6 +192,14 @@ class TestTime(unittest.TestCase):
         # work logic in monthdelta
         dtime = datetime.datetime(year=2015, month=12, day=1)
         self.assertEqual(monthdelta(dtime, 0), dtime)
+
+    def test_local_info(self):
+        """test the code that extracts localized values from a UTC datetime."""
+        utcnow = aware_utcnow()
+        l_info = localtime_info_from_utc(utcnow)
+
+        self.assertTrue(isinstance(l_info, dict))
+
 
 if __name__ == '__main__':
     unittest.main()

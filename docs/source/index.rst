@@ -46,4 +46,5 @@ also be referred to as a fairly complete set of examples as well.
     :caption: Developer Documentation
 
     api
+    time
     tests

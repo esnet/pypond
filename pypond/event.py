@@ -79,7 +79,7 @@ class EventBase(PypondBase):
         """
         return self._d.get('data')
 
-    def get(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
+    def get(self, field_path=None):
         """
         Get specific data out of the Event. The data will be converted
         to a js object. You can use a fieldSpec to address deep data.
@@ -90,36 +90,42 @@ class EventBase(PypondBase):
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec of data value to get.
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         various
             Type depends on underyling data
         """
-        if isinstance(field_spec, str):
-            path = field_spec.split('.')  # pylint: disable=no-member
-        elif isinstance(field_spec, list):
-            path = field_spec
 
-        return reduce(dict.get, path, thaw(self.data()))
+        fspec = self._field_spec_to_array(field_path)
 
-    def value(self, field_spec=['value']):  # pylint: disable=dangerous-default-value
+        return reduce(dict.get, fspec, thaw(self.data()))
+
+    def value(self, field_path=None):
         """
         Alias for get()
 
         Parameters
         ----------
-        field_spec : list, optional
-            Field spec of data value to get.
+        field_path : str, list, tuple, None
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         various
             Type depends on underlying data.
         """
-        return self.get(field_spec)
+        return self.get(field_path)
 
     def to_json(self):
         """abstract, override in subclasses.
@@ -204,6 +210,21 @@ class EventBase(PypondBase):
             Needs to be implemented in subclasses.
         """
         raise NotImplementedError  # pragma: nocover
+
+    @property
+    def ts(self):
+        """A property to expose the datetime.datetime value returned
+        by the timestamp() method.  This is so we can support sorting
+        of a list of events via the following method:
+
+            ordered = sorted(self._event_list, key=lambda x: x.ts)
+
+        Returns
+        -------
+        datetime.datetime
+            Returns the value returned by timestamp()
+        """
+        return self.timestamp()
 
     # static methods, primarily for arg processing.
 
@@ -430,10 +451,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         points = [self._get_epoch_ms()]
 
+        data = thaw(self.data())
+
         if isinstance(cols, list):
-            points += [self.data().get(x, None) for x in cols]
+            points += [data.get(x, None) for x in cols]
         else:
-            points += [x for x in list(self.data().values())]
+            points += [x for x in list(data.values())]
 
         return points
 
@@ -515,7 +538,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_spec_list : list
-            List of columns to collapse
+            List of columns to collapse. If you need to retrieve deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
         name : str
             Name of new column with collapsed data.
         reducer : function
@@ -566,7 +590,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                     event1._d == event2._d)
 
     @staticmethod
-    def is_valid_value(event, field_spec='value'):
+    def is_valid_value(event, field_path=None):
         """
         The same as Event.value() only it will return false if the
         value is either undefined, NaN or Null.
@@ -575,20 +599,24 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         event : Event
             An event.
-        field_spec : str, optional
-            Column/value to validate
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         bool
             Return false if undefined, NaN, or None.
         """
-        val = event.value(field_spec)
+        val = event.value(field_path)
 
         return not bool(val is None or val == '' or is_nan(val))
 
     @staticmethod
-    def selector(event, field_spec):
+    def selector(event, field_spec=None):
         """
         Function to select specific fields of an event using
         a fieldSpec and return a new event with just those fields.
@@ -600,15 +628,15 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         The function returns a new event.
 
-        :param field_spec: Fields to gather into a new object
-        :type field_spec: str or list
-
         Parameters
         ----------
         event : Event
             Event to pull from.
-        field_spec : list or str
-            Fields to gather into a new object.
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, the default
+            column 'value' will be used.
 
         Returns
         -------
@@ -619,10 +647,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         if isinstance(field_spec, str):
             new_dict[field_spec] = event.get(field_spec)
-        elif isinstance(field_spec, list):
+        elif isinstance(field_spec, (list, tuple)):
             for i in field_spec:
                 if isinstance(i, str):
                     new_dict[i] = event.get(i)
+        elif field_spec is None:
+            new_dict['value'] = event.get()
         else:
             return event
 
@@ -819,8 +849,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         events : list
             List of Event objects
-        field_spec : list or str
-            Columns to operate on.
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
         reducer : function
             Reducer function to apply to column data.
 
@@ -842,7 +875,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                 field_names = list(thaw(event.data()).keys())
             elif isinstance(field_spec, str):
                 field_names = [field_spec]
-            elif isinstance(field_spec, list):
+            elif isinstance(field_spec, (list, tuple)):
                 field_names = field_spec
 
             for i in field_names:
@@ -880,8 +913,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         events : list
             A list of Event objects
-        field_spec : list or str, optional
-            Colums(s) to sum.
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -919,8 +955,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         events : list
             A list of Event objects
-        field_spec : list or str, optional
-            Colums(s) to sum.
+        field_spec : list, str, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
 
         Returns
         -------
@@ -957,7 +996,14 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         events : list
             A list of events
         field_spec : str, list, func or None, optional
-            Data values/columns to map.
+            Column or columns to map. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this. If None, then
+            all columns will be mapped.
+
+            If field_spec is a function, the function should return a
+            dict. The keys will be come the "column names" that will
+            be used in the dict that is returned.
 
         Returns
         -------
@@ -975,7 +1021,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             for evt in events:
                 key_check(field_spec)
                 result[field_spec].append(evt.get(field_spec))
-        elif isinstance(field_spec, list):
+        elif isinstance(field_spec, (list, tuple)):
             for spec in field_spec:
                 for evt in events:
                     key_check(spec)
@@ -1035,8 +1081,11 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         ----------
         events : list
             A list of events
-        field_spec : a field spec as passed to map()
-            See map()
+        field_spec : str, list, func or None, optional
+            Column or columns to map. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this. If None, then
+            all columns will be mapped.
         reducer : function
             The reducer function.
 

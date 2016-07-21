@@ -98,6 +98,35 @@ def localtime_from_ms(msec):
     return datetime.datetime.fromtimestamp(msec / 1000.0, LOCAL_TZ)
 
 
+def localtime_info_from_utc(dtime):
+    """Extract local TZ formatted values from an aware UTC datetime object.
+    This is used by the index string methods when grouping data for
+    local display.
+
+    Parameters
+    ----------
+    dtime : datetime.datetime
+        An aware UTC datetime object
+
+    Returns
+    -------
+    dict
+        A dict with formatted elements (zero-padded months, etc) extracted
+        from the local version.
+    """
+    _check_dt(dtime)
+
+    local = dtime.astimezone(LOCAL_TZ)
+
+    local_info = dict(
+        year=local.year,
+        month=local.strftime('%m'),
+        day=local.strftime('%d'),
+    )
+
+    return local_info
+
+
 def aware_dt_from_args(dtargs, localize=False):
     """
     generate an aware datetime object using datetime.datetime kwargs.
@@ -384,6 +413,59 @@ class ObjectEncoder(json.JSONEncoder):
 
         return obj
 
+# Encapsulation object for Pipeline/etc options.
+
+
+class Options(object):  # pylint: disable=too-few-public-methods
+    """
+    Encapsulation object for Pipeline options.
+
+    Example::
+
+        o = Options(foo='bar')
+
+        and
+
+        o = Options()
+        o.foo = 'bar'
+
+        Are identical.
+
+    Parameters
+    ----------
+    initial : dict, optional
+        Can supply keyword args for initial values.
+    """
+
+    def __init__(self, **kwargs):
+        """Encapsulation object for Pipeline options."""
+        self.__dict__['_data'] = {}
+
+        if kwargs:
+            self.__dict__['_data'] = kwargs
+
+    def __getattr__(self, name):
+        return self._data.get(name, None)
+
+    def __setattr__(self, name, value):
+        self.__dict__['_data'][name] = value
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def to_dict(self):  # pylint: disable=missing-docstring
+        return self._data
+
+
+class Capsule(Options):  # pylint: disable=too-few-public-methods
+    """
+    Straight subclass of Options so there is no confusion between this
+    and the pipeline Options. Employing this to mimic the Javascript
+    Object in cases where using a Python dict would cause confusion
+    porting the code.
+    """
+    pass
+
 # test types
 
 
@@ -456,3 +538,27 @@ def is_function(func):
         Is the object a python function?
     """
     return isinstance(func, types.FunctionType)
+
+
+def is_pipeline(obj):
+    """Test if something is a Pipeline object. This is put here
+    with a deferred import statement to avoid circular imports
+    so the I/O don't need to import pipeline.py.
+
+    This probably does not need to be deferred but doing it
+    for safety sake.
+
+    Parameters
+    ----------
+    obj : object
+        An object to test to see if it's a Pipeline.
+
+    Returns
+    -------
+    bool
+        True if Pipeline
+    """
+    from .pipeline import Pipeline
+    return isinstance(obj, Pipeline)
+
+

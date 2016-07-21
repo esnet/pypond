@@ -31,6 +31,7 @@ README_TOKEN
     :caption: Developer Documentation
 
     api
+    time
     tests
 """
 

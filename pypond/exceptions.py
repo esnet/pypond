@@ -91,6 +91,22 @@ class PipelineWarning(Warning):
     pass
 
 
+class PipelineIOException(Exception):
+    """Custom PipelineIO exception"""
+
+    def __init__(self, value):
+        # pylint: disable=super-init-not-called
+        self.value = value
+
+    def __str__(self):  # pragma: no cover
+        return repr(self.value)
+
+
+class PipelineIOWarning(Warning):
+    """Custom PipelineIO warning"""
+    pass
+
+
 class CollectionException(Exception):
     """Custom Collection exception"""
 
@@ -120,6 +136,22 @@ class TimeSeriesException(Exception):
 
 class TimeSeriesWarning(Warning):
     """Custom TimeSeries warning"""
+    pass
+
+
+class ProcessorException(Exception):
+    """Custom Processor exception"""
+
+    def __init__(self, value):
+        # pylint: disable=super-init-not-called
+        self.value = value
+
+    def __str__(self):  # pragma: no cover
+        return repr(self.value)
+
+
+class ProcessorWarning(Warning):
+    """Custom Processor warning"""
     pass
 
 
