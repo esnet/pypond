@@ -554,6 +554,24 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(tr_sum.at(0).get('length'), 46)
         self.assertEqual(tr_sum.at(1).get('length'), 108)
 
+    def test_map_and_collect(self):
+        """test timeseries access methods for coverage."""
+
+        # map
+        def in_only(event):
+            """make new events wtin only data in - same as .select() basically."""
+            return Event(event.timestamp(), {'in': event.get('in')})
+        mapped = self._canned_event_series.map(in_only)
+        self.assertEqual(mapped.count(), 3)
+        for i in mapped.events():
+            self.assertIsNone(i.get('out'))
+
+        # select
+        selected = self._canned_event_series.select('out')
+        self.assertEqual(selected.count(), 3)
+        for i in selected.events():
+            self.assertIsNone(i.get('in'))
+
     def test_ts_collapse(self):
         """
         Test TimeSeries.collapse()

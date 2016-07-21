@@ -1212,6 +1212,42 @@ class TestConverter(BaseTestPipeline):
 
         self.assertEqual(con._convert_to, con2._convert_to)  # pylint: disable=protected-access
 
+        con3 = con2.clone()
+
+        self.assertEqual(con3._convert_to, con2._convert_to)  # pylint: disable=protected-access
+
+    def test_event_conversion_bad_args(self):
+        """test bad args for Event conversion."""
+
+        stream1 = UnboundedIn()
+
+        def cback(event):  # pylint: disable=missing-docstring, unused-argument
+            pass
+
+        # no duration
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_time_range_events(dict(alignment='front'))
+            .to(EventOut, cback)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream1.add_event(self._event)
+
+        stream2 = UnboundedIn()
+
+        # bad alignment
+        (
+            Pipeline()
+            .from_source(stream2)
+            .as_time_range_events(dict(alignment='bogus', duration='1h'))
+            .to(EventOut, cback)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream2.add_event(self._event)
+
 
 class TestOffsetPipeline(BaseTestPipeline):
     """
@@ -1341,6 +1377,39 @@ class TestOffsetPipeline(BaseTestPipeline):
         self.assertEqual(RESULTS.size(), 2)
         self.assertEqual(RESULTS.at(0).get('in'), 4)
         self.assertEqual(RESULTS.at(1).get('in'), 6)
+
+    def test_streaming_start_stop(self):
+        """turn the stream off and on."""
+
+        def cback(collection, window_key, group_by):  # pylint: disable=unused-argument
+            """callback to pass in."""
+            global RESULTS  # pylint: disable=global-statement
+            RESULTS = collection
+
+        source = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(source)
+            .offset_by(3, 'in')
+            .to(CollectionOut, cback)
+        )
+
+        source.add_event(EVENTLIST1[0])
+        source.add_event(EVENTLIST1[1])
+
+        source.stop()
+
+        source.add_event(EVENTLIST1[2])
+
+        # source stopped, event shouldn't be added
+        self.assertEqual(RESULTS.size(), 2)
+
+        source.start()
+
+        source.add_event(EVENTLIST1[2])
+
+        self.assertEqual(RESULTS.size(), 3)
 
 if __name__ == '__main__':
     unittest.main()
