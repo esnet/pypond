@@ -138,7 +138,7 @@ SEPT_2014_DATA = dict(
         [1409540400000, 80],
         [1409544000000, 26],
         [1409547600000, 37],
-        [1409551200000, 6],
+        [1409551200000, 6],  # last point of of 8-31 pacific time
         [1409554800000, 32],
         [1409558400000, 69],
         [1409562000000, 21],
@@ -463,6 +463,21 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(tser.stdev('out'), 1.632993161855452)
         # redundant, but for coverage
         self.assertEqual(tser.aggregate(Functions.sum, 'in'), 9)
+        self.assertEqual(tser.aggregate(Functions.sum, ('in',)), 9)
+
+        ser1 = TimeSeries(DATA)
+        self.assertEqual(ser1.aggregate(Functions.sum), 189)
+
+    def test_various_bad_args(self):
+        """ensure proper exceptions are being raised."""
+
+        ser1 = TimeSeries(DATA)
+
+        with self.assertRaises(CollectionException):
+            ser1.aggregate(dict())
+
+        with self.assertRaises(CollectionException):
+            ser1.aggregate(Functions.sum, dict())
 
     def test_equality_methods(self):
         """test equal/same static methods."""
@@ -539,6 +554,24 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(tr_sum.at(0).get('length'), 46)
         self.assertEqual(tr_sum.at(1).get('length'), 108)
 
+    def test_map_and_collect(self):
+        """test timeseries access methods for coverage."""
+
+        # map
+        def in_only(event):
+            """make new events wtin only data in - same as .select() basically."""
+            return Event(event.timestamp(), {'in': event.get('in')})
+        mapped = self._canned_event_series.map(in_only)
+        self.assertEqual(mapped.count(), 3)
+        for i in mapped.events():
+            self.assertIsNone(i.get('out'))
+
+        # select
+        selected = self._canned_event_series.select('out')
+        self.assertEqual(selected.count(), 3)
+        for i in selected.events():
+            self.assertIsNone(i.get('in'))
+
     def test_ts_collapse(self):
         """
         Test TimeSeries.collapse()
@@ -568,6 +601,18 @@ class TestRollups(SeriesBase):
         self.assertEqual(daily_avg.at(2).value(), 54.083333333333336)
         self.assertEqual(daily_avg.at(4).value(), 51.85)
 
+        # not really a rollup, each data point will create one
+        # aggregation index.
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        hourly_avg = timeseries.hourly_rollup(dict(value=Functions.avg))
+
+        self.assertEqual(hourly_avg.size(), len(SEPT_2014_DATA.get('points')))
+        self.assertEqual(hourly_avg.at(0).value(), 80.0)
+        self.assertEqual(hourly_avg.at(2).value(), 52.0)
+        self.assertEqual(hourly_avg.at(4).value(), 26.0)
+
     def test_fixed_window_collect(self):
         """Make collections for each day in the timeseries."""
 
@@ -576,6 +621,37 @@ class TestRollups(SeriesBase):
 
         self.assertEqual(colls.get('1d-16314').size(), 24)
         self.assertEqual(colls.get('1d-16318').size(), 20)
+
+    def test_non_fixed_rollups(self):
+        """Work the calendar rollup logic / utc / etc."""
+
+        timeseries = TimeSeries(SEPT_2014_DATA)
+
+        # just silence the warnings, not do anything with them.
+        with warnings.catch_warnings(record=True):
+
+            daily_avg = timeseries.daily_rollup(dict(value=Functions.avg))
+
+            ts_1 = SEPT_2014_DATA.get('points')[0][0]
+
+            self.assertEqual(
+                Index.get_daily_index_string(dt_from_ms(ts_1), utc=False),
+                daily_avg.at(0).index().to_string()
+            )
+
+            monthly_avg = timeseries.monthly_rollup(dict(value=Functions.avg))
+
+            self.assertEqual(
+                Index.get_monthly_index_string(dt_from_ms(ts_1), utc=False),
+                monthly_avg.at(0).index().to_string()
+            )
+
+            yearly_avg = timeseries.yearly_rollup(dict(value=Functions.avg))
+
+            self.assertEqual(
+                Index.get_yearly_index_string(dt_from_ms(ts_1), utc=False),
+                yearly_avg.at(0).index().to_string()
+            )
 
 
 class TestCollection(SeriesBase):
@@ -746,6 +822,9 @@ class TestCollection(SeriesBase):
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, CollectionWarning))
             self.assertEqual(bad_col.size(), 0)
+
+        with self.assertRaises(CollectionException):
+            self._canned_collection.set_events(dict())
 
     def test_sort_by_time(self):
         """test Collection.sort_by_time()"""

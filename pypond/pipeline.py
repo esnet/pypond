@@ -19,7 +19,7 @@ from pyrsistent import freeze
 
 from .bases import PypondBase
 from .event import Event
-from .exceptions import PipelineException
+from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
 from .pipeline_out import CollectionOut, EventOut
 from .pipeline_in import BoundedIn, UnboundedIn
@@ -202,7 +202,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                     group_by=default_callback,
                     window_type='global',
                     window_duration=None,
-                    emit_on='eachEvent'
+                    emit_on='eachEvent',
+                    utc=True,
                 )
             )
 
@@ -281,9 +282,19 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Returns
         -------
         str
-            Description
+            The emit on string (discards, flush, etc).
         """
         return self._d.get('emit_on')
+
+    def get_utc(self):
+        """Get the UTC state..
+
+        Returns
+        -------
+        bool
+            In UTC or not.
+        """
+        return self._d.get('utc')
 
     # Results
 
@@ -339,7 +350,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             mode = 'batch'
         elif isinstance(pipe_in, UnboundedIn):
             mode = 'stream'
-        else:
+        else:  # pragma: no cover
+            # .from_source() already bulletproofs against this
             msg = 'Unknown input type'
             raise PipelineException(msg)
 
@@ -347,20 +359,24 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return Pipeline(new_d)
 
-    def _set_first(self, node):
+    def _set_first(self, node):  # pragma: no cover
         """
         Set the first processing node pointed to, returning
         a new Pipeline. The original pipeline will still point
         to its orginal processing node.
+
+        Currently unused.
         """
         new_d = self._d.set('first', node)
         return Pipeline(new_d)
 
-    def _set_last(self, node):
+    def _set_last(self, node):  # pragma: no cover
         """
         Set the last processing node pointed to, returning
         a new Pipeline. The original pipeline will still point
         to its orginal processing node.
+
+        Currently unused.
         """
         new_d = self._d.set('last', node)
         return Pipeline(new_d)
@@ -385,7 +401,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
     # Pipeline state chained methods
 
-    def window_by(self, window_or_duration=None):
+    def window_by(self, window_or_duration=None, utc=True):
         """
         Set the window, returning a new Pipeline. A new window will
         have a type and duration associated with it. Current available
@@ -418,7 +434,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Window *window_or_duration* may be:
 
-        * A fixed interval: "fixed"
+        * A fixed interval duration (see next): "fixed"
         * A calendar interval: "daily," "monthly" or "yearly"
 
         Duration is of the form:
@@ -431,6 +447,9 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         window_or_duration : string, Capsule
             See above.
+        utc : bool
+            How to render the aggregations - in UTC vs. the user's local time.
+            Can not be set to False if using a fixed window size.
 
         Returns
         -------
@@ -440,7 +459,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.window_by',
-            'window_or_duration: {0}'.format(window_or_duration)
+            'window_or_duration: {0} utc: {1}'.format(window_or_duration, utc)
         )
 
         w_type = None
@@ -453,6 +472,12 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             else:
                 w_type = 'fixed'
                 duration = window_or_duration
+                if utc is False:
+                    self._warn(
+                        'Can not set utc=False w/a fixed window size - resetting to utc=True',
+                        PipelineWarning
+                    )
+                    utc = True
         elif isinstance(window_or_duration, Capsule):
             w_type = window_or_duration.type
             duration = window_or_duration.duration
@@ -460,7 +485,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             w_type = 'global'
             duration = None
 
-        new_d = self._d.update(dict(window_type=w_type, window_duration=duration))
+        new_d = self._d.update(dict(window_type=w_type, window_duration=duration, utc=utc))
 
         self._log(
             'Pipeline.window_by',
@@ -473,7 +498,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         Remove windowing from the Pipeline. This will
         return the pipeline to no window grouping. This is
-        useful if you have first done some aggregated by
+        useful if you have first done some aggregation by
         some window size and then wish to collect together
         the all resulting events.
 
@@ -482,6 +507,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline
         """
+        self._log('Pipeline.clear_window')
         return self.window_by()
 
     def group_by(self, key=None):
@@ -617,10 +643,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         self._log('Pipeline.from_source', 'called with: {0}'.format(src))
 
-        if isinstance(src, Pipeline):
-            pipeline_in = src.input()
-            return self._set_in(pipeline_in)
-        elif isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
+        if isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
             return self._set_in(src)
         else:
             msg = 'from_source() only takes Pipeline, BoundedIn or UnboundedIn'
@@ -1107,11 +1130,3 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         return self._append(conv)
 
 # module functions
-
-# def pipeline(args):
-#     return Pipeline(args)
-
-
-def is_pipeline(pline):
-    """Boolean test to see if something is a Pipeline instance."""
-    return isinstance(pline, Pipeline)

@@ -24,7 +24,7 @@ class Functions(object):
         result = Functions.first(values)
         for i in values:
             if i is not None and i != result:
-                return None
+                return None  # pragma: no cover
         return result
 
     @staticmethod

@@ -51,6 +51,12 @@ class Collector(PypondBase):
         self._emit_on = options.emit_on
         self._window_type = options.window_type
         self._window_duration = options.window_duration
+        self._utc = True
+
+        # If the optional utc option is passed in by one of the processors
+        # (generally the Aggregator), honor it.
+        if options.utc is not None and isinstance(options.utc, bool):
+            self._utc = options.utc
 
         # callback for trigger
         self._on_trigger = on_trigger
@@ -97,7 +103,7 @@ class Collector(PypondBase):
             Raised on bad args.
         """
 
-        self._log('Collector.add_event', event)
+        self._log('Collector.add_event', '{0} utc: {1}'.format(event, self._utc))
 
         # window_key
         window_key = None
@@ -105,13 +111,14 @@ class Collector(PypondBase):
         ts = event.timestamp()
 
         if self._window_type == 'fixed':
+            # if fixed, always utc
             window_key = Index.get_index_string(self._window_duration, ts)
         elif self._window_type == 'daily':
-            window_key = Index.get_daily_index_string(ts)
+            window_key = Index.get_daily_index_string(ts, utc=self._utc)
         elif self._window_type == 'monthly':
-            window_key = Index.get_monthly_index_string(ts)
+            window_key = Index.get_monthly_index_string(ts, utc=self._utc)
         elif self._window_type == 'yearly':
-            window_key = Index.get_yearly_index_string(ts)
+            window_key = Index.get_yearly_index_string(ts, utc=self._utc)
         else:
             window_key = self._window_type
 

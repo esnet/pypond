@@ -201,6 +201,11 @@ class Index(PypondBase):
         """
         return self.to_string()
 
+    @property
+    def utc(self):
+        """accessor for internal utc boolean."""
+        return self._utc
+
     # utility methods
 
     def _local_idx_warning(self, local=False):
@@ -271,7 +276,7 @@ class Index(PypondBase):
 
             dtargs = dict(year=year, month=month, day=day)
 
-            begin_time = aware_dt_from_args(dtargs)
+            begin_time = aware_dt_from_args(dtargs, localize=local)
 
             end_time = (begin_time + datetime.timedelta(days=1)) - datetime.timedelta(seconds=1)
 
@@ -318,7 +323,7 @@ class Index(PypondBase):
 
                 dtargs = dict(year=year, month=month, day=1)
 
-                begin_time = aware_dt_from_args(dtargs)
+                begin_time = aware_dt_from_args(dtargs, localize=local)
 
                 end_time = monthdelta(begin_time, 1) - datetime.timedelta(seconds=1)
 
@@ -335,7 +340,7 @@ class Index(PypondBase):
 
             dtargs = dict(year=year, month=1, day=1)
 
-            begin_time = aware_dt_from_args(dtargs)
+            begin_time = aware_dt_from_args(dtargs, localize=local)
 
             end_time = begin_time.replace(year=year + 1) - datetime.timedelta(seconds=1)
 

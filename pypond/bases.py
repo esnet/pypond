@@ -17,7 +17,7 @@ import types
 import warnings
 
 
-def setup_log(log_path=None):
+def setup_log(log_path=None):  # pragma: no cover
     """
     Usage:
     _log('main.start', 'happy simple log event')
@@ -39,7 +39,7 @@ def setup_log(log_path=None):
 log = setup_log()  # pylint: disable=invalid-name
 
 
-def _log(event, msg):
+def _log(event, msg):  # pragma: no cover
     log.info('event=%s id=%s %s', event, int(time.time()), msg)
 
 
@@ -54,7 +54,7 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
 
         self._logger = _log
 
-    def _log(self, event, msg=''):
+    def _log(self, event, msg=''):  # pragma: no cover
         """Log events if environment variable PYPOND_LOG is set.
 
         Parameters

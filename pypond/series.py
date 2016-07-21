@@ -737,7 +737,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.stdev(field_spec)
 
-    def aggregate(self, func, field_spec=['value']):
+    def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to
         do the reduction.
 
@@ -958,6 +958,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             timeseries = TimeSeries(data)
             daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
 
+        This helper function renders the aggregations in localtime. If you
+        want to render in UTC use .fixed_window_rollup() with the appropriate
+        window size.
+
         Parameters
         ----------
         aggregation : dict
@@ -970,7 +974,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('daily', aggregation, to_events)
+        return self._rollup('daily', aggregation, to_events, utc=False)
 
     def monthly_rollup(self, aggregation, to_events=False):
         """
@@ -992,6 +996,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             timeseries = TimeSeries(data)
             monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
 
+        This helper function renders the aggregations in localtime. If you
+        want to render in UTC use .fixed_window_rollup() with the appropriate
+        window size.
+
         Parameters
         ----------
         aggregation : dict
@@ -1004,7 +1012,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('monthly', aggregation, to_events)
+        return self._rollup('monthly', aggregation, to_events, utc=False)
 
     def yearly_rollup(self, aggregation, to_events=False):
         """
@@ -1026,6 +1034,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             timeseries = TimeSeries(data)
             daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
 
+        This helper function renders the aggregations in localtime. If you
+        want to render in UTC use .fixed_window_rollup() with the appropriate
+        window size.
+
         Parameters
         ----------
         aggregation : dict
@@ -1038,13 +1050,13 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('yearly', aggregation, to_events)
+        return self._rollup('yearly', aggregation, to_events, utc=False)
 
-    def _rollup(self, interval, aggregation, to_events=False):
+    def _rollup(self, interval, aggregation, to_events=False, utc=True):
 
         aggregator_pipeline = (
             self.pipeline()
-            .window_by(interval)
+            .window_by(interval, utc=utc)
             .emit_on('discard')
             .aggregate(aggregation)
         )

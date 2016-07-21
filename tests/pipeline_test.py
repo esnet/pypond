@@ -7,19 +7,37 @@ Tests for the pipeline.
 
 import datetime
 import unittest
+import warnings
 
 import pytz
 
 from pypond.event import Event
+from pypond.exceptions import (
+    PipelineException,
+    PipelineIOException,
+    PipelineWarning,
+    ProcessorException,
+)
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
 from pypond.pipeline_out import CollectionOut, EventOut
+from pypond.processors import (
+    Aggregator,
+    Collapser,
+    Converter,
+    Filter,
+    Mapper,
+    Offset,
+    Processor,
+    Selector,
+    Taker,
+)
 from pypond.range import TimeRange
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
-from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt
+from pypond.util import aware_dt_from_args, dt_from_ms, ms_from_dt, Capsule, Options
 
 # global variables for the callbacks to write to.
 # they are alwasy reset to None by setUp()
@@ -222,8 +240,11 @@ class TestMapCollapseSelect(BaseTestPipeline):
 
         timeseries = TimeSeries(IN_OUT_DATA)
 
+        # this pointless bit is for coverage
+        pip = Pipeline()
+
         kcol = (
-            Pipeline()
+            Pipeline(pip)
             .from_source(timeseries.collection())
             .map(mapper)
             .emit_on('flush')
@@ -392,6 +413,36 @@ class TestFilterAndTake(BaseTestPipeline):
         self.assertEqual(kcol.get('high').at(8).value(), 88)
         self.assertEqual(kcol.get('high').at(9).value(), 94)
 
+        # test clearing it - recombines them into a single key
+
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .group_by(gb_callback)
+            .take(10)
+            .clear_group_by()
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('all').size(), 20)
+
+        # group by as above but window and take the first two in each window
+        kcol = (
+            Pipeline()
+            .from_source(timeseries)
+            .emit_on('flush')
+            .window_by('1d')
+            .group_by(gb_callback)
+            .take(2)
+            .to_keyed_collections()
+        )
+
+        for k, v in list(kcol.items()):
+            self.assertTrue(k.startswith('1d'))
+            self.assertTrue((k.endswith('high') or k.endswith('low')))
+            self.assertEqual(v.size(), 2)
+
     def test_group_by_variants(self):
         """test group by with strings and arrays."""
 
@@ -443,6 +494,22 @@ class TestFilterAndTake(BaseTestPipeline):
             .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
             .group_by('direction.status')
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(kcol.get('OK').size(), 3)
+        self.assertEqual(kcol.get('FAIL').size(), 1)
+        self.assertEqual(kcol.get('OK').at(0).value('direction').get('out'), 2)
+        self.assertEqual(kcol.get('OK').at(1).value('direction').get('in'), 3)
+        self.assertEqual(kcol.get('FAIL').at(0).value('direction').get('out'), 0)
+
+        # and with a tuple
+
+        kcol = (
+            Pipeline()
+            .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+            .emit_on('flush')
+            .group_by(('direction', 'status',))
             .to_keyed_collections()
         )
 
@@ -636,7 +703,12 @@ class TestAggregator(BaseTestPipeline):
             Pipeline()
             .from_source(uin)
             .group_by('type')
-            .window_by('1h')
+            .window_by(
+                Capsule(
+                    duration='1h',
+                    type='fixed'
+                )
+            )
             .emit_on('eachEvent')
             .aggregate({'type': Functions.keep, 'in': Functions.avg, 'out': Functions.avg})
             .to(EventOut, cback)
@@ -707,6 +779,128 @@ class TestAggregator(BaseTestPipeline):
 
         self.assertEqual(RESULTS.get('1426298400000').get('in'), 4.5)
         self.assertEqual(RESULTS.get('1426298400000').get('out'), 8)
+
+    def test_bad_args(self):
+        """Trigger exceptions and warnings, etc."""
+
+        uin = UnboundedIn()
+
+        with warnings.catch_warnings(record=True) as wrn:
+            Pipeline().from_source(uin).window_by('1h', utc=False)
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, PipelineWarning))
+
+        # bad arg
+        with self.assertRaises(PipelineException):
+            Pipeline().from_source(dict())
+
+        # no source
+        with self.assertRaises(PipelineException):
+            Pipeline().to_keyed_collections()
+
+        # can't iterate on unbounded source
+        with self.assertRaises(PipelineIOException):
+            list(uin.events())
+
+        # bad emit on type
+        with self.assertRaises(PipelineIOException):
+            (
+                Pipeline()
+                .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
+                .emit_on('BOGUS')
+                .aggregate({('direction.out', 'direction.in'): Functions.max})
+                .to_event_list()
+            )
+
+    def test_bad_processor_args(self):
+        """Feed the Processors bad args."""
+
+        # neither Pipeline or copy ctor
+        with self.assertRaises(ProcessorException):
+            Aggregator(dict())
+        with self.assertRaises(ProcessorException):
+            Collapser(dict())
+        with self.assertRaises(ProcessorException):
+            Converter(dict())
+        with self.assertRaises(ProcessorException):
+            Filter(dict())
+        with self.assertRaises(ProcessorException):
+            Mapper(dict())
+        with self.assertRaises(ProcessorException):
+            Offset(dict())
+        with self.assertRaises(ProcessorException):
+            Selector(dict())
+        with self.assertRaises(ProcessorException):
+            Taker(dict())
+
+        pip = Pipeline()
+
+        # not passed a callable function
+        with self.assertRaises(ProcessorException):
+            Filter(pip)
+
+        # bad agg args
+        # no opts
+        with self.assertRaises(ProcessorException):
+            Aggregator(pip)
+
+        # wrong opt type
+        with self.assertRaises(ProcessorException):
+            Aggregator(
+                pip,
+                Options(
+                    fields=list()
+                )
+            )
+
+        # bad opt keys
+        with self.assertRaises(ProcessorException):
+            Aggregator(
+                pip,
+                Options(
+                    fields={1: 'foo'}
+                )
+            )
+
+        # bad opt value
+        with self.assertRaises(ProcessorException):
+            Aggregator(
+                pip,
+                Options(
+                    fields={'in': 'foo'}
+                )
+            )
+
+        # stream w/no window strat
+        with self.assertRaises(ProcessorException):
+            pip2 = Pipeline(pip._d.update(dict(mode='stream')))  # pylint: disable=protected-access
+
+            Aggregator(
+                pip2,
+                Options(
+                    fields={'in': Functions.avg}
+                )
+            )
+
+        # bad Converter args
+        # no type in opts
+        with self.assertRaises(ProcessorException):
+            Converter(pip)
+
+        # bad opt type
+        with self.assertRaises(ProcessorException):
+            Converter(
+                pip,
+                Options(
+                    type=Pipeline
+                )
+            )
+
+        # bad Mapper Args
+        with self.assertRaises(ProcessorException):
+            Mapper(dict())
+        with self.assertRaises(ProcessorException):
+            Mapper(pip)
 
 
 class TestConverter(BaseTestPipeline):
@@ -793,6 +987,46 @@ class TestConverter(BaseTestPipeline):
         )
 
         stream1.add_event(self._event)
+
+    def test_tre_to_idxe_error(self):
+        """Test converting TimeRangeEvent object to IndexedEvent error."""
+
+        # pylint: disable=missing-docstring
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):  # pylint: disable=unused-argument
+            pass
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_indexed_events(dict(duration='1h'))
+            .to(EventOut, cback1)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream1.add_event(self._tre)
+
+    def test_bad_conversion_error(self):
+        """Test converting a non-Event."""
+
+        # pylint: disable=missing-docstring
+
+        stream1 = UnboundedIn()
+
+        def cback1(event):  # pylint: disable=unused-argument
+            pass
+
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_indexed_events(dict(duration='1h'))
+            .to(EventOut, cback1)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream1.add_event(Pipeline())
 
     def test_event_to_event_noop(self):
         """Event to Event as a noop."""
@@ -964,6 +1198,56 @@ class TestConverter(BaseTestPipeline):
 
         stream1.add_event(self._idxe)
 
+    def test_copy_ctor(self):
+        """work the copy constructor for coverage."""
+
+        con = Converter(
+            Pipeline(),
+            Options(
+                type=Event
+            )
+        )
+
+        con2 = Converter(con)
+
+        self.assertEqual(con._convert_to, con2._convert_to)  # pylint: disable=protected-access
+
+        con3 = con2.clone()
+
+        self.assertEqual(con3._convert_to, con2._convert_to)  # pylint: disable=protected-access
+
+    def test_event_conversion_bad_args(self):
+        """test bad args for Event conversion."""
+
+        stream1 = UnboundedIn()
+
+        def cback(event):  # pylint: disable=missing-docstring, unused-argument
+            pass
+
+        # no duration
+        (
+            Pipeline()
+            .from_source(stream1)
+            .as_time_range_events(dict(alignment='front'))
+            .to(EventOut, cback)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream1.add_event(self._event)
+
+        stream2 = UnboundedIn()
+
+        # bad alignment
+        (
+            Pipeline()
+            .from_source(stream2)
+            .as_time_range_events(dict(alignment='bogus', duration='1h'))
+            .to(EventOut, cback)
+        )
+
+        with self.assertRaises(ProcessorException):
+            stream2.add_event(self._event)
+
 
 class TestOffsetPipeline(BaseTestPipeline):
     """
@@ -1093,6 +1377,39 @@ class TestOffsetPipeline(BaseTestPipeline):
         self.assertEqual(RESULTS.size(), 2)
         self.assertEqual(RESULTS.at(0).get('in'), 4)
         self.assertEqual(RESULTS.at(1).get('in'), 6)
+
+    def test_streaming_start_stop(self):
+        """turn the stream off and on."""
+
+        def cback(collection, window_key, group_by):  # pylint: disable=unused-argument
+            """callback to pass in."""
+            global RESULTS  # pylint: disable=global-statement
+            RESULTS = collection
+
+        source = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(source)
+            .offset_by(3, 'in')
+            .to(CollectionOut, cback)
+        )
+
+        source.add_event(EVENTLIST1[0])
+        source.add_event(EVENTLIST1[1])
+
+        source.stop()
+
+        source.add_event(EVENTLIST1[2])
+
+        # source stopped, event shouldn't be added
+        self.assertEqual(RESULTS.size(), 2)
+
+        source.start()
+
+        source.add_event(EVENTLIST1[2])
+
+        self.assertEqual(RESULTS.size(), 3)
 
 if __name__ == '__main__':
     unittest.main()
