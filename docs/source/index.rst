@@ -31,9 +31,9 @@ implementation follows the same API and uses the same structures.
 
 The only real difference with pypond is that the method names have been
 changed to their obvious pythonic corollaries (``obj.toString()``
-becomes ``obj.to_string()``) and any methods that use reserved words
-in python such as ``.is()`` and ``.from()`` are changed to suitable
-corollaries such as ``.same()`` and ``.from_source()``.
+becomes ``obj.to_string()``) and any comparison methods named ``.is()``
+in the JavaScript version have been renamed to ``.same()`` in pypond
+since ``is`` is a reserved word in python.
 
 The `tests <https://github.com/esnet/pypond/tree/master/tests>`__ can
 also be referred to as a fairly complete set of examples as well.
@@ -46,4 +46,5 @@ also be referred to as a fairly complete set of examples as well.
     :caption: Developer Documentation
 
     api
+    time
     tests

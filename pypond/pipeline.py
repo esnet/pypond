@@ -434,7 +434,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Window *window_or_duration* may be:
 
-        * A fixed interval: "fixed"
+        * A fixed interval duration (see next): "fixed"
         * A calendar interval: "daily," "monthly" or "yearly"
 
         Duration is of the form:
@@ -447,6 +447,9 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         window_or_duration : string, Capsule
             See above.
+        utc : bool
+            How to render the aggregations - in UTC vs. the user's local time.
+            Can not be set to False if using a fixed window size.
 
         Returns
         -------
