@@ -41,7 +41,7 @@ setup(
         'recommonmark==0.4.0',
     ],
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Environment :: Console',
         'Environment :: Web Environment',
