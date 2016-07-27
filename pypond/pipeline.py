@@ -697,7 +697,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 .from_source(timeseries)
                 .emit_on('flush')
                 .collapse(['in', 'out'], 'total', Functions.sum())
-                .aggregate(dict(total=Functions.max))
+                .aggregate(dict(total=Functions.max()))
                 .to(EventOut, cback)
             )
 
@@ -848,7 +848,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 Pipeline()
                 .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
                 .emit_on('flush')
-                .aggregate({('direction.out', 'direction.in'): Functions.max})
+                .aggregate({('direction.out', 'direction.in'): Functions.max()})
                 .to_event_list()
             )
 

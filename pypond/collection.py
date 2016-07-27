@@ -746,7 +746,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Maximum value.
         """
-        return self.aggregate(Functions.max, field_spec)
+        return self.aggregate(Functions.max(), field_spec)
 
     def min(self, field_spec=None):
         """Get min
@@ -764,7 +764,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Minimum value.
         """
-        return self.aggregate(Functions.min, field_spec)
+        return self.aggregate(Functions.min(), field_spec)
 
     def mean(self, field_spec=None):
         """Get mean

@@ -278,7 +278,7 @@ class TestMapCollapseSelect(BaseTestPipeline):
             Pipeline()
             .from_source(timeseries)
             .collapse(['in', 'out'], 'in_out_sum', Functions.sum())
-            .collapse(['in', 'out'], 'in_out_max', Functions.max)
+            .collapse(['in', 'out'], 'in_out_max', Functions.max())
             .emit_on('flush')
             .to_keyed_collections()
         )
@@ -569,7 +569,7 @@ class TestAggregator(BaseTestPipeline):
             .from_source(timeseries)
             .emit_on('flush')
             .collapse(['in', 'out'], 'total', Functions.sum())
-            .aggregate(dict(total=Functions.max))
+            .aggregate(dict(total=Functions.max()))
             .to(EventOut, cback)
         )
 
@@ -580,7 +580,7 @@ class TestAggregator(BaseTestPipeline):
             .from_source(timeseries)
             .emit_on('flush')
             .collapse(['in', 'out'], 'total', Functions.sum())
-            .aggregate(dict(total=Functions.max))
+            .aggregate(dict(total=Functions.max()))
             .to_event_list()
         )
 
@@ -594,7 +594,7 @@ class TestAggregator(BaseTestPipeline):
             Pipeline()
             .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
-            .aggregate({'direction.out': Functions.max})
+            .aggregate({'direction.out': Functions.max()})
             .to_event_list()
         )
 
@@ -607,7 +607,7 @@ class TestAggregator(BaseTestPipeline):
             Pipeline()
             .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
-            .aggregate({('direction.out', 'direction.in'): Functions.max})
+            .aggregate({('direction.out', 'direction.in'): Functions.max()})
             .to_event_list()
         )
 
@@ -808,7 +808,7 @@ class TestAggregator(BaseTestPipeline):
                 Pipeline()
                 .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
                 .emit_on('BOGUS')
-                .aggregate({('direction.out', 'direction.in'): Functions.max})
+                .aggregate({('direction.out', 'direction.in'): Functions.max()})
                 .to_event_list()
             )
 

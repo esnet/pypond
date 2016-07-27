@@ -922,12 +922,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max})
+            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max()})
 
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -956,7 +956,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -965,7 +965,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -994,7 +994,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1003,7 +1003,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -1032,7 +1032,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1041,7 +1041,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 

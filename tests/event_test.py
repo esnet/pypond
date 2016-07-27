@@ -387,10 +387,10 @@ class TestEventMapReduceCombine(BaseTestEvent):
         self.assertIsNone(Event.avg([]))
 
         # work the extra reducer functions in Functions module
-        result = Event.combine(events, 'c', Functions.max)
+        result = Event.combine(events, 'c', Functions.max())
         self.assertEqual(result[0].get('c'), 7)
 
-        result = Event.combine(events, 'c', Functions.min)
+        result = Event.combine(events, 'c', Functions.min())
         self.assertEqual(result[0].get('c'), 3)
 
         result = Event.combine(events, 'c', Functions.count)
