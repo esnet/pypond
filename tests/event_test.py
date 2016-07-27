@@ -396,17 +396,17 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.combine(events, 'c', Functions.count)
         self.assertEqual(result[0].get('c'), 3)
 
-        result = Event.combine(events, 'c', Functions.first)
+        result = Event.combine(events, 'c', Functions.first())
         self.assertEqual(result[0].get('c'), 7)
 
-        result = Event.combine(events, 'c', Functions.last)
+        result = Event.combine(events, 'c', Functions.last())
         self.assertEqual(result[0].get('c'), 3)
 
         result = Event.combine(events, 'c', Functions.difference)
         self.assertEqual(result[0].get('c'), 4)
 
-        self.assertIsNone(Functions.first([]))
-        self.assertIsNone(Functions.last([]))
+        self.assertIsNone(Functions.first()([]))
+        self.assertIsNone(Functions.last()([]))
 
     def test_event_collapse(self):
         """test collapse()"""

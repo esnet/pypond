@@ -674,7 +674,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.first, field_spec)
+        return self.aggregate(Functions.first(), field_spec)
 
     def last(self, field_spec=None):
         """Get last value in the collection for the fspec
@@ -692,7 +692,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.last, field_spec)
+        return self.aggregate(Functions.last(), field_spec)
 
     def sum(self, field_spec=None):
         """Get sum
@@ -800,7 +800,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Median value.
         """
-        return self.aggregate(Functions.median, field_spec)
+        return self.aggregate(Functions.median(), field_spec)
 
     def stdev(self, field_spec=None):
         """Get std dev
