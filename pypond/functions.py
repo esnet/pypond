@@ -15,7 +15,14 @@ from functools import reduce
 
 
 class Filters(object):
-    """Filter functions to pass to aggregation function factory."""
+    """Filter functions to pass to aggregation function factory
+    methods.
+
+    These all control how the underlying aggregators handle missing/invalid
+    values.  Can pass things through (the default to all agg functions),
+    ignore any bad values, transform any bad values to zero, or make the
+    entire aggregation fail if there are any bad values.
+    """
     @staticmethod
     def keep_missing(events):
         """no-op - default"""
@@ -70,7 +77,7 @@ class Functions(object):
         timeseries.aggregate(Functions.sum(), 'in')
 
     The static methods in the Filters class can be passed to the outer
-    factory method to control how bad values are handled:
+    factory method to control how bad values are handled::
 
         timeseries.aggregate(Functions.sum(Filters.zero_missing), 'in')
     """
