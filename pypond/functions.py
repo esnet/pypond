@@ -125,7 +125,7 @@ class Functions(object):
             if vals is None:
                 return None
 
-            return float(Functions.sum(vals)) / len(vals)
+            return float(Functions.sum()(vals)) / len(vals)
 
         return inner
 
@@ -217,7 +217,7 @@ class Functions(object):
 
             avg = Functions.avg()(vals)
             variance = [(e - avg)**2 for e in values]
-            return sqrt(Functions.avg(variance))
+            return sqrt(Functions.avg()(variance))
 
         return inner
 

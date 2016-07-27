@@ -710,7 +710,7 @@ class TestAggregator(BaseTestPipeline):
                 )
             )
             .emit_on('eachEvent')
-            .aggregate({'type': Functions.keep, 'in': Functions.avg(), 'out': Functions.avg()})
+            .aggregate({'type': Functions.keep(), 'in': Functions.avg(), 'out': Functions.avg()})
             .to(EventOut, cback)
         )
 

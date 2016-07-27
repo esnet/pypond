@@ -393,7 +393,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.combine(events, 'c', Functions.min())
         self.assertEqual(result[0].get('c'), 3)
 
-        result = Event.combine(events, 'c', Functions.count)
+        result = Event.combine(events, 'c', Functions.count())
         self.assertEqual(result[0].get('c'), 3)
 
         result = Event.combine(events, 'c', Functions.first())
@@ -402,7 +402,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.combine(events, 'c', Functions.last())
         self.assertEqual(result[0].get('c'), 3)
 
-        result = Event.combine(events, 'c', Functions.difference)
+        result = Event.combine(events, 'c', Functions.difference())
         self.assertEqual(result[0].get('c'), 4)
 
         self.assertIsNone(Functions.first()([]))

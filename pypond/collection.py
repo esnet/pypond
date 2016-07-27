@@ -817,7 +817,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Standard deviation.
         """
-        return self.aggregate(Functions.stddev, field_spec)
+        return self.aggregate(Functions.stddev(), field_spec)
 
     def __str__(self):
         """call to_string()
