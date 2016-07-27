@@ -609,8 +609,6 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     # sum/min/max etc
 
-    # pylint: disable=dangerous-default-value
-
     def sum(self, field_spec=None):
         """Get sum
 

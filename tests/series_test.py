@@ -26,7 +26,7 @@ from pypond.exceptions import (
     PipelineIOException,
     TimeSeriesException,
 )
-from pypond.functions import Functions
+from pypond.functions import Functions, Filters
 from pypond.index import Index
 from pypond.indexed_event import IndexedEvent
 from pypond.range import TimeRange
@@ -797,6 +797,28 @@ class TestCollection(SeriesBase):
         self.assertEqual(col.last('out'), 6)
         self.assertEqual(col.median('out'), 4)
         self.assertEqual(col.stdev('out'), 1.632993161855452)
+
+    def test_aggregation_filtering(self):
+        """Test the new filtering methods for cleaning stuff."""
+
+        elist = [
+            Event(1429673400000, {'in': 1, 'out': 1}),
+            Event(1429673460000, {'in': 2, 'out': 5}),
+            Event(1429673520000, {'in': 3, 'out': None}),
+        ]
+
+        coll = Collection(elist)
+
+        self.assertEqual(coll.aggregate(Functions.sum(), 'in'), 6)
+
+        self.assertEqual(coll.aggregate(Functions.sum(Filters.propogate_missing), 'in'), 6)
+        self.assertEqual(coll.aggregate(Functions.sum(Filters.propogate_missing), 'out'), None)
+
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.ignore_missing), 'in'), 2)
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.ignore_missing), 'out'), 3)
+
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.zero_missing), 'in'), 2)
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.zero_missing), 'out'), 2)
 
     def test_mutators(self):
         """test collection mutation."""

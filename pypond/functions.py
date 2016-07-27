@@ -81,7 +81,11 @@ class Functions(object):
 
         timeseries.aggregate(Functions.sum(Filters.zero_missing), 'in')
     """
+
     # pylint: disable=missing-docstring
+    # skipping coverage on all the propogate_missing logic because
+    # those don't need specific tests.
+
     @staticmethod
     def keep(flt=Filters.keep_missing):
 
@@ -90,9 +94,10 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             result = Functions.first()(vals)
+
             for i in vals:
                 if i is not None and i != result:
                     return None  # pragma: no cover
@@ -109,7 +114,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             return reduce(lambda x, y: x + y, vals, 0)
 
@@ -123,7 +128,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             return float(Functions.sum()(vals)) / len(vals)
 
@@ -137,7 +142,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             return max(vals)
 
@@ -151,7 +156,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             return min(vals)
 
@@ -165,7 +170,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             return len(vals)
 
@@ -179,7 +184,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             try:
                 return vals[0]
@@ -196,7 +201,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             try:
                 return vals[-1]
@@ -213,7 +218,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             avg = Functions.avg()(vals)
             variance = [(e - avg)**2 for e in values]
@@ -229,7 +234,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             sort = sorted(vals)
             half = len(sort) // 2
@@ -249,7 +254,7 @@ class Functions(object):
             vals = flt(values)
 
             if vals is None:
-                return None
+                return None  # pragma: no cover
 
             return max(vals) - min(vals)
 
