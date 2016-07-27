@@ -696,7 +696,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 Pipeline()
                 .from_source(timeseries)
                 .emit_on('flush')
-                .collapse(['in', 'out'], 'total', Functions.sum)
+                .collapse(['in', 'out'], 'total', Functions.sum())
                 .aggregate(dict(total=Functions.max))
                 .to(EventOut, cback)
             )

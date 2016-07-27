@@ -413,11 +413,11 @@ class TestEventMapReduceCombine(BaseTestEvent):
 
         ev1 = self._create_event(self.aware_ts, {'a': 5, 'b': 6, 'c': 7})
 
-        ev2 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum, append=True)
+        ev2 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum(), append=True)
         self.assertEqual(len(list(ev2.data().keys())), 4)
         self.assertEqual(ev2.get('a_to_c'), 12)
 
-        ev3 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum, append=False)
+        ev3 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum(), append=False)
         self.assertEqual(len(list(ev3.data().keys())), 1)
         self.assertEqual(ev3.get('a_to_c'), 12)
 

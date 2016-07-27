@@ -710,7 +710,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Summed value.
         """
-        return self.aggregate(Functions.sum, field_spec)
+        return self.aggregate(Functions.sum(), field_spec)
 
     def avg(self, field_spec=None):
         """Get avg

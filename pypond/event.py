@@ -940,10 +940,10 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                     msg = 'sum() expects all events to have the same timestamp'
                     raise EventException(msg)
 
-        summ = Event.combine(events, field_spec, Functions.sum)
+        summ = Event.combine(events, field_spec, Functions.sum())
 
         if summ is not None:
-            return Event.combine(events, field_spec, Functions.sum)[0]
+            return Event.combine(events, field_spec, Functions.sum())[0]
         else:
             return None
 

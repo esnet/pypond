@@ -462,11 +462,11 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(tser.median('out'), 4)
         self.assertEqual(tser.stdev('out'), 1.632993161855452)
         # redundant, but for coverage
-        self.assertEqual(tser.aggregate(Functions.sum, 'in'), 9)
-        self.assertEqual(tser.aggregate(Functions.sum, ('in',)), 9)
+        self.assertEqual(tser.aggregate(Functions.sum(), 'in'), 9)
+        self.assertEqual(tser.aggregate(Functions.sum(), ('in',)), 9)
 
         ser1 = TimeSeries(DATA)
-        self.assertEqual(ser1.aggregate(Functions.sum), 189)
+        self.assertEqual(ser1.aggregate(Functions.sum()), 189)
 
     def test_various_bad_args(self):
         """ensure proper exceptions are being raised."""
@@ -477,7 +477,7 @@ class TestTimeSeries(SeriesBase):
             ser1.aggregate(dict())
 
         with self.assertRaises(CollectionException):
-            ser1.aggregate(Functions.sum, dict())
+            ser1.aggregate(Functions.sum(), dict())
 
     def test_equality_methods(self):
         """test equal/same static methods."""
@@ -578,7 +578,7 @@ class TestTimeSeries(SeriesBase):
         """
         ces = self._canned_event_series
 
-        collapsed_ces = ces.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+        collapsed_ces = ces.collapse(['in', 'out'], 'in_out_sum', Functions.sum())
 
         for i in collapsed_ces.events():
             self.assertEqual(i.get('in') + i.get('out'), i.get('in_out_sum'))
@@ -776,7 +776,7 @@ class TestCollection(SeriesBase):
         """test Collection.collaps()"""
         col = self._canned_collection
 
-        collapsed_col = col.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+        collapsed_col = col.collapse(['in', 'out'], 'in_out_sum', Functions.sum())
         self.assertEqual(collapsed_col.size(), 3)
 
         for i in collapsed_col.events():
