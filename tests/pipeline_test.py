@@ -653,7 +653,7 @@ class TestAggregator(BaseTestPipeline):
             .from_source(uin)
             .window_by('1h')
             .emit_on('eachEvent')
-            .aggregate({'in': Functions.avg, 'out': Functions.avg})
+            .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
             .to(EventOut, cback)
         )
 
@@ -710,7 +710,7 @@ class TestAggregator(BaseTestPipeline):
                 )
             )
             .emit_on('eachEvent')
-            .aggregate({'type': Functions.keep, 'in': Functions.avg, 'out': Functions.avg})
+            .aggregate({'type': Functions.keep, 'in': Functions.avg(), 'out': Functions.avg()})
             .to(EventOut, cback)
         )
 
@@ -766,7 +766,7 @@ class TestAggregator(BaseTestPipeline):
             .from_source(uin)
             .window_by('1h')
             .emit_on('eachEvent')
-            .aggregate({'in': Functions.avg, 'out': Functions.avg})
+            .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
             .as_time_range_events(dict(alignment='lag'))
             .to(EventOut, cback)
         )
@@ -878,7 +878,7 @@ class TestAggregator(BaseTestPipeline):
             Aggregator(
                 pip2,
                 Options(
-                    fields={'in': Functions.avg}
+                    fields={'in': Functions.avg()}
                 )
             )
 

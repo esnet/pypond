@@ -728,7 +728,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Average value.
         """
-        return self.aggregate(Functions.avg, field_spec)
+        return self.aggregate(Functions.avg(), field_spec)
 
     def max(self, field_spec=None):
         """Get max

@@ -323,7 +323,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.map(self._get_event_series(), map_sum)
         self.assertEqual(set(result), set({'sum': [13, 17, 21, 26]}))
 
-        res = Event.reduce(result, Functions.avg)
+        res = Event.reduce(result, Functions.avg())
         self.assertEqual(set(res), set({'sum': 19.25}))
 
     def test_event_map_no_key_map_all(self):
@@ -336,7 +336,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
 
     def test_simple_map_reduce(self):
         """test simple map/reduce."""
-        result = Event.map_reduce(self._get_event_series(), ['in', 'out'], Functions.avg)
+        result = Event.map_reduce(self._get_event_series(), ['in', 'out'], Functions.avg())
         self.assertEqual(set(result), set({'in': 5.0, 'out': 14.25}))
 
     def test_sum_events_with_combine(self):

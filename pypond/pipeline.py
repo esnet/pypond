@@ -837,7 +837,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 .from_source(uin)
                 .window_by('1h')
                 .emit_on('eachEvent')
-                .aggregate({'in': Functions.avg, 'out': Functions.avg})
+                .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
                 .to(EventOut, cback)
             )
 

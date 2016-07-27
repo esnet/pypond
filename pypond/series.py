@@ -873,7 +873,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg})
+            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg()})
 
         Parameters
         ----------
@@ -914,7 +914,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each hour.
@@ -948,7 +948,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each day.
@@ -986,7 +986,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each month.
@@ -1024,7 +1024,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each year.

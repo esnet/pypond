@@ -965,9 +965,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         -------
         int, float or None
             The averaged value."""
-        avg = Event.combine(events, field_spec, Functions.avg)
+        avg = Event.combine(events, field_spec, Functions.avg())
         if avg is not None:
-            return Event.combine(events, field_spec, Functions.avg)[0]
+            return Event.combine(events, field_spec, Functions.avg())[0]
         else:
             return None
 
