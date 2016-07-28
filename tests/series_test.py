@@ -23,6 +23,7 @@ from pypond.event import Event
 from pypond.exceptions import (
     CollectionException,
     CollectionWarning,
+    FilterException,
     PipelineIOException,
     TimeSeriesException,
 )
@@ -582,6 +583,31 @@ class TestTimeSeries(SeriesBase):
 
         for i in collapsed_ces.events():
             self.assertEqual(i.get('in') + i.get('out'), i.get('in_out_sum'))
+
+    def test_aggregation_filtering(self):
+        """test the filtering modifers to the agg functions."""
+
+        event_objects = [
+            Event(1429673400000, {'in': 1, 'out': 2}),
+            Event(1429673460000, {'in': 3, 'out': None}),
+            Event(1429673520000, {'in': 5, 'out': 6}),
+        ]
+
+        series = TimeSeries(dict(name='events', events=event_objects))
+
+        self.assertEqual(series.sum('out', Filters.ignore_missing), 8)
+        self.assertEqual(series.avg('out', Filters.ignore_missing), 4)
+        self.assertEqual(series.min('out', Filters.zero_missing), 0)
+        self.assertEqual(series.max('out', Filters.propogate_missing), None)
+        self.assertEqual(series.mean('out', Filters.ignore_missing), 4)
+        self.assertEqual(series.median('out', Filters.zero_missing), 2)
+        self.assertEqual(series.stdev('out', Filters.zero_missing), 2.494438257849294)
+
+        def bad_filtering_function():  # pylint: disable=missing-docstring
+            pass
+
+        with self.assertRaises(FilterException):
+            series.sum('out', bad_filtering_function)
 
 
 class TestRollups(SeriesBase):

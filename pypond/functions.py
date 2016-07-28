@@ -247,7 +247,7 @@ class Functions(object):
                 return None  # pragma: no cover
 
             avg = Functions.avg()(vals)
-            variance = [(e - avg)**2 for e in values]
+            variance = [(e - avg)**2 for e in vals]
             return sqrt(Functions.avg()(variance))
 
         return inner
