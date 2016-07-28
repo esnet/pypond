@@ -524,6 +524,22 @@ def is_nan(val):
     return False
 
 
+def is_valid(val):
+    """Test if a value is valid.
+
+    Parameters
+    ----------
+    val : obj
+        A value
+
+    Returns
+    -------
+    bool
+        Is it valid?
+    """
+    return not bool(val is None or val == '' or is_nan(val))
+
+
 def is_function(func):
     """Test if a value is a function.
 

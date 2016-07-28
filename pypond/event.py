@@ -39,6 +39,7 @@ from .util import (
     is_nan,
     is_pmap,
     is_pvector,
+    is_valid,
     ms_from_dt,
     sanitize_dt,
 )
@@ -613,7 +614,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         val = event.value(field_path)
 
-        return not bool(val is None or val == '' or is_nan(val))
+        return is_valid(val)
 
     @staticmethod
     def selector(event, field_spec=None):
