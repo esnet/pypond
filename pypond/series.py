@@ -609,7 +609,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     # sum/min/max etc
 
-    def sum(self, field_spec=None):
+    def sum(self, field_spec=None, filter_func=None):
         """Get sum
 
         Parameters
@@ -619,15 +619,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Summed values
         """
-        return self._collection.sum(field_spec)
+        return self._collection.sum(field_spec, filter_func)
 
-    def max(self, field_spec=None):
+    def max(self, field_spec=None, filter_func=None):
         """Get max
 
         Parameters
@@ -637,15 +643,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Max value
         """
-        return self._collection.max(field_spec)
+        return self._collection.max(field_spec, filter_func)
 
-    def min(self, field_spec=None):
+    def min(self, field_spec=None, filter_func=None):
         """Get min
 
         Parameters
@@ -655,15 +667,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Min value
         """
-        return self._collection.min(field_spec)
+        return self._collection.min(field_spec, filter_func)
 
-    def avg(self, field_spec=None):
+    def avg(self, field_spec=None, filter_func=None):
         """Get avg
 
         Parameters
@@ -673,15 +691,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Average value
         """
-        return self._collection.avg(field_spec)
+        return self._collection.avg(field_spec, filter_func)
 
-    def mean(self, field_spec=None):
+    def mean(self, field_spec=None, filter_func=None):
         """Get mean
 
         Parameters
@@ -691,15 +715,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Mean value
         """
-        return self._collection.mean(field_spec)
+        return self._collection.mean(field_spec, filter_func)
 
-    def median(self, field_spec=None):
+    def median(self, field_spec=None, filter_func=None):
         """Get median
 
         Parameters
@@ -709,15 +739,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Median value
         """
-        return self._collection.median(field_spec)
+        return self._collection.median(field_spec, filter_func)
 
-    def stdev(self, field_spec=None):
+    def stdev(self, field_spec=None, filter_func=None):
         """Get std dev
 
         Parameters
@@ -727,13 +763,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Standard deviation
         """
-        return self._collection.stdev(field_spec)
+        return self._collection.stdev(field_spec, filter_func)
 
     def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to

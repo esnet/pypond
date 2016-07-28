@@ -658,7 +658,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         result = Event.map_reduce(self.event_list_as_list(), fpath, func)
         return result[fpath]
 
-    def first(self, field_spec=None, filter=None):
+    def first(self, field_spec=None, filter_func=None):
         """Get first value in the collection for the fspec
 
         Parameters
@@ -668,7 +668,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -680,9 +680,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.first(f_check(filter)), field_spec)
+        return self.aggregate(Functions.first(f_check(filter_func)), field_spec)
 
-    def last(self, field_spec=None, filter=None):
+    def last(self, field_spec=None, filter_func=None):
         """Get last value in the collection for the fspec
 
         Parameters
@@ -692,7 +692,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -704,9 +704,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.last(f_check(filter)), field_spec)
+        return self.aggregate(Functions.last(f_check(filter_func)), field_spec)
 
-    def sum(self, field_spec=None, filter=None):
+    def sum(self, field_spec=None, filter_func=None):
         """Get sum
 
         Parameters
@@ -716,7 +716,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -728,9 +728,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Summed value.
         """
-        return self.aggregate(Functions.sum(f_check(filter)), field_spec)
+        return self.aggregate(Functions.sum(f_check(filter_func)), field_spec)
 
-    def avg(self, field_spec=None, filter=None):
+    def avg(self, field_spec=None, filter_func=None):
         """Get avg
 
         Parameters
@@ -740,7 +740,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -752,9 +752,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Average value.
         """
-        return self.aggregate(Functions.avg(f_check(filter)), field_spec)
+        return self.aggregate(Functions.avg(f_check(filter_func)), field_spec)
 
-    def max(self, field_spec=None, filter=None):
+    def max(self, field_spec=None, filter_func=None):
         """Get max
 
         Parameters
@@ -764,7 +764,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -776,9 +776,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Maximum value.
         """
-        return self.aggregate(Functions.max(f_check(filter)), field_spec)
+        return self.aggregate(Functions.max(f_check(filter_func)), field_spec)
 
-    def min(self, field_spec=None, filter=None):
+    def min(self, field_spec=None, filter_func=None):
         """Get min
 
         Parameters
@@ -788,7 +788,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -800,9 +800,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Minimum value.
         """
-        return self.aggregate(Functions.min(f_check(filter)), field_spec)
+        return self.aggregate(Functions.min(f_check(filter_func)), field_spec)
 
-    def mean(self, field_spec=None, filter=None):
+    def mean(self, field_spec=None, filter_func=None):
         """Get mean
 
         Parameters
@@ -812,7 +812,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -824,9 +824,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Mean value (grrr!).
         """
-        return self.avg(field_spec, filter)
+        return self.avg(field_spec, filter_func)
 
-    def median(self, field_spec=None, filter=None):
+    def median(self, field_spec=None, filter_func=None):
         """Get median
 
         Parameters
@@ -836,7 +836,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -848,9 +848,9 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Median value.
         """
-        return self.aggregate(Functions.median(f_check(filter)), field_spec)
+        return self.aggregate(Functions.median(f_check(filter_func)), field_spec)
 
-    def stdev(self, field_spec=None, filter=None):
+    def stdev(self, field_spec=None, filter_func=None):
         """Get std dev
 
         Parameters
@@ -860,7 +860,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
-        filter : function, None
+        filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
             (None, NaN, empty string) values will be cleansed or filtered
@@ -872,7 +872,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         int or float
             Standard deviation.
         """
-        return self.aggregate(Functions.stddev(f_check(filter)), field_spec)
+        return self.aggregate(Functions.stddev(f_check(filter_func)), field_spec)
 
     def __str__(self):
         """call to_string()
