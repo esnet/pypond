@@ -65,8 +65,6 @@ class Filters(object):
 
         return events
 
-FILTER_NAMES = [x[0] for x in inspect.getmembers(Filters, predicate=inspect.isfunction)]
-
 
 def f_check(flt):
     """Set the default filter for aggregation operations when no
@@ -80,10 +78,9 @@ def f_check(flt):
         return Filters.keep_missing
 
     # are we legit?
-    if not callable(flt) or flt.__name__ not in FILTER_NAMES:
+    if not callable(flt) or not hasattr(Filters, flt.__name__):
         msg = 'Invalid filter from pypond.functions.Filters got: {0} {1} {2}'.format(
             flt.__name__, type(flt), callable(flt))
-        msg += '  filter names: {0}end list'.format(FILTER_NAMES)
         raise FilterException(msg)
 
     # we are legit
