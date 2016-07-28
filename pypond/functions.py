@@ -83,6 +83,7 @@ def f_check(flt):
     if not callable(flt) or flt.__name__ not in FILTER_NAMES:
         msg = 'Invalid filter from pypond.functions.Filters got: {0} {1} {2}'.format(
             flt.__name__, type(flt), callable(flt))
+        msg += '  filter names: {0}end list'.format(FILTER_NAMES)
         raise FilterException(msg)
 
     # we are legit
