@@ -10,8 +10,12 @@
 Functions to act as reducers/aggregators, etc.
 """
 
-from math import sqrt
+import inspect
+
 from functools import reduce
+from math import sqrt
+
+from .exceptions import FilterException
 
 
 class Filters(object):
@@ -60,6 +64,28 @@ class Filters(object):
                 return None
 
         return events
+
+FILTER_NAMES = [x[0] for x in inspect.getmembers(Filters, predicate=inspect.isfunction)]
+
+
+def f_check(flt):
+    """Set the default filter for aggregation operations when no
+    filter is specified. When one is, make sure that it is a
+    valid filter.
+    """
+
+    # default case when no filter is specified to a higher
+    # level aggregation method.
+    if flt is None:
+        return Filters.keep_missing
+
+    # are we legit?
+    if not callable(flt) or flt.__name__ not in FILTER_NAMES:
+        msg = 'Invalid filter: expected a method from pypond.functions.Filters'
+        raise FilterException(msg)
+
+    # we are legit
+    return flt
 
 
 class Functions(object):
