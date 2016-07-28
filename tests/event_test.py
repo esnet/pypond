@@ -20,7 +20,7 @@ from pyrsistent import freeze, thaw
 
 from pypond.event import Event
 from pypond.exceptions import EventException
-from pypond.functions import Functions
+from pypond.functions import Functions, Filters
 from pypond.index import Index
 from pypond.indexed_event import IndexedEvent
 from pypond.range import TimeRange
@@ -407,6 +407,29 @@ class TestEventMapReduceCombine(BaseTestEvent):
 
         self.assertIsNone(Functions.first()([]))
         self.assertIsNone(Functions.last()([]))
+
+    def test_sum_avg_with_filtering(self):
+        """test summing multiple events together via combine on the back end."""
+
+        # combine them all
+        events = [
+            self._create_event(self.aware_ts, {'a': 5, 'b': 6, 'c': 7}),
+            self._create_event(self.aware_ts, {'a': None, 'b': None, 'c': 4}),
+            self._create_event(self.aware_ts, {'a': 1, 'b': 2, 'c': 3}),
+
+        ]
+
+        result = Event.sum(events, filter_func=Filters.zero_missing)
+        self.assertEqual(result.get('a'), 6)
+
+        result = Event.sum(events, filter_func=Filters.propogate_missing)
+        self.assertIsNone(result.get('a'))
+
+        result = Event.avg(events, filter_func=Filters.ignore_missing)
+        self.assertEqual(result.get('b'), 4)
+
+        result = Event.avg(events, filter_func=Filters.propogate_missing)
+        self.assertIsNone(result.get('b'))
 
     def test_event_collapse(self):
         """test collapse()"""
