@@ -78,8 +78,8 @@ def f_check(flt):
 
     # are we legit?
     if not callable(flt) or not hasattr(Filters, flt.__name__):
-        msg = 'Invalid filter from pypond.functions.Filters got: {0} {1} {2}'.format(
-            flt.__name__, type(flt), callable(flt))
+        msg = 'Invalid filter from pypond.functions.Filters got: {0} {1}'.format(
+            flt.__name__, type(flt))
         raise FilterException(msg)
 
     # we are legit
