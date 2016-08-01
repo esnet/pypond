@@ -27,6 +27,7 @@ from .processors import (
     Aggregator,
     Collapser,
     Converter,
+    Filler,
     Filter,
     Mapper,
     Offset,
@@ -992,6 +993,44 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
         return self._append(coll)
+
+    def fill(self, field_spec=None, method='zero'):
+        """Take the data in this timeseries and "fill" any missing
+        or invalid values. This could be setting None values to zero
+        so mathematical operations will succeed, interpolate a new
+        value, or pad with the previously given value.
+
+        If one wishes to limit the number of filled events in the result
+        set, use Pipeline.keep() in the chain. See: TimeSeries.fill()
+        for an exmaple.
+
+        Parameters
+        ----------
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, all columns will be filled.
+        method : str, optional
+            Filling method: zero | linear | pad
+
+        Returns
+        -------
+        Pipeline
+            The Pipeline.
+        """
+
+        fill = Filler(
+            self,
+            Options(
+                field_speclist=field_spec,
+                method=method,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(fill)
 
     def take(self, limit):
         """

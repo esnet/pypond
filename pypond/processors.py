@@ -783,6 +783,68 @@ class Converter(Processor):
             self.emit(output_event)
 
 
+class Filler(Processor):
+    """
+    A processor that fills missing/invalid values in the event
+    with new values (zero, interpolated or padded).
+
+    Parameters
+    ----------
+    arg1 : Filler or Pipeline
+        Copy constructor or the pipeline.
+    options : Options
+        Options object.
+    """
+
+    def __init__(self, arg1, options=Options()):
+        """create the mapper"""
+
+        super(Filler, self).__init__(arg1, options)
+
+        self._log('Filler.init', 'uid: {0}'.format(self._id))
+
+        self._field_spec = None
+        self._method = None
+
+        self._count = 0
+
+        if isinstance(arg1, Filler):
+            # pylint: disable=protected-access
+            self._field_spec = arg1._field_spec
+            self._method = arg1._method
+        elif is_pipeline(arg1):
+            self._field_spec = options.field_spec
+            self._method = options.method
+        else:
+            msg = 'Unknown arg to Filler: {0}'.format(arg1)
+            raise ProcessorException(msg)
+
+        self._log('Filler.init.Options', options)
+
+        # XXX: sanitize the options
+
+    def clone(self):
+        """clone it."""
+        return Filler(self)
+
+    def add_event(self, event):
+        """
+        Perform the fill operation on the event and emit.
+
+        Parameters
+        ----------
+        event : Event, IndexedEvent, TimerangeEvent
+            Any of the three event variants.
+        """
+        if self.has_observers():
+            # put filling logic here.
+            evn = event
+            # end filling logic
+
+            self._log('Filler.add_event', 'emitting: {0}'.format(evn))
+            self.emit(evn)
+
+
 class Mapper(Processor):
     """
     A processor which takes an operator as its only option

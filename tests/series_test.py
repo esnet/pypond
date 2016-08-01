@@ -752,6 +752,28 @@ class TestRenameFillAndAlign(SeriesBase):
         self.assertEqual(renamed.at(1).timestamp(), ts.at(1).timestamp())
         self.assertEqual(renamed.at(2).timestamp(), ts.at(2).timestamp())
 
+    @unittest.skip('not fully implemented yet')
+    def test_zero_fill(self):
+        """test using the filler to fill missing values with zero."""
+
+        missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': 2}],
+                [1400425948000, {'in': None, 'out': 4}],
+                [1400425949000, {'in': 5, 'out': None}],
+                [1400425950000, {'in': None, 'out': 8}],
+                [1400425960000, {'in': 9, 'out': None}],
+                [1400425970000, {'in': None, 'out': 12}],
+            ]
+        )
+
+        ts = TimeSeries(missing_data)
+
+        new_ts = ts.fill('in')
+        print(new_ts)
+
 
 class TestCollection(SeriesBase):
     """
