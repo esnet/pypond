@@ -830,7 +830,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             the map operation.
         """
         coll = self.pipeline().map(op).to_keyed_collections()
-        return coll.get('all')
+        return self.set_collection(coll.get('all'))
 
     def rename_columns(self, rename_map):
         """TimeSeries.map() helper function to rename columns in the underlying
@@ -891,7 +891,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             # an else isn't possible since Collection sanitizes
             # the input.
 
-        return self.set_collection(self.map(rename))
+        return self.map(rename)
 
     def select(self, field_spec=None):  # pylint: disable=invalid-name
         """call select on the pipeline.
