@@ -680,6 +680,71 @@ class TestRollups(SeriesBase):
             )
 
 
+class TestRenameFillAndAlign(SeriesBase):
+    """
+    A set of test for the second gen methods to manipulate timeseries
+    and events.
+    """
+
+    def test_rename(self):
+        """Test the renamer facility."""
+
+        # rename an Event series
+
+        ts = copy.deepcopy(self._canned_event_series)
+
+        renamed = ts.rename_columns({'in': 'new_in', 'out': 'new_out'})
+
+        self.assertEqual(
+            renamed.at(0).get('new_in'),
+            self._canned_event_series.at(0).get('in')
+        )
+        self.assertEqual(
+            renamed.at(0).get('new_out'),
+            self._canned_event_series.at(0).get('out')
+        )
+
+        self.assertEqual(
+            renamed.at(1).get('new_in'),
+            self._canned_event_series.at(1).get('in')
+        )
+        self.assertEqual(
+            renamed.at(1).get('new_out'),
+            self._canned_event_series.at(1).get('out')
+        )
+
+        self.assertEqual(
+            renamed.at(2).get('new_in'),
+            self._canned_event_series.at(2).get('in')
+        )
+        self.assertEqual(
+            renamed.at(2).get('new_out'),
+            self._canned_event_series.at(2).get('out')
+        )
+
+        # rename a TimeRangeEvent series
+
+        ts = TimeSeries(TICKET_RANGE)
+
+        renamed = ts.rename_columns({'title': 'event', 'esnet_ticket': 'ticket'})
+
+        self.assertEqual(renamed.at(0).get('event'), ts.at(0).get('title'))
+        self.assertEqual(renamed.at(0).get('ticket'), ts.at(0).get('esnet_ticket'))
+
+        self.assertEqual(renamed.at(1).get('event'), ts.at(1).get('title'))
+        self.assertEqual(renamed.at(1).get('ticket'), ts.at(1).get('esnet_ticket'))
+
+        # rename and IndexedEvent series
+
+        ts = TimeSeries(AVAILABILITY_DATA)
+
+        renamed = ts.rename_columns(dict(uptime='available'))
+        self.assertEqual(renamed.at(0).get('available'), ts.at(0).get('uptime'))
+        self.assertEqual(renamed.at(2).get('available'), ts.at(2).get('uptime'))
+        self.assertEqual(renamed.at(4).get('available'), ts.at(4).get('uptime'))
+        self.assertEqual(renamed.at(6).get('available'), ts.at(6).get('uptime'))
+
+
 class TestCollection(SeriesBase):
     """
     Tests for the collection class.

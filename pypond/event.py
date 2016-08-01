@@ -36,7 +36,6 @@ from .util import (
     dt_is_aware,
     format_dt,
     is_function,
-    is_nan,
     is_pmap,
     is_pvector,
     is_valid,
