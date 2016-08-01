@@ -10,12 +10,11 @@
 Functions to act as reducers/aggregators, etc.
 """
 
-import inspect
-
 from functools import reduce
 from math import sqrt
 
 from .exceptions import FilterException
+from .util import is_valid
 
 
 class Filters(object):
@@ -38,7 +37,7 @@ class Filters(object):
         good = list()
 
         for i in events:
-            if i is not None:
+            if is_valid(i):
                 good.append(i)
 
         return good
@@ -49,7 +48,7 @@ class Filters(object):
         filled = list()
 
         for i in events:
-            if i is None:
+            if not is_valid(i):
                 filled.append(0)
             else:
                 filled.append(i)
@@ -60,7 +59,7 @@ class Filters(object):
     def propogate_missing(events):
         """It's all bad if there are missing values - return None if so."""
         for i in events:
-            if i is None:
+            if not is_valid(i):
                 return None
 
         return events
@@ -154,6 +153,9 @@ class Functions(object):
 
             if vals is None:
                 return None  # pragma: no cover
+
+            if len(vals) is 0:
+                return 0
 
             return float(Functions.sum()(vals)) / len(vals)
 
