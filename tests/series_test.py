@@ -717,6 +717,7 @@ class TestRenameFillAndAlign(SeriesBase):
             renamed.at(2).get('new_in'),
             self._canned_event_series.at(2).get('in')
         )
+
         self.assertEqual(
             renamed.at(2).get('new_out'),
             self._canned_event_series.at(2).get('out')
@@ -734,6 +735,9 @@ class TestRenameFillAndAlign(SeriesBase):
         self.assertEqual(renamed.at(1).get('event'), ts.at(1).get('title'))
         self.assertEqual(renamed.at(1).get('ticket'), ts.at(1).get('esnet_ticket'))
 
+        self.assertEqual(renamed.at(0).timestamp(), ts.at(0).timestamp())
+        self.assertEqual(renamed.at(1).timestamp(), ts.at(1).timestamp())
+
         # rename and IndexedEvent series
 
         ts = TimeSeries(AVAILABILITY_DATA)
@@ -743,6 +747,10 @@ class TestRenameFillAndAlign(SeriesBase):
         self.assertEqual(renamed.at(2).get('available'), ts.at(2).get('uptime'))
         self.assertEqual(renamed.at(4).get('available'), ts.at(4).get('uptime'))
         self.assertEqual(renamed.at(6).get('available'), ts.at(6).get('uptime'))
+
+        self.assertEqual(renamed.at(0).timestamp(), ts.at(0).timestamp())
+        self.assertEqual(renamed.at(1).timestamp(), ts.at(1).timestamp())
+        self.assertEqual(renamed.at(2).timestamp(), ts.at(2).timestamp())
 
 
 class TestCollection(SeriesBase):
