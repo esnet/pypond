@@ -912,7 +912,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             the select operation.
         """
         coll = self.pipeline().select(field_spec).to_keyed_collections()
-        return coll.get('all')
+        return self.set_collection(coll.get('all'))
 
     def collapse(self, field_spec_list, name, reducer, append=True):
         """
