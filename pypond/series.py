@@ -944,7 +944,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             .to_keyed_collections()
         )
 
-        return coll.get('all')
+        return self.set_collection(coll.get('all'))
 
     def __str__(self):
         """call to_string()"""
