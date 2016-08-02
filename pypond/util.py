@@ -501,10 +501,11 @@ def nested_get(dic, keys):
     """
     Address a nested dict with a list of keys to fetch a value.
     This is functionaly similar to the standard functools.reduce()
-    method employing dict.get, but this returns False if the path
+    method employing dict.get, but this returns 'bad_path' if the path
     does not exist. This is because we need to differentiate between
-    an existing values that is actually None vs. the dict.get()
-    failover.
+    an existing value that is actually None vs. the dict.get()
+    failover. Would have preferred to return False, but who knows
+    if we'll end up with data containing Boolean values.
 
     ::
 
@@ -533,12 +534,12 @@ def nested_get(dic, keys):
             dic = dic.setdefault(key, {})
         else:
             # path branch does not exist, abort.
-            return False
+            return 'bad_path'
 
     try:
         return dic[keys[-1]]
     except KeyError:
-        return False
+        return 'bad_path'
 
 # test types
 

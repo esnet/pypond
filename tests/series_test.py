@@ -770,9 +770,28 @@ class TestRenameFillAndAlign(SeriesBase):
 
         ts = TimeSeries(missing_data)
 
-        new_ts = ts.fill('in', limit=3)
+        # fill all invalid values, limit to 3 in result set
+
+        new_ts = ts.fill(limit=3)
 
         self.assertEqual(new_ts.size(), 3)
+
+        self.assertEqual(new_ts.at(0).get('direction.out'), 0)
+        self.assertEqual(new_ts.at(2).get('direction.out'), 0)
+
+        self.assertEqual(new_ts.at(1).get('direction.in'), 0)
+
+        # fill one column, limit to 4 in result set
+
+        new_ts = ts.fill(field_spec='direction.in', limit=4)
+
+        self.assertEqual(new_ts.size(), 4)
+
+        self.assertEqual(new_ts.at(1).get('direction.in'), 0)
+        self.assertEqual(new_ts.at(3).get('direction.in'), 0)
+
+        self.assertIsNone(new_ts.at(0).get('direction.out'))
+        self.assertIsNone(new_ts.at(2).get('direction.out'))
 
 
 class TestCollection(SeriesBase):

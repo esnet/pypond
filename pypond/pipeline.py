@@ -1024,7 +1024,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         fill = Filler(
             self,
             Options(
-                field_speclist=field_spec,
+                field_spec=field_spec,
                 method=method,
                 prev=self._chain_last(),
             )

@@ -16,7 +16,7 @@ from pyrsistent import thaw
 
 from .bases import Observable
 from .event import Event
-from .exceptions import ProcessorException
+from .exceptions import ProcessorException, ProcessorWarning
 from .index import Index
 from .indexed_event import IndexedEvent
 from .pipeline_out import Collector
@@ -26,6 +26,7 @@ from .util import (
     dt_from_ms,
     is_function,
     is_pipeline,
+    is_valid,
     ms_from_dt,
     nested_get,
     nested_set,
@@ -819,10 +820,12 @@ class Filler(Processor):
 
         self._log('Filler.init', 'uid: {0}'.format(self._id))
 
+        # options
         self._field_spec = None
         self._method = None
 
-        self._count = 0
+        # internal members
+        self._previous_event = None
 
         if isinstance(arg1, Filler):
             # pylint: disable=protected-access
@@ -848,17 +851,67 @@ class Filler(Processor):
         """clone it."""
         return Filler(self)
 
-    def _fill_all(self, data):
+    def _recurse(self, data, keys=()):
         """
-        Groom all of the values in the tendered event.
+        Do the actual recursion and yield the keys to _generate_paths()
         """
-        pass
+        if isinstance(data, dict):
+            for key in list(data.keys()):
+                for path in self._recurse(data[key], keys + (key,)):
+                    yield path
+        else:
+            yield keys
 
-    def _fill_specs(self, data):
+    def _generate_paths(self, new_data):
         """
-        Only groom the selected field spec(s).
+        Return a list of field spec paths for the entire
+        data dict that can  be used by pypond.util.nested_set
+        and nested_get for filling. Mostly just a
+        wrapper to aggregate the results from _recurse().
         """
-        pass
+
+        paths = list()
+
+        for key in self._recurse(new_data):
+            paths.append(key)
+
+        return paths
+
+    def _fill_specs(self, data, paths):
+        """
+        Process and fill the values at the paths as need be.
+        """
+        for path in paths:
+
+            field_path = self._field_path_to_array(path)
+
+            val = nested_get(data, field_path)
+
+            # this is pointing at a path that does not exist
+            if val == 'bad_path':
+                self._warn('path does not exist: {0}'.format(field_path), ProcessorWarning)
+                continue
+
+            # if the terminal value is a list, fill the list
+            if isinstance(val, list):
+                raise NotImplementedError
+
+            if not is_valid(val):
+                # massage the path per selected method
+
+                if self._method == 'zero':  # set to zero
+                    nested_set(data, field_path, 0)
+
+                elif self._method == 'pad':  # set to previous value
+                    raise NotImplementedError
+                    # if self._previous_event is not None:
+                    #     nested_set(
+                    #         data, field_path,
+                    #         nested_get(data, field_path)
+                    #     )
+
+                elif self._method == 'linear':  # interpolate
+                    raise NotImplementedError
 
     def add_event(self, event):
         """
@@ -871,14 +924,15 @@ class Filler(Processor):
         """
         if self.has_observers():
 
-            # put filling logic here.
-
             new_data = thaw(event.data())
 
             if self._field_spec is None:
-                self._fill_all(new_data)
+                # generate a list of all possible field paths
+                # if no field spec is specified.
+                paths = self._generate_paths(new_data)
+                self._fill_specs(new_data, paths)
             else:
-                self._fill_specs(new_data)
+                self._fill_specs(new_data, self._field_spec)
 
             emitted_event = None
 
@@ -899,6 +953,9 @@ class Filler(Processor):
 
             self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
             self.emit(emitted_event)
+
+            # remember previous event for padding/etc.
+            self._previous_event = emitted_event
 
 
 class Mapper(Processor):
