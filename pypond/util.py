@@ -466,6 +466,80 @@ class Capsule(Options):  # pylint: disable=too-few-public-methods
     """
     pass
 
+# functions to streamline dealing with nested dicts
+
+
+def nested_set(dic, keys, value):
+    """
+    Address a nested dict with a list of keys and set a value.
+    If part of the path does not exist, it will be created.
+
+    ::
+
+        sample_dict = dict()
+        nested_set(sample_dict, ['bar', 'baz'], 23)
+        {'bar': {'baz': 23}}
+        nested_set(sample_dict, ['bar', 'baz'], 25)
+        {'bar': {'baz': 25}}
+
+    Parameters
+    ----------
+    dic : dict
+        The dict we are workign with.
+    keys : list
+        A list of nested keys
+    value : obj
+        Whatever we want to set the ultimate key to.
+    """
+    for key in keys[:-1]:
+        dic = dic.setdefault(key, {})
+
+    dic[keys[-1]] = value
+
+
+def nested_get(dic, keys):
+    """
+    Address a nested dict with a list of keys to fetch a value.
+    This is functionaly similar to the standard functools.reduce()
+    method employing dict.get, but this returns False if the path
+    does not exist. This is because we need to differentiate between
+    an existing values that is actually None vs. the dict.get()
+    failover.
+
+    ::
+
+        sample_dict = dict()
+        nested_set(sample_dict, ['bar', 'baz'], 23)
+        nested_get(sample_dict, ['bar', 'quux'])
+        False
+
+    Unlike nested_set(), this will not create a new path branch if
+    it does not already exist.
+
+    Parameters
+    ----------
+    dic : dict
+        The dict we are working with
+    keys : list
+        A lsit of nested keys
+
+    Returns
+    -------
+    obj
+        Whatever value was at the terminus of the keys.
+    """
+    for key in keys[:-1]:
+        if key in dic:
+            dic = dic.setdefault(key, {})
+        else:
+            # path branch does not exist, abort.
+            return False
+
+    try:
+        return dic[keys[-1]]
+    except KeyError:
+        return False
+
 # test types
 
 
