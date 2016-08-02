@@ -10,6 +10,10 @@
 Offset is a simple processor used by the testing code to verify Pipeline behavior.
 """
 
+import six
+
+from pyrsistent import thaw
+
 from .bases import Observable
 from .event import Event
 from .exceptions import ProcessorException
@@ -18,7 +22,16 @@ from .indexed_event import IndexedEvent
 from .pipeline_out import Collector
 from .range import TimeRange
 from .timerange_event import TimeRangeEvent
-from .util import Options, is_pipeline, unique_id, is_function, ms_from_dt, dt_from_ms
+from .util import (
+    dt_from_ms,
+    is_function,
+    is_pipeline,
+    ms_from_dt,
+    nested_get,
+    nested_set,
+    Options,
+    unique_id,
+)
 
 # Base for all pipeline processors
 
@@ -788,6 +801,9 @@ class Filler(Processor):
     A processor that fills missing/invalid values in the event
     with new values (zero, interpolated or padded).
 
+    Number of filled events in new series can be controlled by
+    putting .keep() in the pipeline chain.
+
     Parameters
     ----------
     arg1 : Filler or Pipeline
@@ -821,11 +837,28 @@ class Filler(Processor):
 
         self._log('Filler.init.Options', options)
 
-        # XXX: sanitize the options
+        if self._method not in ('zero', 'pad', 'linear'):
+            msg = 'Unknown method {0} passed to Filler'.format(self._method)
+            raise ProcessorException(msg)
+
+        if isinstance(self._field_spec, six.string_types):
+            self._field_spec = [self._field_spec]
 
     def clone(self):
         """clone it."""
         return Filler(self)
+
+    def _fill_all(self, data):
+        """
+        Groom all of the values in the tendered event.
+        """
+        pass
+
+    def _fill_specs(self, data):
+        """
+        Only groom the selected field spec(s).
+        """
+        pass
 
     def add_event(self, event):
         """
@@ -837,12 +870,35 @@ class Filler(Processor):
             Any of the three event variants.
         """
         if self.has_observers():
+
             # put filling logic here.
-            evn = event
+
+            new_data = thaw(event.data())
+
+            if self._field_spec is None:
+                self._fill_all(new_data)
+            else:
+                self._fill_specs(new_data)
+
+            emitted_event = None
+
+            # yes pylint, we know
+            # pylint: disable=redefined-variable-type
+
+            if isinstance(event, Event):
+                emitted_event = Event(event.timestamp(), new_data)
+            elif isinstance(event, TimeRangeEvent):
+                emitted_event = TimeRangeEvent(
+                    (event.begin(), event.end()),
+                    new_data
+                )
+            elif isinstance(event, IndexedEvent):
+                emitted_event = IndexedEvent(event.index(), new_data)
+
             # end filling logic
 
-            self._log('Filler.add_event', 'emitting: {0}'.format(evn))
-            self.emit(evn)
+            self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
+            self.emit(emitted_event)
 
 
 class Mapper(Processor):
