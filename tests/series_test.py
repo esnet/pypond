@@ -755,7 +755,7 @@ class TestRenameFillAndAlign(SeriesBase):
     def test_zero_fill(self):
         """test using the filler to fill missing values with zero."""
 
-        missing_data = dict(
+        simple_missing_data = dict(
             name="traffic",
             columns=["time", "direction"],
             points=[
@@ -768,7 +768,7 @@ class TestRenameFillAndAlign(SeriesBase):
             ]
         )
 
-        ts = TimeSeries(missing_data)
+        ts = TimeSeries(simple_missing_data)
 
         # fill all invalid values, limit to 3 in result set
 
@@ -792,6 +792,67 @@ class TestRenameFillAndAlign(SeriesBase):
 
         self.assertIsNone(new_ts.at(0).get('direction.out'))
         self.assertIsNone(new_ts.at(2).get('direction.out'))
+
+    def test_complex_zero_fill(self):
+        """make sure more complex nested paths work OK"""
+
+        complex_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000,
+                    {'in': {'tcp': 1, 'udp': 3}, 'out': {'tcp': 2, 'udp': 3}}],
+                [1400425948000,
+                    {'in': {'tcp': 3, 'udp': None}, 'out': {'tcp': 4, 'udp': 3}}],
+                [1400425949000,
+                    {'in': {'tcp': 5, 'udp': None}, 'out': {'tcp': None, 'udp': 3}}],
+                [1400425950000,
+                    {'in': {'tcp': 7, 'udp': None}, 'out': {'tcp': None, 'udp': 3}}],
+                [1400425960000,
+                    {'in': {'tcp': 9, 'udp': 4}, 'out': {'tcp': 6, 'udp': 3}}],
+                [1400425970000,
+                    {'in': {'tcp': 11, 'udp': 5}, 'out': {'tcp': 8, 'udp': 3}}],
+            ]
+        )
+
+        ts = TimeSeries(complex_missing_data)
+
+        # zero fill everything
+
+        new_ts = ts.fill()
+
+        self.assertEqual(new_ts.at(0).get('direction.in.udp'), 3)
+        self.assertEqual(new_ts.at(1).get('direction.in.udp'), 0)
+        self.assertEqual(new_ts.at(2).get('direction.in.udp'), 0)
+        self.assertEqual(new_ts.at(3).get('direction.in.udp'), 0)
+        self.assertEqual(new_ts.at(4).get('direction.in.udp'), 4)
+        self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
+
+        self.assertEqual(new_ts.at(0).get('direction.out.tcp'), 2)
+        self.assertEqual(new_ts.at(1).get('direction.out.tcp'), 4)
+        self.assertEqual(new_ts.at(2).get('direction.out.tcp'), 0)
+        self.assertEqual(new_ts.at(3).get('direction.out.tcp'), 0)
+        self.assertEqual(new_ts.at(4).get('direction.out.tcp'), 6)
+        self.assertEqual(new_ts.at(5).get('direction.out.tcp'), 8)
+
+        # do it again, but only fill the out.tcp
+
+        new_ts = ts.fill(field_spec=['direction.out.tcp'])
+
+        self.assertEqual(new_ts.at(0).get('direction.out.tcp'), 2)
+        self.assertEqual(new_ts.at(1).get('direction.out.tcp'), 4)
+        self.assertEqual(new_ts.at(2).get('direction.out.tcp'), 0)
+        self.assertEqual(new_ts.at(3).get('direction.out.tcp'), 0)
+        self.assertEqual(new_ts.at(4).get('direction.out.tcp'), 6)
+        self.assertEqual(new_ts.at(5).get('direction.out.tcp'), 8)
+
+        self.assertEqual(new_ts.at(0).get('direction.in.udp'), 3)
+        self.assertEqual(new_ts.at(1).get('direction.in.udp'), None)
+        self.assertEqual(new_ts.at(2).get('direction.in.udp'), None)
+        self.assertEqual(new_ts.at(3).get('direction.in.udp'), None)
+        self.assertEqual(new_ts.at(4).get('direction.in.udp'), 4)
+        self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
+
 
 
 class TestCollection(SeriesBase):
