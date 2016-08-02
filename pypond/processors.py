@@ -802,7 +802,7 @@ class Filler(Processor):
     with new values (zero, interpolated or padded).
 
     Number of filled events in new series can be controlled by
-    putting .keep() in the pipeline chain.
+    putting .take() in the pipeline chain.
 
     Parameters
     ----------
