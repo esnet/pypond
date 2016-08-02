@@ -103,7 +103,7 @@ class EventBase(PypondBase):
             Type depends on underyling data
         """
 
-        fspec = self._field_spec_to_array(field_path)
+        fspec = self._field_path_to_array(field_path)
 
         return reduce(dict.get, fspec, thaw(self.data()))
 

@@ -169,7 +169,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         count = 0
 
-        fpath = self._field_spec_to_array(field_path)
+        fpath = self._field_path_to_array(field_path)
 
         for i in self.events():
             if Event.is_valid_value(i, fpath):
@@ -552,7 +552,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         flt_events = list()
 
-        fpath = self._field_spec_to_array(field_path)
+        fpath = self._field_path_to_array(field_path)
 
         for i in self.events():
             if Event.is_valid_value(i, fpath):
@@ -647,7 +647,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             fpath = '.'.join(field_path)
         elif field_path is None:
             # map() needs a field name to use as a key. Normally
-            # this case is normally handled by _field_spec_to_array()
+            # this case is normally handled by _field_path_to_array()
             # inside get(). Also, if map(func, field_spec=None) then
             # it will map all the columns.
             fpath = 'value'
