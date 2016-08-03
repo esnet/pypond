@@ -19,7 +19,7 @@ from .event import Event
 from .exceptions import ProcessorException, ProcessorWarning
 from .index import Index
 from .indexed_event import IndexedEvent
-from .pipeline_out import Collector
+from .pipeline_out import Collector, CollectionOut
 from .range import TimeRange
 from .timerange_event import TimeRangeEvent
 from .util import (
@@ -823,6 +823,7 @@ class Filler(Processor):
         # options
         self._field_spec = None
         self._method = None
+        self._mode = None
 
         # internal members
         self._previous_event = None
@@ -831,9 +832,11 @@ class Filler(Processor):
             # pylint: disable=protected-access
             self._field_spec = arg1._field_spec
             self._method = arg1._method
+            self._mode = arg1._mode
         elif is_pipeline(arg1):
             self._field_spec = options.field_spec
             self._method = options.method
+            self._mode = arg1.mode()
         else:
             msg = 'Unknown arg to Filler: {0}'.format(arg1)
             raise ProcessorException(msg)
@@ -842,6 +845,10 @@ class Filler(Processor):
 
         if self._method not in ('zero', 'pad', 'linear'):
             msg = 'Unknown method {0} passed to Filler'.format(self._method)
+            raise ProcessorException(msg)
+
+        if self._method == 'linear' and self._mode == 'stream':
+            msg = 'Can not do linear interpolation in stream mode'
             raise ProcessorException(msg)
 
         if isinstance(self._field_spec, six.string_types):
@@ -912,7 +919,10 @@ class Filler(Processor):
                             )
 
                 elif self._method == 'linear':  # interpolate
-                    raise NotImplementedError
+                    # no-op here, this has to happen
+                    # when the operation is flushed.
+                    # just stubbing in the condition
+                    pass
 
     def add_event(self, event):
         """
@@ -961,6 +971,13 @@ class Filler(Processor):
     def flush(self):
         """don't delegate flush to superclass alone."""
         self._log('Filler.flush')
+
+        if self.has_observers() and self._method == 'linear':
+            self._log('Filler.flush.linear')
+            for i in self._observers:
+                if isinstance(i, CollectionOut):
+                    pass
+
         super(Filler, self).flush()
 
 

@@ -978,6 +978,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         if limit is not None and isinstance(limit, int):
             pip = pip.take(limit)
 
+        if method == 'linear':
+            pip = pip.emit_on('flush')
+
         coll = (
             pip
             .fill(field_spec, method)

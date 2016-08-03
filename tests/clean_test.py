@@ -228,6 +228,26 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(4).get('direction.in.udp'), 4)
         self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
 
+    def test_linear(self):
+        """Test linear interpolation filling."""
+
+        simple_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': None}],
+                [1400425948000, {'in': None, 'out': 4}],
+                [1400425949000, {'in': None, 'out': None}],
+                [1400425950000, {'in': 3, 'out': 8}],
+                [1400425960000, {'in': None, 'out': None}],
+                [1400425970000, {'in': 5, 'out': 12}],
+            ]
+        )
+
+        ts = TimeSeries(simple_missing_data)
+
+        new_ts = ts.fill(field_spec='direction.in', method='linear')
+
     def test_pad(self):
         """Test the pad style fill."""
 
