@@ -30,7 +30,6 @@ from pypond.processors import (
     Filter,
     Mapper,
     Offset,
-    Processor,
     Selector,
     Taker,
 )

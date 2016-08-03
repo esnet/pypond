@@ -10,11 +10,14 @@
 Offset is a simple processor used by the testing code to verify Pipeline behavior.
 """
 
+from operator import truediv
+
 import six
 
 from pyrsistent import thaw
 
 from .bases import Observable
+from .collection import Collection
 from .event import Event
 from .exceptions import ProcessorException, ProcessorWarning
 from .index import Index
@@ -968,15 +971,116 @@ class Filler(Processor):
             # remember previous event for padding/etc.
             self._previous_event = emitted_event
 
+    def _interpolated_collection(self, coll):
+        """
+        Generate a new collection of interpolated values.
+        """
+        collected = coll
+
+        for i in self._field_spec:
+
+            # array of the new interpolated events
+            new_events = list()
+
+            # boolean to keep track if there are no longer any valid
+            # events "forward" in the sequence for a given field_path.
+            # if there are no more valid values, there is no reason
+            # to keep seeking every time.
+            seek_forward = True
+
+            field_path = self._field_path_to_array(i)
+
+            for event_enum in enumerate(collected.events()):
+
+                # cant interpolate first or last event so just save it
+                # as-is and move on.
+                if event_enum[0] == 0 or event_enum[0] == collected.size() - 1:
+                    new_events.append(event_enum[1])
+                    continue
+
+                # found a bad value so start calculating.
+                if not is_valid(event_enum[1].get(field_path)):
+
+                    previous_value = None
+                    next_value = None
+
+                    # look to the previous event in the new_event list since
+                    # that's where previously interpolated values will be.
+
+                    previous_value = new_events[event_enum[0] - 1].get(field_path)
+
+                    # see about finding the next valid value in the original
+                    # collection.
+
+                    next_idx = event_enum[0] + 1
+
+                    while next_value is None:
+
+                        # no more good values "forward" so don't bother.
+                        if seek_forward is False:
+                            break
+
+                        val = collected.at(next_idx).get(field_path)
+
+                        if is_valid(val):
+                            next_value = val  # terminates the loop
+
+                        next_idx += 1
+
+                    # previous_value should only be none if there are a string
+                    # of bad values at the beginning of the sequence.
+                    # next_value will be none if that value no longer has
+                    # valid values in the rest of the sequence.
+
+                    if previous_value is not None and next_value is not None:
+                        # pry the data from current even
+                        new_data = thaw(event_enum[1].data())
+                        # average the two events
+                        new_val = truediv((previous_value + next_value), 2)
+                        # set that value to the field spec in new data
+                        nested_set(new_data, field_path, new_val)
+                        # call .set_data() to create a new event
+                        new_events.append(event_enum[1].set_data(new_data))
+                    else:
+                        # couldn't calculate new value either way, just
+                        # keep the old event.
+                        new_events.append(event_enum[1])
+
+                        if next_value is None:
+                            # no more good values for this field spec in the
+                            # sequence, so don't bother looking on subsequent
+                            # events in this field_spec
+                            seek_forward = False
+
+                else:
+                    new_events.append(event_enum[1])
+
+            collected = Collection(new_events)
+
+        return collected
+
+    def _interpolate_collection_out(self, cout):
+        """
+        Handle linear method when collection out is an observer.
+        """
+
+        self._log('Filler._interpolate_collection_out')
+
+        cols = cout._collector._collections  # pylint: disable=protected-access
+
+        for v in list(cols.values()):
+            v.collection = self._interpolated_collection(v.collection)
+
     def flush(self):
         """don't delegate flush to superclass alone."""
         self._log('Filler.flush')
 
         if self.has_observers() and self._method == 'linear':
             self._log('Filler.flush.linear')
+
             for i in self._observers:
                 if isinstance(i, CollectionOut):
-                    pass
+                    self._interpolate_collection_out(i)
 
         super(Filler, self).flush()
 

@@ -236,7 +236,7 @@ class TestRenameFillAndAlign(CleanBase):
             columns=["time", "direction"],
             points=[
                 [1400425947000, {'in': 1, 'out': None}],
-                [1400425948000, {'in': None, 'out': 4}],
+                [1400425948000, {'in': None, 'out': None}],
                 [1400425949000, {'in': None, 'out': None}],
                 [1400425950000, {'in': 3, 'out': 8}],
                 [1400425960000, {'in': None, 'out': None}],
@@ -246,7 +246,21 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
-        new_ts = ts.fill(field_spec='direction.in', method='linear')
+        new_ts = ts.fill(field_spec=['direction.in', 'direction.out'], method='linear')
+
+        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
+
+        self.assertEqual(new_ts.at(0).get('direction.out'), None)  # 1st can't fill
+        self.assertEqual(new_ts.at(1).get('direction.out'), None)  # no prev good val
+        self.assertEqual(new_ts.at(2).get('direction.out'), None)  # no prev good val
+        self.assertEqual(new_ts.at(3).get('direction.out'), 8)
+        self.assertEqual(new_ts.at(4).get('direction.out'), 10.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
     def test_pad(self):
         """Test the pad style fill."""
