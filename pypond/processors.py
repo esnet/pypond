@@ -905,10 +905,11 @@ class Filler(Processor):
 
                 elif self._method == 'pad':  # set to previous value
                     if self._previous_event is not None:
-                        nested_set(
-                            data, field_path,
-                            self._previous_event.get(field_path)
-                        )
+                        if is_valid(self._previous_event.get(field_path)):
+                            nested_set(
+                                data, field_path,
+                                self._previous_event.get(field_path)
+                            )
 
                 elif self._method == 'linear':  # interpolate
                     raise NotImplementedError
@@ -956,6 +957,11 @@ class Filler(Processor):
 
             # remember previous event for padding/etc.
             self._previous_event = emitted_event
+
+    def flush(self):
+        """don't delegate flush to superclass alone."""
+        self._log('Filler.flush')
+        super(Filler, self).flush()
 
 
 class Mapper(Processor):

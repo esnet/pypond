@@ -228,7 +228,6 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(4).get('direction.in.udp'), 4)
         self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
 
-    @unittest.skip('feature not finished yet')
     def test_pad(self):
         """Test the pad style fill."""
 
@@ -236,7 +235,7 @@ class TestRenameFillAndAlign(CleanBase):
             name="traffic",
             columns=["time", "direction"],
             points=[
-                [1400425947000, {'in': 1, 'out': None, 'drop': 11}],
+                [1400425947000, {'in': 1, 'out': None, 'drop': None}],
                 [1400425948000, {'in': None, 'out': 4, 'drop': None}],
                 [1400425949000, {'in': None, 'out': None, 'drop': 13}],
                 [1400425950000, {'in': None, 'out': None, 'drop': 14}],
@@ -246,6 +245,29 @@ class TestRenameFillAndAlign(CleanBase):
         )
 
         ts = TimeSeries(simple_missing_data)
+
+        new_ts = ts.fill(method='pad')
+
+        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(new_ts.at(1).get('direction.in'), 1)  # padded
+        self.assertEqual(new_ts.at(2).get('direction.in'), 1)  # padded
+        self.assertEqual(new_ts.at(3).get('direction.in'), 1)  # padded
+        self.assertEqual(new_ts.at(4).get('direction.in'), 9)
+        self.assertEqual(new_ts.at(5).get('direction.in'), 11)
+
+        self.assertEqual(new_ts.at(0).get('direction.out'), None)  # 1st can't pad
+        self.assertEqual(new_ts.at(1).get('direction.out'), 4)
+        self.assertEqual(new_ts.at(2).get('direction.out'), 4)  # padded
+        self.assertEqual(new_ts.at(3).get('direction.out'), 4)  # padded
+        self.assertEqual(new_ts.at(4).get('direction.out'), 8)
+        self.assertEqual(new_ts.at(5).get('direction.out'), 10)
+
+        self.assertEqual(new_ts.at(0).get('direction.drop'), None)  # 1st can't pad
+        self.assertEqual(new_ts.at(1).get('direction.drop'), None)  # bad prev can't pad
+        self.assertEqual(new_ts.at(2).get('direction.drop'), 13)
+        self.assertEqual(new_ts.at(3).get('direction.drop'), 14)
+        self.assertEqual(new_ts.at(4).get('direction.drop'), 14)  # padded
+        self.assertEqual(new_ts.at(5).get('direction.drop'), 16)
 
 if __name__ == '__main__':
     unittest.main()
