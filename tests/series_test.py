@@ -822,16 +822,16 @@ class TestRenameFillAndAlign(SeriesBase):
         new_ts = ts.fill()
 
         self.assertEqual(new_ts.at(0).get('direction.in.udp'), 3)
-        self.assertEqual(new_ts.at(1).get('direction.in.udp'), 0)
-        self.assertEqual(new_ts.at(2).get('direction.in.udp'), 0)
-        self.assertEqual(new_ts.at(3).get('direction.in.udp'), 0)
+        self.assertEqual(new_ts.at(1).get('direction.in.udp'), 0)  # fill
+        self.assertEqual(new_ts.at(2).get('direction.in.udp'), 0)  # fill
+        self.assertEqual(new_ts.at(3).get('direction.in.udp'), 0)  # fill
         self.assertEqual(new_ts.at(4).get('direction.in.udp'), 4)
         self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
 
         self.assertEqual(new_ts.at(0).get('direction.out.tcp'), 2)
         self.assertEqual(new_ts.at(1).get('direction.out.tcp'), 4)
-        self.assertEqual(new_ts.at(2).get('direction.out.tcp'), 0)
-        self.assertEqual(new_ts.at(3).get('direction.out.tcp'), 0)
+        self.assertEqual(new_ts.at(2).get('direction.out.tcp'), 0)  # fill
+        self.assertEqual(new_ts.at(3).get('direction.out.tcp'), 0)  # fill
         self.assertEqual(new_ts.at(4).get('direction.out.tcp'), 6)
         self.assertEqual(new_ts.at(5).get('direction.out.tcp'), 8)
 
@@ -841,15 +841,15 @@ class TestRenameFillAndAlign(SeriesBase):
 
         self.assertEqual(new_ts.at(0).get('direction.out.tcp'), 2)
         self.assertEqual(new_ts.at(1).get('direction.out.tcp'), 4)
-        self.assertEqual(new_ts.at(2).get('direction.out.tcp'), 0)
-        self.assertEqual(new_ts.at(3).get('direction.out.tcp'), 0)
+        self.assertEqual(new_ts.at(2).get('direction.out.tcp'), 0)  # fill
+        self.assertEqual(new_ts.at(3).get('direction.out.tcp'), 0)  # fill
         self.assertEqual(new_ts.at(4).get('direction.out.tcp'), 6)
         self.assertEqual(new_ts.at(5).get('direction.out.tcp'), 8)
 
         self.assertEqual(new_ts.at(0).get('direction.in.udp'), 3)
-        self.assertEqual(new_ts.at(1).get('direction.in.udp'), None)
-        self.assertEqual(new_ts.at(2).get('direction.in.udp'), None)
-        self.assertEqual(new_ts.at(3).get('direction.in.udp'), None)
+        self.assertEqual(new_ts.at(1).get('direction.in.udp'), None)  # no fill
+        self.assertEqual(new_ts.at(2).get('direction.in.udp'), None)  # no fill
+        self.assertEqual(new_ts.at(3).get('direction.in.udp'), None)  # no fill
         self.assertEqual(new_ts.at(4).get('direction.in.udp'), 4)
         self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
 

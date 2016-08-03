@@ -879,7 +879,7 @@ class Filler(Processor):
 
     def _fill_specs(self, data, paths):
         """
-        Process and fill the values at the paths as need be.
+        Process and fill the values at the paths as apropos.
         """
         for path in paths:
 
