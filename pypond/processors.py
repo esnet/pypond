@@ -895,6 +895,7 @@ class Filler(Processor):
             # if the terminal value is a list, fill the list
             if isinstance(val, list):
                 raise NotImplementedError
+                # return
 
             if not is_valid(val):
                 # massage the path per selected method
@@ -903,12 +904,11 @@ class Filler(Processor):
                     nested_set(data, field_path, 0)
 
                 elif self._method == 'pad':  # set to previous value
-                    raise NotImplementedError
-                    # if self._previous_event is not None:
-                    #     nested_set(
-                    #         data, field_path,
-                    #         nested_get(data, field_path)
-                    #     )
+                    if self._previous_event is not None:
+                        nested_set(
+                            data, field_path,
+                            self._previous_event.get(field_path)
+                        )
 
                 elif self._method == 'linear':  # interpolate
                     raise NotImplementedError
