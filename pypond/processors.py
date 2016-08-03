@@ -10,6 +10,7 @@
 Offset is a simple processor used by the testing code to verify Pipeline behavior.
 """
 
+import copy
 from operator import truediv
 
 import six
@@ -971,11 +972,17 @@ class Filler(Processor):
             # remember previous event for padding/etc.
             self._previous_event = emitted_event
 
-    def _interpolated_collection(self, coll):
+    def _interpolate_event_list(self, events):
         """
-        Generate a new collection of interpolated values.
+        The fundamental linear interpolation workhorse code.  Process
+        a list of events and return a new list. Does a pass for
+        every field_spec.
+
+        This is abstracted out like this because we probably want
+        to interpolate a list of events not tied to a Collection.
+        A Pipeline result list, etc etc.
         """
-        collected = coll
+        base_events = copy.copy(events)
 
         for i in self._field_spec:
 
@@ -990,11 +997,11 @@ class Filler(Processor):
 
             field_path = self._field_path_to_array(i)
 
-            for event_enum in enumerate(collected.events()):
+            for event_enum in enumerate(base_events):
 
                 # cant interpolate first or last event so just save it
                 # as-is and move on.
-                if event_enum[0] == 0 or event_enum[0] == collected.size() - 1:
+                if event_enum[0] == 0 or event_enum[0] == len(base_events) - 1:
                     new_events.append(event_enum[1])
                     continue
 
@@ -1010,7 +1017,7 @@ class Filler(Processor):
                     previous_value = new_events[event_enum[0] - 1].get(field_path)
 
                     # see about finding the next valid value in the original
-                    # collection.
+                    # list.
 
                     next_idx = event_enum[0] + 1
 
@@ -1020,7 +1027,7 @@ class Filler(Processor):
                         if seek_forward is False:
                             break
 
-                        val = collected.at(next_idx).get(field_path)
+                        val = base_events[next_idx].get(field_path)
 
                         if is_valid(val):
                             next_value = val  # terminates the loop
@@ -1033,7 +1040,7 @@ class Filler(Processor):
                     # valid values in the rest of the sequence.
 
                     if previous_value is not None and next_value is not None:
-                        # pry the data from current even
+                        # pry the data from current event
                         new_data = thaw(event_enum[1].data())
                         # average the two events
                         new_val = truediv((previous_value + next_value), 2)
@@ -1055,13 +1062,24 @@ class Filler(Processor):
                 else:
                     new_events.append(event_enum[1])
 
-            collected = Collection(new_events)
+            # save the current state before doing another pass
+            # on a different field_path
+            base_events = new_events
 
-        return collected
+        return base_events
+
+    def _interpolated_collection(self, coll):
+        """
+        Generate a new collection of interpolated values.
+        """
+        return Collection(self._interpolate_event_list(list(coll.events())))
 
     def _interpolate_collection_out(self, cout):
         """
         Handle linear method when collection out is an observer.
+
+        Massage the contents of the collections in the Collector before
+        the flush() keeps moving up the food chain.
         """
 
         self._log('Filler._interpolate_collection_out')
@@ -1072,7 +1090,9 @@ class Filler(Processor):
             v.collection = self._interpolated_collection(v.collection)
 
     def flush(self):
-        """don't delegate flush to superclass alone."""
+        """Don't delegate flush to superclass. Linear interpolation
+        needs to happen after the events have been processed but before
+        they are finally emitted."""
         self._log('Filler.flush')
 
         if self.has_observers() and self._method == 'linear':

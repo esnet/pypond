@@ -241,12 +241,15 @@ class TestRenameFillAndAlign(CleanBase):
                 [1400425950000, {'in': 3, 'out': 8}],
                 [1400425960000, {'in': None, 'out': None}],
                 [1400425970000, {'in': 5, 'out': 12}],
+                [1400425980000, {'in': 6, 'out': 13}],
             ]
         )
 
         ts = TimeSeries(simple_missing_data)
 
-        new_ts = ts.fill(field_spec=['direction.in', 'direction.out'], method='linear')
+        new_ts = ts.fill(field_spec=['direction.in', 'direction.out'], method='linear', limit=6)
+
+        self.assertEqual(new_ts.size(), 6)
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
         self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
