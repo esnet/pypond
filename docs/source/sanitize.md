@@ -53,7 +53,7 @@ Using `TimeSeries.fill()` will be a common entry point to this functionality, bu
     )
 ```
 
-It it's like any other `Pipeline` construction, but the `linear` method has the following restrictions:
+It is like any other `Pipeline` construction, but the `linear` method has the following restrictions:
 
 * It can not be used in `stream` mode since the entire result set needs to be collected before filling; and
 * `emit_on` needs to be set to `flush` so only the filled collection will be emitted.
