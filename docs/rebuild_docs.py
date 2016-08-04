@@ -32,6 +32,7 @@ README_TOKEN
 
     api
     time
+    sanitize
     tests
 """
 

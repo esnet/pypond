@@ -11,6 +11,7 @@ Offset is a simple processor used by the testing code to verify Pipeline behavio
 """
 
 import copy
+import numbers
 from operator import truediv
 
 import six
@@ -912,8 +913,7 @@ class Filler(Processor):
 
             # if the terminal value is a list, fill the list
             if isinstance(val, list):
-                raise NotImplementedError
-                # return
+                self._fill_list(val)
 
             if not is_valid(val):
                 # massage the path per selected method
@@ -978,6 +978,62 @@ class Filler(Processor):
 
             # remember previous event for padding/etc.
             self._previous_event = emitted_event
+
+    def _fill_list(self, obj):
+        """
+        Do basic filling if a terminal value is a list.
+        """
+
+        for val_enum in enumerate(obj):
+
+            # can't do linear on non-numeric values
+            if self._method == 'linear' and is_valid(val_enum[1]) and \
+                    not isinstance(val_enum[1], numbers.Number):
+                self._warn(
+                    'linear requires numeric values - skipping this list',
+                    ProcessorWarning
+                )
+
+                break
+
+            # we got a bad value so fill as apropos
+            if not is_valid(val_enum[1]):
+
+                if self._method == 'zero':
+                    obj[val_enum[0]] = 0
+
+                if self._method == 'pad' and val_enum[0] - 1 >= 0 and \
+                        is_valid(obj[val_enum[0] - 1]):
+                    obj[val_enum[0]] = obj[val_enum[0] - 1]
+
+                if self._method == 'linear':
+
+                    previous = None
+                    next_val = None
+
+                    if val_enum[0] - 1 >= 0 and \
+                            is_valid(obj[val_enum[0] - 1]):
+                        previous = obj[val_enum[0] - 1]
+
+                    next_idx = val_enum[0] + 1
+
+                    while next_val is None and next_idx < len(obj):
+
+                        val = obj[next_idx]
+
+                        if is_valid(val):
+                            next_val = val  # breaks loop
+
+                        next_idx += 1
+
+                    if previous is not None and next_val is not None:
+                        inval = truediv((previous + next_val), 2)
+                        obj[val_enum[0]] = inval
+
+                    if next_val is None:
+                        # there are no more valid values "forward"
+                        # so we're done
+                        break
 
     def _interpolate_event_list(self, events):
         """
