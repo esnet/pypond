@@ -4,10 +4,14 @@ Tests for sanitizing, filling and renaming data.
 
 import copy
 import unittest
+import warnings
 
 from pypond.collection import Collection
 from pypond.event import Event
+from pypond.exceptions import ProcessorException, ProcessorWarning
 from pypond.pipeline import Pipeline
+from pypond.pipeline_in import UnboundedIn
+from pypond.processors import Filler
 from pypond.series import TimeSeries
 
 EVENT_LIST = [
@@ -127,6 +131,52 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(renamed.at(0).timestamp(), ts.at(0).timestamp())
         self.assertEqual(renamed.at(1).timestamp(), ts.at(1).timestamp())
         self.assertEqual(renamed.at(2).timestamp(), ts.at(2).timestamp())
+
+    def test_bad_args(self):
+        """Trigger error states for coverage."""
+
+        simple_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': None, 'drop': None}],
+                [1400425948000, {'in': None, 'out': 4, 'drop': None}],
+                [1400425949000, {'in': None, 'out': None, 'drop': 13}],
+                [1400425950000, {'in': None, 'out': None, 'drop': 14}],
+                [1400425960000, {'in': 9, 'out': 8, 'drop': None}],
+                [1400425970000, {'in': 11, 'out': 10, 'drop': 16}],
+            ]
+        )
+
+        ts = TimeSeries(simple_missing_data)
+
+        with self.assertRaises(ProcessorException):
+            f = Filler(dict())
+
+        with self.assertRaises(ProcessorException):
+            ts.fill(method='bogus')
+
+        with self.assertRaises(ProcessorException):
+
+            uin = UnboundedIn()
+
+            elist = (
+                Pipeline()
+                .from_source(uin)
+                .emit_on('bad_emit')  # it's linear
+                .fill(field_spec='direction.in', method='linear')
+                .to_event_list()
+            )
+
+        with warnings.catch_warnings(record=True) as wrn:
+            ts.fill(field_spec='bad.path')
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
+
+        with warnings.catch_warnings(record=True) as wrn:
+            ts.fill(field_spec='direction.bogus')
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
 
     def test_zero_fill(self):
         """test using the filler to fill missing values with zero."""
@@ -340,6 +390,7 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(3).get('direction.drop'), 14)
         self.assertEqual(new_ts.at(4).get('direction.drop'), 14)  # padded
         self.assertEqual(new_ts.at(5).get('direction.drop'), 16)
+
 
 if __name__ == '__main__':
     unittest.main()

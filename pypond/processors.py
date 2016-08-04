@@ -929,8 +929,8 @@ class Filler(Processor):
                                 self._previous_event.get(field_path)
                             )
 
-                elif self._method == 'linear':  # interpolate
-                    # no-op here, this has to happen
+                elif self._method == 'linear':
+                    # no-op here, interpolation has to happen
                     # when the operation is flushed.
                     # just stubbing in the condition
                     pass
@@ -1049,7 +1049,7 @@ class Filler(Processor):
                     if previous_value is not None and next_value is not None:
                         # pry the data from current event
                         new_data = thaw(event_enum[1].data())
-                        # average the two events
+                        # average the two values
                         new_val = truediv((previous_value + next_value), 2)
                         # set that value to the field spec in new data
                         nested_set(new_data, field_path, new_val)
@@ -1118,7 +1118,7 @@ class Filler(Processor):
         pip._results = new_results
 
     def flush(self):
-        """Don't delegate flush to superclass. Linear interpolation
+        """Don't delegate flush to superclass yet. Linear interpolation
         needs to happen after the events have been processed but before
         they are finally emitted."""
         self._log('Filler.flush')
@@ -1131,7 +1131,8 @@ class Filler(Processor):
                     self._interpolate_collection_out(i)
                 elif isinstance(i, EventOut):
                     self._interpolate_event_out(i)
-                else:
+                else:  # pragma: no cover
+                    # this is just future proofing
                     msg = 'Unknown observer for linear interpolation: {0}'.format(i)
                     raise ProcessorException(msg)
 
