@@ -3,16 +3,20 @@ Tests for sanitizing, filling and renaming data.
 """
 
 import copy
+import datetime
 import unittest
 import warnings
 
 from pypond.collection import Collection
 from pypond.event import Event
 from pypond.exceptions import ProcessorException, ProcessorWarning
+from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
 from pypond.processors import Filler
 from pypond.series import TimeSeries
+from pypond.timerange_event import TimeRangeEvent
+from pypond.util import aware_utcnow
 
 EVENT_LIST = [
     Event(1429673400000, {'in': 1, 'out': 2}),
@@ -349,6 +353,94 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(elist[3].get('direction.in'), 3)
         self.assertEqual(elist[4].get('direction.in'), 4.0)  # filled
         self.assertEqual(elist[5].get('direction.in'), 5)
+
+    def test_fill_event_variants(self):
+        """fill time range and indexed events."""
+
+        range_list = [
+            TimeRangeEvent(
+                (aware_utcnow(), aware_utcnow() + datetime.timedelta(minutes=1)),
+                {'in': 100}
+            ),
+            TimeRangeEvent(
+                (aware_utcnow(), aware_utcnow() + datetime.timedelta(minutes=2)),
+                {'in': None}
+            ),
+            TimeRangeEvent(
+                (aware_utcnow(), aware_utcnow() + datetime.timedelta(minutes=3)),
+                {'in': None}
+            ),
+            TimeRangeEvent(
+                (aware_utcnow(), aware_utcnow() + datetime.timedelta(minutes=4)),
+                {'in': 90}
+            ),
+            TimeRangeEvent(
+                (aware_utcnow(), aware_utcnow() + datetime.timedelta(minutes=5)),
+                {'in': 80}
+            ),
+            TimeRangeEvent(
+                (aware_utcnow(), aware_utcnow() + datetime.timedelta(minutes=6)),
+                {'in': 70}
+            ),
+        ]
+
+        coll = Collection(range_list)
+        # canned series objects
+        rts = TimeSeries(
+            dict(name='collection', collection=coll))
+
+        new_rts = rts.fill()
+
+        self.assertEqual(new_rts.at(1).get('in'), 0)
+        self.assertEqual(new_rts.at(2).get('in'), 0)
+
+        # indexed events
+
+        index_list = [
+            IndexedEvent('1d-12355', {'value': 42}),
+            IndexedEvent('1d-12356', {'value': None}),
+            IndexedEvent('1d-12357', {'value': None}),
+            IndexedEvent('1d-12358', {'value': 52}),
+            IndexedEvent('1d-12359', {'value': 55}),
+            IndexedEvent('1d-12360', {'value': 58}),
+        ]
+
+        coll = Collection(index_list)
+
+        its = TimeSeries(
+            dict(name='collection', collection=coll))
+
+        new_its = its.fill()
+
+        self.assertEqual(new_its.at(1).get(), 0)
+        self.assertEqual(new_its.at(2).get(), 0)
+
+    def test_scan_stop(self):
+        """stop seeking good values if there are none - for coverage."""
+
+        simple_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': None}],
+                [1400425948000, {'in': 3, 'out': None}],
+                [1400425949000, {'in': None, 'out': None}],
+                [1400425950000, {'in': None, 'out': 8}],
+                [1400425960000, {'in': None, 'out': None}],
+                [1400425970000, {'in': None, 'out': 12}],
+                [1400425980000, {'in': None, 'out': 13}],
+            ]
+        )
+
+        ts = TimeSeries(simple_missing_data)
+
+        new_ts = ts.fill(field_spec='direction.in', method='linear')
+        self.assertEqual(new_ts.at(2).get('direction.in'), None)
+        self.assertEqual(new_ts.at(3).get('direction.in'), None)
+        self.assertEqual(new_ts.at(4).get('direction.in'), None)
+        self.assertEqual(new_ts.at(5).get('direction.in'), None)
+        self.assertEqual(new_ts.at(6).get('direction.in'), None)
+
 
     def test_pad(self):
         """Test the pad style fill."""

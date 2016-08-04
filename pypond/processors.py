@@ -1028,7 +1028,7 @@ class Filler(Processor):
 
                     next_idx = event_enum[0] + 1
 
-                    while next_value is None:
+                    while next_value is None and next_idx < len(base_events):
 
                         # no more good values "forward" so don't bother.
                         if seek_forward is False:
