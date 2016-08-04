@@ -57,8 +57,27 @@ It is like any other `Pipeline` construction, but the `linear` method has the fo
 
 * It can not be used in `stream` mode since the entire result set needs to be collected before filling; and
 * `emit_on` needs to be set to `flush` so only the filled collection will be emitted.
+* if a non numeric value (as determined by `isinstance(val, numbers.Number)`) is encountered when doing a `linear` fill, a warning will be issued and that field spec will stop being processed.
 
 The `Filler` processor will raise `ProcessorException` otherwise.
+
+### List values
+
+If `TimeSeries.fill()` is being used on a series where an actual value is a list of values:
+
+```
+    simple_list_data = dict(
+        name="traffic",
+        columns=["time", "series"],
+        points=[
+            [1400425947000, [None, None, 3, 4, 5, 6, 7]],
+            [1400425948000, [1, None, None, 4, 5, 6, 7]],
+            [1400425949000, [1, 2, 3, 4, None, None, None]],
+            [1400425950000, [1, 2, 3, 4, None, None, 7]],
+        ]
+    )
+```
+Filling will be performed on the values inside the lists as well. As above, if the method is `linear` and it encounters a non-numeric value, a warning will be issued and the list will not be processed.
 
 ## Rename
 

@@ -192,6 +192,8 @@ class TestRenameFillAndAlign(CleanBase):
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
 
+        # trigger warnings about non-numeric values in linear.
+
         with warnings.catch_warnings(record=True) as wrn:
             simple_list_data = dict(
                 name="traffic",
@@ -207,6 +209,24 @@ class TestRenameFillAndAlign(CleanBase):
 
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
+
+        with warnings.catch_warnings(record=True) as wrn:
+            simple_missing_data = dict(
+                name="traffic",
+                columns=["time", "direction"],
+                points=[
+                    [1400425947000, {'in': 1, 'out': None}],
+                    [1400425948000, {'in': 'non_numeric', 'out': 4}],
+                    [1400425949000, {'in': 5, 'out': None}],
+                ]
+            )
+
+            ts = TimeSeries(simple_missing_data)
+
+            new_ts = ts.fill(field_spec='direction.in', method='linear')
+
+            # self.assertEqual(len(wrn), 1)
+            # self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
 
     def test_zero_fill(self):
         """test using the filler to fill missing values with zero."""

@@ -833,6 +833,7 @@ class Filler(Processor):
 
         # internal members
         self._previous_event = None
+        self._filled_lists = list()
 
         if isinstance(arg1, Filler):
             # pylint: disable=protected-access
@@ -912,7 +913,11 @@ class Filler(Processor):
                 continue
 
             # if the terminal value is a list, fill the list
+            # make a note of any field spec containing lists
+            # so the main interpolation code that triggers on flush()
+            # will ignore it.
             if isinstance(val, list):
+                self._filled_lists.append(field_path)
                 self._fill_list(val)
 
             if not is_valid(val):
@@ -1060,13 +1065,30 @@ class Filler(Processor):
 
             field_path = self._field_path_to_array(i)
 
-            for event_enum in enumerate(base_events):
+            # make sure this field path is not a list type that
+            # has already been filled.
 
+            if field_path in self._filled_lists:
+                continue
+
+            # setup done, loop through the events.
+            for event_enum in enumerate(base_events):
                 # cant interpolate first or last event so just save it
                 # as-is and move on.
                 if event_enum[0] == 0 or event_enum[0] == len(base_events) - 1:
                     new_events.append(event_enum[1])
                     continue
+
+                # if a non-numeric value is encountered, stop processing
+                # this field spec.
+                if is_valid(event_enum[1].get(field_path)) and \
+                        not isinstance(event_enum[1].get(field_path),
+                                       numbers.Number):
+                    self._warn(
+                        'linear requires numeric values - skipping this field_spec',
+                        ProcessorWarning
+                    )
+                    break
 
                 # found a bad value so start calculating.
                 if not is_valid(event_enum[1].get(field_path)):
