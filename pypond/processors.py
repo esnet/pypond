@@ -23,7 +23,7 @@ from .event import Event
 from .exceptions import ProcessorException, ProcessorWarning
 from .index import Index
 from .indexed_event import IndexedEvent
-from .pipeline_out import Collector, CollectionOut
+from .pipeline_out import Collector, CollectionOut, EventOut
 from .range import TimeRange
 from .timerange_event import TimeRangeEvent
 from .util import (
@@ -828,6 +828,7 @@ class Filler(Processor):
         self._field_spec = None
         self._method = None
         self._mode = None
+        self._emit_on = None
 
         # internal members
         self._previous_event = None
@@ -837,10 +838,12 @@ class Filler(Processor):
             self._field_spec = arg1._field_spec
             self._method = arg1._method
             self._mode = arg1._mode
+            self._emit_on = arg1._emit_on
         elif is_pipeline(arg1):
             self._field_spec = options.field_spec
             self._method = options.method
             self._mode = arg1.mode()
+            self._emit_on = arg1.get_emit_on()
         else:
             msg = 'Unknown arg to Filler: {0}'.format(arg1)
             raise ProcessorException(msg)
@@ -853,6 +856,10 @@ class Filler(Processor):
 
         if self._method == 'linear' and self._mode == 'stream':
             msg = 'Can not do linear interpolation in stream mode'
+            raise ProcessorException(msg)
+
+        if self._method == 'linear' and self._emit_on != 'flush':
+            msg = 'Set emit_on to "flush" when doing linear interpolation'
             raise ProcessorException(msg)
 
         if isinstance(self._field_spec, six.string_types):
@@ -986,7 +993,7 @@ class Filler(Processor):
 
         for i in self._field_spec:
 
-            # array of the new interpolated events
+            # new array of interpolated events for each field path
             new_events = list()
 
             # boolean to keep track if there are no longer any valid
@@ -1076,7 +1083,7 @@ class Filler(Processor):
 
     def _interpolate_collection_out(self, cout):
         """
-        Handle linear method when collection out is an observer.
+        Handle linear method when CollectionOut is an observer.
 
         Massage the contents of the collections in the Collector before
         the flush() keeps moving up the food chain.
@@ -1088,6 +1095,27 @@ class Filler(Processor):
 
         for v in list(cols.values()):
             v.collection = self._interpolated_collection(v.collection)
+
+    def _interpolate_event_out(self, eout):
+        """
+        Handle linear method when EventOut is an observer.
+
+        Massage results before flush() keeps moving up the food chain.
+        """
+        self._log('Filler._interpolate_event_out')
+
+        # sorry pylint, it's just gotta be that way
+        # pylint: disable=protected-access
+
+        pip = eout._pipeline
+
+        new_results = self._interpolate_event_list(pip._results)
+
+        # flush and replace with filled results
+        pip.clear_results()
+        # .add_results() would be nicer but no reason to loop all
+        # those method calls.
+        pip._results = new_results
 
     def flush(self):
         """Don't delegate flush to superclass. Linear interpolation
@@ -1101,6 +1129,11 @@ class Filler(Processor):
             for i in self._observers:
                 if isinstance(i, CollectionOut):
                     self._interpolate_collection_out(i)
+                elif isinstance(i, EventOut):
+                    self._interpolate_event_out(i)
+                else:
+                    msg = 'Unknown observer for linear interpolation: {0}'.format(i)
+                    raise ProcessorException(msg)
 
         super(Filler, self).flush()
 

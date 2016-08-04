@@ -7,6 +7,7 @@ import unittest
 
 from pypond.collection import Collection
 from pypond.event import Event
+from pypond.pipeline import Pipeline
 from pypond.series import TimeSeries
 
 EVENT_LIST = [
@@ -229,7 +230,7 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(5).get('direction.in.udp'), 5)
 
     def test_linear(self):
-        """Test linear interpolation filling."""
+        """Test linear interpolation filling returned by to_keyed_collections()."""
 
         simple_missing_data = dict(
             name="traffic",
@@ -264,6 +265,40 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(3).get('direction.out'), 8)
         self.assertEqual(new_ts.at(4).get('direction.out'), 10.0)  # filled
         self.assertEqual(new_ts.at(5).get('direction.out'), 12)
+
+    def test_linear_list(self):
+        """Test linear interpolation returned as an event list."""
+
+        simple_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': None}],
+                [1400425948000, {'in': None, 'out': None}],
+                [1400425949000, {'in': None, 'out': None}],
+                [1400425950000, {'in': 3, 'out': 8}],
+                [1400425960000, {'in': None, 'out': None}],
+                [1400425970000, {'in': 5, 'out': 12}],
+                [1400425980000, {'in': 6, 'out': 13}],
+            ]
+        )
+
+        ts = TimeSeries(simple_missing_data)
+
+        elist = (
+            Pipeline()
+            .from_source(ts)
+            .emit_on('flush')  # it's linear
+            .fill(field_spec='direction.in', method='linear')
+            .to_event_list()
+        )
+
+        self.assertEqual(elist[0].get('direction.in'), 1)
+        self.assertEqual(elist[1].get('direction.in'), 2.0)  # filled
+        self.assertEqual(elist[2].get('direction.in'), 2.5)  # filled
+        self.assertEqual(elist[3].get('direction.in'), 3)
+        self.assertEqual(elist[4].get('direction.in'), 4.0)  # filled
+        self.assertEqual(elist[5].get('direction.in'), 5)
 
     def test_pad(self):
         """Test the pad style fill."""

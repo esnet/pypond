@@ -132,6 +132,7 @@ class Observable(PypondBase):
         self._log('Observable.flush')
         for i in self._observers:
             if hasattr(i, 'flush'):
+                self._log('Observable.flush', i)
                 i.flush()
 
     def add_observer(self, observer):

@@ -1401,6 +1401,10 @@ class TestOffsetPipeline(BaseTestPipeline):
 
         source.add_event(EVENTLIST1[2])
 
+        # Spurious lint error due to upstream tinkering
+        # with the global variable
+        # pylint: disable=no-member
+
         # source stopped, event shouldn't be added
         self.assertEqual(RESULTS.size(), 2)
 
