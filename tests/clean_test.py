@@ -335,8 +335,6 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
-        new_ts = ts.fill(field_spec='direction.in', method='linear')
-
         new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
                          method='linear', limit=6)
 
@@ -375,13 +373,21 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
+        # also test chaining multiple fillers together. in this series,
+        # field_spec=['direction.in', 'direction.out'] would not start
+        # filling until the 4th point so points 2 and 3 of direction.in
+        # would not be filled. A chain like this will ensure both
+        # columns will be fully filled.
+
         elist = (
             Pipeline()
             .from_source(ts)
-            .emit_on('flush')  # it's linear
             .fill(field_spec='direction.in', method='linear')
+            .fill(field_spec='direction.out', method='linear')
             .to_event_list()
         )
+
+        self.assertEqual(len(elist), len(simple_missing_data.get('points')))
 
         self.assertEqual(elist[0].get('direction.in'), 1)
         self.assertEqual(elist[1].get('direction.in'), 2.0)  # filled
@@ -390,6 +396,13 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(elist[4].get('direction.in'), 4.0)  # filled
         self.assertEqual(elist[5].get('direction.in'), 5)
 
+        self.assertEqual(elist[0].get('direction.out'), None)  # can't fill
+        self.assertEqual(elist[1].get('direction.out'), None)  # can't fill
+        self.assertEqual(elist[2].get('direction.out'), None)  # can't fill
+        self.assertEqual(elist[3].get('direction.out'), 8)
+        self.assertEqual(elist[4].get('direction.out'), 10.0)  # filled
+        self.assertEqual(elist[5].get('direction.out'), 12)
+
     def test_linear_stream(self):
         """Test streaming on linear fill"""
 
@@ -397,7 +410,6 @@ class TestRenameFillAndAlign(CleanBase):
             """the callback"""
             global RESULTS  # pylint: disable=global-statement
             RESULTS = collection
-
 
         events = [
             Event(1400425947000, 1),

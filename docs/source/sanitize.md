@@ -39,6 +39,45 @@ There are three fill options:
 
 Neither `pad` or `linear` can fill the first value in a series if it is invalid, and they can't start filling until good value has been seen: `[None, None, None, 1, 2, 3]` would remain unchanged. Similarly, `linear` can not fill the last value in a series.
 
+#### Linear fill and multiple field specs.
+
+It is possible to fill multiple field specs using all three fill methods. Filling multiple columns using the `linear` mode introduces an additional wrinkle that should be noted. For an event to be considered "valid" (and used as a bookend in filling a sequence) there needs to be a valid value in **all** columns that are being filled.  Consider the following `TimeSeries` and fill directive:
+
+```
+    simple_missing_data = dict(
+        name="traffic",
+        columns=["time", "direction"],
+        points=[
+            [1400425947000, {'in': 1, 'out': None}],
+            [1400425948000, {'in': None, 'out': None}],
+            [1400425949000, {'in': None, 'out': None}],
+            [1400425950000, {'in': 3, 'out': 5}],
+            [1400425960000, {'in': None, 'out': None}],
+            [1400425970000, {'in': 5, 'out': 12}],
+            [1400425980000, {'in': 6, 'out': 13}],
+        ]
+    )
+
+    ts = TimeSeries(simple_missing_data)
+
+    new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
+                     method='linear')
+```
+The `Filler` processor will not start filling until it hits the 4th `Event` in the series. That is because the first "completely valid" event in the series since we are looking at multiple columns. So even though points 2 and 3 of `direction.in` could theoretically be filled, they will not be.
+
+This behavior may be the desired effect. But if this presents a potential problem in the data you are filling, consider chaining multiple `Filler` processors together in a `Pipeline`:
+
+```
+    elist = (
+        Pipeline()
+        .from_source(ts)
+        .fill(field_spec='direction.in', method='linear')
+        .fill(field_spec='direction.out', method='linear')
+        .to_event_list()
+    )
+```
+This would ensure that both columns are fully filled.
+
 ### Filling with the `Pipeline`
 
 Using `TimeSeries.fill()` will be a common entry point to this functionality, but the processor can be used directly in a roll your own `Pipeline` as well:

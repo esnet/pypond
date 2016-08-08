@@ -802,7 +802,7 @@ class Converter(Processor):
             self.emit(output_event)
 
 
-class Filler(Processor):
+class Filler(Processor):  # pylint: disable=too-many-instance-attributes
     """
     A processor that fills missing/invalid values in the event
     with new values (zero, interpolated or padded).
@@ -1024,6 +1024,11 @@ class Filler(Processor):
             # later. if we have not previously seen a valid value,
             # cacheing it is pointless.
             self._linear_fill_cache.append(event)
+        elif not is_valid_event and self._last_good_linear is None:
+            # This is an invalid event but we have not seen a good
+            # event yet so there is nothing to start filling "from"
+            # so just return and live with it.
+            events.append(event)
         elif is_valid_event and self._linear_fill_cache:
             # a valid value was received, there are cached events
             # to be processed, so process and return
