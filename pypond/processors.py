@@ -1266,48 +1266,6 @@ class Filler(Processor):
 
         return base_events
 
-    def _interpolated_collection(self, coll):
-        """
-        Generate a new collection of interpolated values.
-        """
-        return Collection(self._interpolate_event_list(list(coll.events())))
-
-    def _interpolate_collection_out(self, cout):
-        """
-        Handle linear method when CollectionOut is an observer.
-
-        Massage the contents of the collections in the Collector before
-        the flush() keeps moving up the food chain.
-        """
-
-        self._log('Filler._interpolate_collection_out')
-
-        cols = cout._collector._collections  # pylint: disable=protected-access
-
-        for v in list(cols.values()):
-            v.collection = self._interpolated_collection(v.collection)
-
-    def _interpolate_event_out(self, eout):
-        """
-        Handle linear method when EventOut is an observer.
-
-        Massage results before flush() keeps moving up the food chain.
-        """
-        self._log('Filler._interpolate_event_out')
-
-        # sorry pylint, it's just gotta be that way
-        # pylint: disable=protected-access
-
-        pip = eout._pipeline
-
-        new_results = self._interpolate_event_list(pip._results)
-
-        # flush and replace with filled results
-        pip.clear_results()
-        # .add_results() would be nicer but no reason to loop all
-        # those method calls.
-        pip._results = new_results
-
     def flush(self):
         """Don't delegate flush to superclass yet. Linear interpolation
         needs to happen after the events have been processed but before

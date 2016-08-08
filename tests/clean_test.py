@@ -336,10 +336,10 @@ class TestRenameFillAndAlign(CleanBase):
             name="traffic",
             columns=["time", "direction"],
             points=[
-                [1400425947000, {'in': 1, 'out': None}],
+                [1400425947000, {'in': 1, 'out': 2}],
                 [1400425948000, {'in': None, 'out': None}],
                 [1400425949000, {'in': None, 'out': None}],
-                [1400425950000, {'in': 3, 'out': 8}],
+                [1400425950000, {'in': 3, 'out': None}],
                 [1400425960000, {'in': None, 'out': None}],
                 [1400425970000, {'in': 5, 'out': 12}],
                 [1400425980000, {'in': 6, 'out': 13}],
@@ -350,29 +350,24 @@ class TestRenameFillAndAlign(CleanBase):
 
         new_ts = ts.fill(field_spec='direction.in', method='linear')
 
-        import pprint
+        new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
+                         method='linear', limit=6)
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(new_ts.to_json())
+        self.assertEqual(new_ts.size(), 6)
 
-        # new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
-        #                  method='linear', limit=6)
+        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
 
-        # self.assertEqual(new_ts.size(), 6)
-
-        # self.assertEqual(new_ts.at(0).get('direction.in'), 1)
-        # self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
-        # self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
-        # self.assertEqual(new_ts.at(3).get('direction.in'), 3)
-        # self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
-        # self.assertEqual(new_ts.at(5).get('direction.in'), 5)
-
-        # self.assertEqual(new_ts.at(0).get('direction.out'), None)  # 1st can't fill
-        # self.assertEqual(new_ts.at(1).get('direction.out'), None)  # no prev good val
-        # self.assertEqual(new_ts.at(2).get('direction.out'), None)  # no prev good val
-        # self.assertEqual(new_ts.at(3).get('direction.out'), 8)
-        # self.assertEqual(new_ts.at(4).get('direction.out'), 10.0)  # filled
-        # self.assertEqual(new_ts.at(5).get('direction.out'), 12)
+        self.assertEqual(new_ts.at(0).get('direction.out'), 2)
+        self.assertEqual(new_ts.at(1).get('direction.out'), 7.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.out'), 9.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.out'), 10.75)  # filled
+        self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
     @unittest.skip('currently re-orging.')
     def test_linear_list(self):
