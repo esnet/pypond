@@ -834,7 +834,8 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         # internal members
         # state for pad to refer to previous event
         self._previous_event = None
-        # record of filled list values for main code to skip
+        # record of filled list values for linear to
+        # alternately skip or fill depending on context.
         self._filled_lists = list()
         # special state for linear fill
         self._last_good_linear = None
@@ -897,7 +898,8 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
     def _pad_and_zero(self, data, paths):
         """
-        Process and fill the values at the paths as apropos.
+        Process and fill the values at the paths as apropos when the
+        fill method is either pad or zero.
         """
         for path in paths:
 
@@ -997,6 +999,8 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         length.
         """
 
+        # see if the event is valid and also if it has any
+        # list values to be filled.
         is_valid_event = self._is_valid_linear_event(event, paths)
 
         # Are we filling any list values?  This needs to happen
@@ -1009,29 +1013,31 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 self._fill_list(val)
             event = event.set_data(new_data)
 
-        # Is the event valid? Cache and process later if not.
+        # Deal with the event as apropos depending on if it is
+        # valid or not and if we have nor have not seen a valid
+        # event yet.
 
         events = list()
 
         if is_valid_event and not self._linear_fill_cache:
-            # valid value, no cached events, use as last good
-            # and return the event
+            # valid event, no cached events, use as last good
+            # and return the event. This is what we want to see.
             self._last_good_linear = event
             events.append(event)
         elif not is_valid_event and self._last_good_linear is not None:
-            # an invalid value was received and we have previously
-            # seen a valid value, so add to the cache for processing
-            # later. if we have not previously seen a valid value,
-            # cacheing it is pointless.
+            # an invalid event was received and we have previously
+            # seen a valid event, so add to the cache for fill processing
+            # later.
             self._linear_fill_cache.append(event)
         elif not is_valid_event and self._last_good_linear is None:
-            # This is an invalid event but we have not seen a good
+            # an invalid event but we have not seen a good
             # event yet so there is nothing to start filling "from"
             # so just return and live with it.
             events.append(event)
         elif is_valid_event and self._linear_fill_cache:
-            # a valid value was received, there are cached events
-            # to be processed, so process and return
+            # a valid event was received, and there are cached events
+            # to be processed, so process and return the filled events
+            # to be emitted.
 
             event_list = [self._last_good_linear] + self._linear_fill_cache + [event]
 
@@ -1113,21 +1119,28 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             if not is_valid(val_enum[1]):
 
                 if self._method == 'zero':
+                    # set the invalid value to 0
                     obj[val_enum[0]] = 0
 
                 if self._method == 'pad' and val_enum[0] - 1 >= 0 and \
                         is_valid(obj[val_enum[0] - 1]):
+                    # pad current value with previous value if the
+                    # prevous value was valid.
                     obj[val_enum[0]] = obj[val_enum[0] - 1]
 
                 if self._method == 'linear':
+                    # do a linear fill on each values if it can find a
+                    # valid previous and future value.
 
                     previous = None
                     next_val = None
 
+                    # is the previous value valid?
                     if val_enum[0] - 1 >= 0 and \
                             is_valid(obj[val_enum[0] - 1]):
                         previous = obj[val_enum[0] - 1]
 
+                    # let's look for the next valid value.
                     next_idx = val_enum[0] + 1
 
                     while next_val is None and next_idx < len(obj):
@@ -1139,6 +1152,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
                         next_idx += 1
 
+                    # we nailed two values to fill from
                     if previous is not None and next_val is not None:
                         inval = truediv((previous + next_val), 2)
                         obj[val_enum[0]] = inval
