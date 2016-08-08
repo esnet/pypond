@@ -13,10 +13,16 @@ from pypond.exceptions import ProcessorException, ProcessorWarning
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
+from pypond.pipeline_out import CollectionOut
 from pypond.processors import Filler
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
 from pypond.util import aware_utcnow
+
+# global variables for the callbacks to write to.
+# they are alwasy reset to None by setUp()
+
+RESULT = None
 
 EVENT_LIST = [
     Event(1429673400000, {'in': 1, 'out': 2}),
@@ -62,6 +68,9 @@ class CleanBase(unittest.TestCase):
         # canned series objects
         self._canned_event_series = TimeSeries(
             dict(name='collection', collection=self._canned_collection))
+
+        global RESULTS
+        RESULTS = None
 
 
 class TestRenameFillAndAlign(CleanBase):
@@ -159,28 +168,6 @@ class TestRenameFillAndAlign(CleanBase):
 
         with self.assertRaises(ProcessorException):
             ts.fill(method='bogus')
-
-        with self.assertRaises(ProcessorException):
-
-            uin = UnboundedIn()
-
-            elist = (
-                Pipeline()
-                .from_source(uin)
-                .emit_on('flush')
-                .fill(field_spec='direction.in', method='linear')
-                .to_event_list()
-            )
-
-        with self.assertRaises(ProcessorException):
-
-            elist = (
-                Pipeline()
-                .from_source(ts)
-                .emit_on('bad_emit')
-                .fill(field_spec='direction.in', method='linear')
-                .to_event_list()
-            )
 
         with warnings.catch_warnings(record=True) as wrn:
             ts.fill(field_spec='bad.path')
@@ -402,6 +389,50 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(elist[3].get('direction.in'), 3)
         self.assertEqual(elist[4].get('direction.in'), 4.0)  # filled
         self.assertEqual(elist[5].get('direction.in'), 5)
+
+    def test_linear_stream(self):
+        """Test streaming on linear fill"""
+
+        def cback(collection, window_key, group_by):
+            """the callback"""
+            global RESULTS  # pylint: disable=global-statement
+            RESULTS = collection
+
+
+        events = [
+            Event(1400425947000, 1),
+            Event(1400425948000, 2),
+            Event(1400425949000, dict(value=None)),
+            Event(1400425950000, dict(value=None)),
+            Event(1400425951000, dict(value=None)),
+            Event(1400425952000, 5),
+            Event(1400425953000, 6),
+            Event(1400425954000, 7),
+        ]
+
+        stream = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(stream)
+            .fill(method='linear')
+            .to(CollectionOut, cback)
+        )
+
+        for i in events:
+            stream.add_event(i)
+
+        self.assertEqual(RESULTS.size(), len(events))
+
+        self.assertEqual(RESULTS.at(0).get(), 1)
+        self.assertEqual(RESULTS.at(1).get(), 2)
+        self.assertEqual(RESULTS.at(2).get(), 3.5)  # filled
+        self.assertEqual(RESULTS.at(3).get(), 4.25)  # filled
+        self.assertEqual(RESULTS.at(4).get(), 4.625)  # filled
+        self.assertEqual(RESULTS.at(5).get(), 5)
+        self.assertEqual(RESULTS.at(6).get(), 6)
+        self.assertEqual(RESULTS.at(7).get(), 7)
+
 
     def test_fill_event_variants(self):
         """fill time range and indexed events."""

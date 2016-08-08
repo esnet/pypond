@@ -862,14 +862,6 @@ class Filler(Processor):
             msg = 'Unknown method {0} passed to Filler'.format(self._method)
             raise ProcessorException(msg)
 
-        if self._method == 'linear' and self._mode == 'stream':
-            msg = 'Can not do linear interpolation in stream mode'
-            raise ProcessorException(msg)
-
-        if self._method == 'linear' and self._emit_on != 'flush':
-            msg = 'Set emit_on to "flush" when doing linear interpolation'
-            raise ProcessorException(msg)
-
         if isinstance(self._field_spec, six.string_types):
             self._field_spec = [self._field_spec]
 
@@ -1042,7 +1034,7 @@ class Filler(Processor):
             # already been emitted either as a "good"
             # event or as the last event in the previous filling pass.
             # that's why it's being shaved off here.
-            for i in self._interpolate_event_list(event_list)[1:]:
+            for i in self._interpolate_event_list(event_list, paths)[1:]:
                 events.append(i)
 
             # reset the cache, note as last good
@@ -1151,7 +1143,7 @@ class Filler(Processor):
                         # so we're done
                         break
 
-    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches
+    def _interpolate_event_list(self, events, paths):  # pylint: disable=too-many-branches
         """
         The fundamental linear interpolation workhorse code.  Process
         a list of events and return a new list. Does a pass for
@@ -1165,7 +1157,7 @@ class Filler(Processor):
         """
         base_events = copy.copy(events)
 
-        for i in self._field_spec:
+        for i in paths:
 
             # new array of interpolated events for each field path
             new_events = list()
