@@ -76,7 +76,7 @@ This behavior may be the desired effect. But if this presents a potential proble
         .to_event_list()
     )
 ```
-This would ensure that both columns are fully filled.
+This would ensure that both columns are filled independently of each other.
 
 ### Filling with the `Pipeline`
 
