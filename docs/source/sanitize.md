@@ -63,7 +63,7 @@ It is possible to fill multiple field specs using all three fill methods. Fillin
     new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
                      method='linear')
 ```
-The `Filler` processor will not start filling until it hits the 4th `Event` in the series. That is because the first "completely valid" event in the series since we are looking at multiple columns. So even though points 2 and 3 of `direction.in` could theoretically be filled, they will not be.
+The `Filler` processor will not start filling until it hits the 4th `Event` in the series. That is because it is the first "completely valid" event in the series since we are looking at multiple columns. So even though points 2 and 3 of `direction.in` could theoretically be filled, they will not be.
 
 This behavior may be the desired effect. But if this presents a potential problem in the data you are filling, consider chaining multiple `Filler` processors together in a `Pipeline`:
 
