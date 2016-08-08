@@ -832,8 +832,14 @@ class Filler(Processor):
         self._emit_on = None
 
         # internal members
+        # state for pad to refer to previous event
         self._previous_event = None
+        # record of filled list values for main code to skip
         self._filled_lists = list()
+        # special state for linear fill
+        self._last_good_linear = None
+        # cache of events pending linear fill
+        self._linear_fill_cache = list()
 
         if isinstance(arg1, Filler):
             # pylint: disable=protected-access
@@ -897,7 +903,25 @@ class Filler(Processor):
 
         return paths
 
-    def _fill_specs(self, data, paths):
+    def _new_event_from_data(self, event, new_data):  # pylint: disable=no-self-use
+        """
+        Generate an appropriate new event with a new data
+        payload.
+        """
+        # yes pylint, we know
+        # pylint: disable=redefined-variable-type
+
+        if isinstance(event, Event):
+            return Event(event.timestamp(), new_data)
+        elif isinstance(event, TimeRangeEvent):
+            return TimeRangeEvent(
+                (event.begin(), event.end()),
+                new_data
+            )
+        elif isinstance(event, IndexedEvent):
+            return IndexedEvent(event.index(), new_data)
+
+    def _pad_and_zero(self, data, paths):
         """
         Process and fill the values at the paths as apropos.
         """
@@ -951,38 +975,30 @@ class Filler(Processor):
         """
         if self.has_observers():
 
+            to_emit = list()
+
             new_data = thaw(event.data())
 
             if self._field_spec is None:
                 # generate a list of all possible field paths
                 # if no field spec is specified.
                 paths = self._generate_paths(new_data)
-                self._fill_specs(new_data, paths)
             else:
-                self._fill_specs(new_data, self._field_spec)
+                paths = self._field_spec
+                # self._pad_and_zero(new_data, self._field_spec)
 
-            emitted_event = None
-
-            # yes pylint, we know
-            # pylint: disable=redefined-variable-type
-
-            if isinstance(event, Event):
-                emitted_event = Event(event.timestamp(), new_data)
-            elif isinstance(event, TimeRangeEvent):
-                emitted_event = TimeRangeEvent(
-                    (event.begin(), event.end()),
-                    new_data
-                )
-            elif isinstance(event, IndexedEvent):
-                emitted_event = IndexedEvent(event.index(), new_data)
+            if self._method in ('zero', 'pad'):
+                self._pad_and_zero(new_data, paths)
+                emit = self._new_event_from_data(event, new_data)
+                to_emit.append(emit)
+                # remember previous event for padding
+                self._previous_event = emit
 
             # end filling logic
 
-            self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
-            self.emit(emitted_event)
-
-            # remember previous event for padding/etc.
-            self._previous_event = emitted_event
+            for emitted_event in to_emit:
+                self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
+                self.emit(emitted_event)
 
     def _fill_list(self, obj):
         """
@@ -1040,7 +1056,7 @@ class Filler(Processor):
                         # so we're done
                         break
 
-    def _interpolate_event_list(self, events):
+    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches
         """
         The fundamental linear interpolation workhorse code.  Process
         a list of events and return a new list. Does a pass for
@@ -1049,6 +1065,8 @@ class Filler(Processor):
         This is abstracted out like this because we probably want
         to interpolate a list of events not tied to a Collection.
         A Pipeline result list, etc etc.
+
+        Sorry pylint, sometime you need to write a complex method.
         """
         base_events = copy.copy(events)
 
@@ -1204,15 +1222,15 @@ class Filler(Processor):
         if self.has_observers() and self._method == 'linear':
             self._log('Filler.flush.linear')
 
-            for i in self._observers:
-                if isinstance(i, CollectionOut):
-                    self._interpolate_collection_out(i)
-                elif isinstance(i, EventOut):
-                    self._interpolate_event_out(i)
-                else:  # pragma: no cover
-                    # this is just future proofing
-                    msg = 'Unknown observer for linear interpolation: {0}'.format(i)
-                    raise ProcessorException(msg)
+            # for i in self._observers:
+            #     if isinstance(i, CollectionOut):
+            #         self._interpolate_collection_out(i)
+            #     elif isinstance(i, EventOut):
+            #         self._interpolate_event_out(i)
+            #     else:  # pragma: no cover
+            #         # this is just future proofing
+            #         msg = 'Unknown observer for linear interpolation: {0}'.format(i)
+            #         raise ProcessorException(msg)
 
         super(Filler, self).flush()
 
