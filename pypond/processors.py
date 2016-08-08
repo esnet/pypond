@@ -903,24 +903,6 @@ class Filler(Processor):
 
         return paths
 
-    def _new_event_from_data(self, event, new_data):  # pylint: disable=no-self-use
-        """
-        Generate an appropriate new event with a new data
-        payload.
-        """
-        # yes pylint, we know
-        # pylint: disable=redefined-variable-type
-
-        if isinstance(event, Event):
-            return Event(event.timestamp(), new_data)
-        elif isinstance(event, TimeRangeEvent):
-            return TimeRangeEvent(
-                (event.begin(), event.end()),
-                new_data
-            )
-        elif isinstance(event, IndexedEvent):
-            return IndexedEvent(event.index(), new_data)
-
     def _pad_and_zero(self, data, paths):
         """
         Process and fill the values at the paths as apropos.
@@ -938,10 +920,11 @@ class Filler(Processor):
 
             # if the terminal value is a list, fill the list
             # make a note of any field spec containing lists
-            # so the main interpolation code that triggers on flush()
-            # will ignore it.
+            # so the main interpolation code will ignore it.
             if isinstance(val, list):
-                self._filled_lists.append(field_path)
+                if field_path not in self._filled_lists:
+                    # don't add it more than once
+                    self._filled_lists.append(field_path)
                 self._fill_list(val)
 
             if not is_valid(val):
@@ -964,6 +947,110 @@ class Filler(Processor):
                     # just stubbing in the condition
                     pass
 
+    def _is_valid_linear_event(self, event, paths):
+        """
+        Check to see if an even has good values when doing
+        linear fill since we need to keep a completely intact
+        event for the values.
+
+        While we are inspecting the data payload, make a note if
+        any of the paths are pointing at a list. Then it
+        will trigger that filling code later.
+        """
+
+        valid = True
+
+        for i in paths:
+
+            field_path = self._field_path_to_array(i)
+
+            val = nested_get(thaw(event.data()), field_path)
+
+            # this is pointing at a path that does not exist
+            if val == 'bad_path':
+                self._warn('path does not exist: {0}'.format(i), ProcessorWarning)
+                continue
+
+            # a tracked field path is not valid so this is
+            # not a valid linear event.
+            if not is_valid(val):
+                valid = False
+
+            # make a note that there is a list that needs to
+            # be filled if need be.  No need to look at
+            # the paths twice.
+            if isinstance(val, list):
+                if field_path not in self._filled_lists:
+                    self._filled_lists.append(field_path)
+
+        return valid
+
+    def _linear_fill(self, event, paths):
+        """
+        This handles the linear filling. It returns a list of
+        events to be emitted. That list may only contain a single
+        event.
+
+        If an event is valid - it has valid values for all of
+        the field paths - it is cached as "last good" and
+        returned to be emitted. The return value is a list
+        of one event.
+
+        If an event has invalid values, it is cached to be
+        processed later and an empty list is returned.
+
+        Additional invalid events will continue to be cached until
+        a new valid value is seen, then the cached events will
+        be filled and returned. That will be a list of indeterminate
+        length.
+        """
+
+        is_valid_event = self._is_valid_linear_event(event, paths)
+
+        # Are we filling any list values?  This needs to happen
+        # as it's own step regardless as to if the event is
+        # valid or not.
+        if self._filled_lists:
+            new_data = thaw(event.data())
+            for i in self._filled_lists:
+                val = nested_get(new_data, i)
+                self._fill_list(val)
+            event = event.set_data(new_data)
+
+        # Is the event valid? Cache and process later if not.
+
+        events = list()
+
+        if is_valid_event and not self._linear_fill_cache:
+            # valid value, no cached events, use as last good
+            # and return the event
+            self._last_good_linear = event
+            events.append(event)
+        elif not is_valid_event and self._last_good_linear is not None:
+            # an invalid value was received and we have previously
+            # seen a valid value, so add to the cache for processing
+            # later. if we have not previously seen a valid value,
+            # cacheing it is pointless.
+            self._linear_fill_cache.append(event)
+        elif is_valid_event and self._linear_fill_cache:
+            # a valid value was received, there are cached events
+            # to be processed, so process and return
+
+            event_list = [self._last_good_linear] + self._linear_fill_cache + [event]
+
+            # the first event a.k.a. self._last_good_linear has
+            # already been emitted either as a "good"
+            # event or as the last event in the previous filling pass.
+            # that's why it's being shaved off here.
+            for i in self._interpolate_event_list(event_list)[1:]:
+                events.append(i)
+
+            # reset the cache, note as last good
+            self._linear_fill_cache = list()
+            self._last_good_linear = event
+
+        return events
+
     def add_event(self, event):
         """
         Perform the fill operation on the event and emit.
@@ -985,14 +1072,22 @@ class Filler(Processor):
                 paths = self._generate_paths(new_data)
             else:
                 paths = self._field_spec
-                # self._pad_and_zero(new_data, self._field_spec)
 
             if self._method in ('zero', 'pad'):
+                # zero and pad use much the same method in that
+                # they both will emit a single event every time
+                # add_event() is called.
                 self._pad_and_zero(new_data, paths)
-                emit = self._new_event_from_data(event, new_data)
+                emit = event.set_data(new_data)
                 to_emit.append(emit)
                 # remember previous event for padding
                 self._previous_event = emit
+            elif self._method == 'linear':
+                # linear filling follows a somewhat different
+                # path since it might emit zero, one or multiple
+                # events every time add_event() is called.
+                for emit in self._linear_fill(event, paths):
+                    to_emit.append(emit)
 
             # end filling logic
 
@@ -1221,16 +1316,11 @@ class Filler(Processor):
 
         if self.has_observers() and self._method == 'linear':
             self._log('Filler.flush.linear')
-
-            # for i in self._observers:
-            #     if isinstance(i, CollectionOut):
-            #         self._interpolate_collection_out(i)
-            #     elif isinstance(i, EventOut):
-            #         self._interpolate_event_out(i)
-            #     else:  # pragma: no cover
-            #         # this is just future proofing
-            #         msg = 'Unknown observer for linear interpolation: {0}'.format(i)
-            #         raise ProcessorException(msg)
+            # are there any left-over events like if a path
+            # just stops seeing any good events so they are
+            # never filled and emitted.
+            for i in self._linear_fill_cache:
+                self.emit(i)
 
         super(Filler, self).flush()
 
