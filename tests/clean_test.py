@@ -369,7 +369,6 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
         self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
-    @unittest.skip('currently re-orging.')
     def test_linear_list(self):
         """Test linear interpolation returned as an event list."""
 
