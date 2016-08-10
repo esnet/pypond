@@ -23,7 +23,7 @@ from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
 from pypond.pipeline_out import CollectionOut, EventOut
-from pypond.processors import (
+from pypond.processor import (
     Aggregator,
     Collapser,
     Converter,

@@ -28,7 +28,7 @@ setup(
     author='Monte M. Goode',
     author_email='MMGoode@lbl.gov',
     url='https://github.com/esnet/pypond',
-    packages=['pypond'],
+    packages=['pypond', 'pypond.processor'],
     scripts=[],
     install_requires=[
         'pyrsistent==0.11.13',

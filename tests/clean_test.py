@@ -14,7 +14,7 @@ from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
 from pypond.pipeline_out import CollectionOut
-from pypond.processors import Filler
+from pypond.processor import Filler
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
 from pypond.util import aware_utcnow

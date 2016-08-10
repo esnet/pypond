@@ -1,6 +1,13 @@
 pypond package
 ==============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    pypond.processor
+
 Submodules
 ----------
 
@@ -80,14 +87,6 @@ pypond.pipeline_out module
 --------------------------
 
 .. automodule:: pypond.pipeline_out
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pypond.processors module
-------------------------
-
-.. automodule:: pypond.processors
     :members:
     :undoc-members:
     :show-inheritance:

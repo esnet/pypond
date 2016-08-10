@@ -23,7 +23,7 @@ from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
 from .pipeline_out import CollectionOut, EventOut
 from .pipeline_in import BoundedIn, UnboundedIn
-from .processors import (
+from .processor import (
     Aggregator,
     Collapser,
     Converter,
