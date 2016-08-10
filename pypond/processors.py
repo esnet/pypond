@@ -19,12 +19,11 @@ import six
 from pyrsistent import thaw
 
 from .bases import Observable
-from .collection import Collection
 from .event import Event
 from .exceptions import ProcessorException, ProcessorWarning
 from .index import Index
 from .indexed_event import IndexedEvent
-from .pipeline_out import Collector, CollectionOut, EventOut
+from .pipeline_out import Collector
 from .range import TimeRange
 from .timerange_event import TimeRangeEvent
 from .util import (
@@ -885,7 +884,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         """
         Return a list of field spec paths for the entire
         data dict that can  be used by pypond.util.nested_set
-        and nested_get for filling. Mostly just a
+        and nested_get for filling. Just a
         wrapper to aggregate the results from _recurse().
         """
 
