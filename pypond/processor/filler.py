@@ -491,9 +491,10 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         return base_events
 
     def flush(self):
-        """Don't delegate flush to superclass yet. Linear interpolation
-        needs to happen after the events have been processed but before
-        they are finally emitted."""
+        """Don't delegate flush to superclass yet. Make sure
+        there are no cached events (could happen if we stop
+        seeing valid events) before passing it up the food
+        chain."""
         self._log('Filler.flush')
 
         if self.has_observers() and self._method == 'linear':

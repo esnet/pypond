@@ -1032,7 +1032,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(fill)
 
-    def take(self, limit):
+    def take(self, limit, global_flush=False):
         """
         Take events up to the supplied limit, per key.
 
@@ -1040,6 +1040,15 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         limit : int
             Integer number of events to take.
+        global_flush: bool, optional
+            If set to true (default is False) then the Taker will
+            send out a single .flush() event if the limit has been
+            exceeded and the window_type is 'global.' This can be
+            used as a fail safe with processors that cache events
+            (like the Filler) to ensure all events are emitted when
+            the Pipeline is used in 'stream' mode. This is not
+            needed in 'batch' mode because the flush signal is sent
+            automatically.
 
         Returns
         -------
@@ -1051,6 +1060,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             self,
             Options(
                 limit=limit,
+                global_flush=global_flush,
                 prev=self._chain_last(),
             )
         )

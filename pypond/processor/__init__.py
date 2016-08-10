@@ -1,7 +1,7 @@
 """
 Unify the processor classes from the individual modules so one can:
 
-from pypond.process import Mapper
+from pypond.processor import Mapper
 """
 
 from .aggregator import Aggregator

@@ -445,6 +445,63 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(RESULTS.at(6).get(), 6)
         self.assertEqual(RESULTS.at(7).get(), 7)
 
+    def test_linear_stream_limit(self):
+        """Test streaming on linear fill with limiter"""
+
+        # Sets up a state where we stop seeing a good data
+        # on a linear fill. In this case the Taker is used to
+        # not only limit the number of results, but also to
+        # make sure any cached events get emitted.
+
+        def cback(collection, window_key, group_by):
+            """the callback"""
+            global RESULTS  # pylint: disable=global-statement
+            RESULTS = collection
+
+        events = [
+            Event(1400425947000, 1),
+            Event(1400425948000, 2),
+            Event(1400425949000, dict(value=None)),
+            Event(1400425950000, 3),
+            Event(1400425951000, dict(value=None)),
+            Event(1400425952000, dict(value=None)),
+            Event(1400425953000, dict(value=None)),
+            Event(1400425954000, dict(value=None)),
+        ]
+
+        # error state first - the last 4 events won't be emitted.
+
+        stream = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(stream)
+            .fill(method='linear')
+            .to(CollectionOut, cback)
+        )
+
+        for i in events:
+            stream.add_event(i)
+
+        self.assertEqual(RESULTS.size(), 4)
+
+        # now use the Taker to make sure any cached events get
+        # emitted as well
+
+        stream = UnboundedIn()
+
+        (
+            Pipeline()
+            .from_source(stream)
+            .take(7, global_flush=True)
+            .fill(method='linear')
+            .to(CollectionOut, cback)
+        )
+
+        for i in events:
+            stream.add_event(i)
+
+        self.assertEqual(RESULTS.size(), 7)
 
     def test_fill_event_variants(self):
         """fill time range and indexed events."""
