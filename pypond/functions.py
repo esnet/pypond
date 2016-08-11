@@ -11,12 +11,11 @@ Functions to act as reducers/aggregators, etc.
 """
 
 from functools import reduce
-from math import sqrt, floor
-from operator import truediv
+from math import sqrt
 
 import numpy
 
-from .exceptions import FilterException, FunctionException
+from .exceptions import FilterException
 from .util import is_valid
 
 
