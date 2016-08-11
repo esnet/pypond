@@ -680,6 +680,70 @@ class TestRollups(SeriesBase):
             )
 
 
+class TestPercentileAndQuantile(SeriesBase):
+    """
+    Test the percentile and quantile operations.
+    """
+
+    def test_percentile(self):
+        """Test percentile of a series."""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+                [1400425951000, 22.3],
+                [1400425952000, 32.4],
+                [1400425953000, 12.1],
+                [1400425955000, 76.8],
+                [1400425956000, 87.3],
+                [1400425957000, 54.6],
+                [1400425958000, 45.5],
+                [1400425959000, 87.9]
+            ]
+        ))
+
+        self.assertEqual(series.percentile(50, 'temperature'), 50.05)
+        self.assertEqual(series.percentile(95, 'temperature'), 87.69)
+        self.assertEqual(series.percentile(99, 'temperature'), 87.858)
+
+        self.assertEqual(series.percentile(99, 'temperature', 'lower'), 87.3)
+        self.assertEqual(series.percentile(99, 'temperature', 'higher'), 87.9)
+        self.assertEqual(series.percentile(99, 'temperature', 'nearest'), 87.9)
+        self.assertEqual(series.percentile(99, 'temperature', 'midpoint'), 87.6)
+
+        self.assertEqual(series.percentile(0, 'temperature'), 12.1)
+        self.assertEqual(series.percentile(100, 'temperature'), 87.9)
+
+    def test_percentile_empty(self):
+        """percentile of an empty timeseries."""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+            ]
+        ))
+
+        self.assertIsNone(series.percentile(0, 'temperature'))
+        self.assertIsNone(series.percentile(100, 'temperature'))
+
+    def test_percentile_single(self):
+        """percentile of an timeseries with one point."""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+                [1400425951000, 22.3]
+            ]
+        ))
+
+        self.assertEqual(series.percentile(0, 'temperature'), 22.3)
+        self.assertEqual(series.percentile(50, 'temperature'), 22.3)
+        self.assertEqual(series.percentile(100, 'temperature'), 22.3)
+
+
 class TestCollection(SeriesBase):
     """
     Tests for the collection class.

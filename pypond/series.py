@@ -777,6 +777,41 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.stdev(field_spec, filter_func)
 
+    def percentile(self, perc, field_spec, method='linear'):
+        """Gets percentile perc within the Collection. Numpy under
+        the hood.
+
+        Parameters
+        ----------
+        perc : int
+            The percentile (should be between 0 and 100)
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        int or float
+            The percentile.
+        """
+        return self._collection.percentile(perc, field_spec, method)
+
     def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to
         do the reduction.

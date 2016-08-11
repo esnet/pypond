@@ -656,7 +656,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             raise CollectionException(msg)
 
         result = Event.map_reduce(self.event_list_as_list(), fpath, func)
-        return result[fpath]
+
+        return result.get(fpath)
 
     def first(self, field_spec=None, filter_func=None):
         """Get first value in the collection for the fspec
@@ -873,6 +874,41 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             Standard deviation.
         """
         return self.aggregate(Functions.stddev(f_check(filter_func)), field_spec)
+
+    def percentile(self, perc, field_spec, method='linear'):
+        """Gets percentile perc within the Collection. This works the same
+        way as numpy.
+
+        Parameters
+        ----------
+        perc : int
+            The percentile (should be between 0 and 100)
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        int or float
+            The percentile.
+        """
+        return self.aggregate(Functions.percentile(perc, method), field_spec)
 
     def __str__(self):
         """call to_string()

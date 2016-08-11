@@ -11,9 +11,12 @@ Functions to act as reducers/aggregators, etc.
 """
 
 from functools import reduce
-from math import sqrt
+from math import sqrt, floor
+from operator import truediv
 
-from .exceptions import FilterException
+import numpy
+
+from .exceptions import FilterException, FunctionException
 from .util import is_valid
 
 
@@ -234,6 +237,20 @@ class Functions(object):
                 return vals[-1]
             except IndexError:
                 return None
+
+        return inner
+
+    @staticmethod
+    def percentile(perc, method='linear', flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return round(numpy.percentile(vals, perc, interpolation=method), 3)
 
         return inner
 

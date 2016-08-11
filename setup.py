@@ -36,6 +36,7 @@ setup(
         'tzlocal==1.2.2',
         'humanize==0.5.1',
         'six==1.10.0',
+        'numpy==1.11.1',
         # there are for read the docs builds
         'sphinxcontrib-napoleon==0.5.1',
         'recommonmark==0.4.0',
