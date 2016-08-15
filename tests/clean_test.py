@@ -485,6 +485,12 @@ class TestRenameFillAndAlign(CleanBase):
 
         self.assertEqual(RESULTS.size(), 4)
 
+        # shut it down and check again.
+        stream.stop()
+
+        # events "stuck" in the cache have been emitted
+        self.assertEqual(RESULTS.size(), 8)
+
         # now use the Taker to make sure any cached events get
         # emitted as well - setting the cache_limit to 3 here
         # will make it so on the 7th event (after 3 have been
