@@ -5,6 +5,7 @@ from pypond.processor import Mapper
 """
 
 from .aggregator import Aggregator
+from .align import Align
 from .base import Processor  # include for isisntance() tests
 from .collapser import Collapser
 from .converter import Converter
