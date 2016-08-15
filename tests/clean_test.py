@@ -486,22 +486,26 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(RESULTS.size(), 4)
 
         # now use the Taker to make sure any cached events get
-        # emitted as well
+        # emitted as well - setting the cache_limit to 3 here
+        # will make it so on the 7th event (after 3 have been
+        # cached) those will be emitted, and then the 8th event
+        # will be emitted because the state has been reset to
+        # "have not seen a valid value yet" which means that
+        # invalid events will be emitted and not cached.
 
         stream = UnboundedIn()
 
         (
             Pipeline()
             .from_source(stream)
-            .take(7)
-            .fill(method='linear')
+            .fill(method='linear', cache_limit=3)
             .to(CollectionOut, cback)
         )
 
         for i in events:
             stream.add_event(i)
 
-        self.assertEqual(RESULTS.size(), 7)
+        self.assertEqual(RESULTS.size(), 8)
 
     def test_fill_event_variants(self):
         """fill time range and indexed events."""
