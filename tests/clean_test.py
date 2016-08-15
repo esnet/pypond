@@ -233,22 +233,22 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
-        # fill all invalid values, limit to 3 in result set
+        # fill all invalid values
 
-        new_ts = ts.fill(limit=3)
+        new_ts = ts.fill()
 
-        self.assertEqual(new_ts.size(), 3)
+        self.assertEqual(new_ts.size(), 6)
 
         self.assertEqual(new_ts.at(0).get('direction.out'), 0)
         self.assertEqual(new_ts.at(2).get('direction.out'), 0)
 
         self.assertEqual(new_ts.at(1).get('direction.in'), 0)
 
-        # fill one column, limit to 4 in result set
+        # fill one column
 
-        new_ts = ts.fill(field_spec='direction.in', limit=4)
+        new_ts = ts.fill(field_spec='direction.in')
 
-        self.assertEqual(new_ts.size(), 4)
+        self.assertEqual(new_ts.size(), 6)
 
         self.assertEqual(new_ts.at(1).get('direction.in'), 0)
         self.assertEqual(new_ts.at(3).get('direction.in'), 0)
@@ -336,9 +336,9 @@ class TestRenameFillAndAlign(CleanBase):
         ts = TimeSeries(simple_missing_data)
 
         new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
-                         method='linear', limit=6)
+                         method='linear')
 
-        self.assertEqual(new_ts.size(), 6)
+        self.assertEqual(new_ts.size(), 7)
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
         self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
