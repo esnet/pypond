@@ -981,7 +981,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self.map(rename)
 
-    def fill(self, field_spec=None, method='zero', limit=None):
+    def fill(self, field_spec=None, method='zero', cache_limit=None):
         """Take the data in this timeseries and "fill" any missing
         or invalid values. This could be setting None values to zero
         so mathematical operations will succeed, interpolate a new
@@ -997,9 +997,17 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             If None, all columns will be filled.
         method : str, optional
             Filling method: zero | linear | pad
-        limit : None, optional
-            Number of events to clean and populate the new TimeSeries
-            with - default is no limit.
+        cache_limit : None, optional
+            Set a limit on the number of events that will be cached awaiting
+            processing when fill method is linear. If that number of invalid
+            values for the given field_spec are seen w/out hitting a valid
+            value (which is required for a linear fill), then the unfilled
+            events will be emitted and will continue to be emitted until
+            a valid value is seen again. This is to keep events from getting
+            "stuck" in the queue during long runs of invalid data. Setting
+            this when using an unbounded source is highly suggested. If not
+            set, then events will continue to cache until a good value is
+            seen or flush() is called.
 
         Returns
         -------
@@ -1010,12 +1018,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         pip = self.pipeline()
 
-        if limit is not None and isinstance(limit, int):
-            pip = pip.take(limit)
-
         coll = (
             pip
-            .fill(field_spec, method)
+            .fill(field_spec, method, cache_limit)
             .to_keyed_collections()
         )
 

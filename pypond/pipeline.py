@@ -994,7 +994,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(coll)
 
-    def fill(self, field_spec=None, method='zero'):
+    def fill(self, field_spec=None, method='zero', cache_limit=None):
         """Take the data in this timeseries and "fill" any missing
         or invalid values. This could be setting None values to zero
         so mathematical operations will succeed, interpolate a new
@@ -1014,6 +1014,17 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             If None, all columns will be filled.
         method : str, optional
             Filling method: zero | linear | pad
+        cache_limit : None, optional
+            Set a limit on the number of events that will be cached awaiting
+            processing when fill method is linear. If that number of invalid
+            values for the given field_spec are seen w/out hitting a valid
+            value (which is required for a linear fill), then the unfilled
+            events will be emitted and will continue to be emitted until
+            a valid value is seen again. This is to keep events from getting
+            "stuck" in the queue during long runs of invalid data. Setting
+            this when using an unbounded source is highly suggested. If not
+            set, then events will continue to cache until a good value is
+            seen or flush() is called.
 
         Returns
         -------
@@ -1026,6 +1037,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             Options(
                 field_spec=field_spec,
                 method=method,
+                cache_limit=cache_limit,
                 prev=self._chain_last(),
             )
         )
