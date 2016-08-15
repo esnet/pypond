@@ -32,7 +32,6 @@ class Taker(Processor):
         self._window_type = None
         self._window_duration = None
         self._group_by = None
-        self._global_flush = False
 
         # instance memebers
         self._count = dict()
@@ -44,13 +43,11 @@ class Taker(Processor):
             self._window_type = arg1._window_type
             self._window_duration = arg1._window_duration
             self._group_by = arg1._group_by
-            self._global_flush = arg1._global_flush
         elif is_pipeline(arg1):
             self._limit = options.limit
             self._window_type = arg1.get_window_type()
             self._window_duration = arg1.get_window_duration()
             self._group_by = arg1.get_group_by()
-            self._global_flush = options.global_flush
         else:
             msg = 'Unknown arg to Taker: {0}'.format(arg1)
             raise ProcessorException(msg)
@@ -101,28 +98,6 @@ class Taker(Processor):
                 )
                 self._log('Taker.add_event', 'emitting: {0}'.format(event))
                 self.emit(event)
-
-            # If 1) the collection key is 'global', 2) and the limit has been
-            # exceeded 3) and an optional boolean has been set to True, send
-            # out a single flush() call.
-            #
-            # This was originally designed for the Filler - that processor
-            # caches events with missing data for filling when in 'linear'
-            # mode. When used in a 'stream' Pipeline, this could lead to a case
-            # where events are not emitted when no more valid data is seen.
-            #
-            # This allows the Taker to be used as not just a limiter but
-            # also a fail safe when processing events from an Unbounded
-            # source
-
-            if(self._global_flush is True and
-               coll_key == 'global' and
-               self._count.get(coll_key) > self._limit and
-               self._flush_sent is False):
-
-                self._log('Taker.add_event.flush', 'count: {0}'.format(self._count.get(coll_key)))
-                self.flush()
-                self._flush_sent = True
 
     def flush(self):
         """flush"""

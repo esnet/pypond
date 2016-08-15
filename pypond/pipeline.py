@@ -1032,7 +1032,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(fill)
 
-    def take(self, limit, global_flush=False):
+    def take(self, limit):
         """
         Take events up to the supplied limit, per key.
 
@@ -1060,7 +1060,6 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             self,
             Options(
                 limit=limit,
-                global_flush=global_flush,
                 prev=self._chain_last(),
             )
         )

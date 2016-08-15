@@ -493,7 +493,7 @@ class TestRenameFillAndAlign(CleanBase):
         (
             Pipeline()
             .from_source(stream)
-            .take(7, global_flush=True)
+            .take(7)
             .fill(method='linear')
             .to(CollectionOut, cback)
         )
