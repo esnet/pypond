@@ -13,7 +13,7 @@ Functions to act as reducers/aggregators, etc.
 from functools import reduce
 from math import sqrt
 
-import numpy
+from numpy import percentile
 
 from .exceptions import FilterException
 from .util import is_valid
@@ -249,7 +249,7 @@ class Functions(object):
             if vals is None:
                 return None  # pragma: no cover
 
-            return round(numpy.percentile(vals, perc, interpolation=method), 3)
+            return round(percentile(vals, perc, interpolation=method), 3)
 
         return inner
 

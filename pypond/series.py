@@ -812,6 +812,38 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.percentile(perc, field_spec, method)
 
+    def quantile(self, num, field_path=None, method='linear'):
+        """Gets num quantiles within the Collection
+
+        Parameters
+        ----------
+        num : Number of quantiles to divide the Collection into.
+            Description
+        field_path : None, optional
+            The field to return as the quantile. If not set, defaults
+            to 'value.'
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        list
+            An array of quantiles
+        """
+        return self._collection.quantile(num, field_path, method)
+
     def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to
         do the reduction.

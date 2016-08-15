@@ -333,7 +333,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
     def _fill_list(self, obj):
         """
-        Do basic filling if a terminal value is a list.
+        Do basic filling if the terminal value is a list.
         """
 
         for val_enum in enumerate(obj):

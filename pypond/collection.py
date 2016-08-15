@@ -12,6 +12,7 @@ Implementation of Pond Collection class.
 
 import copy
 import json
+import math
 
 from pyrsistent import freeze, thaw
 
@@ -381,6 +382,28 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             sorted.
         """
         ordered = sorted(self._event_list, key=lambda x: x.ts)
+        return self.set_events(ordered)
+
+    def sort(self, field_path):
+        """Sorts the Collection using the value referenced by field_path.
+
+        Parameters
+        ----------
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
+
+        Returns
+        -------
+        Collection
+            New collection of sorted values.
+        """
+
+        fpath = self._field_path_to_array(field_path)
+        ordered = sorted(self._event_list, key=lambda x: x.get(fpath))
         return self.set_events(ordered)
 
     def is_chronological(self):
@@ -909,6 +932,75 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             The percentile.
         """
         return self.aggregate(Functions.percentile(perc, method), field_spec)
+
+    def quantile(self, num, field_path=None, method='linear'):
+        """Gets num quantiles within the Collection
+
+        Parameters
+        ----------
+        num : Number of quantiles to divide the Collection into.
+            Description
+        field_path : None, optional
+            The field to return as the quantile. If not set, defaults
+            to 'value.'
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        list
+            An array of quantiles
+        """
+        results = list()
+        sorted_coll = self.sort(field_path)
+        subsets = 1.0 / num
+
+        if num > self.size():
+            msg = 'Subset num is greater than the Collection length'
+            raise CollectionException(msg)
+
+        i = copy.copy(subsets)
+
+        while i < 1:
+
+            index = int(math.floor(((sorted_coll.size() - 1) * i)))
+
+            if index < sorted_coll.size() - 1:
+
+                fraction = (sorted_coll.size() - 1) * i - index
+                val0 = sorted_coll.at(index).get(field_path)
+                val1 = sorted_coll.at(index + 1).get(field_path)
+
+                val = None
+
+                if method == 'lower' or fraction == 0:
+                    val = val0
+                elif method == 'linear':
+                    val = val0 + (val1 - val0) * fraction
+                elif method == 'higher':
+                    val = val1
+                elif method == 'nearest':
+                    val = val0 if fraction < .5 else val1
+                elif method == 'midpoint':
+                    val = (val0 + val1) / 2
+
+                results.append(val)
+
+            i += subsets
+
+        return results
 
     def __str__(self):
         """call to_string()

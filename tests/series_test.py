@@ -743,6 +743,44 @@ class TestPercentileAndQuantile(SeriesBase):
         self.assertEqual(series.percentile(50, 'temperature'), 22.3)
         self.assertEqual(series.percentile(100, 'temperature'), 22.3)
 
+    def test_quantile(self):
+        """test TimeSeries.quantile()"""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+                [1400425951000, 22.3],
+                [1400425952000, 32.4],
+                [1400425953000, 12.1],
+                [1400425955000, 76.8],
+                [1400425956000, 87.3],
+                [1400425957000, 54.6],
+                [1400425958000, 45.5],
+                [1400425959000, 87.9]
+            ]
+        ))
+
+        self.assertEqual(
+            series.quantile(4, field_path='temperature'), [29.875, 50.05, 79.425])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='linear'),
+            [29.875, 50.05, 79.425])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='lower'),
+            [22.3, 45.5, 76.8])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='higher'),
+            [32.4, 54.6, 87.3])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='nearest'),
+            [32.4, 54.6, 76.8])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='midpoint'),
+            [27.35, 50.05, 82.05])
+
+        self.assertEqual(series.quantile(1, 'temperature', 'linear'), [])
+
 
 class TestCollection(SeriesBase):
     """
