@@ -39,9 +39,57 @@ There are three fill options:
 
 Neither `pad` or `linear` can fill the first value in a series if it is invalid, and they can't start filling until good value has been seen: `[None, None, None, 1, 2, 3]` would remain unchanged. Similarly, `linear` can not fill the last value in a series.
 
-#### Linear fill and multiple field specs.
+#### The `fill_limit` arg
 
-It is possible to fill multiple field specs using all three fill methods. Filling multiple columns using the `linear` mode introduces an additional wrinkle that should be noted. For an event to be considered "valid" (and used as a bookend in filling a sequence) there needs to be a valid value in **all** columns that are being filled.  Consider the following `TimeSeries` and fill directive:
+The optional arg `fill_limit` controls how many values will be filled before it gives up. There might be a situation where it makes sense to fill in a couple of missing values, but no sense to pad out long spans of missing data. This arg sets the limit of the number of missing values will be filled - or in the case of `linear` *attempt* to be filled - before it just starts returning invalid data until the next valid value is seen.
+
+So given `fill_limit=2` the following values will be filled in the following ways:
+
+```
+Original:
+    [1, None, None, None, 5, 6, 7]
+
+Zero:
+    [1, 0, 0, None, 5, 6, 7]
+
+Pad:
+    [1, 1, 1, None, 5, 6, 7]
+
+Linear:
+    [1, None, None, None, 5, 6, 7]
+```
+
+Using methods `zero` and `pad` the first two missing values are filled and the third is skipped. When using the `linear` method, nothing gets filled because a valid value is not seen before the limit has been reached, so it just gives up and returns the missing data.
+
+When filling multiple columns when using the `zero` and `pad` methods, the count is maintained on a per-column basis.  So given the following data:
+
+```
+    simple_missing_data = dict(
+        name="traffic",
+        columns=["time", "direction"],
+        points=[
+            [1400425947000, {'in': 1, 'out': None}],
+            [1400425948000, {'in': None, 'out': None}],
+            [1400425949000, {'in': None, 'out': None}],
+            [1400425950000, {'in': 3, 'out': 8}],
+            [1400425960000, {'in': None, 'out': None}],
+            [1400425970000, {'in': None, 'out': 12}],
+            [1400425980000, {'in': None, 'out': 13}],
+            [1400425990000, {'in': 7, 'out': None}],
+            [1400426000000, {'in': 8, 'out': None}],
+            [1400426010000, {'in': 9, 'out': None}],
+            [1400426020000, {'in': 10, 'out': None}],
+        ]
+    )
+```
+
+The `in` and `out` columns will be counted and filled independently of each other. See the next section to see how `linear` fill handles filling multiple columns.
+
+If `fill_limit` is not set, no limits will be placed on the fill and all values will be filled as apropos to the selected method.
+
+#### Linear fill and multiple field specs
+
+It is possible to fill multiple field specs using all three fill methods. Filling multiple columns using the `linear` mode introduces an additional dimension that should be noted. For an event to be considered "valid" (and used as a bookend in filling a sequence) there needs to be a valid value in **all** columns that are being filled.  Consider the following `TimeSeries` and fill directive:
 
 ```
     simple_missing_data = dict(
@@ -65,7 +113,7 @@ It is possible to fill multiple field specs using all three fill methods. Fillin
 ```
 The `Filler` processor will not start filling until it hits the 4th `Event` in the series. That is because it is the first "completely valid" event in the series since we are looking at multiple columns. So even though points 2 and 3 of `direction.in` could theoretically be filled, they will not be.
 
-This behavior may be the desired effect. But if this presents a potential problem in the data you are filling, consider chaining multiple `Filler` processors together in a `Pipeline`:
+This behavior may be the desired effect. Only fill the events between columns with simultaneous valid values. If this is not appropriate for the data your use case, chain multiple `Filler` processors together in a `Pipeline`:
 
 ```
     elist = (
@@ -76,7 +124,7 @@ This behavior may be the desired effect. But if this presents a potential proble
         .to_event_list()
     )
 ```
-This would ensure that both columns are filled independently of each other.
+This will fill both columns independently of each other.
 
 ### Filling with the `Pipeline`
 

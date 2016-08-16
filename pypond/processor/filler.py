@@ -54,6 +54,8 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         self._last_good_linear = None
         # cache of events pending linear fill
         self._linear_fill_cache = list()
+        # key count for zero and pad fill
+        self._key_count = dict()
 
         if isinstance(arg1, Filler):
             # pylint: disable=protected-access
@@ -122,6 +124,10 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
             field_path = self._field_path_to_array(path)
 
+            # initialize a counter for this column
+            if tuple(field_path) not in self._key_count:
+                self._key_count[tuple(field_path)] = 0
+
             val = nested_get(data, field_path)
 
             # this is pointing at a path that does not exist
@@ -141,8 +147,15 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             if not is_valid(val):
                 # massage the path per selected method
 
+                # have we hit the limit?
+                if self._fill_limit is not None and \
+                        self._key_count[tuple(field_path)] >= self._fill_limit:
+                    continue
+
                 if self._method == 'zero':  # set to zero
                     nested_set(data, field_path, 0)
+                    # note that this column has been zeroed
+                    self._key_count[tuple(field_path)] += 1
 
                 elif self._method == 'pad':  # set to previous value
                     if self._previous_event is not None:
@@ -151,12 +164,14 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                                 data, field_path,
                                 self._previous_event.get(field_path)
                             )
+                            # note that this column has been padded
+                            # on success
+                            self._key_count[tuple(field_path)] += 1
 
-                elif self._method == 'linear':
-                    # no-op here, interpolation has to happen
-                    # when the operation is flushed.
-                    # just stubbing in the condition
-                    pass
+            else:
+                # it is a valid value, so reset the counter for
+                # this column
+                self._key_count[tuple(field_path)] = 0
 
     def _is_valid_linear_event(self, event, paths):
         """

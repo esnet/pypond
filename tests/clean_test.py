@@ -513,6 +513,82 @@ class TestRenameFillAndAlign(CleanBase):
 
         self.assertEqual(RESULTS.size(), 8)
 
+    def test_pad_and_zero_limiting(self):
+        """test the limiting on pad and zero options."""
+        simple_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': None}],
+                [1400425948000, {'in': None, 'out': None}],
+                [1400425949000, {'in': None, 'out': None}],
+                [1400425950000, {'in': 3, 'out': 8}],
+                [1400425960000, {'in': None, 'out': None}],
+                [1400425970000, {'in': None, 'out': 12}],
+                [1400425980000, {'in': None, 'out': 13}],
+                [1400425990000, {'in': 7, 'out': None}],
+                [1400426000000, {'in': 8, 'out': None}],
+                [1400426010000, {'in': 9, 'out': None}],
+                [1400426020000, {'in': 10, 'out': None}],
+            ]
+        )
+
+        ts = TimeSeries(simple_missing_data)
+
+        # verify fill limit for zero fill
+        zero_ts = ts.fill(method='zero', fill_limit=2)
+
+        self.assertEqual(zero_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(zero_ts.at(1).get('direction.in'), 0)  # fill
+        self.assertEqual(zero_ts.at(2).get('direction.in'), 0)  # fill
+        self.assertEqual(zero_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(zero_ts.at(4).get('direction.in'), 0)  # fill
+        self.assertEqual(zero_ts.at(5).get('direction.in'), 0)  # fill
+        self.assertEqual(zero_ts.at(6).get('direction.in'), None)  # over limit skip
+        self.assertEqual(zero_ts.at(7).get('direction.in'), 7)
+        self.assertEqual(zero_ts.at(8).get('direction.in'), 8)
+        self.assertEqual(zero_ts.at(9).get('direction.in'), 9)
+        self.assertEqual(zero_ts.at(10).get('direction.in'), 10)
+
+        self.assertEqual(zero_ts.at(0).get('direction.out'), 0)  # fill
+        self.assertEqual(zero_ts.at(1).get('direction.out'), 0)  # fill
+        self.assertEqual(zero_ts.at(2).get('direction.out'), None)  # over limit skip
+        self.assertEqual(zero_ts.at(3).get('direction.out'), 8)
+        self.assertEqual(zero_ts.at(4).get('direction.out'), 0)  # fill
+        self.assertEqual(zero_ts.at(5).get('direction.out'), 12)
+        self.assertEqual(zero_ts.at(6).get('direction.out'), 13)
+        self.assertEqual(zero_ts.at(7).get('direction.out'), 0)  # fill
+        self.assertEqual(zero_ts.at(8).get('direction.out'), 0)  # fill
+        self.assertEqual(zero_ts.at(9).get('direction.out'), None)  # over limit skip
+        self.assertEqual(zero_ts.at(10).get('direction.out'), None)  # over limit skip
+
+        # verify fill limit for pad fill
+        pad_ts = ts.fill(method='pad', fill_limit=2)
+
+        self.assertEqual(pad_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(pad_ts.at(1).get('direction.in'), 1)  # fill
+        self.assertEqual(pad_ts.at(2).get('direction.in'), 1)  # fill
+        self.assertEqual(pad_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(pad_ts.at(4).get('direction.in'), 3)  # fill
+        self.assertEqual(pad_ts.at(5).get('direction.in'), 3)  # fill
+        self.assertEqual(pad_ts.at(6).get('direction.in'), None)  # over limit skip
+        self.assertEqual(pad_ts.at(7).get('direction.in'), 7)
+        self.assertEqual(pad_ts.at(8).get('direction.in'), 8)
+        self.assertEqual(pad_ts.at(9).get('direction.in'), 9)
+        self.assertEqual(pad_ts.at(10).get('direction.in'), 10)
+
+        self.assertEqual(pad_ts.at(0).get('direction.out'), None)  # no fill start
+        self.assertEqual(pad_ts.at(1).get('direction.out'), None)  # no fill start
+        self.assertEqual(pad_ts.at(2).get('direction.out'), None)  # no fill start
+        self.assertEqual(pad_ts.at(3).get('direction.out'), 8)
+        self.assertEqual(pad_ts.at(4).get('direction.out'), 8)  # fill
+        self.assertEqual(pad_ts.at(5).get('direction.out'), 12)
+        self.assertEqual(pad_ts.at(6).get('direction.out'), 13)
+        self.assertEqual(pad_ts.at(7).get('direction.out'), 13)  # fill
+        self.assertEqual(pad_ts.at(8).get('direction.out'), 13)  # fill
+        self.assertEqual(pad_ts.at(9).get('direction.out'), None)  # over limit skip
+        self.assertEqual(pad_ts.at(10).get('direction.out'), None)  # over limit skip
+
     def test_fill_event_variants(self):
         """fill time range and indexed events."""
 
