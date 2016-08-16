@@ -91,7 +91,7 @@ If `fill_limit` is not set, no limits will be placed on the fill and all values 
 
 #### Constructing `linear` fill `Pipeline` chains
 
-`TimeSeries.fill()` will be the common entry point for the `Filler`, but a `Pipeline` can be constructed as well. Even though the default behavior of `TimeSeries.fill()` applies to all fill methods, the `linear` fill method is somewhat different than the `zero` and `pad` methods. Note the following points when creating your own `method='linear'` processing chain.
+`TimeSeries.fill()` will be the common entry point for the `Filler`, but a `Pipeline` can be constructed as well. Even though the default behavior of `TimeSeries.fill()` applies to all fill methods, the `linear` fill logic is somewhat different than the `zero` and `pad` methods. Note the following points when creating your own `method='linear'` processing chain.
 
 This:
 
