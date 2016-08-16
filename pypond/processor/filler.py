@@ -42,7 +42,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         self._field_spec = None
         self._method = None
         self._mode = None
-        self._cache_limit = None
+        self._fill_limit = None
 
         # internal members
         # state for pad to refer to previous event
@@ -60,12 +60,12 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             self._field_spec = arg1._field_spec
             self._method = arg1._method
             self._mode = arg1._mode
-            self._cache_limit = arg1._cache_limit
+            self._fill_limit = arg1._fill_limit
         elif is_pipeline(arg1):
             self._field_spec = options.field_spec
             self._method = options.method
             self._mode = arg1.mode()
-            self._cache_limit = options.cache_limit
+            self._fill_limit = options.fill_limit
         else:
             msg = 'Unknown arg to Filler: {0}'.format(arg1)
             raise ProcessorException(msg)
@@ -76,8 +76,8 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             msg = 'Unknown method {0} passed to Filler'.format(self._method)
             raise ProcessorException(msg)
 
-        if self._cache_limit is not None and not isinstance(self._cache_limit, int):
-            msg = 'Arg cache_limit must be an integer'
+        if self._fill_limit is not None and not isinstance(self._fill_limit, int):
+            msg = 'Arg fill_limit must be an integer'
             raise ProcessorException(msg)
 
         if isinstance(self._field_spec, six.string_types):
@@ -247,14 +247,14 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # later.
             self._linear_fill_cache.append(event)
 
-            # now make sure we have not exceeded the cache_limit
+            # now make sure we have not exceeded the fill_limit
             # if it has been set. if it has, emit all the cached
             # events and reset the main state such that the next
             # condition will continue to trigger until we see another
             # valid event.
 
-            if self._cache_limit is not None and \
-                    len(self._linear_fill_cache) >= self._cache_limit:
+            if self._fill_limit is not None and \
+                    len(self._linear_fill_cache) >= self._fill_limit:
 
                 for i in self._linear_fill_cache:
                     self.emit(i)

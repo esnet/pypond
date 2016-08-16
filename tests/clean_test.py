@@ -492,7 +492,7 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(RESULTS.size(), 8)
 
         # now use the Taker to make sure any cached events get
-        # emitted as well - setting the cache_limit to 3 here
+        # emitted as well - setting the fill_limit to 3 here
         # will make it so on the 7th event (after 3 have been
         # cached) those will be emitted, and then the 8th event
         # will be emitted because the state has been reset to
@@ -504,7 +504,7 @@ class TestRenameFillAndAlign(CleanBase):
         (
             Pipeline()
             .from_source(stream)
-            .fill(method='linear', cache_limit=3)
+            .fill(method='linear', fill_limit=3)
             .to(CollectionOut, cback)
         )
 

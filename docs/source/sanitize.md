@@ -95,8 +95,8 @@ Using `TimeSeries.fill()` will be a common entry point to this functionality, bu
 It is like any other `Pipeline` construction, but the `linear` method has the following restrictions and behaviors:
 
 * If a non numeric value (as determined by `isinstance(val, numbers.Number)`) is encountered when doing a `linear` fill, a warning will be issued and that field spec will cease being processed.
-* When using a streaming input like `UnboundedIn`, it is a best practice to set a limit using the optional arg `cache_limit`. This is because if a given field spec stops seeing a valid value, it will be necessary to limit how many events will get cached for filling because the cached values will not be emitted until a valid value is seen.
-* Setting `cache_limit` is not needed when using a bounded source because the calls to `.flush()` will make sure any cached values will be emitted.
+* When using a streaming input like `UnboundedIn`, it is a best practice to set a limit using the optional arg `fill_limit`. This is because if a given field spec stops seeing a valid value, it will be necessary to limit how many events will get cached for filling because the cached values will not be emitted until a valid value is seen.
+* Setting `fill_limit` is not needed when using a bounded source because the calls to `.flush()` will make sure any cached values will be emitted.
 * Also, when using an unbounded source, make sure to shut it down "cleanly" using `.stop()`. This will ensure `.flush()` is called (see previous point).
 
 The `Filler` processor will raise `ProcessorException` otherwise.
