@@ -16,6 +16,8 @@ import collections
 import copy
 import json
 
+import six
+
 from pyrsistent import freeze, thaw
 
 from .bases import PypondBase
@@ -25,7 +27,7 @@ from .exceptions import TimeSeriesException
 from .index import Index
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
-from .util import ObjectEncoder
+from .util import ObjectEncoder, generate_paths
 
 
 class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
@@ -1026,7 +1028,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.
 
-            If None, all columns will be filled.
+            If None, all columns will be filled.  If None and linear, homogenous
+            data payloads are presumed. If payloads are asymmetrical, provide
+            a list of specific columns to fill.
         method : str, optional
             Filling method: zero | linear | pad
         fill_limit : None, optional
@@ -1050,9 +1054,27 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         pip = self.pipeline()
 
+        if method in ('zero', 'pad') or \
+                (method == 'linear' and isinstance(field_spec, six.string_types)):
+            # either not linear or linear with a single path
+            pip = pip.fill(field_spec, method, fill_limit)
+        elif method == 'linear' and \
+                (isinstance(field_spec, list) or field_spec is None):
+            # linear w/multiple paths, so chain the Filler.
+
+            if field_spec is None:
+                # presume homogenous data when None is provided as
+                # the field sped, derive paths from first event.
+                field_spec = generate_paths(self.at(0).data())
+
+            for fpath in field_spec:
+                pip = pip.fill(fpath, method, fill_limit)
+        else:
+            msg = 'method {0} is not valid'.format(method)
+            raise TimeSeriesException(msg)
+
         coll = (
             pip
-            .fill(field_spec, method, fill_limit)
             .to_keyed_collections()
         )
 

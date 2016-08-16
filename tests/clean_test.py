@@ -9,7 +9,7 @@ import warnings
 
 from pypond.collection import Collection
 from pypond.event import Event
-from pypond.exceptions import ProcessorException, ProcessorWarning
+from pypond.exceptions import ProcessorException, ProcessorWarning, TimeSeriesException
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
 from pypond.pipeline_in import UnboundedIn
@@ -166,7 +166,7 @@ class TestRenameFillAndAlign(CleanBase):
         with self.assertRaises(ProcessorException):
             f = Filler(dict())
 
-        with self.assertRaises(ProcessorException):
+        with self.assertRaises(TimeSeriesException):
             ts.fill(method='bogus')
 
         with warnings.catch_warnings(record=True) as wrn:
@@ -353,6 +353,28 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(3).get('direction.out'), 10.75)  # filled
         self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
         self.assertEqual(new_ts.at(5).get('direction.out'), 12)
+
+        # do the same thing but no field spec to make sure it still fills
+        # both columns
+
+        alt_ts = ts.fill(method='linear')
+
+        self.assertEqual(new_ts.size(), 7)
+
+        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
+
+        self.assertEqual(new_ts.at(0).get('direction.out'), 2)
+        self.assertEqual(new_ts.at(1).get('direction.out'), 7.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.out'), 9.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.out'), 10.75)  # filled
+        self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
+
 
     def test_linear_list(self):
         """Test linear interpolation returned as an event list."""
