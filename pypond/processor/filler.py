@@ -12,7 +12,14 @@ import six
 
 from .base import Processor
 from ..exceptions import ProcessorException, ProcessorWarning
-from ..util import is_pipeline, Options, nested_set, nested_get, is_valid
+from ..util import (
+    generate_paths,
+    is_pipeline,
+    is_valid,
+    nested_get,
+    nested_set,
+    Options,
+)
 
 
 class Filler(Processor):  # pylint: disable=too-many-instance-attributes
@@ -88,32 +95,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
     def clone(self):
         """clone it."""
         return Filler(self)
-
-    def _recurse(self, data, keys=()):
-        """
-        Do the actual recursion and yield the keys to _generate_paths()
-        """
-        if isinstance(data, dict):
-            for key in list(data.keys()):
-                for path in self._recurse(data[key], keys + (key,)):
-                    yield path
-        else:
-            yield keys
-
-    def _generate_paths(self, new_data):
-        """
-        Return a list of field spec paths for the entire
-        data dict that can  be used by pypond.util.nested_set
-        and nested_get for filling. Just a
-        wrapper to aggregate the results from _recurse().
-        """
-
-        paths = list()
-
-        for key in self._recurse(new_data):
-            paths.append(key)
-
-        return paths
 
     def _pad_and_zero(self, data, paths):
         """
@@ -320,7 +301,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             if self._field_spec is None:
                 # generate a list of all possible field paths
                 # if no field spec is specified.
-                paths = self._generate_paths(new_data)
+                paths = generate_paths(new_data)
             else:
                 paths = self._field_spec
 

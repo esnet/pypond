@@ -541,6 +541,40 @@ def nested_get(dic, keys):
     except KeyError:
         return 'bad_path'
 
+
+def generate_paths(dic):
+    """
+    Generate a list of all possible field paths in a dict. This is
+    for to determine all paths when none is given.
+
+    Parameters
+    ----------
+    dic : dict
+        A dict, generally the payload from an Event class.
+
+    Returns
+    -------
+    list
+        A list of strings of all the paths in the dict.
+    """
+    paths = list()
+
+    def recurse(data, keys=()):
+        """
+        Do the actual recursion and yield the keys to _generate_paths()
+        """
+        if isinstance(data, dict):
+            for key in list(data.keys()):
+                for path in recurse(data[key], keys + (key,)):
+                    yield path
+        else:
+            yield keys
+
+    for key in recurse(dic):
+        paths.append(key)
+
+    return paths
+
 # test types
 
 
