@@ -1028,9 +1028,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.
 
-            If None, all columns will be filled.  If None and linear, homogenous
-            data payloads are presumed. If payloads are asymmetrical, provide
-            a list of specific columns to fill.
+            If None, all columns will be filled. If the data payloads are
+            not homogenous, using this option is not suggested. It is better
+            to provide an explicit list of columns to fill or warnings
+            will be generated.
         method : str, optional
             Filling method: zero | linear | pad
         fill_limit : None, optional
@@ -1056,16 +1057,24 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         if method in ('zero', 'pad') or \
                 (method == 'linear' and isinstance(field_spec, six.string_types)):
-            # either not linear or linear with a single path
+            # either not linear or linear with a single path, just
+            # install one Filler in the chain.
             pip = pip.fill(field_spec, method, fill_limit)
         elif method == 'linear' and \
                 (isinstance(field_spec, list) or field_spec is None):
-            # linear w/multiple paths, so chain the Filler.
+            # linear w/multiple paths, chain multiple Fillers so
+            # asymmetric column filling is the default.
 
             if field_spec is None:
                 # presume homogenous data when None is provided as
-                # the field sped, derive paths from first event.
-                field_spec = generate_paths(self.at(0).data())
+                # the field spec, derive paths from first event.
+                if self.size() == 0:
+                    msg = 'can not generate paths from an empty series'
+                    raise TimeSeriesException(msg)
+                else:
+                    tmp = generate_paths(thaw(self.at(0).data()))
+                    # xform back into deep.path.strings
+                    field_spec = ['.'.join(x) for x in tmp]
 
             for fpath in field_spec:
                 pip = pip.fill(fpath, method, fill_limit)

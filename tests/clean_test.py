@@ -375,7 +375,6 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
         self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
-
     def test_linear_list(self):
         """Test linear interpolation returned as an event list."""
 
@@ -424,6 +423,59 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(elist[3].get('direction.out'), 8)
         self.assertEqual(elist[4].get('direction.out'), 10.0)  # filled
         self.assertEqual(elist[5].get('direction.out'), 12)
+
+    def test_assymetric_linear_fill(self):
+        """Test new chained/assymetric linear default fill in TimeSeries."""
+
+        simple_missing_data = dict(
+            name="traffic",
+            columns=["time", "direction"],
+            points=[
+                [1400425947000, {'in': 1, 'out': None}],
+                [1400425948000, {'in': None, 'out': None}],
+                [1400425949000, {'in': None, 'out': None}],
+                [1400425950000, {'in': 3, 'out': 8}],
+                [1400425960000, {'in': None, 'out': None}],
+                [1400425970000, {'in': 5, 'out': 12}],
+                [1400425980000, {'in': 6, 'out': 13}],
+            ]
+        )
+
+        ts = TimeSeries(simple_missing_data)
+
+        new_ts = ts.fill(method='linear', field_spec=['direction.in', 'direction.out'])
+
+        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
+
+        self.assertEqual(new_ts.at(0).get('direction.out'), None)  # can't fill
+        self.assertEqual(new_ts.at(1).get('direction.out'), None)  # can't fill
+        self.assertEqual(new_ts.at(2).get('direction.out'), None)  # can't fill
+        self.assertEqual(new_ts.at(3).get('direction.out'), 8)
+        self.assertEqual(new_ts.at(4).get('direction.out'), 10.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
+
+        # do the same thing but w/out field spec/fill all
+
+        new_ts = ts.fill(method='linear')
+
+        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
+
+        self.assertEqual(new_ts.at(0).get('direction.out'), None)  # can't fill
+        self.assertEqual(new_ts.at(1).get('direction.out'), None)  # can't fill
+        self.assertEqual(new_ts.at(2).get('direction.out'), None)  # can't fill
+        self.assertEqual(new_ts.at(3).get('direction.out'), 8)
+        self.assertEqual(new_ts.at(4).get('direction.out'), 10.0)  # filled
+        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
     def test_linear_stream(self):
         """Test streaming on linear fill"""
