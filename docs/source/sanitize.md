@@ -41,7 +41,9 @@ Neither `pad` or `linear` can fill the first value in a series if it is invalid,
 
 #### The `fill_limit` arg
 
-The optional arg `fill_limit` controls how many values will be filled before it gives up. There might be a situation where it makes sense to fill in a couple of missing values, but no sense to pad out long spans of missing data. This arg sets the limit of the number of missing values will be filled - or in the case of `linear` *attempt* to be filled - before it just starts returning invalid data until the next valid value is seen.
+The optional arg `fill_limit` controls how many values will be filled before it gives up and starts returning the invalid data until a valid value is seen again.
+
+There might be a situation where it makes sense to fill in a couple of missing values, but no sense to pad out long spans of missing data. This arg sets the limit of the number of missing values will be filled - or in the case of `linear` *attempt* to be filled - before it just starts returning invalid data until the next valid value is seen.
 
 So given `fill_limit=2` the following values will be filled in the following ways:
 
@@ -113,7 +115,7 @@ It is possible to fill multiple field specs using all three fill methods. Fillin
 ```
 The `Filler` processor will not start filling until it hits the 4th `Event` in the series. That is because it is the first "completely valid" event in the series since we are looking at multiple columns. So even though points 2 and 3 of `direction.in` could theoretically be filled, they will not be.
 
-This behavior may be the desired effect. Only fill the events between columns with simultaneous valid values. If this is not appropriate for the data your use case, chain multiple `Filler` processors together in a `Pipeline`:
+This behavior may be the desired effect. Only fill the events between columns with simultaneous valid values. If this is not appropriate for the data in your use case, chain multiple `Filler` processors together in a `Pipeline`:
 
 ```
     elist = (
