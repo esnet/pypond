@@ -1035,16 +1035,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         method : str, optional
             Filling method: zero | linear | pad
         fill_limit : None, optional
-            Set a limit on the number of events that will be cached awaiting
-            processing when fill method is linear. If that number of invalid
-            values for the given field_spec are seen w/out hitting a valid
-            value (which is required for a linear fill), then the unfilled
-            events will be emitted and will continue to be emitted until
-            a valid value is seen again. This is to keep events from getting
-            "stuck" in the queue during long runs of invalid data. Setting
-            this when using an unbounded source is highly suggested. If not
-            set, then events will continue to cache until a good value is
-            seen or flush() is called.
+            Set a limit on the number of consecutive events will be filled
+            before it starts returning invalid values. For linear fill,
+            no filling will happen if the limit is reached before a valid
+            value is found.
 
         Returns
         -------
@@ -1058,19 +1052,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         if method in ('zero', 'pad') or \
                 (method == 'linear' and isinstance(field_spec, six.string_types)):
             # either not linear or linear with a single path, just
-            # install one Filler in the chain.
+            # install one Filler in the chain and go.
             pip = pip.fill(field_spec, method, fill_limit)
         elif method == 'linear' and \
                 (isinstance(field_spec, list) or field_spec is None):
-            # linear w/multiple paths, chain multiple Fillers so
-            # asymmetric column filling is the default.
+            # linear w/multiple paths, chain multiple Fillers for
+            # asymmetric column filling.
 
             if field_spec is None:
                 # presume homogenous data when None is provided as
                 # the field spec, derive paths from first event.
                 if self.size() == 0:
-                    msg = 'can not generate paths from an empty series'
-                    raise TimeSeriesException(msg)
+                    # series is empty, can't derive paths
+                    field_spec = list()
                 else:
                     tmp = generate_paths(thaw(self.at(0).data()))
                     # xform back into deep.path.strings

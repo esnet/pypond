@@ -61,9 +61,9 @@ Linear:
     [1, None, None, None, 5, 6, 7]
 ```
 
-Using methods `zero` and `pad` the first two missing values are filled and the third is skipped. When using the `linear` method, nothing gets filled because a valid value is not seen before the limit has been reached, so it just gives up and returns the missing data.
+Using methods `zero` and `pad` the first two missing values are filled and the third is skipped. When using the `linear` method, nothing gets filled because a valid value has not been seen before the limit has been reached, so it just gives up and returns the missing data.
 
-When filling multiple columns when using the `zero` and `pad` methods, the count is maintained on a per-column basis.  So given the following data:
+When filling multiple columns, the count is maintained on a per-column basis.  So given the following data:
 
 ```
     simple_missing_data = dict(
@@ -85,71 +85,44 @@ When filling multiple columns when using the `zero` and `pad` methods, the count
     )
 ```
 
-The `in` and `out` columns will be counted and filled independently of each other. See the next section to see how `linear` fill handles filling multiple columns.
+The `in` and `out` sub-columns will be counted and filled independently of each other.
 
 If `fill_limit` is not set, no limits will be placed on the fill and all values will be filled as apropos to the selected method.
 
-#### Linear fill and multiple field specs
+#### Constructing `linear` fill `Pipeline` chains
 
-It is possible to fill multiple field specs using all three fill methods. Filling multiple columns using the `linear` mode introduces an additional dimension that should be noted. For an event to be considered "valid" (and used as a bookend in filling a sequence) there needs to be a valid value in **all** columns that are being filled.  Consider the following `TimeSeries` and fill directive:
+`TimeSeries.fill()` will be the common entry point for the `Filler`, but a `Pipeline` can be constructed as well. Even though the default behavior of `TimeSeries.fill()` applies to all fill methods, the `linear` fill method is somewhat different than the `zero` and `pad` methods. Note the following points when making a `method='linear'` processing chain.
 
-```
-    simple_missing_data = dict(
-        name="traffic",
-        columns=["time", "direction"],
-        points=[
-            [1400425947000, {'in': 1, 'out': None}],
-            [1400425948000, {'in': None, 'out': None}],
-            [1400425949000, {'in': None, 'out': None}],
-            [1400425950000, {'in': 3, 'out': 5}],
-            [1400425960000, {'in': None, 'out': None}],
-            [1400425970000, {'in': 5, 'out': 12}],
-            [1400425980000, {'in': 6, 'out': 13}],
-        ]
-    )
-
-    ts = TimeSeries(simple_missing_data)
-
-    new_ts = ts.fill(field_spec=['direction.in', 'direction.out'],
-                     method='linear')
-```
-The `Filler` processor will not start filling until it hits the 4th `Event` in the series. That is because it is the first "completely valid" event in the series since we are looking at multiple columns. So even though points 2 and 3 of `direction.in` could theoretically be filled, they will not be.
-
-This behavior may be the desired effect. Only fill the events between columns with simultaneous valid values. If this is not appropriate for the data in your use case, chain multiple `Filler` processors together in a `Pipeline`:
+This:
 
 ```
-    elist = (
-        Pipeline()
-        .from_source(ts)
-        .fill(field_spec='direction.in', method='linear')
-        .fill(field_spec='direction.out', method='linear')
-        .to_event_list()
-    )
-```
-This will fill both columns independently of each other.
-
-### Filling with the `Pipeline`
-
-Using `TimeSeries.fill()` will be a common entry point to this functionality, but the processor can be used directly in a roll your own `Pipeline` as well:
-
-```
-    elist = (
-        Pipeline()
-        .from_source(ts)
-        .emit_on('flush')  # it's linear
-        .fill(field_spec='direction.in', method='linear')
-        .to_event_list()
-    )
+    Pipeline()
+    .from_source(ts)
+    .fill(field_spec='direction.in', method='linear')
+    .fill(field_spec='direction.out', method='linear')
+    .to_keyed_collections()
 ```
 
-It is like any other `Pipeline` construction, but the `linear` method has the following restrictions and behaviors:
+and this:
+
+```
+    Pipeline()
+    .from_source(ts)
+    .fill(field_spec=['direction.in', 'direction.out'], method='linear')
+    .to_keyed_collections()
+```
+
+Are not functionally identical.
+
+In the former example, the two columns will be filled independently of each other. That is the behavior of `TimeSeries.fill()` and the desired behavior most of the time. In the latter case, the two columns will be treated like a **composite key** when determining if an `Event` is valid or not.
+
+Generally speaking, the first use case will be the one you're looking for.
+
+Other points to note:
 
 * If a non numeric value (as determined by `isinstance(val, numbers.Number)`) is encountered when doing a `linear` fill, a warning will be issued and that field spec will cease being processed.
-* When using a streaming input like `UnboundedIn`, it is a best practice to set a limit using the optional arg `fill_limit`. This is because if a given field spec stops seeing a valid value, it will be necessary to limit how many events will get cached for filling because the cached values will not be emitted until a valid value is seen.
-* Setting `fill_limit` is not needed when using a bounded source because the calls to `.flush()` will make sure any cached values will be emitted.
-* Also, when using an unbounded source, make sure to shut it down "cleanly" using `.stop()`. This will ensure `.flush()` is called (see previous point).
-
-The `Filler` processor will raise `ProcessorException` otherwise.
+* When using streaming input like `UnboundedIn`, it is a best practice to set a limit using the optional arg `fill_limit`. This will ensure events will continue being emitted if the data hits a long run of invalid values.
+* When using an unbounded source, make sure to shut it down "cleanly" using `.stop()`. This will ensure `.flush()` is called so any unfilled cached events are emitted.
 
 ### List values
 

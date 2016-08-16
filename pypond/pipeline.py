@@ -1000,10 +1000,6 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         so mathematical operations will succeed, interpolate a new
         value, or pad with the previously given value.
 
-        If one wishes to limit the number of filled events in the result
-        set, use Pipeline.keep() in the chain. See: TimeSeries.fill()
-        for an exmaple.
-
         Parameters
         ----------
         field_spec : str, list, tuple, None, optional
@@ -1015,16 +1011,10 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         method : str, optional
             Filling method: zero | linear | pad
         fill_limit : None, optional
-            Set a limit on the number of events that will be cached awaiting
-            processing when fill method is linear. If that number of invalid
-            values for the given field_spec are seen w/out hitting a valid
-            value (which is required for a linear fill), then the unfilled
-            events will be emitted and will continue to be emitted until
-            a valid value is seen again. This is to keep events from getting
-            "stuck" in the queue during long runs of invalid data. Setting
-            this when using an unbounded source is highly suggested. If not
-            set, then events will continue to cache until a good value is
-            seen or flush() is called.
+            Set a limit on the number of consecutive events will be filled
+            before it starts returning invalid values. For linear fill,
+            no filling will happen if the limit is reached before a valid
+            value is found.
 
         Returns
         -------
