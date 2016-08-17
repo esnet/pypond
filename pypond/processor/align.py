@@ -10,25 +10,24 @@ from ..util import is_pipeline, Options
 
 
 class Align(Processor):
-    """
-    A simple processor used by the testing code to verify Pipeline behavior.
+    """A processor to align the data into bins of regular time periods.
+
+    Parameters
+    ----------
+    arg1 : Align or Pipeline
+        Pipeline or copy constructor
+    options : Options, optional
+        Pipeline Options object.
+
+    Raises
+    ------
+    ProcessorException
+        Raised on bad arg types.
     """
 
     def __init__(self, arg1, options=Options()):
-        """A simple processor used by the testing code to verify Pipeline behavior.
+        """create the aligner."""
 
-        Parameters
-        ----------
-        arg1 : Align or Pipeline
-            Pipeline or copy constructor
-        options : Options, optional
-            Pipeline Options object.
-
-        Raises
-        ------
-        ProcessorException
-            Raised on bad arg types.
-        """
         super(Align, self).__init__(arg1, options)
 
         self._log('Align.init', 'uid: {0}'.format(self._id))

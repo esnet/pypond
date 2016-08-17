@@ -11,25 +11,24 @@ from ..util import is_pipeline, Options
 
 
 class Offset(Processor):
-    """
-    A simple processor used by the testing code to verify Pipeline behavior.
+    """A simple processor used by the testing code to verify Pipeline behavior.
+
+    Parameters
+    ----------
+    arg1 : Offset or Pipeline
+        Pipeline or copy constructor
+    options : Options, optional
+        Pipeline Options object.
+
+    Raises
+    ------
+    ProcessorException
+        Raised on bad arg types.
     """
 
     def __init__(self, arg1, options=Options()):
-        """A simple processor used by the testing code to verify Pipeline behavior.
+        """create offset"""
 
-        Parameters
-        ----------
-        arg1 : Offset or Pipeline
-            Pipeline or copy constructor
-        options : Options, optional
-            Pipeline Options object.
-
-        Raises
-        ------
-        ProcessorException
-            Raised on bad arg types.
-        """
         super(Offset, self).__init__(arg1, options)
 
         self._log('Offset.init', 'uid: {0}'.format(self._id))
