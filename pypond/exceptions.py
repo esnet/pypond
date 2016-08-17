@@ -170,21 +170,4 @@ class FilterWarning(Warning):
     """Custom Filter warning"""
     pass
 
-
-class FunctionException(Exception):
-    """Custom Function exception"""
-
-    def __init__(self, value):
-        # pylint: disable=super-init-not-called
-        self.value = value
-
-    def __str__(self):  # pragma: no cover
-        return repr(self.value)
-
-
-class FunctionWarning(Warning):
-    """Custom Function warning"""
-    pass
-
-
 NAIVE_MESSAGE = 'non-naive (aware) datetime objects required'
