@@ -325,12 +325,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         # new array of interpolated events for each field path
         new_events = list()
 
-        # boolean to keep track if there are no longer any valid
-        # events "forward" in the sequence for a given field_path.
-        # if there are no more valid values, there is no reason
-        # to keep seeking every time.
-        seek_forward = True
-
         field_path = self._field_path_to_array(self._field_spec[0])
 
         # setup done, loop through the events.
@@ -370,10 +364,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
                 while next_value is None and next_idx < len(base_events):
 
-                    # no more good values "forward" so don't bother.
-                    if seek_forward is False:
-                        break
-
                     val = base_events[next_idx].get(field_path)
 
                     if is_valid(val):
@@ -400,14 +390,12 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                     # keep the old event.
                     new_events.append(event_enum[1])
 
-                    if next_value is None:
-                        # no more good values for this field spec in the
-                        # sequence, so don't bother looking on subsequent
-                        # events in this field_spec
-                        seek_forward = False
-
             else:
-                new_events.append(event_enum[1])
+                # theoretically never called because the incoming lists
+                # will be bookended by valid events now that we're only
+                # processing a single column per Filler instance.
+                # leaving here in case we start feeding this new data.
+                new_events.append(event_enum[1])  # pragma: no cover
 
         # save the current state before doing another pass
         # on a different field_path
