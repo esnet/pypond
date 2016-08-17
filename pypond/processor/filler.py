@@ -151,7 +151,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 # this column
                 self._key_count[tuple(field_path)] = 0
 
-    def _is_valid_linear_event(self, event, paths):
+    def _is_valid_linear_event(self, event):
         """
         Check to see if an even has good values when doing
         linear fill since we need to keep a completely intact
@@ -164,27 +164,27 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
         valid = True
 
-        for i in paths:
+        field_path = self._field_path_to_array(self._field_spec[0])
 
-            field_path = self._field_path_to_array(i)
+        val = nested_get(thaw(event.data()), field_path)
 
-            val = nested_get(thaw(event.data()), field_path)
+        # this is pointing at a path that does not exist, issue a warning
+        # can call the event valid so it will be emitted. can't fill what
+        # isn't there.
+        if val == 'bad_path':
+            self._warn('path does not exist: {0}'.format(field_path), ProcessorWarning)
+            return valid
 
-            # this is pointing at a path that does not exist
-            if val == 'bad_path':
-                self._warn('path does not exist: {0}'.format(i), ProcessorWarning)
-                continue
-
-            # a tracked field path is not valid so this is
-            # not a valid linear event. also, if it is not a numeric
-            # value, mark it as invalid and let _interpolate_event_list()
-            # complain about/skip it.
-            if not is_valid(val) or not isinstance(val, numbers.Number):
-                valid = False
+        # a tracked field path is not valid so this is
+        # not a valid linear event. also, if it is not a numeric
+        # value, mark it as invalid and let _interpolate_event_list()
+        # complain about/skip it.
+        if not is_valid(val) or not isinstance(val, numbers.Number):
+            valid = False
 
         return valid
 
-    def _linear_fill(self, event, paths):
+    def _linear_fill(self, event):
         """
         This handles the linear filling. It returns a list of
         events to be emitted. That list may only contain a single
@@ -206,7 +206,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
         # see if the event is valid and also if it has any
         # list values to be filled.
-        is_valid_event = self._is_valid_linear_event(event, paths)
+        is_valid_event = self._is_valid_linear_event(event)
 
         # Deal with the event as apropos depending on if it is
         # valid or not and if we have nor have not seen a valid
@@ -256,7 +256,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # already been emitted either as a "good"
             # event or as the last event in the previous filling pass.
             # that's why it's being shaved off here.
-            for i in self._interpolate_event_list(event_list, paths)[1:]:
+            for i in self._interpolate_event_list(event_list, [self._field_spec[0]])[1:]:
                 events.append(i)
 
             # reset the cache, note as last good
@@ -300,7 +300,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 # linear filling follows a somewhat different
                 # path since it might emit zero, one or multiple
                 # events every time add_event() is called.
-                for emit in self._linear_fill(event, paths):
+                for emit in self._linear_fill(event):
                     to_emit.append(emit)
 
             # end filling logic
