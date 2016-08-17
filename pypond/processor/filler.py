@@ -89,6 +89,15 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         if isinstance(self._field_spec, six.string_types):
             self._field_spec = [self._field_spec]
 
+        # when using linear mode, only a single column will be processed
+        # per instance. more details in sanitize.md
+        if self._method == 'linear' and \
+                ((isinstance(self._field_spec, list) and len(self._field_spec) > 1) or
+                 self._field_spec is None):
+            msg = 'linear fill takes a path to a single column\n'
+            msg += ' - see the sanitize documentation for usage details.'
+            raise ProcessorException(msg)
+
     def clone(self):
         """clone it."""
         return Filler(self)

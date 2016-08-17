@@ -343,21 +343,21 @@ class TestRenameFillAndAlign(CleanBase):
 
         alt_ts = ts.fill(method='linear')
 
-        self.assertEqual(new_ts.size(), 7)
+        self.assertEqual(alt_ts.size(), 7)
 
-        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
-        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
-        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
-        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
-        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
-        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
+        self.assertEqual(alt_ts.at(0).get('direction.in'), 1)
+        self.assertEqual(alt_ts.at(1).get('direction.in'), 2.0)  # filled
+        self.assertEqual(alt_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(alt_ts.at(3).get('direction.in'), 3)
+        self.assertEqual(alt_ts.at(4).get('direction.in'), 4.0)  # filled
+        self.assertEqual(alt_ts.at(5).get('direction.in'), 5)
 
-        self.assertEqual(new_ts.at(0).get('direction.out'), 2)
-        self.assertEqual(new_ts.at(1).get('direction.out'), 7.0)  # filled
-        self.assertEqual(new_ts.at(2).get('direction.out'), 9.5)  # filled
-        self.assertEqual(new_ts.at(3).get('direction.out'), 10.75)  # filled
-        self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
-        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
+        self.assertEqual(alt_ts.at(0).get('direction.out'), 2)
+        self.assertEqual(alt_ts.at(1).get('direction.out'), 7.0)  # filled
+        self.assertEqual(alt_ts.at(2).get('direction.out'), 9.5)  # filled
+        self.assertEqual(alt_ts.at(3).get('direction.out'), 10.75)  # filled
+        self.assertEqual(alt_ts.at(4).get('direction.out'), 11.375)  # filled
+        self.assertEqual(alt_ts.at(5).get('direction.out'), 12)
 
     def test_linear_list(self):
         """Test linear interpolation returned as an event list."""
@@ -485,7 +485,7 @@ class TestRenameFillAndAlign(CleanBase):
         (
             Pipeline()
             .from_source(stream)
-            .fill(method='linear')
+            .fill(method='linear', field_spec='value')
             .to(CollectionOut, cback)
         )
 
@@ -534,7 +534,7 @@ class TestRenameFillAndAlign(CleanBase):
         (
             Pipeline()
             .from_source(stream)
-            .fill(method='linear')
+            .fill(method='linear', field_spec='value')
             .to(CollectionOut, cback)
         )
 
@@ -562,7 +562,7 @@ class TestRenameFillAndAlign(CleanBase):
         (
             Pipeline()
             .from_source(stream)
-            .fill(method='linear', fill_limit=3)
+            .fill(method='linear', fill_limit=3, field_spec='value')
             .to(CollectionOut, cback)
         )
 
