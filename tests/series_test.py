@@ -781,6 +781,9 @@ class TestPercentileAndQuantile(SeriesBase):
 
         self.assertEqual(series.quantile(1, 'temperature', 'linear'), [])
 
+        with self.assertRaises(CollectionException):
+            series.quantile(15, field_path='temperature')
+
 
 class TestCollection(SeriesBase):
     """
