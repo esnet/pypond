@@ -322,7 +322,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         Sorry pylint, sometime you need to write a complex method.
         """
         base_events = copy.copy(events)
-
         # new array of interpolated events for each field path
         new_events = list()
 

@@ -163,14 +163,36 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
+        # bad ctor arg
         with self.assertRaises(ProcessorException):
             f = Filler(dict())
 
+        # invalid method
         with self.assertRaises(TimeSeriesException):
             ts.fill(method='bogus')
 
+        # limit not int
+        with self.assertRaises(ProcessorException):
+            ts.fill(fill_limit='z')
+
+        # direct access to filler via pipeline needs to take a single path
+        with self.assertRaises(ProcessorException):
+            pip = Pipeline()
+            pip.fill(method='linear', field_spec=['direction.in', 'direction.out'])
+
+        # invalid method
+        with self.assertRaises(ProcessorException):
+            pip = Pipeline()
+            pip.fill(method='bogus')
+
+        # catch bad path at various points
         with warnings.catch_warnings(record=True) as wrn:
             ts.fill(field_spec='bad.path')
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
+
+        with warnings.catch_warnings(record=True) as wrn:
+            ts.fill(field_spec='bad.path', method='linear')
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
 
@@ -727,7 +749,8 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
-        new_ts = ts.fill(field_spec='direction.in', method='linear')
+        new_ts = ts.fill(field_spec='direction.out', method='linear')
+
         self.assertEqual(new_ts.at(2).get('direction.in'), None)
         self.assertEqual(new_ts.at(3).get('direction.in'), None)
         self.assertEqual(new_ts.at(4).get('direction.in'), None)
