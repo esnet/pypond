@@ -92,7 +92,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         # when using linear mode, only a single column will be processed
         # per instance. more details in sanitize.md
         if self._method == 'linear' and \
-                ((isinstance(self._field_spec, list) and len(self._field_spec) > 1) or
+                ((isinstance(self._field_spec, list) and len(self._field_spec) != 1) or
                  self._field_spec is None):
             msg = 'linear fill takes a path to a single column\n'
             msg += ' - see the sanitize documentation for usage details.'
@@ -256,7 +256,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # already been emitted either as a "good"
             # event or as the last event in the previous filling pass.
             # that's why it's being shaved off here.
-            for i in self._interpolate_event_list(event_list, [self._field_spec[0]])[1:]:
+            for i in self._interpolate_event_list(event_list)[1:]:
                 events.append(i)
 
             # reset the cache, note as last good
@@ -309,7 +309,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
                 self.emit(emitted_event)
 
-    def _interpolate_event_list(self, events, paths):  # pylint: disable=too-many-branches
+    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches
         """
         The fundamental linear interpolation workhorse code.  Process
         a list of events and return a new list. Does a pass for
@@ -323,100 +323,97 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         """
         base_events = copy.copy(events)
 
-        for i in paths:
+        # new array of interpolated events for each field path
+        new_events = list()
 
-            # new array of interpolated events for each field path
-            new_events = list()
+        # boolean to keep track if there are no longer any valid
+        # events "forward" in the sequence for a given field_path.
+        # if there are no more valid values, there is no reason
+        # to keep seeking every time.
+        seek_forward = True
 
-            # boolean to keep track if there are no longer any valid
-            # events "forward" in the sequence for a given field_path.
-            # if there are no more valid values, there is no reason
-            # to keep seeking every time.
-            seek_forward = True
+        field_path = self._field_path_to_array(self._field_spec[0])
 
-            field_path = self._field_path_to_array(i)
+        # setup done, loop through the events.
+        for event_enum in enumerate(base_events):
+            # cant interpolate first or last event so just save it
+            # as-is and move on.
+            if event_enum[0] == 0 or event_enum[0] == len(base_events) - 1:
+                new_events.append(event_enum[1])
+                continue
 
-            # setup done, loop through the events.
-            for event_enum in enumerate(base_events):
-                # cant interpolate first or last event so just save it
-                # as-is and move on.
-                if event_enum[0] == 0 or event_enum[0] == len(base_events) - 1:
-                    new_events.append(event_enum[1])
-                    continue
+            # if a non-numeric value is encountered, stop processing
+            # this field spec and hand back the original unfilled events.
+            if is_valid(event_enum[1].get(field_path)) and \
+                    not isinstance(event_enum[1].get(field_path),
+                                   numbers.Number):
+                self._warn(
+                    'linear requires numeric values - skipping this field_spec',
+                    ProcessorWarning
+                )
+                return base_events
 
-                # if a non-numeric value is encountered, stop processing
-                # this field spec.
-                if is_valid(event_enum[1].get(field_path)) and \
-                        not isinstance(event_enum[1].get(field_path),
-                                       numbers.Number):
-                    self._warn(
-                        'linear requires numeric values - skipping this field_spec',
-                        ProcessorWarning
-                    )
-                    break
+            # found a bad value so start calculating.
+            if not is_valid(event_enum[1].get(field_path)):
 
-                # found a bad value so start calculating.
-                if not is_valid(event_enum[1].get(field_path)):
+                previous_value = None
+                next_value = None
 
-                    previous_value = None
-                    next_value = None
+                # look to the previous event in the new_event list since
+                # that's where previously interpolated values will be.
 
-                    # look to the previous event in the new_event list since
-                    # that's where previously interpolated values will be.
+                previous_value = new_events[event_enum[0] - 1].get(field_path)
 
-                    previous_value = new_events[event_enum[0] - 1].get(field_path)
+                # see about finding the next valid value in the original
+                # list.
 
-                    # see about finding the next valid value in the original
-                    # list.
+                next_idx = event_enum[0] + 1
 
-                    next_idx = event_enum[0] + 1
+                while next_value is None and next_idx < len(base_events):
 
-                    while next_value is None and next_idx < len(base_events):
+                    # no more good values "forward" so don't bother.
+                    if seek_forward is False:
+                        break
 
-                        # no more good values "forward" so don't bother.
-                        if seek_forward is False:
-                            break
+                    val = base_events[next_idx].get(field_path)
 
-                        val = base_events[next_idx].get(field_path)
+                    if is_valid(val):
+                        next_value = val  # terminates the loop
 
-                        if is_valid(val):
-                            next_value = val  # terminates the loop
+                    next_idx += 1
 
-                        next_idx += 1
+                # previous_value should only be none if there are a string
+                # of bad values at the beginning of the sequence.
+                # next_value will be none if that value no longer has
+                # valid values in the rest of the sequence.
 
-                    # previous_value should only be none if there are a string
-                    # of bad values at the beginning of the sequence.
-                    # next_value will be none if that value no longer has
-                    # valid values in the rest of the sequence.
-
-                    if previous_value is not None and next_value is not None:
-                        # pry the data from current event
-                        new_data = thaw(event_enum[1].data())
-                        # average the two values
-                        new_val = truediv((previous_value + next_value), 2)
-                        # set that value to the field spec in new data
-                        nested_set(new_data, field_path, new_val)
-                        # call .set_data() to create a new event
-                        new_events.append(event_enum[1].set_data(new_data))
-                    else:
-                        # couldn't calculate new value either way, just
-                        # keep the old event.
-                        new_events.append(event_enum[1])
-
-                        if next_value is None:
-                            # no more good values for this field spec in the
-                            # sequence, so don't bother looking on subsequent
-                            # events in this field_spec
-                            seek_forward = False
-
+                if previous_value is not None and next_value is not None:
+                    # pry the data from current event
+                    new_data = thaw(event_enum[1].data())
+                    # average the two values
+                    new_val = truediv((previous_value + next_value), 2)
+                    # set that value to the field spec in new data
+                    nested_set(new_data, field_path, new_val)
+                    # call .set_data() to create a new event
+                    new_events.append(event_enum[1].set_data(new_data))
                 else:
+                    # couldn't calculate new value either way, just
+                    # keep the old event.
                     new_events.append(event_enum[1])
 
-            # save the current state before doing another pass
-            # on a different field_path
-            base_events = new_events
+                    if next_value is None:
+                        # no more good values for this field spec in the
+                        # sequence, so don't bother looking on subsequent
+                        # events in this field_spec
+                        seek_forward = False
 
-        return base_events
+            else:
+                new_events.append(event_enum[1])
+
+        # save the current state before doing another pass
+        # on a different field_path
+
+        return new_events
 
     def flush(self):
         """Don't delegate flush to superclass yet. Make sure
