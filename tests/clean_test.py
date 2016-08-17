@@ -182,22 +182,6 @@ class TestRenameFillAndAlign(CleanBase):
         # trigger warnings about non-numeric values in linear.
 
         with warnings.catch_warnings(record=True) as wrn:
-            simple_list_data = dict(
-                name="traffic",
-                columns=["time", "series"],
-                points=[
-                    [1400425947000, ['non numeric', None, 3, 4, 5, 6, 7]],
-                ]
-            )
-
-            ts = TimeSeries(simple_list_data)
-
-            new_ts = ts.fill(field_spec='series', method='linear')
-
-            self.assertEqual(len(wrn), 1)
-            self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
-
-        with warnings.catch_warnings(record=True) as wrn:
             simple_missing_data = dict(
                 name="traffic",
                 columns=["time", "direction"],
@@ -210,10 +194,10 @@ class TestRenameFillAndAlign(CleanBase):
 
             ts = TimeSeries(simple_missing_data)
 
-            new_ts = ts.fill(field_spec='direction.in', method='linear')
+            ts.fill(field_spec='direction.in', method='linear')
 
-            # self.assertEqual(len(wrn), 1)
-            # self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
 
     def test_zero_fill(self):
         """test using the filler to fill missing values with zero."""
@@ -749,61 +733,6 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(4).get('direction.in'), None)
         self.assertEqual(new_ts.at(5).get('direction.in'), None)
         self.assertEqual(new_ts.at(6).get('direction.in'), None)
-
-    def test_list_fill(self):
-        """Test basic filling of list values."""
-
-        simple_list_data = dict(
-            name="traffic",
-            columns=["time", "series"],
-            points=[
-                [1400425947000, [None, None, 3, 4, 5, 6, 7]],
-                [1400425948000, [1, None, None, 4, 5, 6, 7]],
-                [1400425949000, [1, 2, 3, 4, None, None, None]],
-                [1400425950000, [1, 2, 3, 4, None, None, 7]],
-            ]
-        )
-
-        ts = TimeSeries(simple_list_data)
-
-        new_ts = ts.fill(field_spec='series', method='zero')
-
-        self.assertEqual(new_ts.at(0).get('series')[0], 0)
-        self.assertEqual(new_ts.at(0).get('series')[1], 0)
-
-        self.assertEqual(new_ts.at(1).get('series')[1], 0)
-        self.assertEqual(new_ts.at(1).get('series')[2], 0)
-
-        self.assertEqual(new_ts.at(2).get('series')[4], 0)
-        self.assertEqual(new_ts.at(2).get('series')[5], 0)
-        self.assertEqual(new_ts.at(2).get('series')[6], 0)
-
-        new_ts = ts.fill(field_spec='series', method='pad')
-
-        self.assertEqual(new_ts.at(0).get('series')[0], None)
-        self.assertEqual(new_ts.at(0).get('series')[1], None)
-
-        self.assertEqual(new_ts.at(1).get('series')[1], 1)
-        self.assertEqual(new_ts.at(1).get('series')[2], 1)
-
-        self.assertEqual(new_ts.at(2).get('series')[4], 4)
-        self.assertEqual(new_ts.at(2).get('series')[5], 4)
-        self.assertEqual(new_ts.at(2).get('series')[6], 4)
-
-        new_ts = ts.fill(field_spec='series', method='linear')
-
-        self.assertEqual(new_ts.at(0).get('series')[0], None)
-        self.assertEqual(new_ts.at(0).get('series')[1], None)
-
-        self.assertEqual(new_ts.at(1).get('series')[1], 2.5)
-        self.assertEqual(new_ts.at(1).get('series')[2], 3.25)
-
-        self.assertEqual(new_ts.at(2).get('series')[4], None)
-        self.assertEqual(new_ts.at(2).get('series')[5], None)
-        self.assertEqual(new_ts.at(2).get('series')[6], None)
-
-        self.assertEqual(new_ts.at(3).get('series')[4], 5.5)
-        self.assertEqual(new_ts.at(3).get('series')[5], 6.25)
 
     def test_pad(self):
         """Test the pad style fill."""

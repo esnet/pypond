@@ -54,15 +54,12 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         # internal members
         # state for pad to refer to previous event
         self._previous_event = None
-        # record of filled list values for linear to
-        # alternately skip or fill depending on context.
-        self._filled_lists = list()
+        # key count for zero and pad fill
+        self._key_count = dict()
         # special state for linear fill
         self._last_good_linear = None
         # cache of events pending linear fill
         self._linear_fill_cache = list()
-        # key count for zero and pad fill
-        self._key_count = dict()
 
         if isinstance(arg1, Filler):
             # pylint: disable=protected-access
@@ -115,15 +112,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             if val == 'bad_path':
                 self._warn('path does not exist: {0}'.format(field_path), ProcessorWarning)
                 continue
-
-            # if the terminal value is a list, fill the list
-            # make a note of any field spec containing lists
-            # so the main interpolation code will ignore it.
-            if isinstance(val, list):
-                if field_path not in self._filled_lists:
-                    # don't add it more than once
-                    self._filled_lists.append(field_path)
-                self._fill_list(val)
 
             if not is_valid(val):
                 # massage the path per selected method
@@ -179,16 +167,11 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 continue
 
             # a tracked field path is not valid so this is
-            # not a valid linear event.
-            if not is_valid(val):
+            # not a valid linear event. also, if it is not a numeric
+            # value, mark it as invalid and let _interpolate_event_list()
+            # complain about/skip it.
+            if not is_valid(val) or not isinstance(val, numbers.Number):
                 valid = False
-
-            # make a note that there is a list that needs to
-            # be filled if need be.  No need to look at
-            # the paths twice.
-            if isinstance(val, list):
-                if field_path not in self._filled_lists:
-                    self._filled_lists.append(field_path)
 
         return valid
 
@@ -215,16 +198,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         # see if the event is valid and also if it has any
         # list values to be filled.
         is_valid_event = self._is_valid_linear_event(event, paths)
-
-        # Are we filling any list values?  This needs to happen
-        # as it's own step regardless as to if the event is
-        # valid or not.
-        if self._filled_lists:
-            new_data = thaw(event.data())
-            for i in self._filled_lists:
-                val = nested_get(new_data, i)
-                self._fill_list(val)
-            event = event.set_data(new_data)
 
         # Deal with the event as apropos depending on if it is
         # valid or not and if we have nor have not seen a valid
@@ -327,70 +300,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
                 self.emit(emitted_event)
 
-    def _fill_list(self, obj):
-        """
-        Do basic filling if the terminal value is a list.
-        """
-
-        for val_enum in enumerate(obj):
-
-            # can't do linear on non-numeric values
-            if self._method == 'linear' and is_valid(val_enum[1]) and \
-                    not isinstance(val_enum[1], numbers.Number):
-                self._warn(
-                    'linear requires numeric values - skipping this list',
-                    ProcessorWarning
-                )
-
-                break
-
-            # we got a bad value so fill as apropos
-            if not is_valid(val_enum[1]):
-
-                if self._method == 'zero':
-                    # set the invalid value to 0
-                    obj[val_enum[0]] = 0
-
-                if self._method == 'pad' and val_enum[0] - 1 >= 0 and \
-                        is_valid(obj[val_enum[0] - 1]):
-                    # pad current value with previous value if the
-                    # prevous value was valid.
-                    obj[val_enum[0]] = obj[val_enum[0] - 1]
-
-                if self._method == 'linear':
-                    # do a linear fill on each values if it can find a
-                    # valid previous and future value.
-
-                    previous = None
-                    next_val = None
-
-                    # is the previous value valid?
-                    if val_enum[0] - 1 >= 0 and \
-                            is_valid(obj[val_enum[0] - 1]):
-                        previous = obj[val_enum[0] - 1]
-
-                    # let's look for the next valid value.
-                    next_idx = val_enum[0] + 1
-
-                    while next_val is None and next_idx < len(obj):
-
-                        val = obj[next_idx]
-
-                        if is_valid(val):
-                            next_val = val  # breaks loop
-
-                        next_idx += 1
-
-                    # we nailed two values to fill from
-                    if previous is not None and next_val is not None:
-                        inval = truediv((previous + next_val), 2)
-                        obj[val_enum[0]] = inval
-
-                    if next_val is None:
-                        # there are no more valid values "forward"
-                        # so we're done
-                        break
-
     def _interpolate_event_list(self, events, paths):  # pylint: disable=too-many-branches
         """
         The fundamental linear interpolation workhorse code.  Process
@@ -417,12 +326,6 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             seek_forward = True
 
             field_path = self._field_path_to_array(i)
-
-            # make sure this field path is not a list type that
-            # has already been filled.
-
-            if field_path in self._filled_lists:
-                continue
 
             # setup done, loop through the events.
             for event_enum in enumerate(base_events):
