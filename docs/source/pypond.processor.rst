@@ -12,6 +12,14 @@ pypond.processor.aggregator module
     :undoc-members:
     :show-inheritance:
 
+pypond.processor.align module
+-----------------------------
+
+.. automodule:: pypond.processor.align
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pypond.processor.base module
 ----------------------------
 

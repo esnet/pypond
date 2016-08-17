@@ -221,7 +221,7 @@ class TestRenameFillAndAlign(CleanBase):
             self.assertEqual(len(wrn), 1)
             self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
 
-        # empty series
+        # empty series for coverage caught a bug
         empty = TimeSeries(dict(
             name="Sensor values",
             columns=["time", "temperature"],
@@ -229,7 +229,7 @@ class TestRenameFillAndAlign(CleanBase):
             ]
         ))
 
-        empty.fill(method='linear')
+        self.assertEqual(empty.fill(field_spec='temperature').size(), 0)
 
     def test_zero_fill(self):
         """test using the filler to fill missing values with zero."""

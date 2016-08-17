@@ -93,8 +93,7 @@ If `fill_limit` is not set, no limits will be placed on the fill and all values 
 
 `TimeSeries.fill()` will be the common entry point for the `Filler`, but a `Pipeline` can be constructed as well. Even though the default behavior of `TimeSeries.fill()` applies to all fill methods, the `linear` fill logic is somewhat different than the `zero` and `pad` methods. Note the following points when creating your own `method='linear'` processing chain.
 
-This:
-
+* When constructing a `Pipeline` to do a `linear` fill on multiple columns, chain them together like this rather than passing in a `field_spec` that is a list of columns:
 ```
     Pipeline()
     .from_source(ts)
@@ -102,45 +101,10 @@ This:
     .fill(field_spec='direction.out', method='linear')
     .to_keyed_collections()
 ```
-
-and this:
-
-```
-    Pipeline()
-    .from_source(ts)
-    .fill(field_spec=['direction.in', 'direction.out'], method='linear')
-    .to_keyed_collections()
-```
-
-Are not functionally identical.
-
-In the former example, the two columns will be filled independently of each other. That is the behavior of `TimeSeries.fill()` and the desired behavior most of the time. In the latter case, the two columns will be treated like a **composite key** when determining if an `Event` is valid or not.
-
-Generally speaking, the first use case will be the one you're looking for.
-
-Other points to note:
-
-* If a non numeric value (as determined by `isinstance(val, numbers.Number)`) is encountered when doing a `linear` fill, a warning will be issued and that field spec will cease being processed.
+* If a non numeric value (as determined by `isinstance(val, numbers.Number)`) is encountered when doing a `linear` fill, a warning will be issued and that column will not be processed.
 * When using streaming input like `UnboundedIn`, it is a best practice to set a limit using the optional arg `fill_limit`. This will ensure events will continue being emitted if the data hits a long run of invalid values.
 * When using an unbounded source, make sure to shut it down "cleanly" using `.stop()`. This will ensure `.flush()` is called so any unfilled cached events are emitted.
 
-### List values
-
-If `TimeSeries.fill()` is being used on a series where an actual value is a list of values:
-
-```
-    simple_list_data = dict(
-        name="traffic",
-        columns=["time", "series"],
-        points=[
-            [1400425947000, [None, None, 3, 4, 5, 6, 7]],
-            [1400425948000, [1, None, None, 4, 5, 6, 7]],
-            [1400425949000, [1, 2, 3, 4, None, None, None]],
-            [1400425950000, [1, 2, 3, 4, None, None, 7]],
-        ]
-    )
-```
-Filling will be performed on the values inside the lists as well. As above, if the method is `linear` and it encounters a non-numeric value, a warning will be issued and the list will not be processed.
 
 ## Rename
 

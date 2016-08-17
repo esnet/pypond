@@ -1047,6 +1047,10 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             the fill operation.
         """
 
+        # if there is nothing to fill, then just bail
+        if self.size() == 0:
+            return self
+
         pip = self.pipeline()
 
         if method in ('zero', 'pad') or \
@@ -1062,13 +1066,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             if field_spec is None:
                 # presume homogenous data when None is provided as
                 # the field spec, derive paths from first event.
-                if self.size() == 0:
-                    # series is empty, can't derive paths
-                    field_spec = list()
-                else:
-                    tmp = generate_paths(thaw(self.at(0).data()))
-                    # xform back into deep.path.strings
-                    field_spec = ['.'.join(x) for x in tmp]
+                tmp = generate_paths(thaw(self.at(0).data()))
+                # xform back into deep.path.strings
+                field_spec = ['.'.join(x) for x in tmp]
 
             for fpath in field_spec:
                 pip = pip.fill(fpath, method, fill_limit)
