@@ -542,10 +542,10 @@ def nested_get(dic, keys):
         return 'bad_path'
 
 
-def generate_paths(dic):
+def generate_paths(dic):  # pragma: no cover
     """
     Generate a list of all possible field paths in a dict. This is
-    for to determine all paths when none is given.
+    for determining all paths in a dict when none is given.
 
     Currently unused, but keeping since we will probably need it.
 

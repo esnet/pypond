@@ -73,7 +73,17 @@ class CleanBase(unittest.TestCase):
         RESULTS = None
 
 
-class TestRenameFillAndAlign(CleanBase):
+class TestAlign(CleanBase):
+    """
+    Test Align processor
+    """
+
+    def test_align(self):
+        """test basic fill alignment."""
+        pass
+
+
+class TestRenameFill(CleanBase):
     """
     A set of test for the second gen methods to manipulate timeseries
     and events.
@@ -749,7 +759,7 @@ class TestRenameFillAndAlign(CleanBase):
         ts = TimeSeries(simple_missing_data)
 
         new_ts = ts.fill(method='pad',
-            field_spec=['direction.in', 'direction.out', 'direction.drop'])
+                         field_spec=['direction.in', 'direction.out', 'direction.drop'])
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
         self.assertEqual(new_ts.at(1).get('direction.in'), 1)  # padded
