@@ -10,7 +10,7 @@ from ..util import is_pipeline, Options
 
 
 class Align(Processor):
-    """A processor to align the data into bins of regular time periods.
+    """A processor to align the data into bins of regular time period.
 
     Parameters
     ----------

@@ -559,7 +559,7 @@ class TestAggregator(BaseTestPipeline):
 
         def cback(event):
             """catch the return"""
-            self.assertEqual(event.get('total'), 117)
+            self.assertEqual(event.get('max_total'), 117)
 
         timeseries = TimeSeries(IN_OUT_DATA)
 
@@ -568,7 +568,7 @@ class TestAggregator(BaseTestPipeline):
             .from_source(timeseries)
             .emit_on('flush')
             .collapse(['in', 'out'], 'total', Functions.sum())
-            .aggregate(dict(total=Functions.max()))
+            .aggregate(dict(max_total=dict(total=Functions.max())))
             .to(EventOut, cback)
         )
 
@@ -579,12 +579,12 @@ class TestAggregator(BaseTestPipeline):
             .from_source(timeseries)
             .emit_on('flush')
             .collapse(['in', 'out'], 'total', Functions.sum())
-            .aggregate(dict(total=Functions.max()))
+            .aggregate(dict(max_total=dict(total=Functions.max())))
             .to_event_list()
         )
 
         self.assertEqual(len(elist), 1)
-        self.assertEqual(elist[0].get('total'), 117)
+        self.assertEqual(elist[0].get('max_total'), 117)
 
     def test_aggregate_deep_path(self):
         """Make sure that the aggregator will work on a deep path."""
@@ -593,11 +593,11 @@ class TestAggregator(BaseTestPipeline):
             Pipeline()
             .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
-            .aggregate({'direction.out': Functions.max()})
+            .aggregate(dict(out_max={'direction.out': Functions.max()}))
             .to_event_list()
         )
 
-        self.assertEqual(elist[0].get('out'), 4)
+        self.assertEqual(elist[0].get('out_max'), 4)
 
         # Make sure it works with the the non-string version to aggregate
         # multiple columns
@@ -606,12 +606,17 @@ class TestAggregator(BaseTestPipeline):
             Pipeline()
             .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
             .emit_on('flush')
-            .aggregate({('direction.out', 'direction.in'): Functions.max()})
+            .aggregate(
+                {
+                    'in_max': {'direction.in': Functions.max()},
+                    'out_max': {'direction.out': Functions.max()},
+                }
+            )
             .to_event_list()
         )
 
-        self.assertEqual(elist[0].get('out'), 4)
-        self.assertEqual(elist[0].get('in'), 8)
+        self.assertEqual(elist[0].get('out_max'), 4)
+        self.assertEqual(elist[0].get('in_max'), 8)
 
     def test_windowed_average(self):
         """aggregate events into by windowed avg."""
@@ -652,17 +657,22 @@ class TestAggregator(BaseTestPipeline):
             .from_source(uin)
             .window_by('1h')
             .emit_on('eachEvent')
-            .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
+            .aggregate(
+                {
+                    'in_avg': {'in': Functions.avg()},
+                    'out_avg': {'out': Functions.avg()}
+                }
+            )
             .to(EventOut, cback)
         )
 
         for i in events_in:
             uin.add_event(i)
 
-        self.assertEqual(RESULTS.get('1h-396199').get('in'), 6)
-        self.assertEqual(RESULTS.get('1h-396199').get('out'), 3)
-        self.assertEqual(RESULTS.get('1h-396200').get('in'), 4.5)
-        self.assertEqual(RESULTS.get('1h-396200').get('out'), 8)
+        self.assertEqual(RESULTS.get('1h-396199').get('in_avg'), 6)
+        self.assertEqual(RESULTS.get('1h-396199').get('out_avg'), 3)
+        self.assertEqual(RESULTS.get('1h-396200').get('in_avg'), 4.5)
+        self.assertEqual(RESULTS.get('1h-396200').get('out_avg'), 8)
 
     def test_collect_and_aggregate(self):
         """collect events together and aggregate."""
@@ -709,21 +719,27 @@ class TestAggregator(BaseTestPipeline):
                 )
             )
             .emit_on('eachEvent')
-            .aggregate({'type': Functions.keep(), 'in': Functions.avg(), 'out': Functions.avg()})
+            .aggregate(
+                {
+                    'type': {'type': Functions.keep()},
+                    'in_avg': {'in': Functions.avg()},
+                    'out_avg': {'out': Functions.avg()}
+                }
+            )
             .to(EventOut, cback)
         )
 
         for i in events_in:
             uin.add_event(i)
 
-        self.assertEqual(RESULTS.get('1h-396199:a').get('in'), 6)
-        self.assertEqual(RESULTS.get('1h-396199:a').get('out'), 1.5)
-        self.assertEqual(RESULTS.get('1h-396199:b').get('in'), 6)
-        self.assertEqual(RESULTS.get('1h-396199:b').get('out'), 6)
-        self.assertEqual(RESULTS.get('1h-396200:a').get('in'), 4)
-        self.assertEqual(RESULTS.get('1h-396200:a').get('out'), 7)
-        self.assertEqual(RESULTS.get('1h-396200:b').get('in'), 5)
-        self.assertEqual(RESULTS.get('1h-396200:b').get('out'), 9)
+        self.assertEqual(RESULTS.get('1h-396199:a').get('in_avg'), 6)
+        self.assertEqual(RESULTS.get('1h-396199:a').get('out_avg'), 1.5)
+        self.assertEqual(RESULTS.get('1h-396199:b').get('in_avg'), 6)
+        self.assertEqual(RESULTS.get('1h-396199:b').get('out_avg'), 6)
+        self.assertEqual(RESULTS.get('1h-396200:a').get('in_avg'), 4)
+        self.assertEqual(RESULTS.get('1h-396200:a').get('out_avg'), 7)
+        self.assertEqual(RESULTS.get('1h-396200:b').get('in_avg'), 5)
+        self.assertEqual(RESULTS.get('1h-396200:b').get('out_avg'), 9)
 
     def test_aggregate_and_conversion(self):
         """Aggregate/average and convert to TimeRangeEvent."""
@@ -765,7 +781,12 @@ class TestAggregator(BaseTestPipeline):
             .from_source(uin)
             .window_by('1h')
             .emit_on('eachEvent')
-            .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
+            .aggregate(
+                {
+                    'in_avg': {'in': Functions.avg()},
+                    'out_avg': {'out': Functions.avg()},
+                }
+            )
             .as_time_range_events(dict(alignment='lag'))
             .to(EventOut, cback)
         )
@@ -773,11 +794,11 @@ class TestAggregator(BaseTestPipeline):
         for i in events_in:
             uin.add_event(i)
 
-        self.assertEqual(RESULTS.get('1426294800000').get('in'), 6)
-        self.assertEqual(RESULTS.get('1426294800000').get('out'), 3)
+        self.assertEqual(RESULTS.get('1426294800000').get('in_avg'), 6)
+        self.assertEqual(RESULTS.get('1426294800000').get('out_avg'), 3)
 
-        self.assertEqual(RESULTS.get('1426298400000').get('in'), 4.5)
-        self.assertEqual(RESULTS.get('1426298400000').get('out'), 8)
+        self.assertEqual(RESULTS.get('1426298400000').get('in_avg'), 4.5)
+        self.assertEqual(RESULTS.get('1426298400000').get('out_avg'), 8)
 
     def test_bad_args(self):
         """Trigger exceptions and warnings, etc."""
@@ -807,7 +828,9 @@ class TestAggregator(BaseTestPipeline):
                 Pipeline()
                 .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
                 .emit_on('BOGUS')
-                .aggregate({('direction.out', 'direction.in'): Functions.max()})
+                .aggregate(
+                    {'max_in': {'direction.in': Functions.max()}}
+                )
                 .to_event_list()
             )
 

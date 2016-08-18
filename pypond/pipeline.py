@@ -831,35 +831,33 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         ::
 
-            uin = UnboundedIn()
+                uin = UnboundedIn()
 
-            (
-                Pipeline()
-                .from_source(uin)
-                .window_by('1h')
-                .emit_on('eachEvent')
-                .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
-                .to(EventOut, cback)
-            )
-
-        A more complex example - this will aggregate two deep fields into a
-        single object::
-
-            elist = (
-                Pipeline()
-                .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
-                .emit_on('flush')
-                .aggregate({('direction.out', 'direction.in'): Functions.max()})
-                .to_event_list()
-            )
+                (
+                    Pipeline()
+                    .from_source(uin)
+                    .window_by('1h')
+                    .emit_on('eachEvent')
+                    .aggregate(
+                        {
+                            'in_avg': {'in': Functions.avg()},
+                            'out_avg': {'out': Functions.avg()}
+                        }
+                    )
+                    .to(EventOut, cback)
+                )
 
 
         Parameters
         ----------
         fields : dict
             Fields and operators to be aggregated. Deep fields may be
-            indicated by using this.style.notation and multiple fields
-            can be aggregated by using a tuple as a key
+            indicated by using this.style.notation. As in the above
+            example, they fields.keys() are the names of the new
+            columns to be created (or an old one to be overwritten),
+            and the value is another dict - the key is the existing
+            column and the value is the function to apply to it when
+            creating the new column.
 
         Returns
         -------

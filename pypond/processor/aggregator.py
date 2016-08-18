@@ -7,7 +7,7 @@ from ..exceptions import ProcessorException
 from ..indexed_event import IndexedEvent
 from ..pipeline_out import Collector
 from ..timerange_event import TimeRangeEvent
-from ..util import is_pipeline, Options, is_function
+from ..util import is_pipeline, Options
 
 
 class Aggregator(Processor):
@@ -76,8 +76,8 @@ class Aggregator(Processor):
                     msg = 'Aggregator: field of unknown type: {0}'.format(k)
                     raise ProcessorException(msg)
 
-                if not is_function(v):
-                    msg = 'Aggregator: field values must be a function, got: {0}'.format(v)
+                if not isinstance(v, dict):
+                    msg = 'Aggregator: field values must be a dict, got: {0}'.format(v)
                     raise ProcessorException(msg)
 
             if pipeline.mode() == 'stream':
@@ -107,6 +107,10 @@ class Aggregator(Processor):
         """
         This is the callback passed to the collector, normally done
         as an inline in the Javascript source.
+
+        group_by_key is unused - this is because the collector supplies all of
+        those args to any callback that is fed to it. That doesn't break thing
+        in JS apparently.
         """
 
         self._log(
@@ -116,23 +120,23 @@ class Aggregator(Processor):
 
         new_d = dict()
 
-        for fld, func in list(self._fields.items()):
+        for field_name, field_map in list(self._fields.items()):
 
-            field_list = [fld] if isinstance(fld, str) else list(fld)
+            # field_list = [field_name] if isinstance(field_name, str) else list(field_name)
 
             self._log(
                 'Aggregator._collector_callback',
-                'fld: {0}, func: {1} field_list: {2}'.format(fld, func, field_list)
+                'field_name: {0}, map: {1}'.format(field_name, field_map)
             )
 
-            for field_path in field_list:
-                field_value = collection.aggregate(func, field_path)
-                self._log(
-                    'Aggregator._collector_callback',
-                    'field_value: {0}'.format(field_value)
-                )
-                field_name = field_path.split('.').pop()
-                new_d[field_name] = field_value
+            if len(field_map) != 1:
+                msg = 'Fields should contain exactly one field'
+                raise ProcessorException(msg)
+
+            field = list(field_map.keys())[0]
+            func = field_map[field]
+
+            new_d[field_name] = collection.aggregate(func, field)
 
         event = None
 

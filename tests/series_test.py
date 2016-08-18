@@ -620,7 +620,9 @@ class TestRollups(SeriesBase):
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
-        daily_avg = timeseries.fixed_window_rollup('1d', dict(value=Functions.avg()))
+        daily_avg = timeseries.fixed_window_rollup(
+            '1d',
+            dict(value=dict(value=Functions.avg())))
 
         self.assertEqual(daily_avg.size(), 5)
         self.assertEqual(daily_avg.at(0).value(), 46.875)
@@ -632,7 +634,7 @@ class TestRollups(SeriesBase):
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
-        hourly_avg = timeseries.hourly_rollup(dict(value=Functions.avg()))
+        hourly_avg = timeseries.hourly_rollup(dict(value=dict(value=Functions.avg())))
 
         self.assertEqual(hourly_avg.size(), len(SEPT_2014_DATA.get('points')))
         self.assertEqual(hourly_avg.at(0).value(), 80.0)
@@ -656,7 +658,7 @@ class TestRollups(SeriesBase):
         # just silence the warnings, not do anything with them.
         with warnings.catch_warnings(record=True):
 
-            daily_avg = timeseries.daily_rollup(dict(value=Functions.avg()))
+            daily_avg = timeseries.daily_rollup(dict(value=dict(value=Functions.avg())))
 
             ts_1 = SEPT_2014_DATA.get('points')[0][0]
 
@@ -665,14 +667,14 @@ class TestRollups(SeriesBase):
                 daily_avg.at(0).index().to_string()
             )
 
-            monthly_avg = timeseries.monthly_rollup(dict(value=Functions.avg()))
+            monthly_avg = timeseries.monthly_rollup(dict(value=dict(value=Functions.avg())))
 
             self.assertEqual(
                 Index.get_monthly_index_string(dt_from_ms(ts_1), utc=False),
                 monthly_avg.at(0).index().to_string()
             )
 
-            yearly_avg = timeseries.yearly_rollup(dict(value=Functions.avg()))
+            yearly_avg = timeseries.yearly_rollup(dict(value=dict(value=Functions.avg())))
 
             self.assertEqual(
                 Index.get_yearly_index_string(dt_from_ms(ts_1), utc=False),
