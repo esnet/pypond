@@ -1007,7 +1007,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.
 
-            If None, all columns will be filled.
+            If None, the default column field 'value' will be used.
         method : str, optional
             Filling method: zero | linear | pad
         fill_limit : None, optional

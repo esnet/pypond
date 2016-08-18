@@ -251,7 +251,7 @@ class TestRenameFillAndAlign(CleanBase):
 
         # fill all invalid values
 
-        new_ts = ts.fill()
+        new_ts = ts.fill(field_spec=['direction.in', 'direction.out'])
 
         self.assertEqual(new_ts.size(), 6)
 
@@ -298,7 +298,7 @@ class TestRenameFillAndAlign(CleanBase):
 
         # zero fill everything
 
-        new_ts = ts.fill()
+        new_ts = ts.fill(field_spec=['direction.out.tcp', 'direction.in.udp'])
 
         self.assertEqual(new_ts.at(0).get('direction.in.udp'), 3)
         self.assertEqual(new_ts.at(1).get('direction.in.udp'), 0)  # fill
@@ -370,27 +370,6 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
         self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
-        # do the same thing but no field spec to make sure it still fills
-        # both columns
-
-        alt_ts = ts.fill(method='linear')
-
-        self.assertEqual(alt_ts.size(), 7)
-
-        self.assertEqual(alt_ts.at(0).get('direction.in'), 1)
-        self.assertEqual(alt_ts.at(1).get('direction.in'), 2.0)  # filled
-        self.assertEqual(alt_ts.at(2).get('direction.in'), 2.5)  # filled
-        self.assertEqual(alt_ts.at(3).get('direction.in'), 3)
-        self.assertEqual(alt_ts.at(4).get('direction.in'), 4.0)  # filled
-        self.assertEqual(alt_ts.at(5).get('direction.in'), 5)
-
-        self.assertEqual(alt_ts.at(0).get('direction.out'), 2)
-        self.assertEqual(alt_ts.at(1).get('direction.out'), 7.0)  # filled
-        self.assertEqual(alt_ts.at(2).get('direction.out'), 9.5)  # filled
-        self.assertEqual(alt_ts.at(3).get('direction.out'), 10.75)  # filled
-        self.assertEqual(alt_ts.at(4).get('direction.out'), 11.375)  # filled
-        self.assertEqual(alt_ts.at(5).get('direction.out'), 12)
-
     def test_linear_list(self):
         """Test linear interpolation returned as an event list."""
 
@@ -460,24 +439,6 @@ class TestRenameFillAndAlign(CleanBase):
         ts = TimeSeries(simple_missing_data)
 
         new_ts = ts.fill(method='linear', field_spec=['direction.in', 'direction.out'])
-
-        self.assertEqual(new_ts.at(0).get('direction.in'), 1)
-        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
-        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
-        self.assertEqual(new_ts.at(3).get('direction.in'), 3)
-        self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
-        self.assertEqual(new_ts.at(5).get('direction.in'), 5)
-
-        self.assertEqual(new_ts.at(0).get('direction.out'), None)  # can't fill
-        self.assertEqual(new_ts.at(1).get('direction.out'), None)  # can't fill
-        self.assertEqual(new_ts.at(2).get('direction.out'), None)  # can't fill
-        self.assertEqual(new_ts.at(3).get('direction.out'), 8)
-        self.assertEqual(new_ts.at(4).get('direction.out'), 10.0)  # filled
-        self.assertEqual(new_ts.at(5).get('direction.out'), 12)
-
-        # do the same thing but w/out field spec/fill all
-
-        new_ts = ts.fill(method='linear')
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
         self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
@@ -626,7 +587,8 @@ class TestRenameFillAndAlign(CleanBase):
         ts = TimeSeries(simple_missing_data)
 
         # verify fill limit for zero fill
-        zero_ts = ts.fill(method='zero', fill_limit=2)
+        zero_ts = ts.fill(method='zero', fill_limit=2,
+                          field_spec=['direction.in', 'direction.out'])
 
         self.assertEqual(zero_ts.at(0).get('direction.in'), 1)
         self.assertEqual(zero_ts.at(1).get('direction.in'), 0)  # fill
@@ -653,7 +615,8 @@ class TestRenameFillAndAlign(CleanBase):
         self.assertEqual(zero_ts.at(10).get('direction.out'), None)  # over limit skip
 
         # verify fill limit for pad fill
-        pad_ts = ts.fill(method='pad', fill_limit=2)
+        pad_ts = ts.fill(method='pad', fill_limit=2,
+                         field_spec=['direction.in', 'direction.out'])
 
         self.assertEqual(pad_ts.at(0).get('direction.in'), 1)
         self.assertEqual(pad_ts.at(1).get('direction.in'), 1)  # fill
@@ -714,7 +677,7 @@ class TestRenameFillAndAlign(CleanBase):
         rts = TimeSeries(
             dict(name='collection', collection=coll))
 
-        new_rts = rts.fill()
+        new_rts = rts.fill(field_spec='in')
 
         self.assertEqual(new_rts.at(1).get('in'), 0)
         self.assertEqual(new_rts.at(2).get('in'), 0)
@@ -785,7 +748,8 @@ class TestRenameFillAndAlign(CleanBase):
 
         ts = TimeSeries(simple_missing_data)
 
-        new_ts = ts.fill(method='pad')
+        new_ts = ts.fill(method='pad',
+            field_spec=['direction.in', 'direction.out', 'direction.drop'])
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
         self.assertEqual(new_ts.at(1).get('direction.in'), 1)  # padded

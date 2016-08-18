@@ -16,8 +16,6 @@ import collections
 import copy
 import json
 
-import six
-
 from pyrsistent import freeze, thaw
 
 from .bases import PypondBase
@@ -27,7 +25,7 @@ from .exceptions import TimeSeriesException
 from .index import Index
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
-from .util import ObjectEncoder, generate_paths
+from .util import ObjectEncoder
 
 
 class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
@@ -1028,10 +1026,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.
 
-            If None, all columns will be filled. If the data payloads are
-            not homogenous, using this option is not suggested. It is better
-            to provide an explicit list of columns to fill or warnings
-            will be generated.
+            If None, the default column field 'value' will be used.
         method : str, optional
             Filling method: zero | linear | pad
         fill_limit : None, optional
@@ -1054,21 +1049,13 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         pip = self.pipeline()
 
         if method in ('zero', 'pad') or \
-                (method == 'linear' and isinstance(field_spec, six.string_types)):
-            # either not linear or linear with a single path, just
-            # install one Filler in the chain and go.
+                (method == 'linear' and not isinstance(field_spec, list)):
+            # either not linear or linear with a single path, or None.
+            # just install one Filler in the chain and go.
             pip = pip.fill(field_spec, method, fill_limit)
-        elif method == 'linear' and \
-                (isinstance(field_spec, list) or field_spec is None):
+        elif method == 'linear' and isinstance(field_spec, list):
             # linear w/multiple paths, chain multiple Fillers for
             # asymmetric column filling.
-
-            if field_spec is None:
-                # presume homogenous data when None is provided as
-                # the field spec, derive paths from first event.
-                tmp = generate_paths(thaw(self.at(0).data()))
-                # xform back into deep.path.strings
-                field_spec = ['.'.join(x) for x in tmp]
 
             for fpath in field_spec:
                 pip = pip.fill(fpath, method, fill_limit)

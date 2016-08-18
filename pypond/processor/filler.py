@@ -13,7 +13,6 @@ import six
 from .base import Processor
 from ..exceptions import ProcessorException, ProcessorWarning
 from ..util import (
-    generate_paths,
     is_pipeline,
     is_valid,
     nested_get,
@@ -29,6 +28,8 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
     When doing a linear fill, Filler instances should be chained.
     See the Fill/sanitize doc (sanitize.md) for details.
+
+    If no field_spec is supplied, the default field 'value' will be used.
 
     Parameters
     ----------
@@ -88,12 +89,12 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
         if isinstance(self._field_spec, six.string_types):
             self._field_spec = [self._field_spec]
+        elif self._field_spec is None:
+            self._field_spec = ['value']
 
         # when using linear mode, only a single column will be processed
         # per instance. more details in sanitize.md
-        if self._method == 'linear' and \
-                ((isinstance(self._field_spec, list) and len(self._field_spec) != 1) or
-                 self._field_spec is None):
+        if self._method == 'linear' and len(self._field_spec) != 1:
             msg = 'linear fill takes a path to a single column\n'
             msg += ' - see the sanitize documentation for usage details.'
             raise ProcessorException(msg)
@@ -102,12 +103,12 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
         """clone it."""
         return Filler(self)
 
-    def _pad_and_zero(self, data, paths):
+    def _pad_and_zero(self, data):
         """
         Process and fill the values at the paths as apropos when the
         fill method is either pad or zero.
         """
-        for path in paths:
+        for path in self._field_spec:
 
             field_path = self._field_path_to_array(path)
 
@@ -280,18 +281,11 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
 
             new_data = thaw(event.data())
 
-            if self._field_spec is None:
-                # generate a list of all possible field paths
-                # if no field spec is specified.
-                paths = generate_paths(new_data)
-            else:
-                paths = self._field_spec
-
             if self._method in ('zero', 'pad'):
                 # zero and pad use much the same method in that
                 # they both will emit a single event every time
                 # add_event() is called.
-                self._pad_and_zero(new_data, paths)
+                self._pad_and_zero(new_data)
                 emit = event.set_data(new_data)
                 to_emit.append(emit)
                 # remember previous event for padding

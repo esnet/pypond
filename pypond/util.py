@@ -547,6 +547,8 @@ def generate_paths(dic):
     Generate a list of all possible field paths in a dict. This is
     for to determine all paths when none is given.
 
+    Currently unused, but keeping since we will probably need it.
+
     Parameters
     ----------
     dic : dict
@@ -561,7 +563,7 @@ def generate_paths(dic):
 
     def recurse(data, keys=()):
         """
-        Do the actual recursion and yield the keys to _generate_paths()
+        Do the actual recursion and yield the keys to generate_paths()
         """
         if isinstance(data, dict):
             for key in list(data.keys()):
