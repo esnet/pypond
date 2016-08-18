@@ -671,7 +671,14 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             Returns the _results attribute from a Pipeline object after processing.
             Will contain Collection objects.
         """
-        return self.to(CollectionOut)
+        ret = self.to(CollectionOut)
+
+        if ret is not None:
+            return ret
+        else:
+            # return an empty dict so any calls to collection.get() won't cause
+            # things to unceremoniously blow up and just return None instead.
+            return dict()
 
     def to(self, out, observer=None, options=Options()):  # pylint: disable=invalid-name
         """
