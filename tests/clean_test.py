@@ -73,16 +73,6 @@ class CleanBase(unittest.TestCase):
         RESULTS = None
 
 
-class TestAlign(CleanBase):
-    """
-    Test Align processor
-    """
-
-    def test_align(self):
-        """test basic fill alignment."""
-        pass
-
-
 class TestRenameFill(CleanBase):
     """
     A set of test for the second gen methods to manipulate timeseries

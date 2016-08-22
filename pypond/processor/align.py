@@ -34,6 +34,10 @@ class Align(Processor):
 
         self._field_spec = None
 
+        # instance attrs
+        self._prev = None
+        self._curr = None
+
         if isinstance(arg1, Align):
             # Copy constructor
             # pylint: disable=protected-access
