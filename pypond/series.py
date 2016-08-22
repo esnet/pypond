@@ -1073,6 +1073,18 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self.set_collection(coll.get('all'))
 
+    def align(self, field_spec=None, window='5m', limit=None):
+        """
+        Align entry point
+        """
+        coll = (
+            self.pipeline()
+            .align(field_spec, window, limit)
+            .to_keyed_collections()
+        )
+
+        return self.set_collection(coll.get('all'))
+
     def __str__(self):
         """call to_string()"""
         return self.to_string()  # pragma: no cover

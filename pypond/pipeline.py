@@ -25,6 +25,7 @@ from .pipeline_out import CollectionOut, EventOut
 from .pipeline_in import BoundedIn, UnboundedIn
 from .processor import (
     Aggregator,
+    Align,
     Collapser,
     Converter,
     Filler,
@@ -1038,6 +1039,23 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
         return self._append(fill)
+
+    def align(self, field_spec=None, window='5m', limit=None):
+        """
+        Align entry point
+        """
+
+        align = Align(
+            self,
+            Options(
+                field_spec=field_spec,
+                window=window,
+                limit=limit,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(align)
 
     def take(self, limit):
         """
