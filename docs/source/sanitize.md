@@ -132,4 +132,135 @@ The top level key `direction` can be renamed but the nested keys `in` and `out` 
 
 ## Align
 
-TBA
+The align processor takes a `TimeSeries` of events that might come in with timestamps at uneven intervals and produces a new series of those points aligned on precise time window boundaries.  A series containing four events with following timestamps:
+
+```
+0:40
+1:05
+1:45
+2:10
+```
+Given a window of `1m` (one minute), a new series with two events at the following times will be produced:
+
+```
+1:00
+2:00
+```
+
+Only a series of `Event` objects can be aligned. `IndexedEvent` objects are basically already aligned and it makes no sense in the case of a `TimeRangeEvent`.
+
+### Usage
+
+The full argument usage of the align method:
+
+```
+ts = TimeSeries(DATA_WITH_GAPS)
+aligned = ts.align(field_spec='value', window='1m', method='linear', limit=2)
+```
+* `field_spec` - indicates which fields should be interpolated by the selected `method`. Typical usage of this arg type. If not supplied, then the default field `value` will be used. This indicates which fields should be interpolated by the selected `method`.
+* `window` - an integer and the usual `s/m/h/d` notation like `1m`, `30s`, `6h`, etc. The emitted events will be emitted on the indicated window boundaries. Due to the nature of the interpolation, one would want to use a window close to the frequency of the events. It would make little sense to set a window of `5h` on hourly data, etc.
+* `method` - the interpolation method to be used: `linear` (the default) and `hold`.
+* `limit` - sets a limit on the number of boundary interpolated events will be produced. If `limit=2, window='1m'` and two events come in at the following times:
+
+```
+0:45
+3:15
+```
+That would normally produce events on three window boundaries `1:00, 2:00 and 3:00` and that exceeds the `limit` so those events will have `None` as a value instead of an interpolated value.
+
+### Fill methods
+
+#### Linear
+
+This is the default method. It interpolates new values in the `Event` objects on the window boundaries using a strategy like this:
+
+![linear align](_static/esnet/align.png)
+
+The green points are the events that will be produced by the `linear` fill method by interpolating the raw points. It also shows why it makes little sense to use a window significantly larger than the frequency of the events. When the window is set too wide for the data, many of the points in the middle of the window will be disregarded since the generated points are interpolated from the last event in the previous window and the first one in the current window.
+
+#### Hold
+
+This is a much simpler method. It just fills the selected field(s) with the corresponding value from the previous event.
+
+### Fill math
+
+Documentation about the fill methods being used as apropos. This is primarily for other developers.
+
+#### `linear` fill and the straight line equation
+
+The values in the events interpolated on the window boundaries are generated using the [equation of the straight line](https://www.mathsisfun.com/equation_of_line.html
+):
+
+```
+y = mx + b
+```
+In this case, `b` is zero because the first of the two events is the source. That variable is not important for our purposes because of that.
+
+What follows is an example with a very simple dataset showing how real numbers flow through the equation. This is implemented in `Align._interpolate_linear()`.
+
+Here is the sample data set of two events and the interpolated one:
+
+```
+0:00
+0:15
+0:30 - .75 <— event
+0:45
+1:00 - 1.25 <— interpolated point
+1:15
+1:30
+1:45 - 2 <— event
+2:00
+```
+
+So there are the following two points:
+
+```
+# NOTE: this example uses a very simplified x/time axis.
+# Here I am just representing timestamps as fractional minutes.
+# In practice, use raw milliseconds, the final calculations will be
+# the same.
+
+     (ts, value)
+p1 = (.5, .75)
+p2 = (1.75, 2)
+```
+Since we are calculating `y = mx` (`b` is zero) first calculate `m` which is the slope of the line:
+
+```
+# in this part, the values from p2 (the later event) comes first.
+# In practice these would be called with .get(field_path) and using
+# the raw timestamp values in milliseconds, this is pseudocode to
+# clarify what we are looking at.
+
+m = delta y / delta x
+m = delta values / delta timestamp
+m = (p2.value() - p1.value()) / (p2.timestamp() - p1.timestamp())
+m = (2 - .75) / (1.75 - .5)
+m = 1.25 / 1.25
+m = 1
+```
+And the next important variable is the actual boundary. It is the x axis/timestamp where the interpolated event is to fall. Everything else is just calculated from the deltas between the two points. Again, we are using the simplified time scale here so boundary is 1. In practice, the boundary would also be where the point is to fall in epoch milliseconds.
+
+Given that, the rest of the equation:
+
+```
+delta_x3 = (BOUNDARY - x1)
+delta_x3 = (1 - p1.timestamp())
+delta_x3 = (1 - .5)
+delta_x3 = .5
+
+delta_y3 = m(delta_x3) <-- m is the slope from previous part
+delta_y3 = 1(.5)
+delta_y3 = .5
+
+(x_final, y_final) = (x1 + delta_x3), (y1 + delta_y3)
+(x_final, y_final) = (p1.timestamp() + delta_x3), (p1.value() + delta_y3)
+(x_final, y_final) = (.5 + .5), (.75 + .5)
+(x_final, y_final) = (1, 1.25)
+```
+The value `y_final` is the interpolated value. As a sanity check for the math:
+
+```
+assert x_final == BOUNDARY
+```
+
