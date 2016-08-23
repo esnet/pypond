@@ -109,19 +109,31 @@ class Align(Processor):
         else:
             return list()
 
-    def _interpolate_event(self, boundary, event):
+    def _interpolate_event(self, boundary, event):  # pylint: disable=too-many-locals
         """
-        Given the current event and a boundary edge to drop place a new
-        event on, construct a new event.
+        Given the current event and a boundary edge between that and the
+        previous event, generate a new event to place on that boundary.
 
-        Implementing:
+        This implements the equation of a straight line to determine the
+        value(s) of the interpolated event that is being aligned to arg
+        boundary:
 
-        y = mx + b (but b is zero so _previous is the origin)
+            y = mx + b
+
+        Where b is zero because the trailing point is the origin. See:
+        https://www.mathsisfun.com/equation_of_line.html
+
+        Yes pylint, I used a lot of local variables instead of writing one huge
+        nested parenthetical equation from hell that would be a PITA for
+        someone else to look at.
         """
-        print('_interpolate_event')
+
         new_data = thaw(event.data())
 
-        # XXX: Fuck with UTC here?
+        # We are dealing in UTC only with the Index because the events
+        # all have internal timestamps in UTC and that's what we're
+        # aligning. Let the user display in local time if that's
+        # what they want.
         idx = Index(boundary)
 
         previous_ts = ms_from_dt(self._previous.timestamp())
@@ -129,27 +141,28 @@ class Align(Processor):
         current_ts = ms_from_dt(event.timestamp())
 
         for i in self._field_spec:
-            # calculate "m" which is delta y / delta x
+            # calculate "m" (slope) which is delta y / delta x
             # delta_y is the difference between values
             # delta_x is the proportion of a single window between the two values
 
             field_path = self._field_path_to_array(i)
 
+            # XXX: bulletproof against bad paths and non numeric values.
             # difference in values
             value_delta = event.get(i) - self._previous.get(field_path)
 
             # difference in time
             time_delta = current_ts - previous_ts
 
-            m_value = truediv(value_delta, time_delta)
-            # print('m:', m_value)
+            slope = truediv(value_delta, time_delta)
+            # print('m:', slope)
 
             # calculate delta_x3 between ms timestamps
             delta_x3 = boundary_ts - previous_ts
             # print('x3:', delta_x3)
 
             # calculate delta_y3 between values
-            delta_y3 = m_value * delta_x3
+            delta_y3 = slope * delta_x3
             # print('y3:', delta_y3)
 
             # final points
