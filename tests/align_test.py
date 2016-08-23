@@ -77,7 +77,7 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.at(4).get(), None)  # over limit, fill with None
         self.assertEqual(aligned.at(5).get(), None)  # over limit, fill with None
         self.assertEqual(aligned.at(6).get(), 1)
-        self.assertEqual(aligned.at(6).get(), 1)
+        self.assertEqual(aligned.at(7).get(), 1)
 
         aligned = self._simple_ts.align(field_spec='value', window='1m', method='linear', limit=2)
 
