@@ -1073,13 +1073,13 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self.set_collection(coll.get('all'))
 
-    def align(self, field_spec=None, window='5m', limit=None):
+    def align(self, field_spec=None, window='5m', method='linear', limit=None):
         """
         Align entry point
         """
         coll = (
             self.pipeline()
-            .align(field_spec, window, limit)
+            .align(field_spec, window, method, limit)
             .to_keyed_collections()
         )
 

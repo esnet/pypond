@@ -1040,7 +1040,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(fill)
 
-    def align(self, field_spec=None, window='5m', limit=None):
+    def align(self, field_spec=None, window='5m', method='linear', limit=None):
         """
         Align entry point
         """
@@ -1051,6 +1051,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 field_spec=field_spec,
                 window=window,
                 limit=limit,
+                method=method,
                 prev=self._chain_last(),
             )
         )

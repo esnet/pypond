@@ -4,8 +4,8 @@ Simple processor to change the event values by a certain offset.
 Primarily for testing.
 """
 
+import numbers
 from operator import truediv
-import re
 
 import six
 
@@ -13,9 +13,11 @@ from pyrsistent import thaw
 
 from .base import Processor
 from ..event import Event
-from ..exceptions import ProcessorException
+from ..exceptions import ProcessorException, ProcessorWarning
 from ..index import Index
+from ..indexed_event import IndexedEvent
 from ..range import TimeRange
+from ..timerange_event import TimeRangeEvent
 from ..util import is_pipeline, Options, ms_from_dt, nested_set
 
 
@@ -46,11 +48,10 @@ class Align(Processor):
         self._window = None
         self._limit = None
         self._field_spec = None
+        self._method = None
 
         # instance attrs
         self._previous = None
-        self._current = None
-        self._window_size_key = None
 
         if isinstance(arg1, Align):
             # Copy constructor
@@ -58,10 +59,12 @@ class Align(Processor):
             self._window = arg1._window
             self._limit = arg1._limit
             self._field_spec = arg1._field_spec
+            self._method = arg1._method
         elif is_pipeline(arg1):
             self._window = options.window
             self._limit = options.limit
             self._field_spec = options.field_spec
+            self._method = options.method
         else:
             msg = 'Unknown arg to Align constructor: {a}'.format(a=arg1)
             raise ProcessorException(msg)
@@ -74,12 +77,13 @@ class Align(Processor):
         elif self._field_spec is None:
             self._field_spec = ['value']
 
-        # extract the window size key
-        range_re = re.match('([0-9]+)([smhd])', self._window)
-        if range_re is not None:
-            self._window_size_key = range_re.group(2)
-        else:
-            msg = 'could not extract s/m/h/d window key from window: {0}'.format(self._window)
+        # check input
+        if self._method not in ('linear', 'hold'):
+            msg = 'Unknown method {0}'.format(self._method)
+            raise ProcessorException(msg)
+
+        if self._limit is not None and not isinstance(self._limit, int):
+            msg = 'limit arg must be None or an integer'
             raise ProcessorException(msg)
 
     def clone(self):
@@ -109,7 +113,32 @@ class Align(Processor):
         else:
             return list()
 
-    def _interpolate_event(self, boundary, event):  # pylint: disable=too-many-locals
+    def _interpolate_hold(self, boundary, event, set_none=False):
+        """
+        Generate a new event on the requested boundary and carry over the
+        value from the previous event.
+
+        A variation just sets the values to None - this is used when the
+        limit is hit.
+        """
+        new_data = thaw(event.data())
+
+        idx = Index(boundary)
+
+        boundary_ts = ms_from_dt(idx.begin())
+
+        for i in self._field_spec:
+
+            field_path = self._field_path_to_array(i)
+
+            if set_none is False:
+                nested_set(new_data, field_path, self._previous.get(field_path))
+            else:
+                nested_set(new_data, field_path, None)
+
+        return Event(boundary_ts, new_data)
+
+    def _interpolate_linear(self, boundary, event):  # pylint: disable=too-many-locals
         """
         Given the current event and a boundary edge between that and the
         previous event, generate a new event to place on that boundary.
@@ -147,28 +176,39 @@ class Align(Processor):
 
             field_path = self._field_path_to_array(i)
 
-            # XXX: bulletproof against bad paths and non numeric values.
-            # difference in values
-            value_delta = event.get(i) - self._previous.get(field_path)
+            # generate the delta between the values and
+            # bulletproof against non-numeric/bad path
+
+            val1 = self._previous.get(field_path)
+            val2 = event.get(i)
+
+            if not isinstance(val1, numbers.Number) or \
+                    not isinstance(val2, numbers.Number):
+                msg = 'Path {0} contains non-numeric values or does not exist - '
+                msg += 'value will be set to None'
+
+                self._warn(msg, ProcessorWarning)
+
+                nested_set(new_data, field_path, None)
+                continue
+
+            # good values, calculate the delta and move on
+            value_delta = val2 - val1
 
             # difference in time
             time_delta = current_ts - previous_ts
 
             slope = truediv(value_delta, time_delta)
-            # print('m:', slope)
 
             # calculate delta_x3 between ms timestamps
             delta_x3 = boundary_ts - previous_ts
-            # print('x3:', delta_x3)
 
             # calculate delta_y3 between values
             delta_y3 = slope * delta_x3
-            # print('y3:', delta_y3)
 
             # final points
             x_final, y_final = (
                 (previous_ts + delta_x3), (self._previous.get(field_path) + delta_y3))
-            # print('finals:', x_final, y_final)
 
             # the x_final value should be the exact same as the boundary_ts
             # we already know, sanity check it.
@@ -180,7 +220,6 @@ class Align(Processor):
             # alright, lets set the value
             nested_set(new_data, field_path, y_final)
 
-        # XXX: revisit this for different Event types
         return Event(boundary_ts, new_data)
 
     def add_event(self, event):
@@ -195,6 +234,10 @@ class Align(Processor):
 
         self._log('Align.add_event', event)
 
+        if isinstance(event, (TimeRangeEvent, IndexedEvent)):
+            msg = 'TimeRangeEvent and IndexedEvent series can not be aligned.'
+            raise ProcessorException(msg)
+
         if self.has_observers():
 
             if self._previous is None:
@@ -202,18 +245,32 @@ class Align(Processor):
                 # takes two to tango so...
                 return
 
-            for bound in self._get_interpolation_boundaries(event):
+            boundaries = self._get_interpolation_boundaries(event)
+            fill_count = len(boundaries)
+
+            for bound in boundaries:
                 # if the returned list is not empty, interpolate an event
                 # on each of the boundaries and emit them.
                 self._log('Align.add_event', 'boundary: {0}'.format(bound))
-                ievent = self._interpolate_event(bound, event)
+
+                # check to see if we have hit the limit first, if so
+                # fill with None
+
+                if self._limit is not None and \
+                        fill_count > self._limit:
+                    ievent = self._interpolate_hold(bound, event, set_none=True)
+                else:
+                    # otherwise, fill
+                    if self._method == 'linear':
+                        ievent = self._interpolate_linear(bound, event)
+                    elif self._method == 'hold':
+                        ievent = self._interpolate_hold(bound, event)
+
                 self._log('Align.add_event', 'emitting: {0}'.format(ievent))
                 self.emit(ievent)
 
             # one way or another, the current event will now become previous
             # because either:
-            # 1) the events were in the same window; or
+            # 1) the events were in the same window and nothing was emitted; or
             # 2) any necessary events were emitted in the previous loop
             self._previous = event
-
-
