@@ -33,26 +33,30 @@ class AlignTest(unittest.TestCase):
 
         aligned = self._simple_ts.align(window='1m')
 
-        self.assertEqual(aligned.size(), 6)
+        self.assertEqual(aligned.size(), 8)
         self.assertEqual(aligned.at(0).get(), 1.25)
         self.assertEqual(aligned.at(1).get(), 1.8571428571428572)
         self.assertEqual(aligned.at(2).get(), 1.2857142857142858)
         self.assertEqual(aligned.at(3).get(), 1.0)
         self.assertEqual(aligned.at(4).get(), 1.0)
         self.assertEqual(aligned.at(5).get(), 1.0)
+        self.assertEqual(aligned.at(6).get(), 1.5)
+        self.assertEqual(aligned.at(7).get(), 2.5)
 
     def test_basic_hold_align(self):
         """test basic hold align."""
 
         aligned = self._simple_ts.align(window='1m', method='hold')
 
-        self.assertEqual(aligned.size(), 6)
+        self.assertEqual(aligned.size(), 8)
         self.assertEqual(aligned.at(0).get(), .75)
         self.assertEqual(aligned.at(1).get(), 2)
         self.assertEqual(aligned.at(2).get(), 2)
         self.assertEqual(aligned.at(3).get(), 1)
         self.assertEqual(aligned.at(4).get(), 1)
         self.assertEqual(aligned.at(5).get(), 1)
+        self.assertEqual(aligned.at(6).get(), 1)
+        self.assertEqual(aligned.at(7).get(), 1)
 
     def test_align_limit(self):
         """test basic hold align."""
@@ -68,6 +72,18 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.at(5).get(), None)  # over limit, fill with None
         self.assertEqual(aligned.at(6).get(), 1)
         self.assertEqual(aligned.at(6).get(), 1)
+
+        aligned = self._simple_ts.align(window='1m', method='linear', limit=2)
+
+        self.assertEqual(aligned.size(), 8)
+        self.assertEqual(aligned.at(0).get(), 1.25)
+        self.assertEqual(aligned.at(1).get(), 1.8571428571428572)
+        self.assertEqual(aligned.at(2).get(), 1.2857142857142858)
+        self.assertEqual(aligned.at(3).get(), None)  # over limit, fill with None
+        self.assertEqual(aligned.at(4).get(), None)  # over limit, fill with None
+        self.assertEqual(aligned.at(5).get(), None)  # over limit, fill with None
+        self.assertEqual(aligned.at(6).get(), 1.5)
+        self.assertEqual(aligned.at(7).get(), 2.5)
 
 
 if __name__ == '__main__':
