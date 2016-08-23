@@ -182,11 +182,11 @@ class Align(Processor):
             # generate the delta between the values and
             # bulletproof against non-numeric/bad path
 
-            val_previous = self._previous.get(field_path)
-            val_current = event.get(i)
+            previous_val = self._previous.get(field_path)
+            current_val = event.get(i)
 
-            if not isinstance(val_previous, numbers.Number) or \
-                    not isinstance(val_current, numbers.Number):
+            if not isinstance(previous_val, numbers.Number) or \
+                    not isinstance(current_val, numbers.Number):
                 msg = 'Path {0} contains non-numeric values or does not exist - '
                 msg += 'value will be set to None'
 
@@ -196,7 +196,7 @@ class Align(Processor):
                 continue
 
             # good values, calculate the delta and move on
-            value_delta = val_current - val_previous
+            value_delta = current_val - previous_val
 
             # difference in time
             time_delta = current_ts - previous_ts
@@ -211,7 +211,7 @@ class Align(Processor):
 
             # final points
             x_final, y_final = (
-                (previous_ts + delta_x3), (val_previous + delta_y3))
+                (previous_ts + delta_x3), (previous_val + delta_y3))
 
             # the x_final value should be the exact same as the boundary_ts
             # we already know, sanity check it.
