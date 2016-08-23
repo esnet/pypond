@@ -214,8 +214,9 @@ class Align(Processor):
                 (previous_ts + delta_x3), (previous_val + delta_y3))
 
             # the x_final value should be the exact same as the boundary_ts
-            # we already know, sanity check it.
-            if x_final != boundary_ts:
+            # we already know, sanity check it. no reliable way to trigger
+            # this because, so don't bother with coverage.
+            if x_final != boundary_ts:  # pragma: no cover
                 msg = 'interpolation error x_final: {0} != boundary_ts: {1}'.format(
                     x_final, boundary_ts)
                 raise ProcessorException(msg)
