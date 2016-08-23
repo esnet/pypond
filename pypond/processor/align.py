@@ -143,14 +143,17 @@ class Align(Processor):
         Given the current event and a boundary edge between that and the
         previous event, generate a new event to place on that boundary.
 
-        This implements the equation of a straight line to determine the
+        This implements the "equation of a straight line" to determine the
         value(s) of the interpolated event that is being aligned to arg
         boundary:
 
             y = mx + b
 
-        Where b is zero because the trailing point is the origin. See:
+        Where b is zero because the previous/leading point is the origin. See:
         https://www.mathsisfun.com/equation_of_line.html
+
+        The sanitize document has additional examples of how actual numbers
+        are flowing through the equation.
 
         Yes pylint, I used a lot of local variables instead of writing one huge
         nested parenthetical equation from hell that would be a PITA for
@@ -172,18 +175,18 @@ class Align(Processor):
         for i in self._field_spec:
             # calculate "m" (slope) which is delta y / delta x
             # delta_y is the difference between values
-            # delta_x is the proportion of a single window between the two values
+            # delta_x is the difference between timestamps
 
             field_path = self._field_path_to_array(i)
 
             # generate the delta between the values and
             # bulletproof against non-numeric/bad path
 
-            val1 = self._previous.get(field_path)
-            val2 = event.get(i)
+            val_previous = self._previous.get(field_path)
+            val_current = event.get(i)
 
-            if not isinstance(val1, numbers.Number) or \
-                    not isinstance(val2, numbers.Number):
+            if not isinstance(val_previous, numbers.Number) or \
+                    not isinstance(val_current, numbers.Number):
                 msg = 'Path {0} contains non-numeric values or does not exist - '
                 msg += 'value will be set to None'
 
@@ -193,7 +196,7 @@ class Align(Processor):
                 continue
 
             # good values, calculate the delta and move on
-            value_delta = val2 - val1
+            value_delta = val_current - val_previous
 
             # difference in time
             time_delta = current_ts - previous_ts
@@ -208,7 +211,7 @@ class Align(Processor):
 
             # final points
             x_final, y_final = (
-                (previous_ts + delta_x3), (self._previous.get(field_path) + delta_y3))
+                (previous_ts + delta_x3), (val_previous + delta_y3))
 
             # the x_final value should be the exact same as the boundary_ts
             # we already know, sanity check it.
@@ -253,14 +256,12 @@ class Align(Processor):
                 # on each of the boundaries and emit them.
                 self._log('Align.add_event', 'boundary: {0}'.format(bound))
 
-                # check to see if we have hit the limit first, if so
-                # fill with None
-
-                if self._limit is not None and \
-                        fill_count > self._limit:
+                if self._limit is not None and fill_count > self._limit:
+                    # check to see if we have hit the limit first, if so
+                    # this span of boundaries with None in the field spec
                     ievent = self._interpolate_hold(bound, event, set_none=True)
                 else:
-                    # otherwise, fill
+                    # otherwise, interpolate new points
                     if self._method == 'linear':
                         ievent = self._interpolate_linear(bound, event)
                     elif self._method == 'hold':
