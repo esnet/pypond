@@ -149,6 +149,8 @@ Given a window of `1m` (one minute), a new series with two events at the followi
 
 Only a series of `Event` objects can be aligned. `IndexedEvent` objects are basically already aligned and it makes no sense in the case of a `TimeRangeEvent`.
 
+It should also be noted that the emitted/aligned event will only contain the fields that alignment was requested on. Which is to say if you have two columns, `in` and `out`, and only request to align the `in` column, the `out` value will not be contained in the emitted event.
+
 ### Usage
 
 The full argument usage of the align method:

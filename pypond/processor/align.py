@@ -125,7 +125,7 @@ class Align(Processor):
         idx = Index(boundary_index)
         return ms_from_dt(idx.begin())
 
-    def _interpolate_hold(self, boundary, event, set_none=False):
+    def _interpolate_hold(self, boundary, set_none=False):
         """
         Generate a new event on the requested boundary and carry over the
         value from the previous event.
@@ -133,7 +133,7 @@ class Align(Processor):
         A variation just sets the values to None - this is used when the
         limit is hit.
         """
-        new_data = thaw(event.data())
+        new_data = dict()
 
         boundary_ts = self._get_boundary_ms(boundary)
 
@@ -154,7 +154,7 @@ class Align(Processor):
         on either side of a window boundary.
         """
 
-        new_data = thaw(event.data())
+        new_data = dict()
 
         previous_ts = ms_from_dt(self._previous.timestamp())
         boundary_ts = self._get_boundary_ms(boundary)
@@ -224,13 +224,13 @@ class Align(Processor):
                 if self._limit is not None and fill_count > self._limit:
                     # check to see if we have hit the limit first, if so
                     # this span of boundaries with None in the field spec
-                    ievent = self._interpolate_hold(bound, event, set_none=True)
+                    ievent = self._interpolate_hold(bound, set_none=True)
                 else:
                     # otherwise, interpolate new points
                     if self._method == 'linear':
                         ievent = self._interpolate_linear(bound, event)
                     elif self._method == 'hold':
-                        ievent = self._interpolate_hold(bound, event)
+                        ievent = self._interpolate_hold(bound)
 
                 self._log('Align.add_event', 'emitting: {0}'.format(ievent))
                 self.emit(ievent)
