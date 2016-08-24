@@ -9,8 +9,6 @@ from operator import truediv
 
 import six
 
-from pyrsistent import thaw
-
 from .base import Processor
 from ..event import Event
 from ..exceptions import ProcessorException, ProcessorWarning

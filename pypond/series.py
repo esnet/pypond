@@ -1085,6 +1085,18 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self.set_collection(coll.get('all'))
 
+    def rate(self, field_spec=None):
+        """
+        derive entry point
+        """
+        coll = (
+            self.pipeline()
+            .rate(field_spec)
+            .to_keyed_collections()
+        )
+
+        return self.set_collection(coll.get('all'))
+
     def __str__(self):
         """call to_string()"""
         return self.to_string()  # pragma: no cover

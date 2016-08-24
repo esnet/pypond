@@ -33,6 +33,7 @@ from .processor import (
     Mapper,
     Offset,
     Processor,
+    Rate,
     Selector,
     Taker,
 )
@@ -1052,6 +1053,21 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 window=window,
                 limit=limit,
                 method=method,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(align)
+
+    def rate(self, field_spec=None):
+        """
+        derivative entry point
+        """
+
+        align = Rate(
+            self,
+            Options(
+                field_spec=field_spec,
                 prev=self._chain_last(),
             )
         )

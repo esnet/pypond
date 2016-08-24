@@ -24,6 +24,37 @@ SIMPLE_GAP_DATA = dict(
     ]
 )
 
+# already aligned totally synthetic constantly
+# doubling rates for testing
+RATE = dict(
+    name='traffic',
+    columns=['time', 'in'],
+    points=[
+        [0, 1],
+        [30, 2],
+        [60, 4],
+        [90, 8],
+        [120, 16],
+        [150, 32],
+        [180, 64],
+        [210, 128],
+        [240, 256],
+        [270, 512],
+        [300, 1024],
+        [330, 2048],
+        [360, 4096],
+        [390, 8192],
+        [420, 16384],
+        [450, 32768],
+        [480, 65536],
+        [510, 131072],
+        [540, 262144],
+        [570, 524288],
+        [600, 1048576],
+    ]
+)
+
+
 class AlignTest(unittest.TestCase):
     """
     tests for the align processor
@@ -112,6 +143,17 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.at(6).get(), None)  # bad value
         self.assertEqual(aligned.at(7).get(), None)  # bad value
 
+    def test_rate(self):
+        """test the rate processor."""
+
+        ts = TimeSeries(RATE)
+        rate = ts.rate(field_spec='in')
+
+        import pprint
+
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(rate.to_json())
+
     def test_bad_args(self):
         """error states for coverage."""
 
@@ -137,7 +179,6 @@ class AlignTest(unittest.TestCase):
         ts = TimeSeries(ticket_range)
         with self.assertRaises(ProcessorException):
             ts.align()
-
 
 if __name__ == '__main__':
     unittest.main()

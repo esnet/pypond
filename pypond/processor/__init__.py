@@ -13,5 +13,6 @@ from .filler import Filler
 from .filter import Filter
 from .mapper import Mapper
 from .offset import Offset
+from .rate import Rate
 from .selector import Selector
 from .taker import Taker
