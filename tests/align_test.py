@@ -24,7 +24,6 @@ SIMPLE_GAP_DATA = dict(
     ]
 )
 
-
 class AlignTest(unittest.TestCase):
     """
     tests for the align processor
@@ -42,7 +41,7 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.size(), 8)
         self.assertEqual(aligned.at(0).get(), 1.25)
         self.assertEqual(aligned.at(1).get(), 1.8571428571428572)
-        self.assertEqual(aligned.at(2).get(), 1.2857142857142858)
+        self.assertEqual(aligned.at(2).get(), 1.2857142857142856)
         self.assertEqual(aligned.at(3).get(), 1.0)
         self.assertEqual(aligned.at(4).get(), 1.0)
         self.assertEqual(aligned.at(5).get(), 1.0)
@@ -84,7 +83,7 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.size(), 8)
         self.assertEqual(aligned.at(0).get(), 1.25)
         self.assertEqual(aligned.at(1).get(), 1.8571428571428572)
-        self.assertEqual(aligned.at(2).get(), 1.2857142857142858)
+        self.assertEqual(aligned.at(2).get(), 1.2857142857142856)
         self.assertEqual(aligned.at(3).get(), None)  # over limit, fill with None
         self.assertEqual(aligned.at(4).get(), None)  # over limit, fill with None
         self.assertEqual(aligned.at(5).get(), None)  # over limit, fill with None
@@ -106,7 +105,7 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.size(), 8)
         self.assertEqual(aligned.at(0).get(), 1.25)
         self.assertEqual(aligned.at(1).get(), 1.8571428571428572)
-        self.assertEqual(aligned.at(2).get(), 1.2857142857142858)
+        self.assertEqual(aligned.at(2).get(), 1.2857142857142856)
         self.assertEqual(aligned.at(3).get(), 1.0)
         self.assertEqual(aligned.at(4).get(), 1.0)
         self.assertEqual(aligned.at(5).get(), 1.0)

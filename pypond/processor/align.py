@@ -78,7 +78,7 @@ class Align(Processor):
             self._field_spec = ['value']
 
         # check input
-        if self._method not in ('linear', 'hold'):
+        if self._method not in ('linear', 'hold',):
             msg = 'Unknown method {0}'.format(self._method)
             raise ProcessorException(msg)
 
@@ -113,6 +113,18 @@ class Align(Processor):
         else:
             return list()
 
+    def _get_boundary_ms(self, boundary_index):  # pylint: disable=no-self-use
+        """
+        Return the index string as ms.
+
+        We are dealing in UTC only with the Index because the events
+        all have internal timestamps in UTC and that's what we're
+        aligning. Let the user display in local time if that's
+        what they want.
+        """
+        idx = Index(boundary_index)
+        return ms_from_dt(idx.begin())
+
     def _interpolate_hold(self, boundary, event, set_none=False):
         """
         Generate a new event on the requested boundary and carry over the
@@ -123,9 +135,7 @@ class Align(Processor):
         """
         new_data = thaw(event.data())
 
-        idx = Index(boundary)
-
-        boundary_ts = ms_from_dt(idx.begin())
+        boundary_ts = self._get_boundary_ms(boundary)
 
         for i in self._field_spec:
 
@@ -138,44 +148,22 @@ class Align(Processor):
 
         return Event(boundary_ts, new_data)
 
-    def _interpolate_linear(self, boundary, event):  # pylint: disable=too-many-locals
+    def _interpolate_linear(self, boundary, event):
         """
-        Given the current event and a boundary edge between that and the
-        previous event, generate a new event to place on that boundary.
-
-        This implements the "equation of a straight line" to determine the
-        value(s) of the interpolated event that is being aligned to arg
-        boundary:
-
-            y = mx + b
-
-        Where b is zero because the previous/leading point is the origin. See:
-        https://www.mathsisfun.com/equation_of_line.html
-
-        The sanitize document has additional examples of how actual numbers
-        are flowing through the equation.
-
-        Yes pylint, I used a lot of local variables instead of writing one huge
-        nested parenthetical equation from hell that would be a PITA for
-        someone else to look at.
+        Generate a linear differential between two counter values that lie
+        on either side of a window boundary.
         """
 
         new_data = thaw(event.data())
 
-        # We are dealing in UTC only with the Index because the events
-        # all have internal timestamps in UTC and that's what we're
-        # aligning. Let the user display in local time if that's
-        # what they want.
-        idx = Index(boundary)
-
         previous_ts = ms_from_dt(self._previous.timestamp())
-        boundary_ts = ms_from_dt(idx.begin())
+        boundary_ts = self._get_boundary_ms(boundary)
         current_ts = ms_from_dt(event.timestamp())
 
+        # this ratio will be the same for all values being processed
+        boundary_frac = truediv((boundary_ts - previous_ts), (current_ts - previous_ts))
+
         for i in self._field_spec:
-            # calculate "m" (slope) which is delta y / delta x
-            # delta_y is the difference between values
-            # delta_x is the difference between timestamps
 
             field_path = self._field_path_to_array(i)
 
@@ -195,34 +183,10 @@ class Align(Processor):
                 nested_set(new_data, field_path, None)
                 continue
 
-            # good values, calculate the delta and move on
-            value_delta = current_val - previous_val
+            # just being clear with that irrelevant outer set of grouping parens
+            differential = previous_val + ((current_val - previous_val) * boundary_frac)
 
-            # difference in time
-            time_delta = current_ts - previous_ts
-
-            slope = truediv(value_delta, time_delta)
-
-            # calculate delta_x3 between ms timestamps
-            delta_x3 = boundary_ts - previous_ts
-
-            # calculate delta_y3 between values
-            delta_y3 = slope * delta_x3
-
-            # final points
-            x_final, y_final = (
-                (previous_ts + delta_x3), (previous_val + delta_y3))
-
-            # the x_final value should be the exact same as the boundary_ts
-            # we already know, sanity check it. no reliable way to trigger
-            # this because, so don't bother with coverage.
-            if x_final != boundary_ts:  # pragma: no cover
-                msg = 'interpolation error x_final: {0} != boundary_ts: {1}'.format(
-                    x_final, boundary_ts)
-                raise ProcessorException(msg)
-
-            # alright, lets set the value
-            nested_set(new_data, field_path, y_final)
+            nested_set(new_data, field_path, differential)
 
         return Event(boundary_ts, new_data)
 

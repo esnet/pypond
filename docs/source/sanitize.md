@@ -172,7 +172,7 @@ That would normally produce events on three window boundaries `1:00, 2:00 and 3:
 
 #### Linear
 
-This is the default method. It interpolates new values in the `Event` objects on the window boundaries using a strategy like this:
+This is the default method. It interpolates differential values in `Event` objects on the window boundaries using a strategy like this:
 
 ![linear align](_static/esnet/align.png)
 
@@ -181,86 +181,4 @@ The green points are the events that will be produced by the `linear` fill metho
 #### Hold
 
 This is a much simpler method. It just fills the selected field(s) with the corresponding value from the previous event.
-
-### Fill math
-
-Documentation about the fill methods being used as apropos. This is primarily for other developers.
-
-#### `linear` fill and the straight line equation
-
-The values in the events interpolated on the window boundaries are generated using the [equation of the straight line](https://www.mathsisfun.com/equation_of_line.html
-):
-
-```
-y = mx + b
-```
-In this case, `b` is zero because the first of the two events is the source. That variable is not important for our purposes because of that.
-
-What follows is an example with a very simple dataset showing how real numbers flow through the equation. This is implemented in `Align._interpolate_linear()`.
-
-Here is the sample data set of two events and the interpolated one:
-
-```
-0:00
-0:15
-0:30 - .75 <— event
-0:45
-1:00 - 1.25 <— interpolated point
-1:15
-1:30
-1:45 - 2 <— event
-2:00
-```
-
-So there are the following two points:
-
-```
-# NOTE: this example uses a very simplified x/time axis.
-# Here I am just representing timestamps as fractional minutes.
-# In practice, use raw milliseconds, the final calculations will be
-# the same.
-
-     (ts, value)
-p1 = (.5, .75)
-p2 = (1.75, 2)
-```
-Since we are calculating `y = mx` (`b` is zero) first calculate `m` which is the slope of the line:
-
-```
-# in this part, the values from p2 (the later event) comes first.
-# In practice these would be called with .get(field_path) and using
-# the raw timestamp values in milliseconds, this is pseudocode to
-# clarify what we are looking at.
-
-m = delta y / delta x
-m = delta values / delta timestamp
-m = (p2.value() - p1.value()) / (p2.timestamp() - p1.timestamp())
-m = (2 - .75) / (1.75 - .5)
-m = 1.25 / 1.25
-m = 1
-```
-And the next important variable is the actual boundary. It is the x axis/timestamp where the interpolated event is to fall. Everything else is just calculated from the deltas between the two points. Again, we are using the simplified time scale here so boundary is 1. In practice, the boundary would also be where the point is to fall in epoch milliseconds.
-
-Given that, the rest of the equation:
-
-```
-delta_x3 = (BOUNDARY - x1)
-delta_x3 = (1 - p1.timestamp())
-delta_x3 = (1 - .5)
-delta_x3 = .5
-
-delta_y3 = m(delta_x3) <-- m is the slope from previous part
-delta_y3 = 1(.5)
-delta_y3 = .5
-
-(x_final, y_final) = (x1 + delta_x3), (y1 + delta_y3)
-(x_final, y_final) = (p1.timestamp() + delta_x3), (p1.value() + delta_y3)
-(x_final, y_final) = (.5 + .5), (.75 + .5)
-(x_final, y_final) = (1, 1.25)
-```
-The value `y_final` is the interpolated value. As a sanity check for the math:
-
-```
-assert x_final == BOUNDARY
-```
 
