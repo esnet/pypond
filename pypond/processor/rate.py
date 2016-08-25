@@ -74,17 +74,18 @@ class Rate(Processor):
         """
         return Rate(self)
 
-    def _derive(self, event):
+    def _get_rate(self, event):
         """
-        Generate a new TimeRangeEvent from two events.
+        Generate a new TimeRangeEvent containing the rate in seconds
+        from two events.
         """
 
-        new_data = thaw(event.data())
+        new_data = dict()
 
         previous_ts = ms_from_dt(self._previous.timestamp())
         current_ts = ms_from_dt(event.timestamp())
 
-        ts_delta = current_ts - previous_ts
+        ts_delta = truediv(current_ts - previous_ts, 1000)  # do it in seconds
 
         for i in self._field_spec:
 
@@ -108,7 +109,7 @@ class Rate(Processor):
             rate = truediv((current_val - previous_val), ts_delta)
             nested_set(new_data, rate_path, rate)
 
-        return event.set_data(new_data)
+        return TimeRangeEvent([previous_ts, current_ts], new_data)
 
     def add_event(self, event):
         """
@@ -133,7 +134,7 @@ class Rate(Processor):
                 self._previous = event
                 return
 
-            output_event = self._derive(event)
+            output_event = self._get_rate(event)
 
             self._log('Rate.add_event', 'emitting: {0}'.format(output_event))
 

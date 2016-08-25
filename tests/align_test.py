@@ -24,33 +24,23 @@ SIMPLE_GAP_DATA = dict(
     ]
 )
 
-# already aligned totally synthetic constantly
-# doubling rates for testing
+# already aligned totally synthetic rates to make sure
+# the underlying math is at the right order of magnitude.
 RATE = dict(
     name='traffic',
     columns=['time', 'in'],
     points=[
         [0, 1],
-        [30, 2],
-        [60, 4],
-        [90, 8],
-        [120, 16],
-        [150, 32],
-        [180, 64],
-        [210, 128],
-        [240, 256],
-        [270, 512],
-        [300, 1024],
-        [330, 2048],
-        [360, 4096],
-        [390, 8192],
-        [420, 16384],
-        [450, 32768],
-        [480, 65536],
-        [510, 131072],
-        [540, 262144],
-        [570, 524288],
-        [600, 1048576],
+        [30000, 3],
+        [60000, 10],
+        [90000, 40],
+        [120000, 70],
+        [150000, 130],
+        [180000, 190],
+        [210000, 220],
+        [240000, 300],
+        [270000, 390],
+        [300000, 510],
     ]
 )
 
@@ -143,16 +133,19 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.at(6).get(), None)  # bad value
         self.assertEqual(aligned.at(7).get(), None)  # bad value
 
-    def test_rate(self):
-        """test the rate processor."""
+    def test_rate_mag(self):
+        """test the rate processor order of mag."""
 
         ts = TimeSeries(RATE)
         rate = ts.rate(field_spec='in')
 
-        import pprint
-
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(rate.to_json())
+        # one less than source
+        self.assertEqual(rate.size(), len(RATE.get('points')) - 1)
+        self.assertEqual(rate.at(2).get('in_rate'), 1)
+        self.assertEqual(rate.at(3).get('in_rate'), 1)
+        self.assertEqual(rate.at(4).get('in_rate'), 2)
+        self.assertEqual(rate.at(8).get('in_rate'), 3)
+        self.assertEqual(rate.at(9).get('in_rate'), 4)
 
     def test_bad_args(self):
         """error states for coverage."""
