@@ -1,11 +1,12 @@
 """
-Tests for the align processor
+Tests for the align and rate processors.
 """
 
 import copy
 import unittest
 import warnings
 
+from pypond.event import Event
 from pypond.exceptions import ProcessorException, ProcessorWarning
 from pypond.series import TimeSeries
 from pypond.processor import Align
@@ -146,6 +147,32 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(rate.at(4).get('in_rate'), 2)
         self.assertEqual(rate.at(8).get('in_rate'), 3)
         self.assertEqual(rate.at(9).get('in_rate'), 4)
+
+    def test_rate_bins(self):
+        """replicate basic esmond rates."""
+
+        #  |           100 |              |              |              |   200       |   v
+        #  |           |   |              |              |              |   |         |
+        # 60          89  90            120            150            180 181       210   t ->
+        #  |               |              |              |              |             |
+        #  |<- ? --------->|<- 1.08/s --->|<- 1.08/s --->|<- 1.08/s --->|<- ? ------->|   result
+
+        raw_rates = dict(
+            name="traffic",
+            columns=["time", "value"],
+            points=[
+                [89000, 100],
+                [181000, 200]
+            ]
+        )
+
+        ts = TimeSeries(raw_rates)
+        rates = ts.align(window='30s').rate()
+
+        self.assertEqual(rates.size(), 3)
+        self.assertEqual(rates.at(0).get('value_rate'), 1.0869565217391313)
+        self.assertEqual(rates.at(1).get('value_rate'), 1.0869565217391293)
+        self.assertEqual(rates.at(2).get('value_rate'), 1.0869565217391313)
 
     def test_bad_args(self):
         """error states for coverage."""
