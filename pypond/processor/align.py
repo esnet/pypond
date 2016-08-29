@@ -173,8 +173,8 @@ class Align(Processor):
 
             if not isinstance(previous_val, numbers.Number) or \
                     not isinstance(current_val, numbers.Number):
-                msg = 'Path {0} contains non-numeric values or does not exist - '
-                msg += 'value will be set to None'
+                msg = 'Path {0} contains non-numeric values or does not exist - '.format(i)
+                msg += 'field: {0} will be set to None'.format(i)
 
                 self._warn(msg, ProcessorWarning)
 
