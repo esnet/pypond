@@ -22,7 +22,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] < 3:
 
 setup(
     name='pypond',
-    version='0.4.0',
+    version='0.4.1',
     description='Python implementation of the Pond JavaScript timeseries library (https://github.com/esnet/pond).',  # pylint: disable=line-too-long
     long_description=DESCRIPTION,
     author='Monte M. Goode',
