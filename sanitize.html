@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fill and other sanitizing methods &mdash; pypond 0.4.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/esnet/esnet.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pypond 0.4.0 documentation" href="index.html" />
+    <link rel="next" title="Running the tests" href="tests.html" />
+    <link rel="prev" title="Notes on time handling" href="time.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          <!-- LOGO:  _static/ -->
+          pypond</a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Section <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fill and other sanitizing methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="time.html" title="Previous Chapter: Notes on time handling">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="hidden-sm">
+        Notes on time...
+      </span>
+    </a>
+  </li>
+  <li>
+    <a href="tests.html" title="Next Chapter: Running the tests">
+      <span class="hidden-sm">
+        Running the t...
+      </span>
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+  </li>
+              
+            
+            <li class="divider-vertical"></li>
+            
+                <li><a href="genindex.html">Index</a></li>
+                <li><a href="https://www.es.net">ESnet</a></li>
+            
+            <li><a href="https://github.com/esnet/pypond"><img src="_static/esnet/icon-github.png" height="20" width="20"></a></li>
+            
+            
+            
+          </ul>
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Fill and other sanitizing methods</a><ul>
+<li><a class="reference internal" href="#fill">Fill</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#fill-methods">Fill methods</a><ul>
+<li><a class="reference internal" href="#the-fill-limit-arg">The <code class="docutils literal"><span class="pre">fill_limit</span></code> arg</a></li>
+<li><a class="reference internal" href="#constructing-linear-fill-pipeline-chains">Constructing <code class="docutils literal"><span class="pre">linear</span></code> fill <code class="docutils literal"><span class="pre">Pipeline</span></code> chains</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rename">Rename</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#align">Align</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#fill-methods">Fill methods</a><ul>
+<li><a class="reference internal" href="#linear">Linear</a></li>
+<li><a class="reference internal" href="#hold">Hold</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rate-derivative">Rate (derivative)</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="fill-and-other-sanitizing-methods">
+<span id="fill-and-other-sanitizing-methods"></span><h1>Fill and other sanitizing methods<a class="headerlink" href="#fill-and-other-sanitizing-methods" title="Permalink to this headline">¶</a></h1>
+<p>Real world data can have gaps, bad names, or occur at irregular intervals. The pypond toolkit contains some methods to adjust or sanitize a series of less than optimal data. As with all other mutation operations in pypond, these methods will return new <code class="docutils literal"><span class="pre">Event</span></code> objects, new <code class="docutils literal"><span class="pre">Collections</span></code> and new <code class="docutils literal"><span class="pre">TimeSeries</span></code> as apropos.</p>
+<div class="section" id="fill">
+<span id="fill"></span><h2>Fill<a class="headerlink" href="#fill" title="Permalink to this headline">¶</a></h2>
+<p>Data might contain missing or otherwise invalid values. <code class="docutils literal"><span class="pre">TimeSeries.fill()</span></code> can perform a variety of fill operations to smooth or make sure that the data can be processed in math operations without blowing up.</p>
+<p>In pypond, a value is considered &#8220;invalid&#8221; if it is python <code class="docutils literal"><span class="pre">None</span></code>, a <code class="docutils literal"><span class="pre">NaN</span></code> (not a number) value, or an empty string.</p>
+<div class="section" id="usage">
+<span id="usage"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>The method prototype looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;zero&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>the <code class="docutils literal"><span class="pre">field_spec</span></code> argument is the same as it is in the rest of the code - a string or list of strings denoting &#8220;columns&#8221; in the data. It can point <code class="docutils literal"><span class="pre">to.deep.values</span></code> using the usual dot notation.</li>
+<li>the <code class="docutils literal"><span class="pre">method</span></code> arg denotes the fill method to use. Valid values are <strong>zero</strong>, <strong>pad</strong> and <strong>linear</strong>.</li>
+<li>the <code class="docutils literal"><span class="pre">limit</span></code> arg places a limit on the number of events that will be filled and returned in the new <code class="docutils literal"><span class="pre">TimeSeries</span></code>. The default is to fill all the events with no limit.</li>
+</ul>
+<p>Complete sample usage could look like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">simple_missing_data</span><span class="p">)</span>
+
+    <span class="n">new_ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">field_spec</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;direction.in&#39;</span><span class="p">,</span> <span class="s1">&#39;direction.out&#39;</span><span class="p">],</span>
+                     <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fill-methods">
+<span id="fill-methods"></span><h3>Fill methods<a class="headerlink" href="#fill-methods" title="Permalink to this headline">¶</a></h3>
+<p>There are three fill options:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">zero</span></code> - the default - will transform any invalid value to a zero.</li>
+<li><code class="docutils literal"><span class="pre">pad</span></code> - replaces an invalid value with the the previous good value: <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">None,</span> <span class="pre">None,</span> <span class="pre">3]</span></code> becomes <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">3]</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">linear</span></code> - interpolate the gaps based on the surrounding good values: <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">None,</span> <span class="pre">None,</span> <span class="pre">3]</span></code> becomes <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">2.5,</span> <span class="pre">3]</span></code>.</li>
+</ul>
+<p>Neither <code class="docutils literal"><span class="pre">pad</span></code> or <code class="docutils literal"><span class="pre">linear</span></code> can fill the first value in a series if it is invalid, and they can&#8217;t start filling until good value has been seen: <code class="docutils literal"><span class="pre">[None,</span> <span class="pre">None,</span> <span class="pre">None,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> would remain unchanged. Similarly, <code class="docutils literal"><span class="pre">linear</span></code> can not fill the last value in a series.</p>
+<div class="section" id="the-fill-limit-arg">
+<span id="the-fill-limit-arg"></span><h4>The <code class="docutils literal"><span class="pre">fill_limit</span></code> arg<a class="headerlink" href="#the-fill-limit-arg" title="Permalink to this headline">¶</a></h4>
+<p>The optional arg <code class="docutils literal"><span class="pre">fill_limit</span></code> controls how many values will be filled before it gives up and starts returning the invalid data until a valid value is seen again.</p>
+<p>There might be a situation where it makes sense to fill in a couple of missing values, but no sense to pad out long spans of missing data. This arg sets the limit of the number of missing values that will be filled - or in the case of <code class="docutils literal"><span class="pre">linear</span></code> <em>attempt</em> to be filled - before it just starts returning invalid data until the next valid value is seen.</p>
+<p>So given <code class="docutils literal"><span class="pre">fill_limit=2</span></code> the following values will be filled in the following ways:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Original</span><span class="p">:</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+
+<span class="n">Zero</span><span class="p">:</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+
+<span class="n">Pad</span><span class="p">:</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+
+<span class="n">Linear</span><span class="p">:</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Using methods <code class="docutils literal"><span class="pre">zero</span></code> and <code class="docutils literal"><span class="pre">pad</span></code> the first two missing values are filled and the third is skipped. When using the <code class="docutils literal"><span class="pre">linear</span></code> method, nothing gets filled because a valid value has not been seen before the limit has been reached, so it just gives up and returns the missing data.</p>
+<p>When filling multiple columns, the count is maintained on a per-column basis.  So given the following data:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">simple_missing_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;traffic&quot;</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;direction&quot;</span><span class="p">],</span>
+        <span class="n">points</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">[</span><span class="mi">1400425947000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425948000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425949000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425950000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425960000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425970000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425980000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400425990000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400426000000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400426010000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+            <span class="p">[</span><span class="mi">1400426020000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> sub-columns will be counted and filled independently of each other.</p>
+<p>If <code class="docutils literal"><span class="pre">fill_limit</span></code> is not set, no limits will be placed on the fill and all values will be filled as apropos to the selected method.</p>
+</div>
+<div class="section" id="constructing-linear-fill-pipeline-chains">
+<span id="constructing-linear-fill-pipeline-chains"></span><h4>Constructing <code class="docutils literal"><span class="pre">linear</span></code> fill <code class="docutils literal"><span class="pre">Pipeline</span></code> chains<a class="headerlink" href="#constructing-linear-fill-pipeline-chains" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">TimeSeries.fill()</span></code> will be the common entry point for the <code class="docutils literal"><span class="pre">Filler</span></code>, but a <code class="docutils literal"><span class="pre">Pipeline</span></code> can be constructed as well. Even though the default behavior of <code class="docutils literal"><span class="pre">TimeSeries.fill()</span></code> applies to all fill methods, the <code class="docutils literal"><span class="pre">linear</span></code> fill logic is somewhat different than the <code class="docutils literal"><span class="pre">zero</span></code> and <code class="docutils literal"><span class="pre">pad</span></code> methods. Note the following points when creating your own <code class="docutils literal"><span class="pre">method='linear'</span></code> processing chain.</p>
+<ul class="simple">
+<li>When constructing a <code class="docutils literal"><span class="pre">Pipeline</span></code> to do a <code class="docutils literal"><span class="pre">linear</span></code> fill on multiple columns, chain them together like this rather than passing in a <code class="docutils literal"><span class="pre">field_spec</span></code> that is a list of columns:</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">Pipeline</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">from_source</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">field_spec</span><span class="o">=</span><span class="s1">&#39;direction.in&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">field_spec</span><span class="o">=</span><span class="s1">&#39;direction.out&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">to_keyed_collections</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>If a non numeric value (as determined by <code class="docutils literal"><span class="pre">isinstance(val,</span> <span class="pre">numbers.Number)</span></code>) is encountered when doing a <code class="docutils literal"><span class="pre">linear</span></code> fill, a warning will be issued and that column will not be processed.</li>
+<li>When using streaming input like <code class="docutils literal"><span class="pre">UnboundedIn</span></code>, it is a best practice to set a limit using the optional arg <code class="docutils literal"><span class="pre">fill_limit</span></code>. This will ensure events will continue being emitted if the data hits a long run of invalid values.</li>
+<li>When using an unbounded source, make sure to shut it down &#8220;cleanly&#8221; using <code class="docutils literal"><span class="pre">.stop()</span></code>. This will ensure <code class="docutils literal"><span class="pre">.flush()</span></code> is called so any unfilled cached events are emitted.</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="rename">
+<span id="rename"></span><h2>Rename<a class="headerlink" href="#rename" title="Permalink to this headline">¶</a></h2>
+<p>It might be necessary to rename the columns/data keys in the events in a <code class="docutils literal"><span class="pre">TimeSeries</span></code>. It is preferable to just give the columns/keys the desired names when the <code class="docutils literal"><span class="pre">Event</span></code> objects are being instantiated. This is because using <code class="docutils literal"><span class="pre">TimeSeries.rename()</span></code> will create all new <code class="docutils literal"><span class="pre">Event</span></code> objects and a new <code class="docutils literal"><span class="pre">TimeSeries</span></code> as well. But if that is necessary, use this method.</p>
+<div class="section" id="usage">
+<span id="id1"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>This method takes a python dict of strings in the format <code class="docutils literal"><span class="pre">{'key':</span> <span class="pre">'new_key'}</span></code>. This example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">TICKET_RANGE</span><span class="p">)</span>
+
+    <span class="n">renamed</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">rename_columns</span><span class="p">({</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="s1">&#39;esnet_ticket&#39;</span><span class="p">:</span> <span class="s1">&#39;ticket&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>will rename the existing column <code class="docutils literal"><span class="pre">title</span></code> to <code class="docutils literal"><span class="pre">event</span></code>, etc.</p>
+</div>
+<div class="section" id="limitations">
+<span id="limitations"></span><h3>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h3>
+<p>Unlike other uses of a <code class="docutils literal"><span class="pre">field_spec</span></code> to point at a <code class="docutils literal"><span class="pre">deep.nested.value</span></code> in pypond, <code class="docutils literal"><span class="pre">.rename()</span></code> only allows renaming a &#8216;top level&#8217; column/key. If the data payload looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="p">{</span><span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>The top level key <code class="docutils literal"><span class="pre">direction</span></code> can be renamed but the nested keys <code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> can not.</p>
+</div>
+</div>
+<div class="section" id="align">
+<span id="align"></span><h2>Align<a class="headerlink" href="#align" title="Permalink to this headline">¶</a></h2>
+<p>The align processor takes a <code class="docutils literal"><span class="pre">TimeSeries</span></code> of events that might come in with timestamps at uneven intervals and produces a new series of those points aligned on precise time window boundaries.  A series containing four events with following timestamps:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">:</span><span class="mi">40</span>
+<span class="mi">1</span><span class="p">:</span><span class="mi">05</span>
+<span class="mi">1</span><span class="p">:</span><span class="mi">45</span>
+<span class="mi">2</span><span class="p">:</span><span class="mi">10</span>
+</pre></div>
+</div>
+<p>Given a window of <code class="docutils literal"><span class="pre">1m</span></code> (one minute), a new series with two events at the following times will be produced:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="p">:</span><span class="mi">00</span>
+<span class="mi">2</span><span class="p">:</span><span class="mi">00</span>
+</pre></div>
+</div>
+<p>Only a series of <code class="docutils literal"><span class="pre">Event</span></code> objects can be aligned. <code class="docutils literal"><span class="pre">IndexedEvent</span></code> objects are basically already aligned and it makes no sense in the case of a <code class="docutils literal"><span class="pre">TimeRangeEvent</span></code>.</p>
+<p>It should also be noted that the emitted/aligned event will only contain the fields that alignment was requested on. Which is to say if you have two columns, <code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code>, and only request to align the <code class="docutils literal"><span class="pre">in</span></code> column, the <code class="docutils literal"><span class="pre">out</span></code> value will not be contained in the emitted event.</p>
+<div class="section" id="usage">
+<span id="id2"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>The full argument usage of the align method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">DATA_WITH_GAPS</span><span class="p">)</span>
+<span class="n">aligned</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">field_spec</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;1m&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">field_spec</span></code> - indicates which fields should be interpolated by the selected <code class="docutils literal"><span class="pre">method</span></code>. Typical usage of this arg type. If not supplied, then the default field <code class="docutils literal"><span class="pre">value</span></code> will be used.</li>
+<li><code class="docutils literal"><span class="pre">window</span></code> - an integer and the usual <code class="docutils literal"><span class="pre">s/m/h/d</span></code> notation like <code class="docutils literal"><span class="pre">1m</span></code>, <code class="docutils literal"><span class="pre">30s</span></code>, <code class="docutils literal"><span class="pre">6h</span></code>, etc. The emitted events will be emitted on the indicated window boundaries. Due to the nature of the interpolation, one would want to use a window close to the frequency of the events. It would make little sense to set a window of <code class="docutils literal"><span class="pre">5h</span></code> on hourly data, etc.</li>
+<li><code class="docutils literal"><span class="pre">method</span></code> - the interpolation method to be used: <code class="docutils literal"><span class="pre">linear</span></code> (the default) and <code class="docutils literal"><span class="pre">hold</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">limit</span></code> - sets a limit on the number of boundary interpolated events will be produced. If <code class="docutils literal"><span class="pre">limit=2,</span> <span class="pre">window='1m'</span></code> and two events come in at the following times:</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="p">:</span><span class="mi">45</span>
+<span class="mi">3</span><span class="p">:</span><span class="mi">15</span>
+</pre></div>
+</div>
+<p>That would normally produce events on three window boundaries <code class="docutils literal"><span class="pre">1:00,</span> <span class="pre">2:00</span> <span class="pre">and</span> <span class="pre">3:00</span></code> and that exceeds the <code class="docutils literal"><span class="pre">limit</span></code> so those events will have <code class="docutils literal"><span class="pre">None</span></code> as a value instead of an interpolated value.</p>
+</div>
+<div class="section" id="fill-methods">
+<span id="id3"></span><h3>Fill methods<a class="headerlink" href="#fill-methods" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="linear">
+<span id="linear"></span><h4>Linear<a class="headerlink" href="#linear" title="Permalink to this headline">¶</a></h4>
+<p>This is the default method. It interpolates differential values in <code class="docutils literal"><span class="pre">Event</span></code> objects on the window boundaries using a strategy like this:</p>
+<p><img alt="linear align" src="_images/align.png" /></p>
+<p>The green points are the events that will be produced by the <code class="docutils literal"><span class="pre">linear</span></code> fill method by interpolating the raw points. It also shows why it makes little sense to use a window significantly larger than the frequency of the events. When the window is set too wide for the data, many of the points in the middle of the window will be disregarded since the generated points are interpolated from the last event in the previous window and the first one in the current window.</p>
+</div>
+<div class="section" id="hold">
+<span id="hold"></span><h4>Hold<a class="headerlink" href="#hold" title="Permalink to this headline">¶</a></h4>
+<p>This is a much simpler method. It just fills the selected field(s) with the corresponding value from the previous event.</p>
+</div>
+</div>
+</div>
+<div class="section" id="rate-derivative">
+<span id="rate-derivative"></span><h2>Rate (derivative)<a class="headerlink" href="#rate-derivative" title="Permalink to this headline">¶</a></h2>
+<p>This generates a new <code class="docutils literal"><span class="pre">TimeSeries</span></code> of <code class="docutils literal"><span class="pre">TimeRangeEvent</span></code> objects which contain the derivative between columns in two consecutive <code class="docutils literal"><span class="pre">Event</span></code> objects. The start and end time of the time range events correspond to the timestamps of the two events the calculation was derived from.</p>
+<p>The primary use case for this was to generate rate data from monotonically increasing SNMP counter values like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">TimeSeries</span><span class="p">(</span><span class="n">RAW_COUNTERS</span><span class="p">)</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">field_spec</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;30s&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rate</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This would take the raw counter data, do a linear alignment on them on 30 second window boundaries, and then calculate the rates by calculating the derivative between the aligned boundaries.</p>
+<p>However it is not necessary to align your events first, just calling <code class="docutils literal"><span class="pre">.rate()</span></code> will generate time range events with the derivative between the consecutive events.</p>
+<div class="section" id="usage">
+<span id="id4"></span><h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<p>The method prototype:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_spec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_negative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">field_spec</span></code> - indicates which fields should be interpolated by the selected <code class="docutils literal"><span class="pre">method</span></code>. Typical usage of this arg type. If not supplied, then the default field <code class="docutils literal"><span class="pre">value</span></code> will be used.</li>
+<li><code class="docutils literal"><span class="pre">allow_negative</span></code> - if left defaulting to <code class="docutils literal"><span class="pre">True</span></code>, then if a negative derivative is calculated, that will be used as the value in the new event. If set to <code class="docutils literal"><span class="pre">False</span></code> a negative derivative will be set to <code class="docutils literal"><span class="pre">None</span></code> instead. There are certain use cases - like if a monotonically increasing counter gets reset - that this is the desired outcome.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <a href="http://www.es.net/"><img src="_static/esnet/logo-esnet.png" alt="[ESnet]"></a>
+      </div>
+      <div class="col-md-11">
+        <p class="pull-right">
+        <a href="#">Back to top</a>
+        
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/sanitize.txt"
+     rel="nofollow">Source</a>
+</div>
+        
+        </p>
+        <p>
+            &copy; Copyright 2016, The Regents of the University of California.<br/>
+          Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.1.<br/>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>

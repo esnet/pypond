@@ -30,7 +30,7 @@ The default will be to render in UTC - any such choice will always default to UT
         .from_source(timeseries)
         .window_by('daily', utc=False)
         .emit_on('eachEvent')
-        .aggregate({'in': Functions.avg, 'out': Functions.avg})
+        .aggregate({'in': Functions.avg(), 'out': Functions.avg()})
         .to_keyed_collections()
     )
 ```
@@ -46,7 +46,7 @@ There is also a trio of helper functions in the `TimeSeries` class that presents
 They all take a `dict` of a column name and an aggregation function as in the above example:
 
 ```
-    TimeSeries.monthly_rollup({'in': Functions.avg, 'out': Functions.avg})
+    TimeSeries.monthly_rollup({'in': Functions.avg(), 'out': Functions.avg()})
 ```
 And the data will automatically be rendered in local time.
 

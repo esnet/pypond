@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypond &mdash; pypond 0.3 documentation</title>
+    <title>pypond &mdash; pypond 0.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.3 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.4.0 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -68,6 +68,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
 </ul>
 </ul>
@@ -119,6 +120,26 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pypond.html">pypond package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypond.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pypond.processor.html">pypond.processor package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.aggregator">pypond.processor.aggregator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.align">pypond.processor.align module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.base">pypond.processor.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.collapser">pypond.processor.collapser module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.converter">pypond.processor.converter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.filler">pypond.processor.filler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.filter">pypond.processor.filter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.mapper">pypond.processor.mapper module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.offset">pypond.processor.offset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.rate">pypond.processor.rate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.selector">pypond.processor.selector module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.taker">pypond.processor.taker module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pypond.processor.html#module-pypond.processor">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.bases">pypond.bases module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.collection">pypond.collection module</a></li>
@@ -130,7 +151,6 @@
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.pipeline">pypond.pipeline module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.pipeline_in">pypond.pipeline_in module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.pipeline_out">pypond.pipeline_out module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.processors">pypond.processors module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.range">pypond.range module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.series">pypond.series module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.html#module-pypond.timerange_event">pypond.timerange_event module</a></li>

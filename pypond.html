@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypond package &mdash; pypond 0.3 documentation</title>
+    <title>pypond package &mdash; pypond 0.4.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3',
+        VERSION:     '0.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.3 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.4.0 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -68,6 +68,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
 </ul>
 </ul>
@@ -108,6 +109,7 @@
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
 <li><a class="reference internal" href="#">pypond package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pypond.bases">pypond.bases module</a></li>
 <li><a class="reference internal" href="#module-pypond.collection">pypond.collection module</a></li>
@@ -119,7 +121,6 @@
 <li><a class="reference internal" href="#module-pypond.pipeline">pypond.pipeline module</a></li>
 <li><a class="reference internal" href="#module-pypond.pipeline_in">pypond.pipeline_in module</a></li>
 <li><a class="reference internal" href="#module-pypond.pipeline_out">pypond.pipeline_out module</a></li>
-<li><a class="reference internal" href="#module-pypond.processors">pypond.processors module</a></li>
 <li><a class="reference internal" href="#module-pypond.range">pypond.range module</a></li>
 <li><a class="reference internal" href="#module-pypond.series">pypond.series module</a></li>
 <li><a class="reference internal" href="#module-pypond.timerange_event">pypond.timerange_event module</a></li>
@@ -135,6 +136,30 @@
       
   <div class="section" id="pypond-package">
 <h1>pypond package<a class="headerlink" href="#pypond-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pypond.processor.html">pypond.processor package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.aggregator">pypond.processor.aggregator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.align">pypond.processor.align module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.base">pypond.processor.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.collapser">pypond.processor.collapser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.converter">pypond.processor.converter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.filler">pypond.processor.filler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.filter">pypond.processor.filter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.mapper">pypond.processor.mapper module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.offset">pypond.processor.offset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.rate">pypond.processor.rate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.selector">pypond.processor.selector module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.taker">pypond.processor.taker module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -373,20 +398,30 @@ be an aware UTC datetime object.</td>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.avg">
-<code class="descname">avg</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.avg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">avg</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.avg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get avg</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average value.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Average value.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -612,20 +647,30 @@ even numbers.</p>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.first">
-<code class="descname">first</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.first" title="Permalink to this definition">¶</a></dt>
+<code class="descname">first</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get first value in the collection for the fspec</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Type varies depending on underlying data</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Type varies depending on underlying data</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">depends on data</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">depends on data</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -650,20 +695,30 @@ order.</p>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.last">
-<code class="descname">last</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.last" title="Permalink to this definition">¶</a></dt>
+<code class="descname">last</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.last" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get last value in the collection for the fspec</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Type varies depending on underlying data</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Type varies depending on underlying data</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">depends on data</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">depends on data</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -696,20 +751,30 @@ must creat a new Event* instance.</p>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.max">
-<code class="descname">max</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.max" title="Permalink to this definition">¶</a></dt>
+<code class="descname">max</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.max" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get max</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Maximum value.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Maximum value.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -717,20 +782,30 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.mean">
-<code class="descname">mean</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.mean" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mean</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get mean</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Mean value (grrr!).</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Mean value (grrr!).</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -738,20 +813,30 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.median">
-<code class="descname">median</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.median" title="Permalink to this definition">¶</a></dt>
+<code class="descname">median</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.median" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get median</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Median value.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Median value.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -759,20 +844,101 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.min">
-<code class="descname">min</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.min" title="Permalink to this definition">¶</a></dt>
+<code class="descname">min</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.min" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get min</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Minimum value.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Minimum value.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.collection.Collection.percentile">
+<code class="descname">percentile</code><span class="sig-paren">(</span><em>perc</em>, <em>field_spec</em>, <em>method='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.percentile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets percentile perc within the Collection. This works the same
+way as numpy.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>perc</strong> (<em>int</em>) &#8211; The percentile (should be between 0 and 100)</li>
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
+A single deep value with a string.like.this.  If None, all columns
+will be operated on.</li>
+<li><strong>method</strong> (<em>str, optional</em>) &#8211; <p>Specifies the interpolation method to use when the desired
+percentile lies between two data points. Options are:</p>
+<p>linear: i + (j - i) * fraction, where fraction is the fractional
+part of the index surrounded by i and j.</p>
+<p>lower: i</p>
+<p>higher: j</p>
+<p>nearest: i or j whichever is nearest</p>
+<p>midpoint: (i + j) / 2</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The percentile.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.collection.Collection.quantile">
+<code class="descname">quantile</code><span class="sig-paren">(</span><em>num</em>, <em>field_path=None</em>, <em>method='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.quantile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets num quantiles within the Collection</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num</strong> (<em>Number of quantiles to divide the Collection into.</em>) &#8211; Description</li>
+<li><strong>field_path</strong> (<em>None, optional</em>) &#8211; The field to return as the quantile. If not set, defaults
+to &#8216;value.&#8217;</li>
+<li><strong>method</strong> (<em>str, optional</em>) &#8211; <p>Specifies the interpolation method to use when the desired
+percentile lies between two data points. Options are:</p>
+<p>linear: i + (j - i) * fraction, where fraction is the fractional
+part of the index surrounded by i and j.</p>
+<p>lower: i</p>
+<p>higher: j</p>
+<p>nearest: i or j whichever is nearest</p>
+<p>midpoint: (i + j) / 2</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of quantiles</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -909,6 +1075,28 @@ but not including end. Uses typical python [slice:syntax].</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.collection.Collection.sort">
+<code class="descname">sort</code><span class="sig-paren">(</span><em>field_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts the Collection using the value referenced by field_path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_path</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Name of value to look up. If None, defaults to [&#8216;value&#8217;].
+&#8220;Deep&#8221; syntax either [&#8216;deep&#8217;, &#8216;value&#8217;], (&#8216;deep&#8217;, &#8216;value&#8217;,)
+or &#8216;deep.value.&#8217;</p>
+<p>If field_path is None, then [&#8216;value&#8217;] will be the default.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New collection of sorted values.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.collection.Collection.sort_by_time">
 <code class="descname">sort_by_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sort_by_time" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new instance of this collection after making sure
@@ -928,19 +1116,30 @@ sorted.</td>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.stdev">
-<code class="descname">stdev</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.stdev" title="Permalink to this definition">¶</a></dt>
+<code class="descname">stdev</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.stdev" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get std dev</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.</td>
+A single deep value with a string.like.this.  If None, all columns
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Standard deviation.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Standard deviation.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -948,20 +1147,30 @@ A single deep value with a string.like.this.</td>
 
 <dl class="method">
 <dt id="pypond.collection.Collection.sum">
-<code class="descname">sum</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sum</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get sum</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Summed value.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Summed value.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1069,7 +1278,7 @@ datetime.datetime object to create a timestamp from.</li>
 </table>
 <dl class="staticmethod">
 <dt id="pypond.event.Event.avg">
-<em class="property">static </em><code class="descname">avg</code><span class="sig-paren">(</span><em>events</em>, <em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.avg" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">avg</code><span class="sig-paren">(</span><em>events</em>, <em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.avg" title="Permalink to this definition">¶</a></dt>
 <dd><p>combine() called with a averaging function as a reducer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1081,6 +1290,11 @@ datetime.datetime object to create a timestamp from.</li>
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
 will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
 </ul>
 </td>
 </tr>
@@ -1487,7 +1701,7 @@ column &#8216;value&#8217; will be used.</li>
 
 <dl class="staticmethod">
 <dt id="pypond.event.Event.sum">
-<em class="property">static </em><code class="descname">sum</code><span class="sig-paren">(</span><em>events</em>, <em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.sum" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">sum</code><span class="sig-paren">(</span><em>events</em>, <em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>combine() called with a summing function as a reducer. All
 of the events need to have the same timestamp.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1500,6 +1714,11 @@ of the events need to have the same timestamp.</p>
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
 will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
 </ul>
 </td>
 </tr>
@@ -1947,6 +2166,20 @@ or &#8216;deep.value.&#8217;</p>
 </dd></dl>
 
 <dl class="exception">
+<dt id="pypond.exceptions.FilterException">
+<em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">FilterException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.FilterException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Custom Filter exception</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pypond.exceptions.FilterWarning">
+<em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">FilterWarning</code><a class="headerlink" href="#pypond.exceptions.FilterWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<p>Custom Filter warning</p>
+</dd></dl>
+
+<dl class="exception">
 <dt id="pypond.exceptions.IndexException">
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">IndexException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.IndexException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
@@ -2049,65 +2282,129 @@ or &#8216;deep.value.&#8217;</p>
 <span id="pypond-functions-module"></span><h2>pypond.functions module<a class="headerlink" href="#module-pypond.functions" title="Permalink to this headline">¶</a></h2>
 <p>Functions to act as reducers/aggregators, etc.</p>
 <dl class="class">
+<dt id="pypond.functions.Filters">
+<em class="property">class </em><code class="descclassname">pypond.functions.</code><code class="descname">Filters</code><a class="headerlink" href="#pypond.functions.Filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Filter functions to pass to aggregation function factory
+methods.</p>
+<p>These all control how the underlying aggregators handle missing/invalid
+values.  Can pass things through (the default to all agg functions),
+ignore any bad values, transform any bad values to zero, or make the
+entire aggregation fail if there are any bad values.</p>
+<dl class="staticmethod">
+<dt id="pypond.functions.Filters.ignore_missing">
+<em class="property">static </em><code class="descname">ignore_missing</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Filters.ignore_missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pull out the bad values resulting in a shorter array.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pypond.functions.Filters.keep_missing">
+<em class="property">static </em><code class="descname">keep_missing</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Filters.keep_missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>no-op - default</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pypond.functions.Filters.propogate_missing">
+<em class="property">static </em><code class="descname">propogate_missing</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Filters.propogate_missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>It&#8217;s all bad if there are missing values - return None if so.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pypond.functions.Filters.zero_missing">
+<em class="property">static </em><code class="descname">zero_missing</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Filters.zero_missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make bad values 0 - array will be the same length.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="pypond.functions.Functions">
 <em class="property">class </em><code class="descclassname">pypond.functions.</code><code class="descname">Functions</code><a class="headerlink" href="#pypond.functions.Functions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Utility class to contain the functions.</p>
+<p>The inner() function is the one that does the actual processing and
+it returned by calling the outer named function.  Previously one would
+pass Functions.sum to an aggregation or reducer method:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Functions</span><span class="o">.</span><span class="n">sum</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now it is a factory to return the acutal function:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Functions</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The static methods in the Filters class can be passed to the outer
+factory method to control how bad values are handled:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">Functions</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Filters</span><span class="o">.</span><span class="n">zero_missing</span><span class="p">),</span> <span class="s1">&#39;in&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.avg">
-<em class="property">static </em><code class="descname">avg</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.avg" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">avg</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.avg" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.count">
-<em class="property">static </em><code class="descname">count</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.count" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">count</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.count" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.difference">
-<em class="property">static </em><code class="descname">difference</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.difference" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">difference</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.difference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.first">
-<em class="property">static </em><code class="descname">first</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.first" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">first</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.first" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.keep">
-<em class="property">static </em><code class="descname">keep</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.keep" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">keep</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.keep" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.last">
-<em class="property">static </em><code class="descname">last</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.last" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">last</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.last" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.max">
-<em class="property">static </em><code class="descname">max</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.max" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">max</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.max" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.median">
-<em class="property">static </em><code class="descname">median</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.median" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">median</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.median" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.min">
-<em class="property">static </em><code class="descname">min</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.min" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">min</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pypond.functions.Functions.percentile">
+<em class="property">static </em><code class="descname">percentile</code><span class="sig-paren">(</span><em>perc</em>, <em>method='linear'</em>, <em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.percentile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.stddev">
-<em class="property">static </em><code class="descname">stddev</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.stddev" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">stddev</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.stddev" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pypond.functions.Functions.sum">
-<em class="property">static </em><code class="descname">sum</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.sum" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">sum</code><span class="sig-paren">(</span><em>flt=&lt;function keep_missing&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.Functions.sum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="pypond.functions.f_check">
+<code class="descclassname">pypond.functions.</code><code class="descname">f_check</code><span class="sig-paren">(</span><em>flt</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.functions.f_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the default filter for aggregation operations when no
+filter is specified. When one is, make sure that it is a
+valid filter.</p>
 </dd></dl>
 
 </div>
@@ -2834,19 +3131,13 @@ object. This is a map from fieldName to operator.</p>
     <span class="o">.</span><span class="n">from_source</span><span class="p">(</span><span class="n">uin</span><span class="p">)</span>
     <span class="o">.</span><span class="n">window_by</span><span class="p">(</span><span class="s1">&#39;1h&#39;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">emit_on</span><span class="p">(</span><span class="s1">&#39;eachEvent&#39;</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">aggregate</span><span class="p">({</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">})</span>
+    <span class="o">.</span><span class="n">aggregate</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;in_avg&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()},</span>
+            <span class="s1">&#39;out_avg&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()}</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
     <span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">EventOut</span><span class="p">,</span> <span class="n">cback</span><span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>A more complex example - this will aggregate two deep fields into a
-single object:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">elist</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Pipeline</span><span class="p">()</span>
-    <span class="o">.</span><span class="n">from_source</span><span class="p">(</span><span class="n">TimeSeries</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;events&#39;</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="n">DEEP_EVENT_LIST</span><span class="p">)))</span>
-    <span class="o">.</span><span class="n">emit_on</span><span class="p">(</span><span class="s1">&#39;flush&#39;</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">aggregate</span><span class="p">({(</span><span class="s1">&#39;direction.out&#39;</span><span class="p">,</span> <span class="s1">&#39;direction.in&#39;</span><span class="p">):</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">})</span>
-    <span class="o">.</span><span class="n">to_event_list</span><span class="p">()</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -2855,8 +3146,12 @@ single object:</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fields</strong> (<em>dict</em>) &#8211; Fields and operators to be aggregated. Deep fields may be
-indicated by using this.style.notation and multiple fields
-can be aggregated by using a tuple as a key</td>
+indicated by using this.style.notation. As in the above
+example, they fields.keys() are the names of the new
+columns to be created (or an old one to be overwritten),
+and the value is another dict - the key is the existing
+column and the value is the function to apply to it when
+creating the new column.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The Pipeline</td>
 </tr>
@@ -2864,6 +3159,12 @@ can be aggregated by using a tuple as a key</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.pipeline.Pipeline.align">
+<code class="descname">align</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>window='5m'</em>, <em>method='linear'</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline.Pipeline.align" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align entry point</p>
 </dd></dl>
 
 <dl class="method">
@@ -3081,6 +3382,41 @@ is considered finished.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.pipeline.Pipeline.fill">
+<code class="descname">fill</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>method='zero'</em>, <em>fill_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline.Pipeline.fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take the data in this timeseries and &#8220;fill&#8221; any missing
+or invalid values. This could be setting None values to zero
+so mathematical operations will succeed, interpolate a new
+value, or pad with the previously given value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Column or columns to look up. If you need to retrieve multiple deep
+nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
+A single deep value with a string.like.this.</p>
+<p>If None, the default column field &#8216;value&#8217; will be used.</p>
+</li>
+<li><strong>method</strong> (<em>str, optional</em>) &#8211; Filling method: zero | linear | pad</li>
+<li><strong>fill_limit</strong> (<em>None, optional</em>) &#8211; Set a limit on the number of consecutive events will be filled
+before it starts returning invalid values. For linear fill,
+no filling will happen if the limit is reached before a valid
+value is found.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Pipeline.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline">Pipeline</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.pipeline.Pipeline.filter">
 <code class="descname">filter</code><span class="sig-paren">(</span><em>op</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline.Pipeline.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the event stream using an operator</p>
@@ -3108,7 +3444,7 @@ is considered finished.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An pipeline processor.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor">Processor</a></td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pypond.processor.html#pypond.processor.base.Processor" title="pypond.processor.base.Processor">Processor</a></td>
 </tr>
 </tbody>
 </table>
@@ -3270,7 +3606,7 @@ be used.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An pipeline processor.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor">Processor</a></td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pypond.processor.html#pypond.processor.base.Processor" title="pypond.processor.base.Processor">Processor</a></td>
 </tr>
 </tbody>
 </table>
@@ -3340,6 +3676,12 @@ A single deep value with a string.like.this.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.pipeline.Pipeline.rate">
+<code class="descname">rate</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>allow_negative=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline.Pipeline.rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>derivative entry point</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.pipeline.Pipeline.results_done">
 <code class="descname">results_done</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline.Pipeline.results_done" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set result state as done.</p>
@@ -3375,11 +3717,24 @@ A single deep value with a string.like.this.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limit</strong> (<em>int</em>) &#8211; Integer number of events to take.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>limit</strong> (<em>int</em>) &#8211; Integer number of events to take.</li>
+<li><strong>global_flush</strong> (<em>bool, optional</em>) &#8211; If set to true (default is False) then the Taker will
+send out a single .flush() event if the limit has been
+exceeded and the window_type is &#8216;global.&#8217; This can be
+used as a fail safe with processors that cache events
+(like the Filler) to ensure all events are emitted when
+the Pipeline is used in &#8216;stream&#8217; mode. This is not
+needed in &#8216;batch&#8217; mode because the flush signal is sent
+automatically.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The Pipeline.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The Pipeline.</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline">Pipeline</a></td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline">Pipeline</a></p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -3405,8 +3760,8 @@ the out.</p>
     <span class="n">Pipeline</span><span class="p">()</span>
     <span class="o">.</span><span class="n">from_source</span><span class="p">(</span><span class="n">timeseries</span><span class="p">)</span>
     <span class="o">.</span><span class="n">emit_on</span><span class="p">(</span><span class="s1">&#39;flush&#39;</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">collapse</span><span class="p">([</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">],</span> <span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="n">Functions</span><span class="o">.</span><span class="n">sum</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">collapse</span><span class="p">([</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">],</span> <span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="n">Functions</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
     <span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">EventOut</span><span class="p">,</span> <span class="n">cback</span><span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -3863,423 +4218,6 @@ an observer.</p>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-</div>
-<div class="section" id="module-pypond.processors">
-<span id="pypond-processors-module"></span><h2>pypond.processors module<a class="headerlink" href="#module-pypond.processors" title="Permalink to this headline">¶</a></h2>
-<p>Offset is a simple processor used by the testing code to verify Pipeline behavior.</p>
-<dl class="class">
-<dt id="pypond.processors.Aggregator">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Aggregator</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Aggregator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>An Aggregator takes incoming events and adds them to a Collector
-with given windowing and grouping parameters. As each Collection is
-emitted from the Collector it is aggregated into a new event
-and emitted from this Processor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Aggregator or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Aggregator.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Aggregator.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an event to the collector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An event object</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Aggregator.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Aggregator.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Aggregator.flush">
-<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Aggregator.flush" title="Permalink to this definition">¶</a></dt>
-<dd><p>flush.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Collapser">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Collapser</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Collapser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A processor which takes a fieldSpec and returns a new event
-with a new column that is a collapsed result of the selected
-columns. To collapse the columns it uses the supplied reducer
-function. Optionally the new column can completely replace
-the existing columns in the event.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Collapser or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Collapser.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Collapser.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the collapse operation on the event and emit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Collapser.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Collapser.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Converter">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Converter</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Converter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A processor that converts an event type to another event type.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Converter or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Converter.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Converter.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the conversion on the event and emit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Converter.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Converter.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Converter.convert_event">
-<code class="descname">convert_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Converter.convert_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert an Event</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An incoming Event object for conversion.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted Event.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">TimeRangeEvent or IndexedEvent</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Converter.convert_indexed_event">
-<code class="descname">convert_indexed_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Converter.convert_indexed_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert an IndexedEvent</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.indexed_event.IndexedEvent" title="pypond.indexed_event.IndexedEvent"><em>IndexedEvent</em></a>) &#8211; An incoming IndexedEvent object for conversion.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted IndexedEvent.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">TimeRangeEvent or Event</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Converter.convert_time_range_event">
-<code class="descname">convert_time_range_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Converter.convert_time_range_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a TimeRangeEvent</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.timerange_event.TimeRangeEvent" title="pypond.timerange_event.TimeRangeEvent"><em>TimeRangeEvent</em></a>) &#8211; An incoming TimeRangeEvent object for conversion.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted TimeRangeEvent. Can not convert to IndexedEvent.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Filter">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Filter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A processor which takes an operator as its only option
-and uses that to either output a new event.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Filter or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Filter.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Filter.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the filter operation on the event and emit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Filter.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Filter.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Mapper">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Mapper</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Mapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A processor which takes an operator as its only option
-and uses that to either output a new event.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Mapper or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Mapper.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Mapper.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the map operation on the event and emit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Mapper.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Mapper.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Offset">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Offset</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Offset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A simple processor used by the testing code to verify Pipeline behavior.</p>
-<dl class="method">
-<dt id="pypond.processors.Offset.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Offset.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output an even that is offset by a certain value.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Offset.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Offset.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clone this Offset processor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Cloned offset object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.processors.Offset" title="pypond.processors.Offset">Offset</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Processor">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Processor</code><span class="sig-paren">(</span><em>arg1</em>, <em>options</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Processor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.bases.Observable" title="pypond.bases.Observable"><code class="xref py py-class docutils literal"><span class="pre">pypond.bases.Observable</span></code></a></p>
-<p>Base class for all pipeline processors.</p>
-<dl class="method">
-<dt id="pypond.processors.Processor.chain">
-<code class="descname">chain</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Processor.chain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the chain</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Processor.pipeline">
-<code class="descname">pipeline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Processor.pipeline" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the pipeline</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Processor.prev">
-<code class="descname">prev</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Processor.prev" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return prev</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Selector">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Selector</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Selector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A processor which takes a fieldSpec as its only argument
-and returns a new event with only the selected columns</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Selector or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Selector.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Selector.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the select operation on the event and emit.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Selector.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Selector.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.processors.Taker">
-<em class="property">class </em><code class="descclassname">pypond.processors.</code><code class="descname">Taker</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Taker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.processors.Processor" title="pypond.processors.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processors.Processor</span></code></a></p>
-<p>A processor which takes an operator as its only option
-and uses that to either output the event or skip the
-event</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>arg1</strong> (<em>Taker or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.processors.Taker.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Taker.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output an event that is offset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.processors.Taker.clone">
-<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.Taker.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>clone it.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="pypond.processors.add_prev_to_chain">
-<code class="descclassname">pypond.processors.</code><code class="descname">add_prev_to_chain</code><span class="sig-paren">(</span><em>n</em>, <em>chain</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processors.add_prev_to_chain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Recursive function to add values to the chain.</p>
 </dd></dl>
 
 </div>
@@ -4934,6 +4872,12 @@ all columns will be operated on.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.series.TimeSeries.align">
+<code class="descname">align</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>window='5m'</em>, <em>method='linear'</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.align" title="Permalink to this definition">¶</a></dt>
+<dd><p>Align entry point</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.series.TimeSeries.at">
 <code class="descname">at</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Access the series events via numeric index</p>
@@ -5004,20 +4948,30 @@ as calling <cite>bisect</cite> first and then using <cite>at</cite> with the ind
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.avg">
-<code class="descname">avg</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.avg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">avg</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.avg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get avg</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Average value</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Average value</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -5239,14 +5193,14 @@ Pipeline.</p>
 <p>Each window then has an aggregation specification applied as
 <cite>aggregation</cite>. This specification describes a mapping of fieldNames
 to aggregation functions. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">(),</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()}</span>
 </pre></div>
 </div>
 <p>will aggregate both &#8220;in&#8221; and &#8220;out&#8221; using the average aggregation
 function across all events within each day.</p>
 <p>Example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">daily_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">})</span>
+<span class="n">daily_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">()})</span>
 </pre></div>
 </div>
 <p>This helper function renders the aggregations in localtime. If you
@@ -5257,7 +5211,7 @@ window size.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max}</li>
+<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max()}</li>
 <li><strong>to_event</strong> (<em>bool, optional</em>) &#8211; Do conversion to Event objects</li>
 </ul>
 </td>
@@ -5334,6 +5288,42 @@ window size.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.series.TimeSeries.fill">
+<code class="descname">fill</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>method='zero'</em>, <em>fill_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take the data in this timeseries and &#8220;fill&#8221; any missing
+or invalid values. This could be setting None values to zero
+so mathematical operations will succeed, interpolate a new
+value, or pad with the previously given value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Column or columns to look up. If you need to retrieve multiple deep
+nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
+A single deep value with a string.like.this.</p>
+<p>If None, the default column field &#8216;value&#8217; will be used.</p>
+</li>
+<li><strong>method</strong> (<em>str, optional</em>) &#8211; Filling method: zero | linear | pad</li>
+<li><strong>fill_limit</strong> (<em>None, optional</em>) &#8211; Set a limit on the number of consecutive events will be filled
+before it starts returning invalid values. For linear fill,
+no filling will happen if the limit is reached before a valid
+value is found.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A clone of this TimeSeries with a new Collection generated by
+the fill operation.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pypond.series.TimeSeries" title="pypond.series.TimeSeries">TimeSeries</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.series.TimeSeries.fixed_window_rollup">
 <code class="descname">fixed_window_rollup</code><span class="sig-paren">(</span><em>window_size</em>, <em>aggregation</em>, <em>to_events=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.fixed_window_rollup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a new TimeSeries by dividing events within the TimeSeries
@@ -5352,7 +5342,7 @@ will aggregate both &#8220;in&#8221; and &#8220;out&#8221; using the average agg
 function.</p>
 <p>Example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">daily_avg</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">fixed_window_rollup</span><span class="p">(</span><span class="s1">&#39;1d&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">})</span>
+<span class="n">daily_avg</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">fixed_window_rollup</span><span class="p">(</span><span class="s1">&#39;1d&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()})</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -5385,14 +5375,14 @@ Pipeline.</p>
 <p>Each window then has an aggregation specification applied as
 <cite>aggregation</cite>. This specification describes a mapping of fieldNames
 to aggregation functions. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">(),</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()}</span>
 </pre></div>
 </div>
 <p>will aggregate both &#8220;in&#8221; and &#8220;out&#8221; using the average aggregation
 function across all events within each hour.</p>
 <p>Example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">hourly_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">hourly_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">})</span>
+<span class="n">hourly_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">hourly_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">()})</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -5400,7 +5390,7 @@ function across all events within each hour.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max}</li>
+<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max()}</li>
 <li><strong>to_event</strong> (<em>bool, optional</em>) &#8211; Do conversion to Event objects</li>
 </ul>
 </td>
@@ -5494,20 +5484,30 @@ the map operation.</td>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.max">
-<code class="descname">max</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.max" title="Permalink to this definition">¶</a></dt>
+<code class="descname">max</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.max" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get max</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Max value</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Max value</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -5515,20 +5515,30 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.mean">
-<code class="descname">mean</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.mean" title="Permalink to this definition">¶</a></dt>
+<code class="descname">mean</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get mean</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Mean value</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Mean value</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -5536,20 +5546,30 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.median">
-<code class="descname">median</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.median" title="Permalink to this definition">¶</a></dt>
+<code class="descname">median</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.median" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get median</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Median value</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Median value</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -5575,20 +5595,30 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.min">
-<code class="descname">min</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.min" title="Permalink to this definition">¶</a></dt>
+<code class="descname">min</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.min" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get min</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Min value</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Min value</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -5603,14 +5633,14 @@ Pipeline.</p>
 <p>Each window then has an aggregation specification applied as
 <cite>aggregation</cite>. This specification describes a mapping of fieldNames
 to aggregation functions. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">(),</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()}</span>
 </pre></div>
 </div>
 <p>will aggregate both &#8220;in&#8221; and &#8220;out&#8221; using the average aggregation
 function across all events within each month.</p>
 <p>Example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">monthly_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">})</span>
+<span class="n">monthly_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">()})</span>
 </pre></div>
 </div>
 <p>This helper function renders the aggregations in localtime. If you
@@ -5621,7 +5651,7 @@ window size.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max}</li>
+<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max()}</li>
 <li><strong>to_event</strong> (<em>bool, optional</em>) &#8211; Do conversion to Event objects</li>
 </ul>
 </td>
@@ -5653,6 +5683,43 @@ window size.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.series.TimeSeries.percentile">
+<code class="descname">percentile</code><span class="sig-paren">(</span><em>perc</em>, <em>field_spec</em>, <em>method='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.percentile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets percentile perc within the Collection. Numpy under
+the hood.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>perc</strong> (<em>int</em>) &#8211; The percentile (should be between 0 and 100)</li>
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
+A single deep value with a string.like.this.  If None, all columns
+will be operated on.</li>
+<li><strong>method</strong> (<em>str, optional</em>) &#8211; <p>Specifies the interpolation method to use when the desired
+percentile lies between two data points. Options are:</p>
+<p>linear: i + (j - i) * fraction, where fraction is the fractional
+part of the index surrounded by i and j.</p>
+<p>lower: i</p>
+<p>higher: j</p>
+<p>nearest: i or j whichever is nearest</p>
+<p>midpoint: (i + j) / 2</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The percentile.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.series.TimeSeries.pipeline">
 <code class="descname">pipeline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.pipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a new Pipeline with input source being initialized to
@@ -5672,6 +5739,40 @@ TimeSeries or Event result.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.series.TimeSeries.quantile">
+<code class="descname">quantile</code><span class="sig-paren">(</span><em>num</em>, <em>field_path=None</em>, <em>method='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.quantile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets num quantiles within the Collection</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num</strong> (<em>Number of quantiles to divide the Collection into.</em>) &#8211; Description</li>
+<li><strong>field_path</strong> (<em>None, optional</em>) &#8211; The field to return as the quantile. If not set, defaults
+to &#8216;value.&#8217;</li>
+<li><strong>method</strong> (<em>str, optional</em>) &#8211; <p>Specifies the interpolation method to use when the desired
+percentile lies between two data points. Options are:</p>
+<p>linear: i + (j - i) * fraction, where fraction is the fractional
+part of the index surrounded by i and j.</p>
+<p>lower: i</p>
+<p>higher: j</p>
+<p>nearest: i or j whichever is nearest</p>
+<p>midpoint: (i + j) / 2</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of quantiles</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.series.TimeSeries.range">
 <code class="descname">range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for timerange()</p>
@@ -5682,6 +5783,41 @@ TimeSeries or Event result.</p>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">TimeRange internal of the underly collection.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.range.TimeRange" title="pypond.range.TimeRange">TimeRange</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.series.TimeSeries.rate">
+<code class="descname">rate</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>allow_negative=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>derive entry point</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.series.TimeSeries.rename_columns">
+<code class="descname">rename_columns</code><span class="sig-paren">(</span><em>rename_map</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.rename_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>TimeSeries.map() helper function to rename columns in the underlying
+events.</p>
+<p>Takes a dict of columns to rename:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">new_ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">rename_columns</span><span class="p">({</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="s1">&#39;new_in&#39;</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="s1">&#39;new_out&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Returns a new time series containing new events. Columns not
+in the dict will be retained and not renamed.</p>
+<p>NOTE: as the name implies, this will only rename the main
+&#8220;top level&#8221; (ie: non-deep) columns. If you need more
+extravagant renaming, roll your own using map().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rename_map</strong> (<em>dict</em>) &#8211; Dict of columns to rename.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A clone of this TimeSeries with a new Collection generated by
+the map operation.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.series.TimeSeries" title="pypond.series.TimeSeries">TimeSeries</a></td>
 </tr>
 </tbody>
 </table>
@@ -5821,20 +5957,30 @@ but not including end. Uses typical python [slice:syntax].</p>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.stdev">
-<code class="descname">stdev</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.stdev" title="Permalink to this definition">¶</a></dt>
+<code class="descname">stdev</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.stdev" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get std dev</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Standard deviation</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Standard deviation</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -5842,20 +5988,30 @@ will be operated on.</td>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.sum">
-<code class="descname">sum</code><span class="sig-paren">(</span><em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.sum" title="Permalink to this definition">¶</a></dt>
+<code class="descname">sum</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.sum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get sum</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
-will be operated on.</td>
+will be operated on.</li>
+<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
+<cite>pypond.functions.Filters</cite>. It will control how bad or missing
+(None, NaN, empty string) values will be cleansed or filtered
+during aggregation. If no filter is specified, then the missing
+values will be retained which will potentially cause errors.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Summed values</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Summed values</p>
+</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int or float</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -6007,14 +6163,14 @@ Pipeline.</p>
 <p>Each window then has an aggregation specification applied as
 <cite>aggregation</cite>. This specification describes a mapping of fieldNames
 to aggregation functions. For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">}</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">(),</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">avg</span><span class="p">()}</span>
 </pre></div>
 </div>
 <p>will aggregate both &#8220;in&#8221; and &#8220;out&#8221; using the average aggregation
 function across all events within each year.</p>
 <p>Example:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">timeseries</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">daily_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">})</span>
+<span class="n">daily_max_temp</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">daily_rollup</span><span class="p">({</span><span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="n">Functions</span><span class="o">.</span><span class="n">max</span><span class="p">()})</span>
 </pre></div>
 </div>
 <p>This helper function renders the aggregations in localtime. If you
@@ -6025,7 +6181,7 @@ window size.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max}</li>
+<li><strong>aggregation</strong> (<em>dict</em>) &#8211; The aggregation specification e.g. {&#8216;temperature&#8217;: Functions.max()}</li>
 <li><strong>to_event</strong> (<em>bool, optional</em>) &#8211; Do conversion to Event objects</li>
 </ul>
 </td>
@@ -6436,6 +6592,26 @@ json.dumps()/etc by defining a .to_json() method on your object.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pypond.util.generate_paths">
+<code class="descclassname">pypond.util.</code><code class="descname">generate_paths</code><span class="sig-paren">(</span><em>dic</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.generate_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a list of all possible field paths in a dict. This is
+for determining all paths in a dict when none is given.</p>
+<p>Currently unused, but keeping since we will probably need it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dic</strong> (<em>dict</em>) &#8211; A dict, generally the payload from an Event class.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of strings of all the paths in the dict.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pypond.util.humanize_dt">
 <code class="descclassname">pypond.util.</code><code class="descname">humanize_dt</code><span class="sig-paren">(</span><em>dtime</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.humanize_dt" title="Permalink to this definition">¶</a></dt>
 <dd><p>format time format display for humanize maneuvers.</p>
@@ -6584,6 +6760,24 @@ for safety sake.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pypond.util.is_valid">
+<code class="descclassname">pypond.util.</code><code class="descname">is_valid</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if a value is valid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> (<em>obj</em>) &#8211; A value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Is it valid?</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pypond.util.localtime_from_ms">
 <code class="descclassname">pypond.util.</code><code class="descname">localtime_from_ms</code><span class="sig-paren">(</span><em>msec</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.localtime_from_ms" title="Permalink to this definition">¶</a></dt>
 <dd><p>generate an aware localtime datetime object from ms</p>
@@ -6660,6 +6854,71 @@ from the local version.</td>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">epoch milliseconds</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pypond.util.nested_get">
+<code class="descclassname">pypond.util.</code><code class="descname">nested_get</code><span class="sig-paren">(</span><em>dic</em>, <em>keys</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.nested_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Address a nested dict with a list of keys to fetch a value.
+This is functionaly similar to the standard functools.reduce()
+method employing dict.get, but this returns &#8216;bad_path&#8217; if the path
+does not exist. This is because we need to differentiate between
+an existing value that is actually None vs. the dict.get()
+failover. Would have preferred to return False, but who knows
+if we&#8217;ll end up with data containing Boolean values.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sample_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">nested_set</span><span class="p">(</span><span class="n">sample_dict</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">],</span> <span class="mi">23</span><span class="p">)</span>
+<span class="n">nested_get</span><span class="p">(</span><span class="n">sample_dict</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;quux&#39;</span><span class="p">])</span>
+<span class="kc">False</span>
+</pre></div>
+</div>
+<p>Unlike nested_set(), this will not create a new path branch if
+it does not already exist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dic</strong> (<em>dict</em>) &#8211; The dict we are working with</li>
+<li><strong>keys</strong> (<em>list</em>) &#8211; A lsit of nested keys</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Whatever value was at the terminus of the keys.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">obj</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pypond.util.nested_set">
+<code class="descclassname">pypond.util.</code><code class="descname">nested_set</code><span class="sig-paren">(</span><em>dic</em>, <em>keys</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.util.nested_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Address a nested dict with a list of keys and set a value.
+If part of the path does not exist, it will be created.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sample_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">nested_set</span><span class="p">(</span><span class="n">sample_dict</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">],</span> <span class="mi">23</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;baz&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">}}</span>
+<span class="n">nested_set</span><span class="p">(</span><span class="n">sample_dict</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">],</span> <span class="mi">25</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;bar&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;baz&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">}}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dic</strong> (<em>dict</em>) &#8211; The dict we are workign with.</li>
+<li><strong>keys</strong> (<em>list</em>) &#8211; A list of nested keys</li>
+<li><strong>value</strong> (<em>obj</em>) &#8211; Whatever we want to set the ultimate key to.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>

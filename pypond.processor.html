@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pypond.processor package &mdash; pypond 0.4.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/esnet/esnet.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pypond 0.4.0 documentation" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          <!-- LOGO:  _static/ -->
+          pypond</a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Section <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            <li class="divider-vertical"></li>
+            
+                <li><a href="genindex.html">Index</a></li>
+                <li><a href="https://www.es.net">ESnet</a></li>
+            
+            <li><a href="https://github.com/esnet/pypond"><img src="_static/esnet/icon-github.png" height="20" width="20"></a></li>
+            
+            
+            
+          </ul>
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">pypond.processor package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.aggregator">pypond.processor.aggregator module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.align">pypond.processor.align module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.base">pypond.processor.base module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.collapser">pypond.processor.collapser module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.converter">pypond.processor.converter module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.filler">pypond.processor.filler module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.filter">pypond.processor.filter module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.mapper">pypond.processor.mapper module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.offset">pypond.processor.offset module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.rate">pypond.processor.rate module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.selector">pypond.processor.selector module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor.taker">pypond.processor.taker module</a></li>
+<li><a class="reference internal" href="#module-pypond.processor">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="pypond-processor-package">
+<h1>pypond.processor package<a class="headerlink" href="#pypond-processor-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pypond.processor.aggregator">
+<span id="pypond-processor-aggregator-module"></span><h2>pypond.processor.aggregator module<a class="headerlink" href="#module-pypond.processor.aggregator" title="Permalink to this headline">¶</a></h2>
+<p>Processor that adds events to collector given windowing and grouping options.</p>
+<dl class="class">
+<dt id="pypond.processor.aggregator.Aggregator">
+<em class="property">class </em><code class="descclassname">pypond.processor.aggregator.</code><code class="descname">Aggregator</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.aggregator.Aggregator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>An Aggregator takes incoming events and adds them to a Collector
+with given windowing and grouping parameters. As each Collection is
+emitted from the Collector it is aggregated into a new event
+and emitted from this Processor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Aggregator or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.aggregator.Aggregator.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.aggregator.Aggregator.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an event to the collector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pypond.html#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An event object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.aggregator.Aggregator.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.aggregator.Aggregator.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.aggregator.Aggregator.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.aggregator.Aggregator.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>flush.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.align">
+<span id="pypond-processor-align-module"></span><h2>pypond.processor.align module<a class="headerlink" href="#module-pypond.processor.align" title="Permalink to this headline">¶</a></h2>
+<p>Simple processor to change the event values by a certain offset.</p>
+<p>Primarily for testing.</p>
+<dl class="class">
+<dt id="pypond.processor.align.Align">
+<em class="property">class </em><code class="descclassname">pypond.processor.align.</code><code class="descname">Align</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.align.Align" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor to align the data into bins of regular time period.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arg1</strong> (<em>Align or Pipeline</em>) &#8211; Pipeline or copy constructor</li>
+<li><strong>options</strong> (<em>Options, optional</em>) &#8211; Pipeline Options object.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ProcessorException</span></code> &#8211; Raised on bad arg types.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.align.Align.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.align.Align.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output an even that is Align by a certain value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pypond.html#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An Event.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.align.Align.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.align.Align.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone this Align processor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Cloned Align object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.processor.align.Align" title="pypond.processor.align.Align">Align</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.base">
+<span id="pypond-processor-base-module"></span><h2>pypond.processor.base module<a class="headerlink" href="#module-pypond.processor.base" title="Permalink to this headline">¶</a></h2>
+<p>Base class for all processors.</p>
+<dl class="class">
+<dt id="pypond.processor.base.Processor">
+<em class="property">class </em><code class="descclassname">pypond.processor.base.</code><code class="descname">Processor</code><span class="sig-paren">(</span><em>arg1</em>, <em>options</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.base.Processor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pypond.html#pypond.bases.Observable" title="pypond.bases.Observable"><code class="xref py py-class docutils literal"><span class="pre">pypond.bases.Observable</span></code></a></p>
+<p>Base class for all pipeline processors.</p>
+<dl class="method">
+<dt id="pypond.processor.base.Processor.chain">
+<code class="descname">chain</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.base.Processor.chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the chain</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.base.Processor.pipeline">
+<code class="descname">pipeline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.base.Processor.pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the pipeline</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.base.Processor.prev">
+<code class="descname">prev</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.base.Processor.prev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return prev</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pypond.processor.base.add_prev_to_chain">
+<code class="descclassname">pypond.processor.base.</code><code class="descname">add_prev_to_chain</code><span class="sig-paren">(</span><em>n</em>, <em>chain</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.base.add_prev_to_chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive function to add values to the chain.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.collapser">
+<span id="pypond-processor-collapser-module"></span><h2>pypond.processor.collapser module<a class="headerlink" href="#module-pypond.processor.collapser" title="Permalink to this headline">¶</a></h2>
+<p>Collapse the columns and return a new event</p>
+<dl class="class">
+<dt id="pypond.processor.collapser.Collapser">
+<em class="property">class </em><code class="descclassname">pypond.processor.collapser.</code><code class="descname">Collapser</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.collapser.Collapser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor which takes a fieldSpec and returns a new event
+with a new column that is a collapsed result of the selected
+columns. To collapse the columns it uses the supplied reducer
+function. Optionally the new column can completely replace
+the existing columns in the event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Collapser or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.collapser.Collapser.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.collapser.Collapser.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the collapse operation on the event and emit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.collapser.Collapser.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.collapser.Collapser.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.converter">
+<span id="pypond-processor-converter-module"></span><h2>pypond.processor.converter module<a class="headerlink" href="#module-pypond.processor.converter" title="Permalink to this headline">¶</a></h2>
+<p>Convert an event into another event type.</p>
+<dl class="class">
+<dt id="pypond.processor.converter.Converter">
+<em class="property">class </em><code class="descclassname">pypond.processor.converter.</code><code class="descname">Converter</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.converter.Converter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor that converts an event type to another event type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Converter or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.converter.Converter.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.converter.Converter.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the conversion on the event and emit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.converter.Converter.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.converter.Converter.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.converter.Converter.convert_event">
+<code class="descname">convert_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.converter.Converter.convert_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an Event</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pypond.html#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An incoming Event object for conversion.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted Event.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">TimeRangeEvent or IndexedEvent</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.converter.Converter.convert_indexed_event">
+<code class="descname">convert_indexed_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.converter.Converter.convert_indexed_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an IndexedEvent</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pypond.html#pypond.indexed_event.IndexedEvent" title="pypond.indexed_event.IndexedEvent"><em>IndexedEvent</em></a>) &#8211; An incoming IndexedEvent object for conversion.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted IndexedEvent.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">TimeRangeEvent or Event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.converter.Converter.convert_time_range_event">
+<code class="descname">convert_time_range_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.converter.Converter.convert_time_range_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a TimeRangeEvent</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pypond.html#pypond.timerange_event.TimeRangeEvent" title="pypond.timerange_event.TimeRangeEvent"><em>TimeRangeEvent</em></a>) &#8211; An incoming TimeRangeEvent object for conversion.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The converted TimeRangeEvent. Can not convert to IndexedEvent.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pypond.html#pypond.event.Event" title="pypond.event.Event">Event</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.filler">
+<span id="pypond-processor-filler-module"></span><h2>pypond.processor.filler module<a class="headerlink" href="#module-pypond.processor.filler" title="Permalink to this headline">¶</a></h2>
+<p>A processor to fill missing and invalid values.</p>
+<dl class="class">
+<dt id="pypond.processor.filler.Filler">
+<em class="property">class </em><code class="descclassname">pypond.processor.filler.</code><code class="descname">Filler</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filler.Filler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor that fills missing/invalid values in the event
+with new values (zero, interpolated or padded).</p>
+<p>When doing a linear fill, Filler instances should be chained.
+See the Fill/sanitize doc (sanitize.md) for details.</p>
+<p>If no field_spec is supplied, the default field &#8216;value&#8217; will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Filler or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.filler.Filler.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filler.Filler.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the fill operation on the event and emit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.filler.Filler.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filler.Filler.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.filler.Filler.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filler.Filler.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Don&#8217;t delegate flush to superclass yet. Make sure
+there are no cached events (could happen if we stop
+seeing valid events) before passing it up the food
+chain.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.filter">
+<span id="pypond-processor-filter-module"></span><h2>pypond.processor.filter module<a class="headerlink" href="#module-pypond.processor.filter" title="Permalink to this headline">¶</a></h2>
+<p>Processor that takes an operator to control event flow.</p>
+<dl class="class">
+<dt id="pypond.processor.filter.Filter">
+<em class="property">class </em><code class="descclassname">pypond.processor.filter.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filter.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor which takes an operator as its only option
+and uses that to either output a new event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Filter or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.filter.Filter.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filter.Filter.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the filter operation on the event and emit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.filter.Filter.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.filter.Filter.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.mapper">
+<span id="pypond-processor-mapper-module"></span><h2>pypond.processor.mapper module<a class="headerlink" href="#module-pypond.processor.mapper" title="Permalink to this headline">¶</a></h2>
+<p>Take and operator and perform map operations</p>
+<dl class="class">
+<dt id="pypond.processor.mapper.Mapper">
+<em class="property">class </em><code class="descclassname">pypond.processor.mapper.</code><code class="descname">Mapper</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.mapper.Mapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor which takes an operator as its only option
+and uses that to either output a new event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Mapper or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.mapper.Mapper.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.mapper.Mapper.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the map operation on the event and emit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.mapper.Mapper.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.mapper.Mapper.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.offset">
+<span id="pypond-processor-offset-module"></span><h2>pypond.processor.offset module<a class="headerlink" href="#module-pypond.processor.offset" title="Permalink to this headline">¶</a></h2>
+<p>Simple processor to change the event values by a certain offset.</p>
+<p>Primarily for testing.</p>
+<dl class="class">
+<dt id="pypond.processor.offset.Offset">
+<em class="property">class </em><code class="descclassname">pypond.processor.offset.</code><code class="descname">Offset</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.offset.Offset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A simple processor used by the testing code to verify Pipeline behavior.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arg1</strong> (<em>Offset or Pipeline</em>) &#8211; Pipeline or copy constructor</li>
+<li><strong>options</strong> (<em>Options, optional</em>) &#8211; Pipeline Options object.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ProcessorException</span></code> &#8211; Raised on bad arg types.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.offset.Offset.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.offset.Offset.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output an even that is offset by a certain value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.offset.Offset.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.offset.Offset.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone this Offset processor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Cloned offset object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.processor.offset.Offset" title="pypond.processor.offset.Offset">Offset</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.rate">
+<span id="pypond-processor-rate-module"></span><h2>pypond.processor.rate module<a class="headerlink" href="#module-pypond.processor.rate" title="Permalink to this headline">¶</a></h2>
+<p>Simple processor generate the Rate of two Event objects and
+emit them as a TimeRangeEvent. Can be used alone or chained
+with the Align processor for snmp rates, etc.</p>
+<dl class="class">
+<dt id="pypond.processor.rate.Rate">
+<em class="property">class </em><code class="descclassname">pypond.processor.rate.</code><code class="descname">Rate</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.rate.Rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>Generate rate from two events.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arg1</strong> (<em>Rate or Pipeline</em>) &#8211; Pipeline or copy constructor</li>
+<li><strong>options</strong> (<em>Options, optional</em>) &#8211; Pipeline Options object.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">ProcessorException</span></code> &#8211; Raised on bad arg types.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.rate.Rate.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.rate.Rate.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output an even that is Rate by a certain value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pypond.html#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An Event.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.rate.Rate.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.rate.Rate.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clone this Rate processor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Cloned Rate object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.processor.rate.Rate" title="pypond.processor.rate.Rate">Rate</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.selector">
+<span id="pypond-processor-selector-module"></span><h2>pypond.processor.selector module<a class="headerlink" href="#module-pypond.processor.selector" title="Permalink to this headline">¶</a></h2>
+<p>Processor to return events with only selected columns</p>
+<dl class="class">
+<dt id="pypond.processor.selector.Selector">
+<em class="property">class </em><code class="descclassname">pypond.processor.selector.</code><code class="descname">Selector</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.selector.Selector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor which takes a fieldSpec as its only argument
+and returns a new event with only the selected columns</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Selector or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.selector.Selector.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.selector.Selector.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the select operation on the event and emit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.selector.Selector.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.selector.Selector.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor.taker">
+<span id="pypond-processor-taker-module"></span><h2>pypond.processor.taker module<a class="headerlink" href="#module-pypond.processor.taker" title="Permalink to this headline">¶</a></h2>
+<p>Processor that limits the number of events that are processed.</p>
+<dl class="class">
+<dt id="pypond.processor.taker.Taker">
+<em class="property">class </em><code class="descclassname">pypond.processor.taker.</code><code class="descname">Taker</code><span class="sig-paren">(</span><em>arg1</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.taker.Taker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pypond.processor.base.Processor" title="pypond.processor.base.Processor"><code class="xref py py-class docutils literal"><span class="pre">pypond.processor.base.Processor</span></code></a></p>
+<p>A processor which limits the number of events that are processed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arg1</strong> (<em>Taker or Pipeline</em>) &#8211; Copy constructor or the pipeline.</li>
+<li><strong>options</strong> (<a class="reference internal" href="pypond.html#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; Options object.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pypond.processor.taker.Taker.add_event">
+<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.taker.Taker.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output an event that is offset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<em>Event, IndexedEvent, TimerangeEvent</em>) &#8211; Any of the three event variants.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.taker.Taker.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.taker.Taker.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>clone it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.processor.taker.Taker.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.processor.taker.Taker.flush" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pypond.processor">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pypond.processor" title="Permalink to this headline">¶</a></h2>
+<p>Unify the processor classes from the individual modules so one can:</p>
+<p>from pypond.processor import Mapper</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <a href="http://www.es.net/"><img src="_static/esnet/logo-esnet.png" alt="[ESnet]"></a>
+      </div>
+      <div class="col-md-11">
+        <p class="pull-right">
+        <a href="#">Back to top</a>
+        
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/pypond.processor.txt"
+     rel="nofollow">Source</a>
+</div>
+        
+        </p>
+        <p>
+            &copy; Copyright 2016, The Regents of the University of California.<br/>
+          Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.1.<br/>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>
