@@ -8,7 +8,7 @@ import warnings
 
 from pypond.exceptions import ProcessorException, ProcessorWarning
 from pypond.series import TimeSeries
-from pypond.processor import Align
+from pypond.processor import Align, Rate
 
 SIMPLE_GAP_DATA = dict(
     name="traffic",
@@ -133,6 +133,14 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(aligned.at(6).get(), None)  # bad value
         self.assertEqual(aligned.at(7).get(), None)  # bad value
 
+        with warnings.catch_warnings(record=True) as wrn:
+            a_diff = aligned.rate()
+            self.assertEqual(len(wrn), 1)
+            self.assertTrue(issubclass(wrn[0].category, ProcessorWarning))
+
+        self.assertEqual(a_diff.at(5).get(), None)  # bad value
+        self.assertEqual(a_diff.at(6).get(), None)  # bad value
+
     def test_rate_mag(self):
         """test the rate processor order of mag."""
 
@@ -209,11 +217,15 @@ class AlignTest(unittest.TestCase):
             Align(dict())
 
         with self.assertRaises(ProcessorException):
+            Rate(dict())
+
+        with self.assertRaises(ProcessorException):
             self._simple_ts.align(method='bogus')
 
         with self.assertRaises(ProcessorException):
             self._simple_ts.align(limit='bogus')
 
+        # non event types
         ticket_range = dict(
             name="outages",
             columns=["timerange", "title", "esnet_ticket"],
@@ -226,6 +238,9 @@ class AlignTest(unittest.TestCase):
         ts = TimeSeries(ticket_range)
         with self.assertRaises(ProcessorException):
             ts.align()
+
+        with self.assertRaises(ProcessorException):
+            ts.rate()
 
 if __name__ == '__main__':
     unittest.main()

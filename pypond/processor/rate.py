@@ -123,8 +123,8 @@ class Rate(Processor):
 
         Parameters
         ----------
-        event : Event, IndexedEvent, TimerangeEvent
-            Any of the three event variants.
+        event : Event
+            An Event.
         """
 
         self._log('Rate.add_event', event)

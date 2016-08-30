@@ -194,8 +194,8 @@ class Align(Processor):
 
         Parameters
         ----------
-        event : Event, IndexedEvent, TimerangeEvent
-            Any of the three event variants.
+        event : Event
+            An Event.
         """
 
         self._log('Align.add_event', event)
