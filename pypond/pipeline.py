@@ -1059,7 +1059,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(align)
 
-    def rate(self, field_spec=None):
+    def rate(self, field_spec=None, allow_negative=True):
         """
         derivative entry point
         """
@@ -1068,6 +1068,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             self,
             Options(
                 field_spec=field_spec,
+                allow_negative=allow_negative,
                 prev=self._chain_last(),
             )
         )

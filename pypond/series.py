@@ -1085,13 +1085,13 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self.set_collection(coll.get('all'))
 
-    def rate(self, field_spec=None):
+    def rate(self, field_spec=None, allow_negative=True):
         """
         derive entry point
         """
         coll = (
             self.pipeline()
-            .rate(field_spec)
+            .rate(field_spec, allow_negative)
             .to_keyed_collections()
         )
 

@@ -6,7 +6,6 @@ import copy
 import unittest
 import warnings
 
-from pypond.event import Event
 from pypond.exceptions import ProcessorException, ProcessorWarning
 from pypond.series import TimeSeries
 from pypond.processor import Align
@@ -173,6 +172,34 @@ class AlignTest(unittest.TestCase):
         self.assertEqual(rates.at(0).get('value_rate'), 1.0869565217391313)
         self.assertEqual(rates.at(1).get('value_rate'), 1.0869565217391293)
         self.assertEqual(rates.at(2).get('value_rate'), 1.0869565217391313)
+
+    def test_negative_derivatives(self):
+        """Test behavior on counter resets."""
+
+        raw_rates = dict(
+            name="traffic",
+            columns=["time", "value"],
+            points=[
+                [89000, 100],
+                [181000, 50]
+            ]
+        )
+
+        ts = TimeSeries(raw_rates)
+        rates = ts.align(window='30s').rate()
+
+        # lower counter will produce negative derivatives
+        self.assertEqual(rates.size(), 3)
+        self.assertEqual(rates.at(0).get('value_rate'), -0.5434782608695656)
+        self.assertEqual(rates.at(1).get('value_rate'), -0.5434782608695646)
+        self.assertEqual(rates.at(2).get('value_rate'), -0.5434782608695653)
+
+        rates = ts.align(window='30s').rate(allow_negative=False)
+
+        self.assertEqual(rates.size(), 3)
+        self.assertEqual(rates.at(0).get('value_rate'), None)
+        self.assertEqual(rates.at(1).get('value_rate'), None)
+        self.assertEqual(rates.at(2).get('value_rate'), None)
 
     def test_bad_args(self):
         """error states for coverage."""

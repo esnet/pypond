@@ -10,8 +10,6 @@ from operator import truediv
 
 import six
 
-from pyrsistent import thaw
-
 from .base import Processor
 from ..exceptions import ProcessorException, ProcessorWarning
 from ..indexed_event import IndexedEvent
@@ -44,6 +42,7 @@ class Rate(Processor):
 
         # options
         self._field_spec = None
+        self._allow_negative = None
 
         # instance attrs
         self._previous = None
@@ -52,8 +51,10 @@ class Rate(Processor):
             # Copy constructor
             # pylint: disable=protected-access
             self._field_spec = arg1._field_spec
+            self._allow_negative = arg1._allow_negative
         elif is_pipeline(arg1):
             self._field_spec = options.field_spec
+            self._allow_negative = options.allow_negative
         else:
             msg = 'Unknown arg to Rate constructor: {a}'.format(a=arg1)
             raise ProcessorException(msg)
@@ -107,7 +108,12 @@ class Rate(Processor):
                 continue
 
             rate = truediv((current_val - previous_val), ts_delta)
-            nested_set(new_data, rate_path, rate)
+
+            if self._allow_negative is False and rate < 0:
+                # don't allow negative differentials in certain cases
+                nested_set(new_data, rate_path, None)
+            else:
+                nested_set(new_data, rate_path, rate)
 
         return TimeRangeEvent([previous_ts, current_ts], new_data)
 
