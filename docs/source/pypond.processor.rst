@@ -76,6 +76,14 @@ pypond.processor.offset module
     :undoc-members:
     :show-inheritance:
 
+pypond.processor.rate module
+----------------------------
+
+.. automodule:: pypond.processor.rate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pypond.processor.selector module
 --------------------------------
 

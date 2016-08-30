@@ -13,7 +13,7 @@ In pypond, a value is considered "invalid" if it is python `None`, a `NaN` (not 
 The method prototype looks like this:
 
 ```
-def fill(self, field_spec=None, method='zero', limit=None):
+    def fill(self, field_spec=None, method='zero', limit=None)
 ```
 
 * the `field_spec` argument is the same as it is in the rest of the code - a string or list of strings denoting "columns" in the data. It can point `to.deep.values` using the usual dot notation.
@@ -159,7 +159,7 @@ The full argument usage of the align method:
 ts = TimeSeries(DATA_WITH_GAPS)
 aligned = ts.align(field_spec='value', window='1m', method='linear', limit=2)
 ```
-* `field_spec` - indicates which fields should be interpolated by the selected `method`. Typical usage of this arg type. If not supplied, then the default field `value` will be used. This indicates which fields should be interpolated by the selected `method`.
+* `field_spec` - indicates which fields should be interpolated by the selected `method`. Typical usage of this arg type. If not supplied, then the default field `value` will be used.
 * `window` - an integer and the usual `s/m/h/d` notation like `1m`, `30s`, `6h`, etc. The emitted events will be emitted on the indicated window boundaries. Due to the nature of the interpolation, one would want to use a window close to the frequency of the events. It would make little sense to set a window of `5h` on hourly data, etc.
 * `method` - the interpolation method to be used: `linear` (the default) and `hold`.
 * `limit` - sets a limit on the number of boundary interpolated events will be produced. If `limit=2, window='1m'` and two events come in at the following times:
@@ -183,4 +183,28 @@ The green points are the events that will be produced by the `linear` fill metho
 #### Hold
 
 This is a much simpler method. It just fills the selected field(s) with the corresponding value from the previous event.
+
+## Rate (derivative)
+
+This generates a new `TimeSeries` of `TimeRangeEvent` objects which contain the derivative between columns in two consecutive `Event` objects. The start and end time of the time range events correspond to the timestamps of the two events the calculation was derived from.
+
+The primary use case for this was to generate rate data from monotonically increasing SNMP counter values like this:
+
+```
+    TimeSeries(RAW_COUNTERS).align(field_spec='in', window='30s').rate('in')
+```
+This would take the raw counter data, do a linear alignment on them on 30 second window boundaries, and then calculate the rates by calculating the derivative between the aligned boundaries.
+
+However it is not necessary to align your events first, just calling `.rate()` will generate time range events with the derivative between the consecutive events.
+
+### Usage
+
+The method prototype:
+
+```
+    def rate(self, field_spec=None, allow_negative=True)
+```
+* `field_spec` - indicates which fields should be interpolated by the selected `method`. Typical usage of this arg type. If not supplied, then the default field `value` will be used.
+* `allow_negative` - if left defaulting to `True`, then if a negative derivative is calculated, that will be used as the value in the new event. If set to `False` a negative derivative will be set to `None` instead. There are certain use cases - like if a monotonically increasing counter gets reset - that this is the desired outcome.
+
 
