@@ -361,7 +361,14 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             New TimeSeries with Collection coll
         """
         res = TimeSeries(self)
-        res._collection = coll  # pylint: disable=protected-access
+
+        # pylint: disable=protected-access
+
+        if coll is not None:
+            res._collection = coll
+        else:
+            res._collection = Collection()
+
         return res
 
     def bisect(self, dtime, b=0):  # pylint: disable=invalid-name
@@ -609,9 +616,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     # sum/min/max etc
 
-    # pylint: disable=dangerous-default-value
-
-    def sum(self, field_spec=None):
+    def sum(self, field_spec=None, filter_func=None):
         """Get sum
 
         Parameters
@@ -621,15 +626,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Summed values
         """
-        return self._collection.sum(field_spec)
+        return self._collection.sum(field_spec, filter_func)
 
-    def max(self, field_spec=None):
+    def max(self, field_spec=None, filter_func=None):
         """Get max
 
         Parameters
@@ -639,15 +650,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Max value
         """
-        return self._collection.max(field_spec)
+        return self._collection.max(field_spec, filter_func)
 
-    def min(self, field_spec=None):
+    def min(self, field_spec=None, filter_func=None):
         """Get min
 
         Parameters
@@ -657,15 +674,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Min value
         """
-        return self._collection.min(field_spec)
+        return self._collection.min(field_spec, filter_func)
 
-    def avg(self, field_spec=None):
+    def avg(self, field_spec=None, filter_func=None):
         """Get avg
 
         Parameters
@@ -675,15 +698,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Average value
         """
-        return self._collection.avg(field_spec)
+        return self._collection.avg(field_spec, filter_func)
 
-    def mean(self, field_spec=None):
+    def mean(self, field_spec=None, filter_func=None):
         """Get mean
 
         Parameters
@@ -693,15 +722,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Mean value
         """
-        return self._collection.mean(field_spec)
+        return self._collection.mean(field_spec, filter_func)
 
-    def median(self, field_spec=None):
+    def median(self, field_spec=None, filter_func=None):
         """Get median
 
         Parameters
@@ -711,15 +746,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Median value
         """
-        return self._collection.median(field_spec)
+        return self._collection.median(field_spec, filter_func)
 
-    def stdev(self, field_spec=None):
+    def stdev(self, field_spec=None, filter_func=None):
         """Get std dev
 
         Parameters
@@ -729,13 +770,86 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Standard deviation
         """
-        return self._collection.stdev(field_spec)
+        return self._collection.stdev(field_spec, filter_func)
+
+    def percentile(self, perc, field_spec, method='linear'):
+        """Gets percentile perc within the Collection. Numpy under
+        the hood.
+
+        Parameters
+        ----------
+        perc : int
+            The percentile (should be between 0 and 100)
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        int or float
+            The percentile.
+        """
+        return self._collection.percentile(perc, field_spec, method)
+
+    def quantile(self, num, field_path=None, method='linear'):
+        """Gets num quantiles within the Collection
+
+        Parameters
+        ----------
+        num : Number of quantiles to divide the Collection into.
+            Description
+        field_path : None, optional
+            The field to return as the quantile. If not set, defaults
+            to 'value.'
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        list
+            An array of quantiles
+        """
+        return self._collection.quantile(num, field_path, method)
 
     def aggregate(self, func, field_spec=None):
         """Aggregates the events down using a user defined function to
@@ -790,7 +904,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             the map operation.
         """
         coll = self.pipeline().map(op).to_keyed_collections()
-        return coll.get('all')
+        return self.set_collection(coll.get('all'))
 
     def select(self, field_spec=None):  # pylint: disable=invalid-name
         """call select on the pipeline.
@@ -811,7 +925,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             the select operation.
         """
         coll = self.pipeline().select(field_spec).to_keyed_collections()
-        return coll.get('all')
+        return self.set_collection(coll.get('all'))
 
     def collapse(self, field_spec_list, name, reducer, append=True):
         """
@@ -843,7 +957,145 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             .to_keyed_collections()
         )
 
-        return coll.get('all')
+        return self.set_collection(coll.get('all'))
+
+    def rename_columns(self, rename_map):
+        """TimeSeries.map() helper function to rename columns in the underlying
+        events.
+
+        Takes a dict of columns to rename::
+
+            new_ts = ts.rename_columns({'in': 'new_in', 'out': 'new_out'})
+
+        Returns a new time series containing new events. Columns not
+        in the dict will be retained and not renamed.
+
+        NOTE: as the name implies, this will only rename the main
+        "top level" (ie: non-deep) columns. If you need more
+        extravagant renaming, roll your own using map().
+
+        Parameters
+        ----------
+        rename_map : dict
+            Dict of columns to rename.
+
+        Returns
+        -------
+        TimeSeries
+            A clone of this TimeSeries with a new Collection generated by
+            the map operation.
+        """
+
+        def rename(event):
+            """renaming mapper function."""
+
+            def renamed_dict(event):
+                """Handle renaming the columns in the data regardless
+                of event type."""
+
+                new_dict = thaw(event.data())
+
+                for old, new in list(rename_map.items()):
+                    new_dict[new] = new_dict.pop(old)
+
+                return new_dict
+
+            renamed_data = renamed_dict(event)
+
+            # reassemble as per apropos for the event type
+            # with the newly renamed data payload
+
+            if isinstance(event, Event):
+                return Event(event.timestamp(), renamed_data)
+            elif isinstance(event, TimeRangeEvent):
+                return TimeRangeEvent(
+                    (event.begin(), event.end()),
+                    renamed_data
+                )
+            elif isinstance(event, IndexedEvent):
+                return IndexedEvent(event.index(), renamed_data)
+
+            # an else isn't possible since Collection sanitizes
+            # the input.
+
+        return self.map(rename)
+
+    def fill(self, field_spec=None, method='zero', fill_limit=None):
+        """Take the data in this timeseries and "fill" any missing
+        or invalid values. This could be setting None values to zero
+        so mathematical operations will succeed, interpolate a new
+        value, or pad with the previously given value.
+
+        Parameters
+        ----------
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, the default column field 'value' will be used.
+        method : str, optional
+            Filling method: zero | linear | pad
+        fill_limit : None, optional
+            Set a limit on the number of consecutive events will be filled
+            before it starts returning invalid values. For linear fill,
+            no filling will happen if the limit is reached before a valid
+            value is found.
+
+        Returns
+        -------
+        TimeSeries
+            A clone of this TimeSeries with a new Collection generated by
+            the fill operation.
+        """
+
+        pip = self.pipeline()
+
+        if method in ('zero', 'pad') or \
+                (method == 'linear' and not isinstance(field_spec, list)):
+            # either not linear or linear with a single path, or None.
+            # just install one Filler in the chain and go.
+            pip = pip.fill(field_spec, method, fill_limit)
+        elif method == 'linear' and isinstance(field_spec, list):
+            # linear w/multiple paths, chain multiple Fillers for
+            # asymmetric column filling.
+
+            for fpath in field_spec:
+                pip = pip.fill(fpath, method, fill_limit)
+        else:
+            msg = 'method {0} is not valid'.format(method)
+            raise TimeSeriesException(msg)
+
+        coll = (
+            pip
+            .to_keyed_collections()
+        )
+
+        return self.set_collection(coll.get('all'))
+
+    def align(self, field_spec=None, window='5m', method='linear', limit=None):
+        """
+        Align entry point
+        """
+        coll = (
+            self.pipeline()
+            .align(field_spec, window, method, limit)
+            .to_keyed_collections()
+        )
+
+        return self.set_collection(coll.get('all'))
+
+    def rate(self, field_spec=None, allow_negative=True):
+        """
+        derive entry point
+        """
+        coll = (
+            self.pipeline()
+            .rate(field_spec, allow_negative)
+            .to_keyed_collections()
+        )
+
+        return self.set_collection(coll.get('all'))
 
     def __str__(self):
         """call to_string()"""
@@ -873,7 +1125,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg})
+            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg()})
 
         Parameters
         ----------
@@ -914,7 +1166,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each hour.
@@ -922,12 +1174,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max})
+            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max()})
 
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -948,7 +1200,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each day.
@@ -956,7 +1208,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -965,7 +1217,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -986,7 +1238,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each month.
@@ -994,7 +1246,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1003,7 +1255,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -1024,7 +1276,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         `aggregation`. This specification describes a mapping of fieldNames
         to aggregation functions. For example::
 
-            {'in': Functions.avg, 'out': Functions.avg}
+            {'in': Functions.avg(), 'out': Functions.avg()}
 
         will aggregate both "in" and "out" using the average aggregation
         function across all events within each year.
@@ -1032,7 +1284,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Example::
 
             timeseries = TimeSeries(data)
-            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max})
+            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1041,7 +1293,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max}
+            The aggregation specification e.g. {'temperature': Functions.max()}
         to_event : bool, optional
             Do conversion to Event objects
 

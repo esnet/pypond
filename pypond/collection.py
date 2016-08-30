@@ -12,12 +12,13 @@ Implementation of Pond Collection class.
 
 import copy
 import json
+import math
 
 from pyrsistent import freeze, thaw
 
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
-from .functions import Functions
+from .functions import Functions, f_check
 from .pipeline_in import BoundedIn
 from .range import TimeRange
 from .util import unique_id, is_pvector, ObjectEncoder, _check_dt, is_function
@@ -169,7 +170,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         count = 0
 
-        fpath = self._field_spec_to_array(field_path)
+        fpath = self._field_path_to_array(field_path)
 
         for i in self.events():
             if Event.is_valid_value(i, fpath):
@@ -383,6 +384,28 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         ordered = sorted(self._event_list, key=lambda x: x.ts)
         return self.set_events(ordered)
 
+    def sort(self, field_path):
+        """Sorts the Collection using the value referenced by field_path.
+
+        Parameters
+        ----------
+        field_path : str, list, tuple, None, optional
+            Name of value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
+
+        Returns
+        -------
+        Collection
+            New collection of sorted values.
+        """
+
+        fpath = self._field_path_to_array(field_path)
+        ordered = sorted(self._event_list, key=lambda x: x.get(fpath))
+        return self.set_events(ordered)
+
     def is_chronological(self):
         """Checks that the events in this collection are in chronological
         order.
@@ -552,7 +575,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         flt_events = list()
 
-        fpath = self._field_spec_to_array(field_path)
+        fpath = self._field_path_to_array(field_path)
 
         for i in self.events():
             if Event.is_valid_value(i, fpath):
@@ -647,7 +670,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             fpath = '.'.join(field_path)
         elif field_path is None:
             # map() needs a field name to use as a key. Normally
-            # this case is normally handled by _field_spec_to_array()
+            # this case is normally handled by _field_path_to_array()
             # inside get(). Also, if map(func, field_spec=None) then
             # it will map all the columns.
             fpath = 'value'
@@ -656,9 +679,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             raise CollectionException(msg)
 
         result = Event.map_reduce(self.event_list_as_list(), fpath, func)
-        return result[fpath]
 
-    def first(self, field_spec=None):
+        return result.get(fpath)
+
+    def first(self, field_spec=None, filter_func=None):
         """Get first value in the collection for the fspec
 
         Parameters
@@ -668,15 +692,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.first, field_spec)
+        return self.aggregate(Functions.first(f_check(filter_func)), field_spec)
 
-    def last(self, field_spec=None):
+    def last(self, field_spec=None, filter_func=None):
         """Get last value in the collection for the fspec
 
         Parameters
@@ -686,15 +716,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.last, field_spec)
+        return self.aggregate(Functions.last(f_check(filter_func)), field_spec)
 
-    def sum(self, field_spec=None):
+    def sum(self, field_spec=None, filter_func=None):
         """Get sum
 
         Parameters
@@ -704,15 +740,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Summed value.
         """
-        return self.aggregate(Functions.sum, field_spec)
+        return self.aggregate(Functions.sum(f_check(filter_func)), field_spec)
 
-    def avg(self, field_spec=None):
+    def avg(self, field_spec=None, filter_func=None):
         """Get avg
 
         Parameters
@@ -722,15 +764,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Average value.
         """
-        return self.aggregate(Functions.avg, field_spec)
+        return self.aggregate(Functions.avg(f_check(filter_func)), field_spec)
 
-    def max(self, field_spec=None):
+    def max(self, field_spec=None, filter_func=None):
         """Get max
 
         Parameters
@@ -740,15 +788,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Maximum value.
         """
-        return self.aggregate(Functions.max, field_spec)
+        return self.aggregate(Functions.max(f_check(filter_func)), field_spec)
 
-    def min(self, field_spec=None):
+    def min(self, field_spec=None, filter_func=None):
         """Get min
 
         Parameters
@@ -758,15 +812,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Minimum value.
         """
-        return self.aggregate(Functions.min, field_spec)
+        return self.aggregate(Functions.min(f_check(filter_func)), field_spec)
 
-    def mean(self, field_spec=None):
+    def mean(self, field_spec=None, filter_func=None):
         """Get mean
 
         Parameters
@@ -776,15 +836,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Mean value (grrr!).
         """
-        return self.avg(field_spec)
+        return self.avg(field_spec, filter_func)
 
-    def median(self, field_spec=None):
+    def median(self, field_spec=None, filter_func=None):
         """Get median
 
         Parameters
@@ -794,15 +860,21 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Median value.
         """
-        return self.aggregate(Functions.median, field_spec)
+        return self.aggregate(Functions.median(f_check(filter_func)), field_spec)
 
-    def stdev(self, field_spec=None):
+    def stdev(self, field_spec=None, filter_func=None):
         """Get std dev
 
         Parameters
@@ -810,14 +882,125 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         field_spec : str, list, tuple, None
             Column or columns to look up. If you need to retrieve multiple deep
             nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int or float
             Standard deviation.
         """
-        return self.aggregate(Functions.stddev, field_spec)
+        return self.aggregate(Functions.stddev(f_check(filter_func)), field_spec)
+
+    def percentile(self, perc, field_spec, method='linear'):
+        """Gets percentile perc within the Collection. This works the same
+        way as numpy.
+
+        Parameters
+        ----------
+        perc : int
+            The percentile (should be between 0 and 100)
+        field_spec : str, list, tuple, None
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.  If None, all columns
+            will be operated on.
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        int or float
+            The percentile.
+        """
+        return self.aggregate(Functions.percentile(perc, method), field_spec)
+
+    def quantile(self, num, field_path=None, method='linear'):
+        """Gets num quantiles within the Collection
+
+        Parameters
+        ----------
+        num : Number of quantiles to divide the Collection into.
+            Description
+        field_path : None, optional
+            The field to return as the quantile. If not set, defaults
+            to 'value.'
+        method : str, optional
+            Specifies the interpolation method to use when the desired
+            percentile lies between two data points. Options are:
+
+            linear: i + (j - i) * fraction, where fraction is the fractional
+            part of the index surrounded by i and j.
+
+            lower: i
+
+            higher: j
+
+            nearest: i or j whichever is nearest
+
+            midpoint: (i + j) / 2
+
+        Returns
+        -------
+        list
+            An array of quantiles
+        """
+        results = list()
+        sorted_coll = self.sort(field_path)
+        subsets = 1.0 / num
+
+        if num > self.size():
+            msg = 'Subset num is greater than the Collection length'
+            raise CollectionException(msg)
+
+        i = copy.copy(subsets)
+
+        while i < 1:
+
+            index = int(math.floor(((sorted_coll.size() - 1) * i)))
+
+            if index < sorted_coll.size() - 1:
+
+                fraction = (sorted_coll.size() - 1) * i - index
+                val0 = sorted_coll.at(index).get(field_path)
+                val1 = sorted_coll.at(index + 1).get(field_path)
+
+                val = None
+
+                if method == 'lower' or fraction == 0:
+                    val = val0
+                elif method == 'linear':
+                    val = val0 + (val1 - val0) * fraction
+                elif method == 'higher':
+                    val = val1
+                elif method == 'nearest':
+                    val = val0 if fraction < .5 else val1
+                elif method == 'midpoint':
+                    val = (val0 + val1) / 2
+
+                results.append(val)
+
+            i += subsets
+
+        return results
 
     def __str__(self):
         """call to_string()

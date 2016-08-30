@@ -466,6 +466,117 @@ class Capsule(Options):  # pylint: disable=too-few-public-methods
     """
     pass
 
+# functions to streamline dealing with nested dicts
+
+
+def nested_set(dic, keys, value):
+    """
+    Address a nested dict with a list of keys and set a value.
+    If part of the path does not exist, it will be created.
+
+    ::
+
+        sample_dict = dict()
+        nested_set(sample_dict, ['bar', 'baz'], 23)
+        {'bar': {'baz': 23}}
+        nested_set(sample_dict, ['bar', 'baz'], 25)
+        {'bar': {'baz': 25}}
+
+    Parameters
+    ----------
+    dic : dict
+        The dict we are workign with.
+    keys : list
+        A list of nested keys
+    value : obj
+        Whatever we want to set the ultimate key to.
+    """
+    for key in keys[:-1]:
+        dic = dic.setdefault(key, {})
+
+    dic[keys[-1]] = value
+
+
+def nested_get(dic, keys):
+    """
+    Address a nested dict with a list of keys to fetch a value.
+    This is functionaly similar to the standard functools.reduce()
+    method employing dict.get, but this returns 'bad_path' if the path
+    does not exist. This is because we need to differentiate between
+    an existing value that is actually None vs. the dict.get()
+    failover. Would have preferred to return False, but who knows
+    if we'll end up with data containing Boolean values.
+
+    ::
+
+        sample_dict = dict()
+        nested_set(sample_dict, ['bar', 'baz'], 23)
+        nested_get(sample_dict, ['bar', 'quux'])
+        False
+
+    Unlike nested_set(), this will not create a new path branch if
+    it does not already exist.
+
+    Parameters
+    ----------
+    dic : dict
+        The dict we are working with
+    keys : list
+        A lsit of nested keys
+
+    Returns
+    -------
+    obj
+        Whatever value was at the terminus of the keys.
+    """
+    for key in keys[:-1]:
+        if key in dic:
+            dic = dic.setdefault(key, {})
+        else:
+            # path branch does not exist, abort.
+            return 'bad_path'
+
+    try:
+        return dic[keys[-1]]
+    except KeyError:
+        return 'bad_path'
+
+
+def generate_paths(dic):  # pragma: no cover
+    """
+    Generate a list of all possible field paths in a dict. This is
+    for determining all paths in a dict when none is given.
+
+    Currently unused, but keeping since we will probably need it.
+
+    Parameters
+    ----------
+    dic : dict
+        A dict, generally the payload from an Event class.
+
+    Returns
+    -------
+    list
+        A list of strings of all the paths in the dict.
+    """
+    paths = list()
+
+    def recurse(data, keys=()):
+        """
+        Do the actual recursion and yield the keys to generate_paths()
+        """
+        if isinstance(data, dict):
+            for key in list(data.keys()):
+                for path in recurse(data[key], keys + (key,)):
+                    yield path
+        else:
+            yield keys
+
+    for key in recurse(dic):
+        paths.append(key)
+
+    return paths
+
 # test types
 
 
@@ -522,6 +633,22 @@ def is_nan(val):
         pass
 
     return False
+
+
+def is_valid(val):
+    """Test if a value is valid.
+
+    Parameters
+    ----------
+    val : obj
+        A value
+
+    Returns
+    -------
+    bool
+        Is it valid?
+    """
+    return not bool(val is None or val == '' or is_nan(val))
 
 
 def is_function(func):

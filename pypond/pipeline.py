@@ -23,14 +23,17 @@ from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
 from .pipeline_out import CollectionOut, EventOut
 from .pipeline_in import BoundedIn, UnboundedIn
-from .processors import (
+from .processor import (
     Aggregator,
+    Align,
     Collapser,
     Converter,
+    Filler,
     Filter,
     Mapper,
     Offset,
     Processor,
+    Rate,
     Selector,
     Taker,
 )
@@ -670,7 +673,14 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             Returns the _results attribute from a Pipeline object after processing.
             Will contain Collection objects.
         """
-        return self.to(CollectionOut)
+        ret = self.to(CollectionOut)
+
+        if ret is not None:
+            return ret
+        else:
+            # return an empty dict so any calls to collection.get() won't cause
+            # things to unceremoniously blow up and just return None instead.
+            return dict()
 
     def to(self, out, observer=None, options=Options()):  # pylint: disable=invalid-name
         """
@@ -696,8 +706,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
                 Pipeline()
                 .from_source(timeseries)
                 .emit_on('flush')
-                .collapse(['in', 'out'], 'total', Functions.sum)
-                .aggregate(dict(total=Functions.max))
+                .collapse(['in', 'out'], 'total', Functions.sum())
+                .aggregate(dict(total=Functions.max()))
                 .to(EventOut, cback)
             )
 
@@ -830,35 +840,33 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         ::
 
-            uin = UnboundedIn()
+                uin = UnboundedIn()
 
-            (
-                Pipeline()
-                .from_source(uin)
-                .window_by('1h')
-                .emit_on('eachEvent')
-                .aggregate({'in': Functions.avg, 'out': Functions.avg})
-                .to(EventOut, cback)
-            )
-
-        A more complex example - this will aggregate two deep fields into a
-        single object::
-
-            elist = (
-                Pipeline()
-                .from_source(TimeSeries(dict(name='events', events=DEEP_EVENT_LIST)))
-                .emit_on('flush')
-                .aggregate({('direction.out', 'direction.in'): Functions.max})
-                .to_event_list()
-            )
+                (
+                    Pipeline()
+                    .from_source(uin)
+                    .window_by('1h')
+                    .emit_on('eachEvent')
+                    .aggregate(
+                        {
+                            'in_avg': {'in': Functions.avg()},
+                            'out_avg': {'out': Functions.avg()}
+                        }
+                    )
+                    .to(EventOut, cback)
+                )
 
 
         Parameters
         ----------
         fields : dict
             Fields and operators to be aggregated. Deep fields may be
-            indicated by using this.style.notation and multiple fields
-            can be aggregated by using a tuple as a key
+            indicated by using this.style.notation. As in the above
+            example, they fields.keys() are the names of the new
+            columns to be created (or an old one to be overwritten),
+            and the value is another dict - the key is the existing
+            column and the value is the function to apply to it when
+            creating the new column.
 
         Returns
         -------
@@ -993,6 +1001,80 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         return self._append(coll)
 
+    def fill(self, field_spec=None, method='zero', fill_limit=None):
+        """Take the data in this timeseries and "fill" any missing
+        or invalid values. This could be setting None values to zero
+        so mathematical operations will succeed, interpolate a new
+        value, or pad with the previously given value.
+
+        Parameters
+        ----------
+        field_spec : str, list, tuple, None, optional
+            Column or columns to look up. If you need to retrieve multiple deep
+            nested values that ['can.be', 'done.with', 'this.notation'].
+            A single deep value with a string.like.this.
+
+            If None, the default column field 'value' will be used.
+        method : str, optional
+            Filling method: zero | linear | pad
+        fill_limit : None, optional
+            Set a limit on the number of consecutive events will be filled
+            before it starts returning invalid values. For linear fill,
+            no filling will happen if the limit is reached before a valid
+            value is found.
+
+        Returns
+        -------
+        Pipeline
+            The Pipeline.
+        """
+
+        fill = Filler(
+            self,
+            Options(
+                field_spec=field_spec,
+                method=method,
+                fill_limit=fill_limit,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(fill)
+
+    def align(self, field_spec=None, window='5m', method='linear', limit=None):
+        """
+        Align entry point
+        """
+
+        align = Align(
+            self,
+            Options(
+                field_spec=field_spec,
+                window=window,
+                limit=limit,
+                method=method,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(align)
+
+    def rate(self, field_spec=None, allow_negative=True):
+        """
+        derivative entry point
+        """
+
+        align = Rate(
+            self,
+            Options(
+                field_spec=field_spec,
+                allow_negative=allow_negative,
+                prev=self._chain_last(),
+            )
+        )
+
+        return self._append(align)
+
     def take(self, limit):
         """
         Take events up to the supplied limit, per key.
@@ -1001,6 +1083,15 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         limit : int
             Integer number of events to take.
+        global_flush: bool, optional
+            If set to true (default is False) then the Taker will
+            send out a single .flush() event if the limit has been
+            exceeded and the window_type is 'global.' This can be
+            used as a fail safe with processors that cache events
+            (like the Filler) to ensure all events are emitted when
+            the Pipeline is used in 'stream' mode. This is not
+            needed in 'batch' mode because the flush signal is sent
+            automatically.
 
         Returns
         -------

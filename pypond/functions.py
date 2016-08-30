@@ -10,72 +10,295 @@
 Functions to act as reducers/aggregators, etc.
 """
 
-from math import sqrt
 from functools import reduce
+from math import sqrt
+
+from numpy import percentile
+
+from .exceptions import FilterException
+from .util import is_valid
+
+
+class Filters(object):
+    """Filter functions to pass to aggregation function factory
+    methods.
+
+    These all control how the underlying aggregators handle missing/invalid
+    values.  Can pass things through (the default to all agg functions),
+    ignore any bad values, transform any bad values to zero, or make the
+    entire aggregation fail if there are any bad values.
+    """
+    @staticmethod
+    def keep_missing(events):
+        """no-op - default"""
+        return events
+
+    @staticmethod
+    def ignore_missing(events):
+        """Pull out the bad values resulting in a shorter array."""
+        good = list()
+
+        for i in events:
+            if is_valid(i):
+                good.append(i)
+
+        return good
+
+    @staticmethod
+    def zero_missing(events):
+        """Make bad values 0 - array will be the same length."""
+        filled = list()
+
+        for i in events:
+            if not is_valid(i):
+                filled.append(0)
+            else:
+                filled.append(i)
+
+        return filled
+
+    @staticmethod
+    def propogate_missing(events):
+        """It's all bad if there are missing values - return None if so."""
+        for i in events:
+            if not is_valid(i):
+                return None
+
+        return events
+
+
+def f_check(flt):
+    """Set the default filter for aggregation operations when no
+    filter is specified. When one is, make sure that it is a
+    valid filter.
+    """
+
+    # default case when no filter is specified to a higher
+    # level aggregation method.
+    if flt is None:
+        return Filters.keep_missing
+
+    # are we legit?
+    if not callable(flt) or not hasattr(Filters, flt.__name__):
+        msg = 'Invalid filter from pypond.functions.Filters got: {0} {1}'.format(
+            flt.__name__, type(flt))
+        raise FilterException(msg)
+
+    # we are legit
+    return flt
 
 
 class Functions(object):
     """
     Utility class to contain the functions.
+
+    The inner() function is the one that does the actual processing and
+    it returned by calling the outer named function.  Previously one would
+    pass Functions.sum to an aggregation or reducer method::
+
+        timeseries.aggregate(Functions.sum, 'in')
+
+    Now it is a factory to return the acutal function::
+
+        timeseries.aggregate(Functions.sum(), 'in')
+
+    The static methods in the Filters class can be passed to the outer
+    factory method to control how bad values are handled::
+
+        timeseries.aggregate(Functions.sum(Filters.zero_missing), 'in')
     """
+
     # pylint: disable=missing-docstring
+    # skipping coverage on all the propogate_missing logic because
+    # those don't need specific tests.
+
     @staticmethod
-    def keep(values):
-        result = Functions.first(values)
-        for i in values:
-            if i is not None and i != result:
+    def keep(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
                 return None  # pragma: no cover
-        return result
+
+            result = Functions.first()(vals)
+
+            for i in vals:
+                if i is not None and i != result:
+                    return None  # pragma: no cover
+
+            return result
+
+        return inner
 
     @staticmethod
-    def sum(values):
-        return reduce(lambda x, y: x + y, values, 0)
+    def sum(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return reduce(lambda x, y: x + y, vals, 0)
+
+        return inner
 
     @staticmethod
-    def avg(values):
-        return float(Functions.sum(values)) / len(values)
+    def avg(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            if len(vals) is 0:
+                return 0
+
+            return float(Functions.sum()(vals)) / len(vals)
+
+        return inner
 
     @staticmethod
-    def max(values):
-        return max(values)
+    def max(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return max(vals)
+
+        return inner
 
     @staticmethod
-    def min(values):
-        return min(values)
+    def min(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return min(vals)
+
+        return inner
 
     @staticmethod
-    def count(values):
-        return len(values)
+    def count(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return len(vals)
+
+        return inner
 
     @staticmethod
-    def first(values):
-        try:
-            return values[0]
-        except IndexError:
-            return None
+    def first(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            try:
+                return vals[0]
+            except IndexError:
+                return None
+
+        return inner
 
     @staticmethod
-    def last(values):
-        try:
-            return values[-1]
-        except IndexError:
-            return None
+    def last(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            try:
+                return vals[-1]
+            except IndexError:
+                return None
+
+        return inner
 
     @staticmethod
-    def stddev(values):
-        avg = Functions.avg(values)
-        variance = [(e - avg)**2 for e in values]
-        return sqrt(Functions.avg(variance))
+    def percentile(perc, method='linear', flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return round(percentile(vals, perc, interpolation=method), 3)
+
+        return inner
 
     @staticmethod
-    def median(values):
-        sort = sorted(values)
-        half = len(sort) // 2
+    def stddev(flt=Filters.keep_missing):
 
-        if not len(sort) % 2:
-            return (sort[half - 1] + sort[half]) / 2.0
-        return sort[half]
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            avg = Functions.avg()(vals)
+            variance = [(e - avg)**2 for e in vals]
+            return sqrt(Functions.avg()(variance))
+
+        return inner
 
     @staticmethod
-    def difference(values):
-        return max(values) - min(values)
+    def median(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            sort = sorted(vals)
+            half = len(sort) // 2
+
+            if not len(sort) % 2:
+
+                return (sort[half - 1] + sort[half]) / 2.0
+            return sort[half]
+
+        return inner
+
+    @staticmethod
+    def difference(flt=Filters.keep_missing):
+
+        def inner(values):
+
+            vals = flt(values)
+
+            if vals is None:
+                return None  # pragma: no cover
+
+            return max(vals) - min(vals)
+
+        return inner

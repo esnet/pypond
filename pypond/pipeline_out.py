@@ -309,11 +309,11 @@ class CollectionOut(PipelineOut):
         as an inline in the Javascript source.
         """
 
-        self._log(
-            'CollectionOut._collector_callback',
-            'coll:{0}, wkey: {1}, gbkey: {2} cback: {3}'.format(
-                collection, window_key, group_by_key, self._callback)
-        )
+        # self._log(
+        #     'CollectionOut._collector_callback',
+        #     'coll:{0}, wkey: {1}, gbkey: {2} cback: {3}'.format(
+        #         collection, window_key, group_by_key, self._callback)
+        # )
 
         group_by = group_by_key
 

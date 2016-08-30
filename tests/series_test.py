@@ -23,10 +23,11 @@ from pypond.event import Event
 from pypond.exceptions import (
     CollectionException,
     CollectionWarning,
+    FilterException,
     PipelineIOException,
     TimeSeriesException,
 )
-from pypond.functions import Functions
+from pypond.functions import Functions, Filters
 from pypond.index import Index
 from pypond.indexed_event import IndexedEvent
 from pypond.range import TimeRange
@@ -462,11 +463,11 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(tser.median('out'), 4)
         self.assertEqual(tser.stdev('out'), 1.632993161855452)
         # redundant, but for coverage
-        self.assertEqual(tser.aggregate(Functions.sum, 'in'), 9)
-        self.assertEqual(tser.aggregate(Functions.sum, ('in',)), 9)
+        self.assertEqual(tser.aggregate(Functions.sum(), 'in'), 9)
+        self.assertEqual(tser.aggregate(Functions.sum(), ('in',)), 9)
 
         ser1 = TimeSeries(DATA)
-        self.assertEqual(ser1.aggregate(Functions.sum), 189)
+        self.assertEqual(ser1.aggregate(Functions.sum()), 189)
 
     def test_various_bad_args(self):
         """ensure proper exceptions are being raised."""
@@ -477,7 +478,7 @@ class TestTimeSeries(SeriesBase):
             ser1.aggregate(dict())
 
         with self.assertRaises(CollectionException):
-            ser1.aggregate(Functions.sum, dict())
+            ser1.aggregate(Functions.sum(), dict())
 
     def test_equality_methods(self):
         """test equal/same static methods."""
@@ -578,10 +579,35 @@ class TestTimeSeries(SeriesBase):
         """
         ces = self._canned_event_series
 
-        collapsed_ces = ces.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+        collapsed_ces = ces.collapse(['in', 'out'], 'in_out_sum', Functions.sum())
 
         for i in collapsed_ces.events():
             self.assertEqual(i.get('in') + i.get('out'), i.get('in_out_sum'))
+
+    def test_aggregation_filtering(self):
+        """test the filtering modifers to the agg functions."""
+
+        event_objects = [
+            Event(1429673400000, {'in': 1, 'out': 2}),
+            Event(1429673460000, {'in': 3, 'out': None}),
+            Event(1429673520000, {'in': 5, 'out': 6}),
+        ]
+
+        series = TimeSeries(dict(name='events', events=event_objects))
+
+        self.assertEqual(series.sum('out', Filters.ignore_missing), 8)
+        self.assertEqual(series.avg('out', Filters.ignore_missing), 4)
+        self.assertEqual(series.min('out', Filters.zero_missing), 0)
+        self.assertEqual(series.max('out', Filters.propogate_missing), None)
+        self.assertEqual(series.mean('out', Filters.ignore_missing), 4)
+        self.assertEqual(series.median('out', Filters.zero_missing), 2)
+        self.assertEqual(series.stdev('out', Filters.zero_missing), 2.494438257849294)
+
+        def bad_filtering_function():  # pylint: disable=missing-docstring
+            pass
+
+        with self.assertRaises(FilterException):
+            series.sum('out', bad_filtering_function)
 
 
 class TestRollups(SeriesBase):
@@ -594,7 +620,9 @@ class TestRollups(SeriesBase):
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
-        daily_avg = timeseries.fixed_window_rollup('1d', dict(value=Functions.avg))
+        daily_avg = timeseries.fixed_window_rollup(
+            '1d',
+            dict(value=dict(value=Functions.avg())))
 
         self.assertEqual(daily_avg.size(), 5)
         self.assertEqual(daily_avg.at(0).value(), 46.875)
@@ -606,7 +634,7 @@ class TestRollups(SeriesBase):
 
         timeseries = TimeSeries(SEPT_2014_DATA)
 
-        hourly_avg = timeseries.hourly_rollup(dict(value=Functions.avg))
+        hourly_avg = timeseries.hourly_rollup(dict(value=dict(value=Functions.avg())))
 
         self.assertEqual(hourly_avg.size(), len(SEPT_2014_DATA.get('points')))
         self.assertEqual(hourly_avg.at(0).value(), 80.0)
@@ -630,7 +658,7 @@ class TestRollups(SeriesBase):
         # just silence the warnings, not do anything with them.
         with warnings.catch_warnings(record=True):
 
-            daily_avg = timeseries.daily_rollup(dict(value=Functions.avg))
+            daily_avg = timeseries.daily_rollup(dict(value=dict(value=Functions.avg())))
 
             ts_1 = SEPT_2014_DATA.get('points')[0][0]
 
@@ -639,19 +667,124 @@ class TestRollups(SeriesBase):
                 daily_avg.at(0).index().to_string()
             )
 
-            monthly_avg = timeseries.monthly_rollup(dict(value=Functions.avg))
+            monthly_avg = timeseries.monthly_rollup(dict(value=dict(value=Functions.avg())))
 
             self.assertEqual(
                 Index.get_monthly_index_string(dt_from_ms(ts_1), utc=False),
                 monthly_avg.at(0).index().to_string()
             )
 
-            yearly_avg = timeseries.yearly_rollup(dict(value=Functions.avg))
+            yearly_avg = timeseries.yearly_rollup(dict(value=dict(value=Functions.avg())))
 
             self.assertEqual(
                 Index.get_yearly_index_string(dt_from_ms(ts_1), utc=False),
                 yearly_avg.at(0).index().to_string()
             )
+
+
+class TestPercentileAndQuantile(SeriesBase):
+    """
+    Test the percentile and quantile operations.
+    """
+
+    def test_percentile(self):
+        """Test percentile of a series."""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+                [1400425951000, 22.3],
+                [1400425952000, 32.4],
+                [1400425953000, 12.1],
+                [1400425955000, 76.8],
+                [1400425956000, 87.3],
+                [1400425957000, 54.6],
+                [1400425958000, 45.5],
+                [1400425959000, 87.9]
+            ]
+        ))
+
+        self.assertEqual(series.percentile(50, 'temperature'), 50.05)
+        self.assertEqual(series.percentile(95, 'temperature'), 87.69)
+        self.assertEqual(series.percentile(99, 'temperature'), 87.858)
+
+        self.assertEqual(series.percentile(99, 'temperature', 'lower'), 87.3)
+        self.assertEqual(series.percentile(99, 'temperature', 'higher'), 87.9)
+        self.assertEqual(series.percentile(99, 'temperature', 'nearest'), 87.9)
+        self.assertEqual(series.percentile(99, 'temperature', 'midpoint'), 87.6)
+
+        self.assertEqual(series.percentile(0, 'temperature'), 12.1)
+        self.assertEqual(series.percentile(100, 'temperature'), 87.9)
+
+    def test_percentile_empty(self):
+        """percentile of an empty timeseries."""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+            ]
+        ))
+
+        self.assertIsNone(series.percentile(0, 'temperature'))
+        self.assertIsNone(series.percentile(100, 'temperature'))
+
+    def test_percentile_single(self):
+        """percentile of an timeseries with one point."""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+                [1400425951000, 22.3]
+            ]
+        ))
+
+        self.assertEqual(series.percentile(0, 'temperature'), 22.3)
+        self.assertEqual(series.percentile(50, 'temperature'), 22.3)
+        self.assertEqual(series.percentile(100, 'temperature'), 22.3)
+
+    def test_quantile(self):
+        """test TimeSeries.quantile()"""
+
+        series = TimeSeries(dict(
+            name="Sensor values",
+            columns=["time", "temperature"],
+            points=[
+                [1400425951000, 22.3],
+                [1400425952000, 32.4],
+                [1400425953000, 12.1],
+                [1400425955000, 76.8],
+                [1400425956000, 87.3],
+                [1400425957000, 54.6],
+                [1400425958000, 45.5],
+                [1400425959000, 87.9]
+            ]
+        ))
+
+        self.assertEqual(
+            series.quantile(4, field_path='temperature'), [29.875, 50.05, 79.425])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='linear'),
+            [29.875, 50.05, 79.425])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='lower'),
+            [22.3, 45.5, 76.8])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='higher'),
+            [32.4, 54.6, 87.3])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='nearest'),
+            [32.4, 54.6, 76.8])
+        self.assertEqual(
+            series.quantile(4, field_path='temperature', method='midpoint'),
+            [27.35, 50.05, 82.05])
+
+        self.assertEqual(series.quantile(1, 'temperature', 'linear'), [])
+
+        with self.assertRaises(CollectionException):
+            series.quantile(15, field_path='temperature')
 
 
 class TestCollection(SeriesBase):
@@ -776,7 +909,7 @@ class TestCollection(SeriesBase):
         """test Collection.collaps()"""
         col = self._canned_collection
 
-        collapsed_col = col.collapse(['in', 'out'], 'in_out_sum', Functions.sum)
+        collapsed_col = col.collapse(['in', 'out'], 'in_out_sum', Functions.sum())
         self.assertEqual(collapsed_col.size(), 3)
 
         for i in collapsed_col.events():
@@ -797,6 +930,28 @@ class TestCollection(SeriesBase):
         self.assertEqual(col.last('out'), 6)
         self.assertEqual(col.median('out'), 4)
         self.assertEqual(col.stdev('out'), 1.632993161855452)
+
+    def test_aggregation_filtering(self):
+        """Test the new filtering methods for cleaning stuff."""
+
+        elist = [
+            Event(1429673400000, {'in': 1, 'out': 1}),
+            Event(1429673460000, {'in': 2, 'out': 5}),
+            Event(1429673520000, {'in': 3, 'out': None}),
+        ]
+
+        coll = Collection(elist)
+
+        self.assertEqual(coll.aggregate(Functions.sum(), 'in'), 6)
+
+        self.assertEqual(coll.aggregate(Functions.sum(Filters.propogate_missing), 'in'), 6)
+        self.assertEqual(coll.aggregate(Functions.sum(Filters.propogate_missing), 'out'), None)
+
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.ignore_missing), 'in'), 2)
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.ignore_missing), 'out'), 3)
+
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.zero_missing), 'in'), 2)
+        self.assertEqual(coll.aggregate(Functions.avg(Filters.zero_missing), 'out'), 2)
 
     def test_mutators(self):
         """test collection mutation."""

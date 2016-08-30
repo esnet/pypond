@@ -30,15 +30,15 @@ from .bases import PypondBase
 from .exceptions import EventException, NAIVE_MESSAGE
 from .range import TimeRange
 from .index import Index
-from .functions import Functions
+from .functions import Functions, f_check
 from .util import (
     dt_from_ms,
     dt_is_aware,
     format_dt,
     is_function,
-    is_nan,
     is_pmap,
     is_pvector,
+    is_valid,
     ms_from_dt,
     sanitize_dt,
 )
@@ -103,7 +103,7 @@ class EventBase(PypondBase):
             Type depends on underyling data
         """
 
-        fspec = self._field_spec_to_array(field_path)
+        fspec = self._field_path_to_array(field_path)
 
         return reduce(dict.get, fspec, thaw(self.data()))
 
@@ -613,7 +613,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         """
         val = event.value(field_path)
 
-        return not bool(val is None or val == '' or is_nan(val))
+        return is_valid(val)
 
     @staticmethod
     def selector(event, field_spec=None):
@@ -905,7 +905,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     # these call combine with appropriate reducer
 
     @staticmethod
-    def sum(events, field_spec=None):
+    def sum(events, field_spec=None, filter_func=None):
         """combine() called with a summing function as a reducer. All
         of the events need to have the same timestamp.
 
@@ -918,6 +918,12 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
@@ -940,15 +946,15 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                     msg = 'sum() expects all events to have the same timestamp'
                     raise EventException(msg)
 
-        summ = Event.combine(events, field_spec, Functions.sum)
+        summ = Event.combine(events, field_spec, Functions.sum(f_check(filter_func)))
 
         if summ is not None:
-            return Event.combine(events, field_spec, Functions.sum)[0]
+            return summ[0]
         else:
             return None
 
     @staticmethod
-    def avg(events, field_spec=None):
+    def avg(events, field_spec=None, filter_func=None):
         """combine() called with a averaging function as a reducer.
 
         Parameters
@@ -960,14 +966,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
+        filter_func : function, None
+            A function (static method really) from the Filters class in module
+            `pypond.functions.Filters`. It will control how bad or missing
+            (None, NaN, empty string) values will be cleansed or filtered
+            during aggregation. If no filter is specified, then the missing
+            values will be retained which will potentially cause errors.
 
         Returns
         -------
         int, float or None
             The averaged value."""
-        avg = Event.combine(events, field_spec, Functions.avg)
+
+        avg = Event.combine(events, field_spec, Functions.avg(f_check(filter_func)))
+
         if avg is not None:
-            return Event.combine(events, field_spec, Functions.avg)[0]
+            return avg[0]
         else:
             return None
 

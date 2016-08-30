@@ -20,7 +20,7 @@ from pyrsistent import freeze, thaw
 
 from pypond.event import Event
 from pypond.exceptions import EventException
-from pypond.functions import Functions
+from pypond.functions import Functions, Filters
 from pypond.index import Index
 from pypond.indexed_event import IndexedEvent
 from pypond.range import TimeRange
@@ -323,7 +323,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.map(self._get_event_series(), map_sum)
         self.assertEqual(set(result), set({'sum': [13, 17, 21, 26]}))
 
-        res = Event.reduce(result, Functions.avg)
+        res = Event.reduce(result, Functions.avg())
         self.assertEqual(set(res), set({'sum': 19.25}))
 
     def test_event_map_no_key_map_all(self):
@@ -336,7 +336,7 @@ class TestEventMapReduceCombine(BaseTestEvent):
 
     def test_simple_map_reduce(self):
         """test simple map/reduce."""
-        result = Event.map_reduce(self._get_event_series(), ['in', 'out'], Functions.avg)
+        result = Event.map_reduce(self._get_event_series(), ['in', 'out'], Functions.avg())
         self.assertEqual(set(result), set({'in': 5.0, 'out': 14.25}))
 
     def test_sum_events_with_combine(self):
@@ -387,37 +387,60 @@ class TestEventMapReduceCombine(BaseTestEvent):
         self.assertIsNone(Event.avg([]))
 
         # work the extra reducer functions in Functions module
-        result = Event.combine(events, 'c', Functions.max)
+        result = Event.combine(events, 'c', Functions.max())
         self.assertEqual(result[0].get('c'), 7)
 
-        result = Event.combine(events, 'c', Functions.min)
+        result = Event.combine(events, 'c', Functions.min())
         self.assertEqual(result[0].get('c'), 3)
 
-        result = Event.combine(events, 'c', Functions.count)
+        result = Event.combine(events, 'c', Functions.count())
         self.assertEqual(result[0].get('c'), 3)
 
-        result = Event.combine(events, 'c', Functions.first)
+        result = Event.combine(events, 'c', Functions.first())
         self.assertEqual(result[0].get('c'), 7)
 
-        result = Event.combine(events, 'c', Functions.last)
+        result = Event.combine(events, 'c', Functions.last())
         self.assertEqual(result[0].get('c'), 3)
 
-        result = Event.combine(events, 'c', Functions.difference)
+        result = Event.combine(events, 'c', Functions.difference())
         self.assertEqual(result[0].get('c'), 4)
 
-        self.assertIsNone(Functions.first([]))
-        self.assertIsNone(Functions.last([]))
+        self.assertIsNone(Functions.first()([]))
+        self.assertIsNone(Functions.last()([]))
+
+    def test_sum_avg_with_filtering(self):
+        """test summing multiple events together via combine on the back end."""
+
+        # combine them all
+        events = [
+            self._create_event(self.aware_ts, {'a': 5, 'b': 6, 'c': 7}),
+            self._create_event(self.aware_ts, {'a': None, 'b': None, 'c': 4}),
+            self._create_event(self.aware_ts, {'a': 1, 'b': 2, 'c': 3}),
+
+        ]
+
+        result = Event.sum(events, filter_func=Filters.zero_missing)
+        self.assertEqual(result.get('a'), 6)
+
+        result = Event.sum(events, filter_func=Filters.propogate_missing)
+        self.assertIsNone(result.get('a'))
+
+        result = Event.avg(events, filter_func=Filters.ignore_missing)
+        self.assertEqual(result.get('b'), 4)
+
+        result = Event.avg(events, filter_func=Filters.propogate_missing)
+        self.assertIsNone(result.get('b'))
 
     def test_event_collapse(self):
         """test collapse()"""
 
         ev1 = self._create_event(self.aware_ts, {'a': 5, 'b': 6, 'c': 7})
 
-        ev2 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum, append=True)
+        ev2 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum(), append=True)
         self.assertEqual(len(list(ev2.data().keys())), 4)
         self.assertEqual(ev2.get('a_to_c'), 12)
 
-        ev3 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum, append=False)
+        ev3 = ev1.collapse(['a', 'c'], 'a_to_c', Functions.sum(), append=False)
         self.assertEqual(len(list(ev3.data().keys())), 1)
         self.assertEqual(ev3.get('a_to_c'), 12)
 

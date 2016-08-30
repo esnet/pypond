@@ -94,6 +94,7 @@ class UnboundedIn(In):
     def stop(self):
         """stop"""
         self._running = False
+        self.flush()  # emit a flush to let processors cleanly exit.
 
     def add_event(self, event):
         """Type check and event and emit it if we are running have have observers.

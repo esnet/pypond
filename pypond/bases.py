@@ -80,7 +80,7 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
         warnings.warn(msg, warn_type, stacklevel=2)
 
     @staticmethod
-    def _field_spec_to_array(fspec):
+    def _field_path_to_array(fspec):
         """Split the field spec if it is not already a list.
 
         Also, allow for deep fields to be passed in as a tuple because
@@ -132,6 +132,7 @@ class Observable(PypondBase):
         self._log('Observable.flush')
         for i in self._observers:
             if hasattr(i, 'flush'):
+                self._log('Observable.flush', i)
                 i.flush()
 
     def add_observer(self, observer):
