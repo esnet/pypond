@@ -21,7 +21,14 @@ from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions, f_check
 from .pipeline_in import BoundedIn
 from .range import TimeRange
-from .util import unique_id, is_pvector, ObjectEncoder, _check_dt, is_function
+from .util import (
+    _check_dt,
+    InternalEventList,
+    is_function,
+    is_pvector,
+    ObjectEncoder,
+    unique_id,
+)
 
 
 class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
@@ -77,8 +84,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
 
         elif isinstance(instance_or_list, list):
             events = list()
+            internal = isinstance(instance_or_list, InternalEventList)
             for i in instance_or_list:
-                self._check(i)
+                if not internal:
+                    self._check(i)
                 events.append(i)
             self._event_list = freeze(events)
 
@@ -470,7 +479,14 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             New collection with the event added to it.
         """
         self._check(event)
-        return Collection(self._event_list.append(event))
+
+        new_event_list = InternalEventList(self._event_list)
+        new_event_list.append(event)
+
+        coll = Collection(new_event_list)
+        coll._type = self._type  # pylint: disable=protected-access
+
+        return coll
 
     def slice(self, begin, end):
         """
