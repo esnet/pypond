@@ -198,7 +198,7 @@ class Align(Processor):
             An Event.
         """
 
-        self._log('Align.add_event', event)
+        self._log('Align.add_event', '{0}', (event,))
 
         if isinstance(event, (TimeRangeEvent, IndexedEvent)):
             msg = 'TimeRangeEvent and IndexedEvent series can not be aligned.'
@@ -217,7 +217,7 @@ class Align(Processor):
             for bound in boundaries:
                 # if the returned list is not empty, interpolate an event
                 # on each of the boundaries and emit them.
-                self._log('Align.add_event', 'boundary: {0}'.format(bound))
+                self._log('Align.add_event', 'boundary: {0}', (bound,))
 
                 if self._limit is not None and fill_count > self._limit:
                     # check to see if we have hit the limit first, if so
@@ -230,7 +230,7 @@ class Align(Processor):
                     elif self._method == 'hold':
                         ievent = self._interpolate_hold(bound)
 
-                self._log('Align.add_event', 'emitting: {0}', (ievent))
+                self._log('Align.add_event', 'emitting: {0}', (ievent,))
                 self.emit(ievent)
 
             # one way or another, the current event will now become previous

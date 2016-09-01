@@ -143,7 +143,7 @@ class Aggregator(Processor):
 
         self._log(
             'Aggregator._collector_callback',
-            'new_d: {0}', (new_d)
+            'new_d: {0}', (new_d,)
         )
 
         if window_key == 'global':
@@ -156,7 +156,7 @@ class Aggregator(Processor):
 
         self._log(
             'Aggregator._collector_callback',
-            'emitting: {0}', (event)
+            'emitting: {0}', (event,)
         )
 
         self.emit(event)
@@ -180,5 +180,5 @@ class Aggregator(Processor):
             An event object
         """
         if self.has_observers():
-            self._log('Aggregator.add_event', 'adding: {0}', (event))
+            self._log('Aggregator.add_event', 'adding: {0}', (event,))
             self._collector.add_event(event)

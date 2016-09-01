@@ -62,5 +62,5 @@ class Collapser(Processor):
                 self._append
             )
 
-        self._log('Collapser.add_event', 'emitting: {0}', (evn))
+        self._log('Collapser.add_event', 'emitting: {0}', (evn,))
         self.emit(evn)

@@ -78,7 +78,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             msg = 'Unknown arg to Filler: {0}'.format(arg1)
             raise ProcessorException(msg)
 
-        self._log('Filler.init.Options', options)
+        self._log('Filler.init.Options', '{0}', (options,))
 
         if self._method not in ('zero', 'pad', 'linear'):
             msg = 'Unknown method {0} passed to Filler'.format(self._method)
@@ -301,7 +301,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # end filling logic
 
             for emitted_event in to_emit:
-                self._log('Filler.add_event', 'emitting: {0}', (emitted_event))
+                self._log('Filler.add_event', 'emitting: {0}', (emitted_event,))
                 self.emit(emitted_event)
 
     def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches, too-many-locals

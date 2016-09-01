@@ -68,7 +68,7 @@ class Offset(Processor):
             Any of the three event variants.
         """
 
-        self._log('Offset.add_event', event)
+        self._log('Offset.add_event', '{0}', (event,))
 
         if self.has_observers():
             selected = Event.selector(event, self._field_spec)
@@ -80,6 +80,6 @@ class Offset(Processor):
 
             output_event = event.set_data(data)
 
-            self._log('Offset.add_event', 'emitting: {0}', (output_event))
+            self._log('Offset.add_event', 'emitting: {0}', (output_event,))
 
             self.emit(output_event)

@@ -51,5 +51,5 @@ class Selector(Processor):
         """
         if self.has_observers():
             evn = Event.selector(event, self._field_spec)
-            self._log('Selector.add_event', 'emitting: {0}', (evn))
+            self._log('Selector.add_event', 'emitting: {0}', (evn,))
             self.emit(evn)

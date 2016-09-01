@@ -44,7 +44,7 @@ class Collector(PypondBase):
     def __init__(self, options, on_trigger):
         super(Collector, self).__init__()
 
-        self._log('Collector.init', 'opt: {0} trigger: {1}'.format(options.to_dict(), on_trigger))
+        # self._log('Collector.init', 'opt: {0} trigger: {1}'.format(options.to_dict(), on_trigger))
 
         # options
         self._group_by = options.group_by

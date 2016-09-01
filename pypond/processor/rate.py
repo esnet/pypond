@@ -127,7 +127,7 @@ class Rate(Processor):
             An Event.
         """
 
-        self._log('Rate.add_event', event)
+        self._log('Rate.add_event', '{0}', (event,))
 
         if isinstance(event, (TimeRangeEvent, IndexedEvent)):
             msg = 'Expecting Event object input.'
@@ -142,7 +142,7 @@ class Rate(Processor):
 
             output_event = self._get_rate(event)
 
-            self._log('Rate.add_event', 'emitting: {0}', (output_event))
+            self._log('Rate.add_event', 'emitting: {0}', (output_event,))
 
             self.emit(output_event)
 

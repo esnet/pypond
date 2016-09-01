@@ -134,12 +134,12 @@ class Observable(PypondBase):
         self._log('Observable.flush')
         for i in self._observers:
             if hasattr(i, 'flush'):
-                self._log('Observable.flush', i)
+                self._log('Observable.flush')
                 i.flush()
 
     def add_observer(self, observer):
         """add an observer if it does not already exist."""
-        self._log('Observable.add_observer', 'obs: {0}', (observer))
+        self._log('Observable.add_observer', 'obs: {0}', (observer,))
         should_add = True
 
         for i in self._observers:

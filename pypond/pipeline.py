@@ -341,7 +341,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         Setting the In for the Pipeline returns a new Pipeline.
         """
-        self._log('Pipeline._set_in', 'in: {0}', (pipe_in))
+        self._log('Pipeline._set_in', 'in: {0}', (pipe_in,))
 
         mode = None
         source = pipe_in
@@ -492,7 +492,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.window_by',
-            'new_d: {0}'.format(new_d)
+            'new_d: {0}', (new_d,)
         )
 
         return Pipeline(new_d)
@@ -644,7 +644,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        self._log('Pipeline.from_source', 'called with: {0}', (src))
+        self._log('Pipeline.from_source', 'called with: {0}', (src,))
 
         if isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
             return self._set_in(src)
@@ -813,7 +813,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             The modified Pipeline.
         """
 
-        self._log('Pipeline.offset_by', 'offset: {0}', (offset_by))
+        self._log('Pipeline.offset_by', 'offset: {0}', (offset_by,))
 
         offset = Offset(
             self,

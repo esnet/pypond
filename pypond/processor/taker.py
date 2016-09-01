@@ -88,13 +88,13 @@ class Taker(Processor):
             # emit the events for each collection key that has not reached
             # the limit. This is the main point of this processor.
             if self._count.get(coll_key) <= self._limit:
-                self._log('Taker.add_event', 'collection key: {0}', (coll_key))
+                self._log('Taker.add_event', 'collection key: {0}', (coll_key,))
                 self._log(
                     'Taker.add_event',
                     'count: {0} limit: {1}',
                     (self._count.get(coll_key), self._limit)
                 )
-                self._log('Taker.add_event', 'emitting: {0}', (event))
+                self._log('Taker.add_event', 'emitting: {0}', (event,))
                 self.emit(event)
 
     def flush(self):
