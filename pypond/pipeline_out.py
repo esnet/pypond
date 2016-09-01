@@ -103,7 +103,7 @@ class Collector(PypondBase):
             Raised on bad args.
         """
 
-        self._log('Collector.add_event', '{0} utc: {1}'.format(event, self._utc))
+        # self._log('Collector.add_event', '{0} utc: {1}'.format(event, self._utc))
 
         # window_key
         window_key = None
@@ -130,7 +130,7 @@ class Collector(PypondBase):
         collection_key = '{wk}::{gbk}'.format(wk=window_key, gbk=group_by_key) if \
             group_by_key is not None else window_key
 
-        self._log('Collector.add_event', 'collection_key: {0}'.format(collection_key))
+        # self._log('Collector.add_event', 'collection_key: {0}'.format(collection_key))
 
         discard = False
 
@@ -167,11 +167,11 @@ class Collector(PypondBase):
 
         # emit
 
-        self._log(
-            'Collector.add_event',
-            'emit_on: {0}, discard: {1} discards: {2}'.format(
-                self._emit_on, discard, discards)
-        )
+        # self._log(
+        #     'Collector.add_event',
+        #     'emit_on: {0}, discard: {1} discards: {2}'.format(
+        #         self._emit_on, discard, discards)
+        # )
 
         if self._emit_on == 'eachEvent':  # keeping mixedCase tokens for consistancy.
             self.emit_collections(self._collections)
