@@ -481,6 +481,22 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._data.get('name')
 
+    def set_name(self, name):
+        """Set name and generate a new TimeSeries
+
+        Parameters
+        ----------
+        name : str
+            New name
+
+        Returns
+        -------
+        TimeSeries
+            Return a TimeSeries with a new name.
+        """
+        return self.set_meta('name', name)
+
+
     def index(self):
         """Get the index.
 
@@ -567,6 +583,26 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             return thaw(self._data)
         else:
             return self._data.get(key)
+
+    def set_meta(self, key, value):
+        """Change the metadata of the TimeSeries
+
+        Parameters
+        ----------
+        key : str
+            The metadata key
+        value : obj
+            The value
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries with new metadata.
+        """
+        new_ts = TimeSeries(self)
+        new_ts._data = new_ts._data.set(key, value)  # pylint: disable=protected-access
+
+        return new_ts
 
     # Access the series itself
 
