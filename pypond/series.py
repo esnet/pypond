@@ -496,7 +496,6 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self.set_meta('name', name)
 
-
     def index(self):
         """Get the index.
 

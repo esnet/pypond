@@ -327,6 +327,11 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(ts7.at(1).value('direction').get('in'), 3)
         self.assertEqual(ts7.at(1).value('direction').get('out'), 4)
 
+    def test_series_rename(self):
+        """rename a series."""
+        new_ts = self._canned_event_series.set_name('new_name')
+        self.assertEqual(new_ts.name(), 'new_name')
+
     def test_bad_ctor_args(self):
         """bogus conctructor args."""
 
