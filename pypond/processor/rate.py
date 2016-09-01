@@ -142,7 +142,7 @@ class Rate(Processor):
 
             output_event = self._get_rate(event)
 
-            self._log('Rate.add_event', 'emitting: {0}'.format(output_event))
+            # self._log('Rate.add_event', 'emitting: {0}'.format(output_event))
 
             self.emit(output_event)
 

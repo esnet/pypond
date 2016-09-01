@@ -301,10 +301,10 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # end filling logic
 
             for emitted_event in to_emit:
-                self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
+                # self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
                 self.emit(emitted_event)
 
-    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches
+    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches, too-many-locals
         """
         The fundamental linear interpolation workhorse code.  Process
         a list of events and return a new list. Does a pass for

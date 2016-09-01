@@ -56,5 +56,5 @@ class Filter(Processor):
         """
         if self.has_observers():
             if self._op(event):
-                self._log('Filter.add_event', 'emitting: {0}'.format(event))
+                # self._log('Filter.add_event', 'emitting: {0}'.format(event))
                 self.emit(event)

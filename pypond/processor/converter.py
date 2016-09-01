@@ -221,6 +221,6 @@ class Converter(Processor):
                 msg = 'Unknown event type received'
                 raise ProcessorException(msg)
 
-            self._log('Converter.add_event', 'emitting: {0}'.format(output_event))
+            # self._log('Converter.add_event', 'emitting: {0}'.format(output_event))
 
             self.emit(output_event)

@@ -80,6 +80,6 @@ class Offset(Processor):
 
             output_event = event.set_data(data)
 
-            self._log('Offset.add_event', 'emitting: {0}'.format(output_event))
+            # self._log('Offset.add_event', 'emitting: {0}'.format(output_event))
 
             self.emit(output_event)

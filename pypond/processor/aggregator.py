@@ -179,5 +179,5 @@ class Aggregator(Processor):
             An event object
         """
         if self.has_observers():
-            self._log('Aggregator.add_event', 'adding: {0}'.format(event))
+            # self._log('Aggregator.add_event', 'adding: {0}'.format(event))
             self._collector.add_event(event)
