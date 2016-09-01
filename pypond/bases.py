@@ -54,7 +54,7 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
 
         self._logger = _log
 
-    def _log(self, event, msg=''):  # pragma: no cover
+    def _log(self, event, msg='', format_args=tuple()):  # pragma: no cover
         """Log events if environment variable PYPOND_LOG is set.
 
         Parameters
@@ -63,9 +63,12 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
             The event - ie: 'init.start' and etc.
         msg : str
             The log message
+        format_args : tuple
+            The args to format. This is to keep objects from being stringified
+            in production which is a performance drag.
         """
         if 'PYPOND_LOG' in os.environ:
-            self._logger(event, msg)
+            self._logger(event, msg.format(*format_args))
 
     def _warn(self, msg, warn_type):  # pylint: disable=no-self-use
         """Issue a python warning.
@@ -123,7 +126,6 @@ class Observable(PypondBase):
 
     def emit(self, event):
         """add event to observers."""
-        # self._log('Observable.emit')
         for i in self._observers:
             i.add_event(event)
 
@@ -137,7 +139,7 @@ class Observable(PypondBase):
 
     def add_observer(self, observer):
         """add an observer if it does not already exist."""
-        self._log('Observable.add_observer', 'obs: {0}'.format(observer))
+        self._log('Observable.add_observer', 'obs: {0}', (observer))
         should_add = True
 
         for i in self._observers:

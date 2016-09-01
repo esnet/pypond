@@ -113,10 +113,11 @@ class Aggregator(Processor):
         in JS apparently.
         """
 
-        # self._log(
-        #     'Aggregator._collector_callback',
-        #     'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
-        # )
+        self._log(
+            'Aggregator._collector_callback',
+            'coll:{0}, wkey: {1}, gbkey: {2}',
+            (collection, window_key, group_by_key)
+        )
 
         new_d = dict()
 
@@ -140,10 +141,10 @@ class Aggregator(Processor):
 
         event = None
 
-        # self._log(
-        #     'Aggregator._collector_callback',
-        #     'new_d: {0}'.format(new_d)
-        # )
+        self._log(
+            'Aggregator._collector_callback',
+            'new_d: {0}', (new_d)
+        )
 
         if window_key == 'global':
             event = TimeRangeEvent(collection.range(), new_d)
@@ -153,10 +154,10 @@ class Aggregator(Processor):
             # the default is True but can be changed.
             event = IndexedEvent(window_key, new_d, self._utc)  # pylint: disable=redefined-variable-type
 
-        # self._log(
-        #     'Aggregator._collector_callback',
-        #     'emitting: {0}'.format(event)
-        # )
+        self._log(
+            'Aggregator._collector_callback',
+            'emitting: {0}', (event)
+        )
 
         self.emit(event)
 
@@ -179,5 +180,5 @@ class Aggregator(Processor):
             An event object
         """
         if self.has_observers():
-            # self._log('Aggregator.add_event', 'adding: {0}'.format(event))
+            self._log('Aggregator.add_event', 'adding: {0}', (event))
             self._collector.add_event(event)

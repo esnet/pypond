@@ -301,7 +301,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # end filling logic
 
             for emitted_event in to_emit:
-                # self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
+                self._log('Filler.add_event', 'emitting: {0}', (emitted_event))
                 self.emit(emitted_event)
 
     def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches, too-many-locals

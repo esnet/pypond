@@ -230,7 +230,7 @@ class Align(Processor):
                     elif self._method == 'hold':
                         ievent = self._interpolate_hold(bound)
 
-                # self._log('Align.add_event', 'emitting: {0}'.format(ievent))
+                self._log('Align.add_event', 'emitting: {0}', (ievent))
                 self.emit(ievent)
 
             # one way or another, the current event will now become previous

@@ -56,5 +56,5 @@ class Mapper(Processor):
         """
         if self.has_observers():
             evn = self._op(event)
-            # self._log('Mapper.add_event', 'emitting: {0}'.format(evn))
+            self._log('Mapper.add_event', 'emitting: {0}', (evn))
             self.emit(evn)
