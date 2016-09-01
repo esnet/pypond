@@ -466,14 +466,6 @@ class Capsule(Options):  # pylint: disable=too-few-public-methods
     """
     pass
 
-
-class InternalEventList(list):
-    """
-    Subclass of list for classes to detect special cases
-    in places where lists are used.
-    """
-    pass
-
 # functions to streamline dealing with nested dicts
 
 

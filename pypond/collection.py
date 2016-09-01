@@ -23,7 +23,6 @@ from .pipeline_in import BoundedIn
 from .range import TimeRange
 from .util import (
     _check_dt,
-    InternalEventList,
     is_function,
     is_pvector,
     ObjectEncoder,
@@ -83,9 +82,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
                 self._event_list = pvector(list())
 
         elif isinstance(instance_or_list, list):
-            if not isinstance(instance_or_list, InternalEventList):
-                for i in instance_or_list:
-                    self._check(i)
+            for i in instance_or_list:
+                self._check(i)
             self._event_list = pvector(instance_or_list)
 
         elif is_pvector(instance_or_list):
@@ -477,11 +475,8 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         """
         self._check(event)
 
-        new_event_list = InternalEventList(self._event_list)
-        new_event_list.append(event)
-
-        coll = Collection(new_event_list)
-        coll._type = self._type  # pylint: disable=protected-access
+        coll = Collection(self)
+        coll._event_list = self._event_list.append(event)  # pylint: disable=protected-access
 
         return coll
 
