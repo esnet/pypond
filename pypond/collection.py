@@ -83,13 +83,10 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
                 self._event_list = pvector(list())
 
         elif isinstance(instance_or_list, list):
-            events = list()
-            internal = isinstance(instance_or_list, InternalEventList)
-            for i in instance_or_list:
-                if not internal:
+            if not isinstance(instance_or_list, InternalEventList):
+                for i in instance_or_list:
                     self._check(i)
-                events.append(i)
-            self._event_list = pvector(events)
+            self._event_list = pvector(instance_or_list)
 
         elif is_pvector(instance_or_list):
             self._event_list = instance_or_list
