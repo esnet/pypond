@@ -14,7 +14,7 @@ import copy
 import json
 import math
 
-from pyrsistent import freeze, thaw
+from pyrsistent import thaw, pvector
 
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
@@ -72,7 +72,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         self._type = None
 
         if instance_or_list is None:
-            self._event_list = freeze(list())
+            self._event_list = pvector(list())
         elif isinstance(instance_or_list, Collection):
             other = instance_or_list
             if copy_events:
@@ -80,7 +80,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
                 self._event_list = other._event_list
                 self._type = other._type
             else:
-                self._event_list = freeze(list())
+                self._event_list = pvector(list())
 
         elif isinstance(instance_or_list, list):
             events = list()
@@ -89,7 +89,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
                 if not internal:
                     self._check(i)
                 events.append(i)
-            self._event_list = freeze(events)
+            self._event_list = pvector(events)
 
         elif is_pvector(instance_or_list):
             self._event_list = instance_or_list
@@ -101,7 +101,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             msg += 'initializing event list to empty pvector'
             self._warn(msg, CollectionWarning)
 
-            self._event_list = freeze(list())
+            self._event_list = pvector(list())
 
     def to_json(self):
         """

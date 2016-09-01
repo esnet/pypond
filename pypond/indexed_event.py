@@ -10,7 +10,7 @@
 Event with a time range specified as an index.
 """
 
-from pyrsistent import freeze, thaw
+from pyrsistent import pmap, thaw
 
 # from .event import EventBase
 from .event import EventBase
@@ -62,7 +62,7 @@ class IndexedEvent(EventBase):
         index = self.index_from_args(instance_or_begin, utc)
         data = self.data_from_arg(data)
 
-        super(IndexedEvent, self).__init__(freeze(dict(index=index, data=data)))
+        super(IndexedEvent, self).__init__(pmap(dict(index=index, data=data)))
 
     def to_json(self):
         """

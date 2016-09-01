@@ -11,7 +11,7 @@ TimeRangeEvent associates data with a specific time range rather than
 at a discret time like Event does.
 """
 
-from pyrsistent import freeze, thaw
+from pyrsistent import pmap, thaw
 
 from .event import EventBase
 from .util import is_pmap
@@ -64,7 +64,7 @@ class TimeRangeEvent(EventBase):
         rng = self.timerange_from_arg(instance_or_args)
         data = self.data_from_arg(arg2)
 
-        super(TimeRangeEvent, self).__init__(freeze(dict(range=rng, data=data)))
+        super(TimeRangeEvent, self).__init__(pmap(dict(range=rng, data=data)))
 
         # Query/accessor methods
 

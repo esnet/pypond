@@ -15,7 +15,7 @@ Implementation of the Pond Pipeline classes.
 http://software.es.net/pond/#/pipeline
 """
 
-from pyrsistent import freeze
+from pyrsistent import pmap
 
 from .bases import PypondBase
 from .event import Event
@@ -196,7 +196,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         elif is_pmap(arg):
             self._d = arg
         else:
-            self._d = freeze(
+            self._d = pmap(
                 dict(
                     type=None,
                     input=None,  # renamed from 'in' in the JS source

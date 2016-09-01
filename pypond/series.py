@@ -16,7 +16,7 @@ import collections
 import copy
 import json
 
-from pyrsistent import freeze, thaw
+from pyrsistent import pmap, thaw
 
 from .bases import PypondBase
 from .collection import Collection
@@ -197,7 +197,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         if 'utc' in meta and isinstance(meta.get('utc'), bool):
             ret['utc'] = meta.get('utc')
 
-        return freeze(ret)
+        return pmap(ret)
 
     def to_json(self):
         """
@@ -233,7 +233,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
         # fold in the rest of the payload
-        cols_and_points.update(thaw(self._data))
+        cols_and_points.update(self._data)
 
         # Turn the index back into a string for the json representation.
         # The Index object can still be accessed via TimeSeries.index()
