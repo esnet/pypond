@@ -67,7 +67,7 @@ class Converter(Processor):
             msg = 'Unknown arg to Converter: {0}'.format(arg1)
             raise ProcessorException(msg)
 
-        self._log('Converter.init', 'options: {0}'.format(options))
+        # self._log('Converter.init', 'options: {0}'.format(options))
 
     def clone(self):
         """clone it."""
@@ -112,7 +112,7 @@ class Converter(Processor):
 
             range_list = [int(begin), int(end)]
 
-            self._log('Converter.convert_event', 'range: {0}'.format(range_list))
+            # self._log('Converter.convert_event', 'range: {0}'.format(range_list))
 
             rng = TimeRange(range_list)
             return TimeRangeEvent(rng, event.data())

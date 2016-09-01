@@ -113,10 +113,10 @@ class Aggregator(Processor):
         in JS apparently.
         """
 
-        self._log(
-            'Aggregator._collector_callback',
-            'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
-        )
+        # self._log(
+        #     'Aggregator._collector_callback',
+        #     'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
+        # )
 
         new_d = dict()
 
@@ -124,10 +124,10 @@ class Aggregator(Processor):
 
             # field_list = [field_name] if isinstance(field_name, str) else list(field_name)
 
-            self._log(
-                'Aggregator._collector_callback',
-                'field_name: {0}, map: {1}'.format(field_name, field_map)
-            )
+            # self._log(
+            #     'Aggregator._collector_callback',
+            #     'field_name: {0}, map: {1}'.format(field_name, field_map)
+            # )
 
             if len(field_map) != 1:
                 msg = 'Fields should contain exactly one field'
@@ -140,10 +140,10 @@ class Aggregator(Processor):
 
         event = None
 
-        self._log(
-            'Aggregator._collector_callback',
-            'new_d: {0}'.format(new_d)
-        )
+        # self._log(
+        #     'Aggregator._collector_callback',
+        #     'new_d: {0}'.format(new_d)
+        # )
 
         if window_key == 'global':
             event = TimeRangeEvent(collection.range(), new_d)
@@ -153,10 +153,10 @@ class Aggregator(Processor):
             # the default is True but can be changed.
             event = IndexedEvent(window_key, new_d, self._utc)  # pylint: disable=redefined-variable-type
 
-        self._log(
-            'Aggregator._collector_callback',
-            'emitting: {0}'.format(event)
-        )
+        # self._log(
+        #     'Aggregator._collector_callback',
+        #     'emitting: {0}'.format(event)
+        # )
 
         self.emit(event)
 

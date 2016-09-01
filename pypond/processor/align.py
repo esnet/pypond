@@ -67,7 +67,7 @@ class Align(Processor):
             msg = 'Unknown arg to Align constructor: {a}'.format(a=arg1)
             raise ProcessorException(msg)
 
-        self._log('Align.init.Options', options)
+        # self._log('Align.init.Options', options)
 
         # work out field specs
         if isinstance(self._field_spec, six.string_types):
