@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Fill and other sanitizing methods &mdash; pypond 0.4.0 documentation</title>
+    <title>Fill and other sanitizing methods &mdash; pypond 0.4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.4.0 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.4.1 documentation" href="index.html" />
     <link rel="next" title="Running the tests" href="tests.html" />
     <link rel="prev" title="Notes on time handling" href="time.html" />
 <meta charset='utf-8'>
@@ -194,7 +194,7 @@
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">zero</span></code> - the default - will transform any invalid value to a zero.</li>
 <li><code class="docutils literal"><span class="pre">pad</span></code> - replaces an invalid value with the the previous good value: <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">None,</span> <span class="pre">None,</span> <span class="pre">3]</span></code> becomes <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">3]</span></code>.</li>
-<li><code class="docutils literal"><span class="pre">linear</span></code> - interpolate the gaps based on the surrounding good values: <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">None,</span> <span class="pre">None,</span> <span class="pre">3]</span></code> becomes <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">2.5,</span> <span class="pre">3]</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">linear</span></code> - interpolate the gaps based on the surrounding good values: <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">null,</span> <span class="pre">null,</span> <span class="pre">null,</span> <span class="pre">3]</span></code> becomes <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">1.5,</span> <span class="pre">2,</span> <span class="pre">2.5,</span> <span class="pre">3]</span></code>.</li>
 </ul>
 <p>Neither <code class="docutils literal"><span class="pre">pad</span></code> or <code class="docutils literal"><span class="pre">linear</span></code> can fill the first value in a series if it is invalid, and they can&#8217;t start filling until good value has been seen: <code class="docutils literal"><span class="pre">[None,</span> <span class="pre">None,</span> <span class="pre">None,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code> would remain unchanged. Similarly, <code class="docutils literal"><span class="pre">linear</span></code> can not fill the last value in a series.</p>
 <div class="section" id="the-fill-limit-arg">
@@ -254,7 +254,7 @@
 </div>
 <ul class="simple">
 <li>If a non numeric value (as determined by <code class="docutils literal"><span class="pre">isinstance(val,</span> <span class="pre">numbers.Number)</span></code>) is encountered when doing a <code class="docutils literal"><span class="pre">linear</span></code> fill, a warning will be issued and that column will not be processed.</li>
-<li>When using streaming input like <code class="docutils literal"><span class="pre">UnboundedIn</span></code>, it is a best practice to set a limit using the optional arg <code class="docutils literal"><span class="pre">fill_limit</span></code>. This will ensure events will continue being emitted if the data hits a long run of invalid values.</li>
+<li>When using streaming input like <code class="docutils literal"><span class="pre">Stream</span></code>, it is a best practice to set a limit using the optional arg <code class="docutils literal"><span class="pre">fill_limit</span></code>. This will ensure events will continue being emitted if the data hits a long run of invalid values.</li>
 <li>When using an unbounded source, make sure to shut it down &#8220;cleanly&#8221; using <code class="docutils literal"><span class="pre">.stop()</span></code>. This will ensure <code class="docutils literal"><span class="pre">.flush()</span></code> is called so any unfilled cached events are emitted.</li>
 </ul>
 </div>

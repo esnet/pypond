@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypond package &mdash; pypond 0.4.0 documentation</title>
+    <title>pypond package &mdash; pypond 0.4.1 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4.0',
+        VERSION:     '0.4.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.4.0 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.4.1 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -112,15 +112,13 @@
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-pypond.bases">pypond.bases module</a></li>
-<li><a class="reference internal" href="#module-pypond.collection">pypond.collection module</a></li>
+<li><a class="reference internal" href="#pypond-collection-module">pypond.collection module</a></li>
 <li><a class="reference internal" href="#module-pypond.event">pypond.event module</a></li>
 <li><a class="reference internal" href="#module-pypond.exceptions">pypond.exceptions module</a></li>
 <li><a class="reference internal" href="#module-pypond.functions">pypond.functions module</a></li>
 <li><a class="reference internal" href="#module-pypond.index">pypond.index module</a></li>
 <li><a class="reference internal" href="#module-pypond.indexed_event">pypond.indexed_event module</a></li>
 <li><a class="reference internal" href="#module-pypond.pipeline">pypond.pipeline module</a></li>
-<li><a class="reference internal" href="#module-pypond.pipeline_in">pypond.pipeline_in module</a></li>
-<li><a class="reference internal" href="#module-pypond.pipeline_out">pypond.pipeline_out module</a></li>
 <li><a class="reference internal" href="#module-pypond.range">pypond.range module</a></li>
 <li><a class="reference internal" href="#module-pypond.series">pypond.series module</a></li>
 <li><a class="reference internal" href="#module-pypond.timerange_event">pypond.timerange_event module</a></li>
@@ -140,6 +138,13 @@
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="pypond.io.html">pypond.io package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pypond.io.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.io.html#module-pypond.io.input">pypond.io.input module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.io.html#module-pypond.io.output">pypond.io.output module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pypond.io.html#module-pypond.io">Module contents</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="pypond.processor.html">pypond.processor package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pypond.processor.html#module-pypond.processor.aggregator">pypond.processor.aggregator module</a></li>
@@ -217,1020 +222,8 @@ _log(&#8216;launch&#8217;, &#8216;more={0}, complex={1} log=event&#8217;.format(
 </dd></dl>
 
 </div>
-<div class="section" id="module-pypond.collection">
-<span id="pypond-collection-module"></span><h2>pypond.collection module<a class="headerlink" href="#module-pypond.collection" title="Permalink to this headline">¶</a></h2>
-<p>Implementation of Pond Collection class.</p>
-<dl class="class">
-<dt id="pypond.collection.Collection">
-<em class="property">class </em><code class="descclassname">pypond.collection.</code><code class="descname">Collection</code><span class="sig-paren">(</span><em>instance_or_list=None</em>, <em>copy_events=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.pipeline_in.BoundedIn" title="pypond.pipeline_in.BoundedIn"><code class="xref py py-class docutils literal"><span class="pre">pypond.pipeline_in.BoundedIn</span></code></a></p>
-<p>A collection is a list of Events. You can construct one out of either
-another collection, or a list of Events. You can addEvent() to a collection
-and a new collection will be returned.</p>
-<p>Basic operations on the list of events are also possible. You
-can iterate over the collection with a for..of loop, get the size()
-of the collection and access a specific element with at().</p>
-<p>Initialize from copy, lists, etc.</p>
-<p>instance_or_list arg can be:</p>
-<ul class="simple">
-<li>a Collection object (copy ctor)</li>
-<li>a python list</li>
-<li>a pyrsistent.pvector</li>
-</ul>
-<p>The list and pvector will contain Events.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>instance_or_list</strong> (<em>list, Collection, pyrsistent.pvector</em>) &#8211; A collection object to copy or a list of Event objects</li>
-<li><strong>copy_events</strong> (<em>bool, optional</em>) &#8211; Copy event list when using copy constructor, otherwise the
-new object has an emtpy event list.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.collection.Collection.__str__">
-<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.__str__" title="Permalink to this definition">¶</a></dt>
-<dd><p>call to_string()</p>
-<p>to_string() is already being tested so skip coverage.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of the object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an event to the payload and return a new Collection object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; Event object to add to collection.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New collection with the event added to it.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.aggregate">
-<code class="descname">aggregate</code><span class="sig-paren">(</span><em>func</em>, <em>field_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Aggregates the events down using a user defined function to
-do the reduction. Only a single column can be aggregated on
-so this takes a field_path, NOT a field_spec.</p>
-<p>This is essentially a wrapper around map/reduce, constraining
-it to a single column and returning the value, not the dict
-from map().</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>func</strong> (<em>function</em>) &#8211; Function to pass to map reduce to aggregate.</li>
-<li><strong>field_path</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Name of value to look up. If None, defaults to [&#8216;value&#8217;].
-&#8220;Deep&#8221; syntax either [&#8216;deep&#8217;, &#8216;value&#8217;], (&#8216;deep&#8217;, &#8216;value&#8217;,)
-or &#8216;deep.value.&#8217;</p>
-<p>If field_path is None, then [&#8216;value&#8217;] will be the default.</p>
-</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Returns the aggregated value, so it depends on what kind
-of data are being handled/aggregation being done.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">various</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.at">
-<code class="descname">at</code><span class="sig-paren">(</span><em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.at" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns an item in the collection by its index position.</p>
-<p>Creates a new object via copy ctor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pos</strong> (<em>int</em>) &#8211; Index of the event to be retrieved.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new Event object of the event at index pos</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">CollectionException</span></code> &#8211; Raised if there is an index error.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.at_first">
-<code class="descname">at_first</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.at_first" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve the first item in this collection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An event instance.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.at_last">
-<code class="descname">at_last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.at_last" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the last event item in this collection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An event instance.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.at_time">
-<code class="descname">at_time</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.at_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an item by time. Primarily a utility method that sits in
-front of bisect() and fetches using at().</p>
-<p>If you have events at 12:00 and 12:02 and you make the query
-at 12:01, the one at 12:00 will be returned. Otherwise it will
-return the exact match.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<em>datetime.datetime</em>) &#8211; Datetime object &gt;= to the event to be returned. Must
-be an aware UTC datetime object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns a new Event instance via at()</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.avg">
-<code class="descname">avg</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.avg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get avg</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Average value.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.bisect">
-<code class="descname">bisect</code><span class="sig-paren">(</span><em>dtime</em>, <em>b=0</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.bisect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds the index that is just less than the time t supplied.
-In other words every event at the returned index or less
-has a time before the supplied t, and every sample after the
-index has a time later than the supplied t.</p>
-<p>Optionally supply a begin index to start searching from.</p>
-<blockquote>
-<div><ul>
-<li><dl class="first docutils">
-<dt>dtime - python datetime object to bisect collection with</dt>
-<dd><p class="first last">will be made into an aware datetime in UTC.</p>
-</dd>
-</dl>
-</li>
-<li><p class="first">b - position to start</p>
-</li>
-</ul>
-</div></blockquote>
-<p>Returns index that is the greatest but still below t - see docstring
-for at_time()</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dtime</strong> (<em>datetime.datetime</em>) &#8211; Datetime object &gt;= to the event to be returned. Must
-be an aware UTC datetime object.</li>
-<li><strong>b</strong> (<em>int, optional</em>) &#8211; Array index to start searching from</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The index of the searched-for event</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">int</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">CollectionException</span></code> &#8211; Raised if given a naive or non-UTC dtime</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.clean">
-<code class="descname">clean</code><span class="sig-paren">(</span><em>field_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.clean" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a new Collection by testing the fieldSpec
-values for being valid (not NaN, null or undefined).
-The resulting Collection will be clean for that fieldSpec.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_path</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Name of value to look up. If None, defaults to [&#8216;value&#8217;].
-&#8220;Deep&#8221; syntax either [&#8216;deep&#8217;, &#8216;value&#8217;], (&#8216;deep&#8217;, &#8216;value&#8217;,)
-or &#8216;deep.value.&#8217;</p>
-<p>If field_path is None, then [&#8216;value&#8217;] will be the default.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New collection containing only &#8220;clean&#8221; events.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.collapse">
-<code class="descname">collapse</code><span class="sig-paren">(</span><em>field_spec_list</em>, <em>name</em>, <em>reducer</em>, <em>append=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.collapse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes a fieldSpecList (list of column names) and collapses
-them to a new column which is the reduction of the matched columns
-in the fieldSpecList.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec_list</strong> (<em>list</em>) &#8211; List of columns to collapse. If you need to retrieve deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].</li>
-<li><strong>name</strong> (<em>str</em>) &#8211; Name of new column containing collapsed data.</li>
-<li><strong>reducer</strong> (<em>function</em>) &#8211; Function to pass to reducer.</li>
-<li><strong>append</strong> (<em>bool, optional</em>) &#8211; Append collapsed column to existing data or make new events with
-only that column.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">New collection containing the collapsed data.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.count">
-<code class="descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.count" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get count - calls size()</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Num events in the collection.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pypond.collection.Collection.equal">
-<em class="property">static </em><code class="descname">equal</code><span class="sig-paren">(</span><em>coll1</em>, <em>coll2</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.equal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test to see if instances are the <em>same instance</em>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coll1</strong> (<a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection"><em>Collection</em></a>) &#8211; A collection.</li>
-<li><strong>coll2</strong> (<a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection"><em>Collection</em></a>) &#8211; Another collection.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if same instance.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.event_list">
-<code class="descname">event_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.event_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the raw Immutable event list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Raw immutable event list.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">pyrsistent.pvector</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.event_list_as_list">
-<code class="descname">event_list_as_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.event_list_as_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>return a python list of the event list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Thawed version of internal immutable data structure.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.events">
-<code class="descname">events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator to allow for..of loops over series.events()</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">events</span><span class="p">():</span>
-    <span class="n">do_stuff</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An iterator to loop over the events.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.filter">
-<code class="descname">filter</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.filter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter the collection&#8217;s event list with the supplied function.
-The function will be passed each of the Event objects and return
-a boolean value. If True, then it will be included in the filter.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">is_even</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;some_value&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Would produce a new collection where &#8216;some_value&#8217; is only
-even numbers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> (<em>function</em>) &#8211; Function to filter with.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New collection containing filtered events.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.first">
-<code class="descname">first</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.first" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get first value in the collection for the fspec</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Type varies depending on underlying data</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">depends on data</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.is_chronological">
-<code class="descname">is_chronological</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.is_chronological" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks that the events in this collection are in chronological
-order.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if events are in chronologcal order.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.last">
-<code class="descname">last</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.last" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get last value in the collection for the fspec</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Type varies depending on underlying data</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">depends on data</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.map">
-<code class="descname">map</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Map function. Apply function to the collection events
-and return a new Collection from the resulting events. Function
-must creat a new Event* instance.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">in_only</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-    <span class="c1"># make new events wtin only data value &quot;in&quot;.</span>
-    <span class="k">return</span> <span class="n">Event</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(),</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">)})</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> (<em>function</em>) &#8211; Mapper function</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New collection containing mapped events.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.max">
-<code class="descname">max</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.max" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get max</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Maximum value.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.mean">
-<code class="descname">mean</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.mean" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get mean</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Mean value (grrr!).</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.median">
-<code class="descname">median</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.median" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get median</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Median value.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.min">
-<code class="descname">min</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.min" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get min</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Minimum value.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.percentile">
-<code class="descname">percentile</code><span class="sig-paren">(</span><em>perc</em>, <em>field_spec</em>, <em>method='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.percentile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets percentile perc within the Collection. This works the same
-way as numpy.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>perc</strong> (<em>int</em>) &#8211; The percentile (should be between 0 and 100)</li>
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>method</strong> (<em>str, optional</em>) &#8211; <p>Specifies the interpolation method to use when the desired
-percentile lies between two data points. Options are:</p>
-<p>linear: i + (j - i) * fraction, where fraction is the fractional
-part of the index surrounded by i and j.</p>
-<p>lower: i</p>
-<p>higher: j</p>
-<p>nearest: i or j whichever is nearest</p>
-<p>midpoint: (i + j) / 2</p>
-</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The percentile.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.quantile">
-<code class="descname">quantile</code><span class="sig-paren">(</span><em>num</em>, <em>field_path=None</em>, <em>method='linear'</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.quantile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets num quantiles within the Collection</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>num</strong> (<em>Number of quantiles to divide the Collection into.</em>) &#8211; Description</li>
-<li><strong>field_path</strong> (<em>None, optional</em>) &#8211; The field to return as the quantile. If not set, defaults
-to &#8216;value.&#8217;</li>
-<li><strong>method</strong> (<em>str, optional</em>) &#8211; <p>Specifies the interpolation method to use when the desired
-percentile lies between two data points. Options are:</p>
-<p>linear: i + (j - i) * fraction, where fraction is the fractional
-part of the index surrounded by i and j.</p>
-<p>lower: i</p>
-<p>higher: j</p>
-<p>nearest: i or j whichever is nearest</p>
-<p>midpoint: (i + j) / 2</p>
-</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of quantiles</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.range">
-<code class="descname">range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.range" title="Permalink to this definition">¶</a></dt>
-<dd><p>From the range of times, or Indexes within the TimeSeries, return
-the extents of the Collection/TimeSeries as a TimeRange.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Extents as time range.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.range.TimeRange" title="pypond.range.TimeRange">TimeRange</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pypond.collection.Collection.same">
-<em class="property">static </em><code class="descname">same</code><span class="sig-paren">(</span><em>coll1</em>, <em>coll2</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.same" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test to see if the collections <em>have the same values</em>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>coll1</strong> (<a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection"><em>Collection</em></a>) &#8211; A collection.</li>
-<li><strong>coll2</strong> (<a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection"><em>Collection</em></a>) &#8211; Another collection.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if same values.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.set_events">
-<code class="descname">set_events</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.set_events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new Collection from this one and set the internal
-list of events</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>list or pyrsistent.pvector</em>) &#8211; A list of events</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Returns a new collection with the event list set to the
-everts arg</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">CollectionException</span></code> &#8211; Raised if wrong arg type.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.size">
-<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of items in collection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Number of items in collection</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.size_valid">
-<code class="descname">size_valid</code><span class="sig-paren">(</span><em>field_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.size_valid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the number of valid items in this collection.</p>
-<p>Uses the fieldSpec to look up values in all events.
-It then counts the number that are considered valid,
-i.e. are not NaN, undefined or null.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_path</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Name of value to look up. If None, defaults to [&#8216;value&#8217;].
-&#8220;Deep&#8221; syntax either [&#8216;deep&#8217;, &#8216;value&#8217;], (&#8216;deep&#8217;, &#8216;value&#8217;,)
-or &#8216;deep.value.&#8217;</p>
-<p>If field_path is None, then [&#8216;value&#8217;] will be the default.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Number of valid &lt;field_path&gt; values in all of the Events.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.slice">
-<code class="descname">slice</code><span class="sig-paren">(</span><em>begin</em>, <em>end</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.slice" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform a slice of events within the Collection, returns a new
-Collection representing a portion of this TimeSeries from begin up to
-but not including end. Uses typical python [slice:syntax].</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>begin</strong> (<em>int</em>) &#8211; Slice begin.</li>
-<li><strong>end</strong> (<em>int</em>) &#8211; Slice end.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">New collection with sliced payload.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.sort">
-<code class="descname">sort</code><span class="sig-paren">(</span><em>field_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sorts the Collection using the value referenced by field_path.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field_path</strong> (<em>str, list, tuple, None, optional</em>) &#8211; <p>Name of value to look up. If None, defaults to [&#8216;value&#8217;].
-&#8220;Deep&#8221; syntax either [&#8216;deep&#8217;, &#8216;value&#8217;], (&#8216;deep&#8217;, &#8216;value&#8217;,)
-or &#8216;deep.value.&#8217;</p>
-<p>If field_path is None, then [&#8216;value&#8217;] will be the default.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New collection of sorted values.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.sort_by_time">
-<code class="descname">sort_by_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sort_by_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a new instance of this collection after making sure
-that all of the events are sorted by timestamp.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A copy of this collection with the events chronologically
-sorted.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.stdev">
-<code class="descname">stdev</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.stdev" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get std dev</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Standard deviation.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.sum">
-<code class="descname">sum</code><span class="sig-paren">(</span><em>field_spec=None</em>, <em>filter_func=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.sum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get sum</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>field_spec</strong> (<em>str, list, tuple, None</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
-nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
-A single deep value with a string.like.this.  If None, all columns
-will be operated on.</li>
-<li><strong>filter_func</strong> (<em>function, None</em>) &#8211; A function (static method really) from the Filters class in module
-<cite>pypond.functions.Filters</cite>. It will control how bad or missing
-(None, NaN, empty string) values will be cleansed or filtered
-during aggregation. If no filter is specified, then the missing
-values will be retained which will potentially cause errors.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Summed value.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int or float</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.to_json">
-<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.to_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the collection as json object.</p>
-<p>This is actually like json.loads(s) - produces the
-actual vanilla data structure.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A thawed list of Event objects.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.to_string">
-<code class="descname">to_string</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.to_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retruns the collection as a string, useful for serialization.</p>
-<p>In JS land, this is synonymous with __str__ or __unicode__</p>
-<p>Use custom object encoder because this is a list of Event* objects.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">String representation of this object.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.collection.Collection.type">
-<code class="descname">type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Event object type.</p>
-<p>The class of the type of events in this collection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The class (not instance) of the type of events.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="pypond-collection-module">
+<h2>pypond.collection module<a class="headerlink" href="#pypond-collection-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-pypond.event">
 <span id="pypond-event-module"></span><h2>pypond.event module<a class="headerlink" href="#module-pypond.event" title="Permalink to this headline">¶</a></h2>
@@ -3124,7 +2117,7 @@ on the <cite>emitOn</cite> state of the Pipeline.</p>
 <p>To specify what part of the incoming events should
 be aggregated together you specify a <cite>fields</cite>
 object. This is a map from fieldName to operator.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uin</span> <span class="o">=</span> <span class="n">UnboundedIn</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uin</span> <span class="o">=</span> <span class="n">Stream</span><span class="p">()</span>
 
 <span class="p">(</span>
     <span class="n">Pipeline</span><span class="p">()</span>
@@ -3464,7 +2457,7 @@ Pipeline.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>src</strong> (<em>BoundedIn, UnboundedIn or Pipeline</em>) &#8211; The source for the Pipeline, or another Pipeline.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>src</strong> (<em>Bounded, Stream or Pipeline</em>) &#8211; The source for the Pipeline, or another Pipeline.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The Pipeline.</td>
 </tr>
@@ -3919,7 +2912,7 @@ this purpose.</dd>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>pipeline</strong> (<a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline"><em>Pipeline</em></a>) &#8211; The pipeline to run.</li>
-<li><strong>output</strong> (<a class="reference internal" href="#pypond.pipeline_out.PipelineOut" title="pypond.pipeline_out.PipelineOut"><em>PipelineOut</em></a>) &#8211; The output driving this runner</li>
+<li><strong>output</strong> (<a class="reference internal" href="pypond.io.html#pypond.io.output.PipelineOut" title="pypond.io.output.PipelineOut"><em>PipelineOut</em></a>) &#8211; The output driving this runner</li>
 </ul>
 </td>
 </tr>
@@ -3949,275 +2942,6 @@ this purpose.</dd>
 <dt id="pypond.pipeline.default_callback">
 <code class="descclassname">pypond.pipeline.</code><code class="descname">default_callback</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline.default_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default no-op callback for group_by in the Pipeline constructor.</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-pypond.pipeline_in">
-<span id="pypond-pipeline-in-module"></span><h2>pypond.pipeline_in module<a class="headerlink" href="#module-pypond.pipeline_in" title="Permalink to this headline">¶</a></h2>
-<p>Classes to handle pipeline input.</p>
-<dl class="class">
-<dt id="pypond.pipeline_in.BoundedIn">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_in.</code><code class="descname">BoundedIn</code><a class="headerlink" href="#pypond.pipeline_in.BoundedIn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.pipeline_in.In" title="pypond.pipeline_in.In"><code class="xref py py-class docutils literal"><span class="pre">pypond.pipeline_in.In</span></code></a></p>
-<p>For the pipeline - source of a fixed size - like a collection.</p>
-<dl class="method">
-<dt id="pypond.pipeline_in.BoundedIn.on_emit">
-<code class="descname">on_emit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.BoundedIn.on_emit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_in.BoundedIn.start">
-<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.BoundedIn.start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_in.BoundedIn.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.BoundedIn.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.pipeline_in.In">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_in.</code><code class="descname">In</code><a class="headerlink" href="#pypond.pipeline_in.In" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.bases.Observable" title="pypond.bases.Observable"><code class="xref py py-class docutils literal"><span class="pre">pypond.bases.Observable</span></code></a></p>
-<p>For the pipeline - raise exceptions if an attempt is made to
-add heterogenous types.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.pipeline_in.UnboundedIn">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_in.</code><code class="descname">UnboundedIn</code><a class="headerlink" href="#pypond.pipeline_in.UnboundedIn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.pipeline_in.In" title="pypond.pipeline_in.In"><code class="xref py py-class docutils literal"><span class="pre">pypond.pipeline_in.In</span></code></a></p>
-<p>For the pipeline - a source that has no container of its own.</p>
-<dl class="method">
-<dt id="pypond.pipeline_in.UnboundedIn.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.UnboundedIn.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Type check and event and emit it if we are running have have observers.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; Some Event class</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_in.UnboundedIn.events">
-<code class="descname">events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.UnboundedIn.events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Raise an exception - can&#8217;t iterate an unbounded source.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_in.UnboundedIn.start">
-<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.UnboundedIn.start" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_in.UnboundedIn.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_in.UnboundedIn.stop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-pypond.pipeline_out">
-<span id="pypond-pipeline-out-module"></span><h2>pypond.pipeline_out module<a class="headerlink" href="#module-pypond.pipeline_out" title="Permalink to this headline">¶</a></h2>
-<p>Objects to handle Pipeline output and event collection.</p>
-<dl class="class">
-<dt id="pypond.pipeline_out.CollectionOut">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_out.</code><code class="descname">CollectionOut</code><span class="sig-paren">(</span><em>pipeline</em>, <em>callback</em>, <em>options</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.CollectionOut" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.pipeline_out.PipelineOut" title="pypond.pipeline_out.PipelineOut"><code class="xref py py-class docutils literal"><span class="pre">pypond.pipeline_out.PipelineOut</span></code></a></p>
-<p>Output object for when processor results are being returned
-as a collection.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pipeline</strong> (<a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline"><em>Pipeline</em></a>) &#8211; A reference to the calling Pipeline instance.</li>
-<li><strong>callback</strong> (<em>function or None</em>) &#8211; Will either be a function that the collector callback will
-pass things to or None which will pass the results back to
-the calling Pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; An Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.pipeline_out.CollectionOut.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.CollectionOut.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an event to the collector.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An event object</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_out.CollectionOut.flush">
-<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.CollectionOut.flush" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flush the collector and mark the results_done = True in the
-pipeline if there is no longer an observer.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_out.CollectionOut.on_emit">
-<code class="descname">on_emit</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.CollectionOut.on_emit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the internal callback.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> (<em>function or None</em>) &#8211; Value to set the intenal _callback to.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.pipeline_out.Collector">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_out.</code><code class="descname">Collector</code><span class="sig-paren">(</span><em>options</em>, <em>on_trigger</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.Collector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.bases.PypondBase" title="pypond.bases.PypondBase"><code class="xref py py-class docutils literal"><span class="pre">pypond.bases.PypondBase</span></code></a></p>
-<p>A Collector is used to accumulate events into multiple collections,
-based on potentially many strategies. In this current implementation
-a collection is partitioned based on the window that it falls in
-and the group it is part of.</p>
-<p>Collections are emitted from this class to the supplied onTrigger
-callback.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; A pipeline options instance</li>
-<li><strong>on_trigger</strong> (<em>function</em>) &#8211; Callback to handle the emitted Collection</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.pipeline_out.Collector.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.Collector.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add and event to the _collections dict and act accordingly
-depending on how _emit_on is set.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An event.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">PipelineIOException</span></code> &#8211; Raised on bad args.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_out.Collector.emit_collections">
-<code class="descname">emit_collections</code><span class="sig-paren">(</span><em>collections</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.Collector.emit_collections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Emit all of the collections to the trigger callback that was
-passed in by the Processor</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collections</strong> (<em>dict</em>) &#8211; A dict of string keys and Capsule objects containing the
-window_key, group_by_key and a Collection.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_out.Collector.flush_collections">
-<code class="descname">flush_collections</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.Collector.flush_collections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Emit the remaining collections.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.pipeline_out.EventOut">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_out.</code><code class="descname">EventOut</code><span class="sig-paren">(</span><em>pipeline</em>, <em>callback=None</em>, <em>options=&lt;pypond.util.Options object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.EventOut" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.pipeline_out.PipelineOut" title="pypond.pipeline_out.PipelineOut"><code class="xref py py-class docutils literal"><span class="pre">pypond.pipeline_out.PipelineOut</span></code></a></p>
-<p>Output object for when processor results are being returned
-as events.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pipeline</strong> (<a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline"><em>Pipeline</em></a>) &#8211; A reference to the calling Pipeline instance.</li>
-<li><strong>callback</strong> (<em>function or None</em>) &#8211; Will either be a function that the collector callback will
-pass things to or None which will pass the results back to
-the calling Pipeline.</li>
-<li><strong>options</strong> (<a class="reference internal" href="#pypond.util.Options" title="pypond.util.Options"><em>Options</em></a>) &#8211; An Options object.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="pypond.pipeline_out.EventOut.add_event">
-<code class="descname">add_event</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.EventOut.add_event" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an event to the pipeline or callback.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event"><em>Event</em></a>) &#8211; An event object</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_out.EventOut.flush">
-<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.EventOut.flush" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mark the results_done = True in the pipeline if there is no longer
-an observer.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pypond.pipeline_out.EventOut.on_emit">
-<code class="descname">on_emit</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.EventOut.on_emit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the internal callback.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> (<em>function or None</em>) &#8211; Value to set the intenal _callback to.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="pypond.pipeline_out.PipelineOut">
-<em class="property">class </em><code class="descclassname">pypond.pipeline_out.</code><code class="descname">PipelineOut</code><span class="sig-paren">(</span><em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.pipeline_out.PipelineOut" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pypond.bases.PypondBase" title="pypond.bases.PypondBase"><code class="xref py py-class docutils literal"><span class="pre">pypond.bases.PypondBase</span></code></a></p>
-<p>Base class for pipeline output classes</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pipeline</strong> (<a class="reference internal" href="#pypond.pipeline.Pipeline" title="pypond.pipeline.Pipeline"><em>Pipeline</em></a>) &#8211; The Pipeline</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>
@@ -5122,7 +3846,7 @@ Will contain Collection objects.</td>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Internal collection.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Collection</td>
 </tr>
 </tbody>
 </table>
@@ -5878,9 +4602,51 @@ the select operation.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coll</strong> (<a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection"><em>Collection</em></a>) &#8211; New collection to assign to this TimeSeries</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>coll</strong> (<em>Collection</em>) &#8211; New collection to assign to this TimeSeries</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New TimeSeries with Collection coll</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.series.TimeSeries" title="pypond.series.TimeSeries">TimeSeries</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.series.TimeSeries.set_meta">
+<code class="descname">set_meta</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.set_meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the metadata of the TimeSeries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> (<em>str</em>) &#8211; The metadata key</li>
+<li><strong>value</strong> (<em>obj</em>) &#8211; The value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A new TimeSeries with new metadata.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pypond.series.TimeSeries" title="pypond.series.TimeSeries">TimeSeries</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.series.TimeSeries.set_name">
+<code class="descname">set_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.set_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set name and generate a new TimeSeries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; New name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Return a TimeSeries with a new name.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.series.TimeSeries" title="pypond.series.TimeSeries">TimeSeries</a></td>
 </tr>
