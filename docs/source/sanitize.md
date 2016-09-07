@@ -35,7 +35,7 @@ There are three fill options:
 
 * `zero` - the default - will transform any invalid value to a zero.
 * `pad` - replaces an invalid value with the the previous good value: `[1, None, None, 3]` becomes `[1, 1, 1, 3]`.
-* `linear` - interpolate the gaps based on the surrounding good values: `[1, None, None, 3]` becomes `[1, 2, 2.5, 3]`.
+* `linear` - interpolate the gaps based on the surrounding good values: `[1, null, null, null, 3]` becomes `[1, 1.5, 2, 2.5, 3]`.
 
 Neither `pad` or `linear` can fill the first value in a series if it is invalid, and they can't start filling until good value has been seen: `[None, None, None, 1, 2, 3]` would remain unchanged. Similarly, `linear` can not fill the last value in a series.
 
@@ -102,7 +102,7 @@ If `fill_limit` is not set, no limits will be placed on the fill and all values 
     .to_keyed_collections()
 ```
 * If a non numeric value (as determined by `isinstance(val, numbers.Number)`) is encountered when doing a `linear` fill, a warning will be issued and that column will not be processed.
-* When using streaming input like `UnboundedIn`, it is a best practice to set a limit using the optional arg `fill_limit`. This will ensure events will continue being emitted if the data hits a long run of invalid values.
+* When using streaming input like `Stream`, it is a best practice to set a limit using the optional arg `fill_limit`. This will ensure events will continue being emitted if the data hits a long run of invalid values.
 * When using an unbounded source, make sure to shut it down "cleanly" using `.stop()`. This will ensure `.flush()` is called so any unfilled cached events are emitted.
 
 

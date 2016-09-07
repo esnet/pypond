@@ -10,15 +10,15 @@
 Classes to handle pipeline input.
 """
 
-from .event import Event
-from .bases import Observable
-from .exceptions import PipelineIOException
-from .indexed_event import IndexedEvent
-from .timerange_event import TimeRangeEvent
-from .util import unique_id
+from ..event import Event
+from ..bases import Observable
+from ..exceptions import PipelineIOException
+from ..indexed_event import IndexedEvent
+from ..timerange_event import TimeRangeEvent
+from ..util import unique_id
 
 
-class In(Observable):
+class PipelineIn(Observable):
     """
     For the pipeline - raise exceptions if an attempt is made to
     add heterogenous types.
@@ -26,7 +26,7 @@ class In(Observable):
 
     def __init__(self):
 
-        super(In, self).__init__()
+        super(PipelineIn, self).__init__()
 
         self._id = unique_id('in-')
         self._type = None
@@ -62,11 +62,11 @@ class In(Observable):
                 raise PipelineIOException('Homogeneous events expected')
 
 
-class BoundedIn(In):
+class Bounded(PipelineIn):
     """For the pipeline - source of a fixed size - like a collection."""
 
     def __init__(self):
-        super(BoundedIn, self).__init__()
+        super(Bounded, self).__init__()
 
     # pylint: disable=no-self-use, missing-docstring
 
@@ -80,11 +80,11 @@ class BoundedIn(In):
         raise PipelineIOException('You can not setup a listener to a bounded source')
 
 
-class UnboundedIn(In):
+class Stream(PipelineIn):
     """For the pipeline - a source that has no container of its own."""
 
     def __init__(self):
-        super(UnboundedIn, self).__init__()
+        super(Stream, self).__init__()
         self._running = True
 
     def start(self):

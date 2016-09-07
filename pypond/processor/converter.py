@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Convert an event into another event type.
 """
@@ -67,7 +75,7 @@ class Converter(Processor):
             msg = 'Unknown arg to Converter: {0}'.format(arg1)
             raise ProcessorException(msg)
 
-        self._log('Converter.init', 'options: {0}'.format(options))
+        # self._log('Converter.init', 'options: {0}'.format(options))
 
     def clone(self):
         """clone it."""
@@ -112,7 +120,7 @@ class Converter(Processor):
 
             range_list = [int(begin), int(end)]
 
-            self._log('Converter.convert_event', 'range: {0}'.format(range_list))
+            # self._log('Converter.convert_event', 'range: {0}'.format(range_list))
 
             rng = TimeRange(range_list)
             return TimeRangeEvent(rng, event.data())
@@ -221,6 +229,6 @@ class Converter(Processor):
                 msg = 'Unknown event type received'
                 raise ProcessorException(msg)
 
-            self._log('Converter.add_event', 'emitting: {0}'.format(output_event))
+            self._log('Converter.add_event', 'emitting: {0}', (output_event,))
 
             self.emit(output_event)

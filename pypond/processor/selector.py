@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Processor to return events with only selected columns
 """
@@ -51,5 +59,5 @@ class Selector(Processor):
         """
         if self.has_observers():
             evn = Event.selector(event, self._field_spec)
-            self._log('Selector.add_event', 'emitting: {0}'.format(evn))
+            self._log('Selector.add_event', 'emitting: {0}', (evn,))
             self.emit(evn)

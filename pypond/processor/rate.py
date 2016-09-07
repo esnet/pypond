@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Simple processor generate the Rate of two Event objects and
 emit them as a TimeRangeEvent. Can be used alone or chained
@@ -127,7 +135,7 @@ class Rate(Processor):
             An Event.
         """
 
-        self._log('Rate.add_event', event)
+        self._log('Rate.add_event', '{0}', (event,))
 
         if isinstance(event, (TimeRangeEvent, IndexedEvent)):
             msg = 'Expecting Event object input.'
@@ -142,7 +150,7 @@ class Rate(Processor):
 
             output_event = self._get_rate(event)
 
-            self._log('Rate.add_event', 'emitting: {0}'.format(output_event))
+            self._log('Rate.add_event', 'emitting: {0}', (output_event,))
 
             self.emit(output_event)
 

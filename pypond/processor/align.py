@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Simple processor to change the event values by a certain offset.
 
@@ -67,7 +75,7 @@ class Align(Processor):
             msg = 'Unknown arg to Align constructor: {a}'.format(a=arg1)
             raise ProcessorException(msg)
 
-        self._log('Align.init.Options', options)
+        # self._log('Align.init.Options', options)
 
         # work out field specs
         if isinstance(self._field_spec, six.string_types):
@@ -198,7 +206,7 @@ class Align(Processor):
             An Event.
         """
 
-        self._log('Align.add_event', event)
+        self._log('Align.add_event', '{0}', (event,))
 
         if isinstance(event, (TimeRangeEvent, IndexedEvent)):
             msg = 'TimeRangeEvent and IndexedEvent series can not be aligned.'
@@ -217,7 +225,7 @@ class Align(Processor):
             for bound in boundaries:
                 # if the returned list is not empty, interpolate an event
                 # on each of the boundaries and emit them.
-                self._log('Align.add_event', 'boundary: {0}'.format(bound))
+                self._log('Align.add_event', 'boundary: {0}', (bound,))
 
                 if self._limit is not None and fill_count > self._limit:
                     # check to see if we have hit the limit first, if so
@@ -230,7 +238,7 @@ class Align(Processor):
                     elif self._method == 'hold':
                         ievent = self._interpolate_hold(bound)
 
-                self._log('Align.add_event', 'emitting: {0}'.format(ievent))
+                self._log('Align.add_event', 'emitting: {0}', (ievent,))
                 self.emit(ievent)
 
             # one way or another, the current event will now become previous

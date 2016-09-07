@@ -23,8 +23,7 @@ from functools import reduce  # pylint: disable=redefined-builtin
 
 import six
 
-# using freeze/thaw more bulletproof than pmap/pvector since data is free-form
-from pyrsistent import thaw, freeze
+from pyrsistent import thaw, freeze, PMap, pmap
 
 from .bases import PypondBase
 from .exceptions import EventException, NAIVE_MESSAGE
@@ -105,7 +104,7 @@ class EventBase(PypondBase):
 
         fspec = self._field_path_to_array(field_path)
 
-        return reduce(dict.get, fspec, thaw(self.data()))
+        return reduce(PMap.get, fspec, self.data())
 
     def value(self, field_path=None):
         """
@@ -402,7 +401,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         time = self.timestamp_from_arg(instance_or_time)
         data = self.data_from_arg(data)
 
-        super(Event, self).__init__(freeze(dict(time=time, data=data)))
+        super(Event, self).__init__(pmap(dict(time=time, data=data)))
 
     # Query/accessor methods
 
@@ -694,9 +693,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             if ts_ref != i.timestamp():
                 raise EventException('Events being merged need the same timestamp.')
 
-            i_data = thaw(i.data())
-
-            for k, v in list(i_data.items()):
+            for k, v in list(i.data().items()):
                 if k in new_data:
                     raise EventException(
                         'Events being merged may not have the same key: {k}'.format(k=k))

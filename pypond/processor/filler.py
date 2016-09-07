@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 A processor to fill missing and invalid values.
 """
@@ -15,6 +23,7 @@ from ..exceptions import ProcessorException, ProcessorWarning
 from ..util import (
     is_pipeline,
     is_valid,
+    ms_from_dt,
     nested_get,
     nested_set,
     Options,
@@ -77,7 +86,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             msg = 'Unknown arg to Filler: {0}'.format(arg1)
             raise ProcessorException(msg)
 
-        self._log('Filler.init.Options', options)
+        self._log('Filler.init.Options', '{0}', (options,))
 
         if self._method not in ('zero', 'pad', 'linear'):
             msg = 'Unknown method {0} passed to Filler'.format(self._method)
@@ -300,10 +309,10 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             # end filling logic
 
             for emitted_event in to_emit:
-                self._log('Filler.add_event', 'emitting: {0}'.format(emitted_event))
+                self._log('Filler.add_event', 'emitting: {0}', (emitted_event,))
                 self.emit(emitted_event)
 
-    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches
+    def _interpolate_event_list(self, events):  # pylint: disable=too-many-branches, too-many-locals
         """
         The fundamental linear interpolation workhorse code.  Process
         a list of events and return a new list. Does a pass for
@@ -344,15 +353,21 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
             if not is_valid(event_enum[1].get(field_path)):
 
                 previous_value = None
+                previous_ts = None
                 next_value = None
+                next_ts = None
 
                 # look to the previous event in the new_event list since
                 # that's where previously interpolated values will be.
+                # if found, get the timestamp as well.
 
                 previous_value = new_events[event_enum[0] - 1].get(field_path)
 
-                # see about finding the next valid value in the original
-                # list.
+                if previous_value:
+                    previous_ts = ms_from_dt(new_events[event_enum[0] - 1].timestamp())
+
+                # see about finding the next valid value and its timestamp
+                # in the original list.
 
                 next_idx = event_enum[0] + 1
 
@@ -361,6 +376,7 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                     val = base_events[next_idx].get(field_path)
 
                     if is_valid(val):
+                        next_ts = ms_from_dt(base_events[next_idx].timestamp())
                         next_value = val  # terminates the loop
 
                     next_idx += 1
@@ -373,8 +389,15 @@ class Filler(Processor):  # pylint: disable=too-many-instance-attributes
                 if previous_value is not None and next_value is not None:
                     # pry the data from current event
                     new_data = thaw(event_enum[1].data())
-                    # average the two values
-                    new_val = truediv((previous_value + next_value), 2)
+                    current_ts = ms_from_dt(event_enum[1].timestamp())
+
+                    if previous_ts == next_ts:
+                        # average the two values
+                        new_val = truediv((previous_value + next_value), 2)
+                    else:
+                        point_frac = truediv(
+                            (current_ts - previous_ts), (next_ts - previous_ts))
+                        new_val = previous_value + ((next_value - previous_value) * point_frac)
                     # set that value to the field spec in new data
                     nested_set(new_data, field_path, new_val)
                     # call .set_data() to create a new event

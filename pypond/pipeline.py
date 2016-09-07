@@ -15,14 +15,13 @@ Implementation of the Pond Pipeline classes.
 http://software.es.net/pond/#/pipeline
 """
 
-from pyrsistent import freeze
+from pyrsistent import pmap
 
 from .bases import PypondBase
 from .event import Event
 from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
-from .pipeline_out import CollectionOut, EventOut
-from .pipeline_in import BoundedIn, UnboundedIn
+from .io import Bounded, Stream, CollectionOut, EventOut
 from .processor import (
     Aggregator,
     Align,
@@ -196,7 +195,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         elif is_pmap(arg):
             self._d = arg
         else:
-            self._d = freeze(
+            self._d = pmap(
                 dict(
                     type=None,
                     input=None,  # renamed from 'in' in the JS source
@@ -341,7 +340,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         Setting the In for the Pipeline returns a new Pipeline.
         """
-        self._log('Pipeline._set_in', 'in: {0}'.format(pipe_in))
+        self._log('Pipeline._set_in', 'in: {0}', (pipe_in,))
 
         mode = None
         source = pipe_in
@@ -349,9 +348,9 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         if isinstance(pipe_in, TimeSeries):
             mode = 'batch'
             source = pipe_in.collection()
-        elif isinstance(pipe_in, BoundedIn):
+        elif isinstance(pipe_in, Bounded):
             mode = 'batch'
-        elif isinstance(pipe_in, UnboundedIn):
+        elif isinstance(pipe_in, Stream):
             mode = 'stream'
         else:  # pragma: no cover
             # .from_source() already bulletproofs against this
@@ -386,7 +385,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
     def _append(self, processor):
 
-        self._log('Pipeline._append', 'processor: {0}'.format(processor))
+        # self._log('Pipeline._append', 'processor: {0}'.format(processor))
 
         first = self.first()
         last = self.last()
@@ -462,7 +461,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.window_by',
-            'window_or_duration: {0} utc: {1}'.format(window_or_duration, utc)
+            'window_or_duration: {0} utc: {1}', (window_or_duration, utc)
         )
 
         w_type = None
@@ -492,7 +491,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.window_by',
-            'new_d: {0}'.format(new_d)
+            'new_d: {0}', (new_d,)
         )
 
         return Pipeline(new_d)
@@ -636,7 +635,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        src : BoundedIn, UnboundedIn or Pipeline
+        src : Bounded, Stream or Pipeline
             The source for the Pipeline, or another Pipeline.
 
         Returns
@@ -644,12 +643,12 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline
             The Pipeline.
         """
-        self._log('Pipeline.from_source', 'called with: {0}'.format(src))
+        self._log('Pipeline.from_source', 'called with: {0}', (src,))
 
-        if isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
+        if isinstance(src, (Bounded, Stream, TimeSeries)):
             return self._set_in(src)
         else:
-            msg = 'from_source() only takes Pipeline, BoundedIn or UnboundedIn'
+            msg = 'from_source() only takes Pipeline, Bounded or Stream got: {0}'.format(src)
             raise PipelineException(msg)
 
     def to_event_list(self):
@@ -731,8 +730,8 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         self._log(
             'Pipeline.to',
-            'out: {0}, obs: {1}, opt: {2} mode: {3}'.format(
-                out, observer, options, self.mode())
+            'out: {0}, obs: {1}, opt: {2} mode: {3}',
+            (out, observer, options, self.mode())
         )
 
         Out = out  # pylint: disable=invalid-name
@@ -813,7 +812,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             The modified Pipeline.
         """
 
-        self._log('Pipeline.offset_by', 'offset: {0}'.format(offset_by))
+        self._log('Pipeline.offset_by', 'offset: {0}', (offset_by,))
 
         offset = Offset(
             self,
@@ -840,7 +839,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         ::
 
-                uin = UnboundedIn()
+                uin = Stream()
 
                 (
                     Pipeline()

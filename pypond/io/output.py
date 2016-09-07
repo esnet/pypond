@@ -12,11 +12,11 @@ Objects to handle Pipeline output and event collection.
 
 from collections import OrderedDict
 
-from .bases import PypondBase
-from .collection import Collection
-from .exceptions import PipelineIOException
-from .index import Index
-from .util import unique_id, Options, Capsule
+from ..bases import PypondBase
+from ..collection import Collection
+from ..exceptions import PipelineIOException
+from ..index import Index
+from ..util import unique_id, Options, Capsule
 
 #
 # The collector
@@ -44,7 +44,7 @@ class Collector(PypondBase):
     def __init__(self, options, on_trigger):
         super(Collector, self).__init__()
 
-        self._log('Collector.init', 'opt: {0} trigger: {1}'.format(options.to_dict(), on_trigger))
+        # self._log('Collector.init', 'opt: {0} trigger: {1}'.format(options.to_dict(), on_trigger))
 
         # options
         self._group_by = options.group_by
@@ -103,7 +103,7 @@ class Collector(PypondBase):
             Raised on bad args.
         """
 
-        self._log('Collector.add_event', '{0} utc: {1}'.format(event, self._utc))
+        self._log('Collector.add_event', '{0} utc: {1}', (event, self._utc))
 
         # window_key
         window_key = None
@@ -130,7 +130,7 @@ class Collector(PypondBase):
         collection_key = '{wk}::{gbk}'.format(wk=window_key, gbk=group_by_key) if \
             group_by_key is not None else window_key
 
-        self._log('Collector.add_event', 'collection_key: {0}'.format(collection_key))
+        self._log('Collector.add_event', 'collection_key: {0}', (collection_key))
 
         discard = False
 
@@ -169,8 +169,8 @@ class Collector(PypondBase):
 
         self._log(
             'Collector.add_event',
-            'emit_on: {0}, discard: {1} discards: {2}'.format(
-                self._emit_on, discard, discards)
+            'emit_on: {0}, discard: {1} discards: {2}',
+            (self._emit_on, discard, discards)
         )
 
         if self._emit_on == 'eachEvent':  # keeping mixedCase tokens for consistancy.
@@ -309,11 +309,11 @@ class CollectionOut(PipelineOut):
         as an inline in the Javascript source.
         """
 
-        # self._log(
-        #     'CollectionOut._collector_callback',
-        #     'coll:{0}, wkey: {1}, gbkey: {2} cback: {3}'.format(
-        #         collection, window_key, group_by_key, self._callback)
-        # )
+        self._log(
+            'CollectionOut._collector_callback',
+            'coll:{0}, wkey: {1}, gbkey: {2} cback: {3}',
+            (collection, window_key, group_by_key, self._callback)
+        )
 
         group_by = group_by_key
 

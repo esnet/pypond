@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Processor that adds events to collector given windowing and grouping options.
 """
@@ -5,7 +13,7 @@ Processor that adds events to collector given windowing and grouping options.
 from .base import Processor
 from ..exceptions import ProcessorException
 from ..indexed_event import IndexedEvent
-from ..pipeline_out import Collector
+from ..io import Collector
 from ..timerange_event import TimeRangeEvent
 from ..util import is_pipeline, Options
 
@@ -115,7 +123,8 @@ class Aggregator(Processor):
 
         self._log(
             'Aggregator._collector_callback',
-            'coll:{0}, wkey: {1}, gbkey: {2}'.format(collection, window_key, group_by_key)
+            'coll:{0}, wkey: {1}, gbkey: {2}',
+            (collection, window_key, group_by_key)
         )
 
         new_d = dict()
@@ -124,10 +133,10 @@ class Aggregator(Processor):
 
             # field_list = [field_name] if isinstance(field_name, str) else list(field_name)
 
-            self._log(
-                'Aggregator._collector_callback',
-                'field_name: {0}, map: {1}'.format(field_name, field_map)
-            )
+            # self._log(
+            #     'Aggregator._collector_callback',
+            #     'field_name: {0}, map: {1}'.format(field_name, field_map)
+            # )
 
             if len(field_map) != 1:
                 msg = 'Fields should contain exactly one field'
@@ -142,7 +151,7 @@ class Aggregator(Processor):
 
         self._log(
             'Aggregator._collector_callback',
-            'new_d: {0}'.format(new_d)
+            'new_d: {0}', (new_d,)
         )
 
         if window_key == 'global':
@@ -155,7 +164,7 @@ class Aggregator(Processor):
 
         self._log(
             'Aggregator._collector_callback',
-            'emitting: {0}'.format(event)
+            'emitting: {0}', (event,)
         )
 
         self.emit(event)
@@ -179,5 +188,5 @@ class Aggregator(Processor):
             An event object
         """
         if self.has_observers():
-            self._log('Aggregator.add_event', 'adding: {0}'.format(event))
+            self._log('Aggregator.add_event', 'adding: {0}', (event,))
             self._collector.add_event(event)

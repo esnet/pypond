@@ -11,9 +11,8 @@ from pypond.collection import Collection
 from pypond.event import Event
 from pypond.exceptions import ProcessorException, ProcessorWarning, TimeSeriesException
 from pypond.indexed_event import IndexedEvent
+from pypond.io import CollectionOut, Stream
 from pypond.pipeline import Pipeline
-from pypond.pipeline_in import UnboundedIn
-from pypond.pipeline_out import CollectionOut
 from pypond.processor import Filler
 from pypond.series import TimeSeries
 from pypond.timerange_event import TimeRangeEvent
@@ -357,17 +356,17 @@ class TestRenameFill(CleanBase):
         self.assertEqual(new_ts.size(), 7)
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
-        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
-        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(1).get('direction.in'), 1.6666666666666665)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.333333333333333)  # filled
         self.assertEqual(new_ts.at(3).get('direction.in'), 3)
         self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
         self.assertEqual(new_ts.at(5).get('direction.in'), 5)
 
         self.assertEqual(new_ts.at(0).get('direction.out'), 2)
-        self.assertEqual(new_ts.at(1).get('direction.out'), 7.0)  # filled
-        self.assertEqual(new_ts.at(2).get('direction.out'), 9.5)  # filled
-        self.assertEqual(new_ts.at(3).get('direction.out'), 10.75)  # filled
-        self.assertEqual(new_ts.at(4).get('direction.out'), 11.375)  # filled
+        self.assertEqual(new_ts.at(1).get('direction.out'), 2.4347826086956523)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.out'), 2.8695652173913047)  # filled
+        self.assertEqual(new_ts.at(3).get('direction.out'), 3.304347826086957)  # filled
+        self.assertEqual(new_ts.at(4).get('direction.out'), 7.6521739130434785)  # filled
         self.assertEqual(new_ts.at(5).get('direction.out'), 12)
 
     def test_linear_list(self):
@@ -406,8 +405,8 @@ class TestRenameFill(CleanBase):
         self.assertEqual(len(elist), len(simple_missing_data.get('points')))
 
         self.assertEqual(elist[0].get('direction.in'), 1)
-        self.assertEqual(elist[1].get('direction.in'), 2.0)  # filled
-        self.assertEqual(elist[2].get('direction.in'), 2.5)  # filled
+        self.assertEqual(elist[1].get('direction.in'), 1.6666666666666665)  # filled
+        self.assertEqual(elist[2].get('direction.in'), 2.333333333333333)  # filled
         self.assertEqual(elist[3].get('direction.in'), 3)
         self.assertEqual(elist[4].get('direction.in'), 4.0)  # filled
         self.assertEqual(elist[5].get('direction.in'), 5)
@@ -441,8 +440,8 @@ class TestRenameFill(CleanBase):
         new_ts = ts.fill(method='linear', field_spec=['direction.in', 'direction.out'])
 
         self.assertEqual(new_ts.at(0).get('direction.in'), 1)
-        self.assertEqual(new_ts.at(1).get('direction.in'), 2.0)  # filled
-        self.assertEqual(new_ts.at(2).get('direction.in'), 2.5)  # filled
+        self.assertEqual(new_ts.at(1).get('direction.in'), 1.6666666666666665)  # filled
+        self.assertEqual(new_ts.at(2).get('direction.in'), 2.333333333333333)  # filled
         self.assertEqual(new_ts.at(3).get('direction.in'), 3)
         self.assertEqual(new_ts.at(4).get('direction.in'), 4.0)  # filled
         self.assertEqual(new_ts.at(5).get('direction.in'), 5)
@@ -473,7 +472,7 @@ class TestRenameFill(CleanBase):
             Event(1400425954000, 7),
         ]
 
-        stream = UnboundedIn()
+        stream = Stream()
 
         (
             Pipeline()
@@ -489,9 +488,9 @@ class TestRenameFill(CleanBase):
 
         self.assertEqual(RESULTS.at(0).get(), 1)
         self.assertEqual(RESULTS.at(1).get(), 2)
-        self.assertEqual(RESULTS.at(2).get(), 3.5)  # filled
-        self.assertEqual(RESULTS.at(3).get(), 4.25)  # filled
-        self.assertEqual(RESULTS.at(4).get(), 4.625)  # filled
+        self.assertEqual(RESULTS.at(2).get(), 2.75)  # filled
+        self.assertEqual(RESULTS.at(3).get(), 3.5)  # filled
+        self.assertEqual(RESULTS.at(4).get(), 4.25)  # filled
         self.assertEqual(RESULTS.at(5).get(), 5)
         self.assertEqual(RESULTS.at(6).get(), 6)
         self.assertEqual(RESULTS.at(7).get(), 7)
@@ -522,7 +521,7 @@ class TestRenameFill(CleanBase):
 
         # error state first - the last 4 events won't be emitted.
 
-        stream = UnboundedIn()
+        stream = Stream()
 
         (
             Pipeline()
@@ -550,7 +549,7 @@ class TestRenameFill(CleanBase):
         # "have not seen a valid value yet" which means that
         # invalid events will be emitted and not cached.
 
-        stream = UnboundedIn()
+        stream = Stream()
 
         (
             Pipeline()

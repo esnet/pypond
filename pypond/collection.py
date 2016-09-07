@@ -14,17 +14,23 @@ import copy
 import json
 import math
 
-from pyrsistent import freeze, thaw
+from pyrsistent import thaw, pvector
 
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions, f_check
-from .pipeline_in import BoundedIn
+from .io import Bounded
 from .range import TimeRange
-from .util import unique_id, is_pvector, ObjectEncoder, _check_dt, is_function
+from .util import (
+    _check_dt,
+    is_function,
+    is_pvector,
+    ObjectEncoder,
+    unique_id,
+)
 
 
-class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
+class Collection(Bounded):  # pylint: disable=too-many-public-methods
     """
     A collection is a list of Events. You can construct one out of either
     another collection, or a list of Events. You can addEvent() to a collection
@@ -65,7 +71,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
         self._type = None
 
         if instance_or_list is None:
-            self._event_list = freeze(list())
+            self._event_list = pvector(list())
         elif isinstance(instance_or_list, Collection):
             other = instance_or_list
             if copy_events:
@@ -73,14 +79,12 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
                 self._event_list = other._event_list
                 self._type = other._type
             else:
-                self._event_list = freeze(list())
+                self._event_list = pvector(list())
 
         elif isinstance(instance_or_list, list):
-            events = list()
             for i in instance_or_list:
                 self._check(i)
-                events.append(i)
-            self._event_list = freeze(events)
+            self._event_list = pvector(instance_or_list)
 
         elif is_pvector(instance_or_list):
             self._event_list = instance_or_list
@@ -92,7 +96,7 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             msg += 'initializing event list to empty pvector'
             self._warn(msg, CollectionWarning)
 
-            self._event_list = freeze(list())
+            self._event_list = pvector(list())
 
     def to_json(self):
         """
@@ -470,7 +474,11 @@ class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
             New collection with the event added to it.
         """
         self._check(event)
-        return Collection(self._event_list.append(event))
+
+        coll = Collection(self)
+        coll._event_list = self._event_list.append(event)  # pylint: disable=protected-access
+
+        return coll
 
     def slice(self, begin, end):
         """

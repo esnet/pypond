@@ -14,7 +14,7 @@ http://software.es.net/pond/#/timerange
 import datetime
 import json
 
-from pyrsistent import freeze
+from pyrsistent import pvector
 
 from .bases import PypondBase
 from .exceptions import TimeRangeException, NAIVE_MESSAGE
@@ -100,10 +100,10 @@ class TimeRangeBase(PypondBase):
         # datetimes - check and sanitize
         if isinstance(list_type[0], datetime.datetime):
             TimeRangeBase.awareness_check(list_type)
-            return freeze([sanitize_dt(list_type[0]), sanitize_dt(list_type[1])])
+            return pvector([sanitize_dt(list_type[0]), sanitize_dt(list_type[1])])
         else:
             # we must have ints then - convert
-            return freeze([dt_from_ms(list_type[0]), dt_from_ms(list_type[1])])
+            return pvector([dt_from_ms(list_type[0]), dt_from_ms(list_type[1])])
 
     @staticmethod
     def validate_range(range_obj):
@@ -169,11 +169,11 @@ class TimeRange(TimeRangeBase):  # pylint: disable=too-many-public-methods
             # two args - epoch ms or datetime
             if isinstance(instance_or_begin, int) and \
                     isinstance(end, int):
-                self._range = freeze([dt_from_ms(instance_or_begin), dt_from_ms(end)])
+                self._range = pvector([dt_from_ms(instance_or_begin), dt_from_ms(end)])
             elif isinstance(instance_or_begin, datetime.datetime) and \
                     isinstance(end, datetime.datetime):
                 self.awareness_check([instance_or_begin, end])
-                self._range = freeze([sanitize_dt(instance_or_begin), sanitize_dt(end)])
+                self._range = pvector([sanitize_dt(instance_or_begin), sanitize_dt(end)])
             else:
                 msg = 'both args must be datetime objects or int ms since epoch'
                 raise TimeRangeException(msg)

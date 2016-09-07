@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Processor that limits the number of events that are processed.
 """
@@ -88,15 +96,13 @@ class Taker(Processor):
             # emit the events for each collection key that has not reached
             # the limit. This is the main point of this processor.
             if self._count.get(coll_key) <= self._limit:
-                self._log('Taker.add_event', 'collection key: {0}'.format(coll_key))
+                self._log('Taker.add_event', 'collection key: {0}', (coll_key,))
                 self._log(
                     'Taker.add_event',
-                    'count: {0} limit: {1}'.format(
-                        self._count.get(coll_key),
-                        self._limit
-                    )
+                    'count: {0} limit: {1}',
+                    (self._count.get(coll_key), self._limit)
                 )
-                self._log('Taker.add_event', 'emitting: {0}'.format(event))
+                self._log('Taker.add_event', 'emitting: {0}', (event,))
                 self.emit(event)
 
     def flush(self):

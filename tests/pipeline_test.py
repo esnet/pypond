@@ -20,9 +20,8 @@ from pypond.exceptions import (
 )
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
+from pypond.io import CollectionOut, EventOut, Stream
 from pypond.pipeline import Pipeline
-from pypond.pipeline_in import UnboundedIn
-from pypond.pipeline_out import CollectionOut, EventOut
 from pypond.processor import (
     Aggregator,
     Collapser,
@@ -650,7 +649,7 @@ class TestAggregator(BaseTestPipeline):
                 RESULTS = dict()
             RESULTS['{0}'.format(event.index())] = event
 
-        uin = UnboundedIn()
+        uin = Stream()
 
         (
             Pipeline()
@@ -706,7 +705,7 @@ class TestAggregator(BaseTestPipeline):
                 RESULTS = dict()
             RESULTS['{0}:{1}'.format(event.index(), event.get('type'))] = event
 
-        uin = UnboundedIn()
+        uin = Stream()
 
         (
             Pipeline()
@@ -774,7 +773,7 @@ class TestAggregator(BaseTestPipeline):
                 RESULTS = dict()
             RESULTS['{0}'.format(ms_from_dt(event.timestamp()))] = event
 
-        uin = UnboundedIn()
+        uin = Stream()
 
         (
             Pipeline()
@@ -803,7 +802,7 @@ class TestAggregator(BaseTestPipeline):
     def test_bad_args(self):
         """Trigger exceptions and warnings, etc."""
 
-        uin = UnboundedIn()
+        uin = Stream()
 
         with warnings.catch_warnings(record=True) as wrn:
             Pipeline().from_source(uin).window_by('1h', utc=False)
@@ -942,7 +941,7 @@ class TestConverter(BaseTestPipeline):
 
         # pylint: disable=missing-docstring
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):
             self.assertEqual(ms_from_dt(event.begin()), 1426316400000)
@@ -958,7 +957,7 @@ class TestConverter(BaseTestPipeline):
 
         stream1.add_event(self._event)
 
-        stream2 = UnboundedIn()
+        stream2 = Stream()
 
         def cback2(event):
             self.assertEqual(ms_from_dt(event.begin()), 1426314600000)
@@ -974,7 +973,7 @@ class TestConverter(BaseTestPipeline):
 
         stream2.add_event(self._event)
 
-        stream3 = UnboundedIn()
+        stream3 = Stream()
 
         def cback3(event):
             self.assertEqual(ms_from_dt(event.begin()), 1426312800000)
@@ -995,7 +994,7 @@ class TestConverter(BaseTestPipeline):
 
         # pylint: disable=missing-docstring
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):
             self.assertEqual(event.index_as_string(), '1h-396199')
@@ -1015,7 +1014,7 @@ class TestConverter(BaseTestPipeline):
 
         # pylint: disable=missing-docstring
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):  # pylint: disable=unused-argument
             pass
@@ -1035,7 +1034,7 @@ class TestConverter(BaseTestPipeline):
 
         # pylint: disable=missing-docstring
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):  # pylint: disable=unused-argument
             pass
@@ -1053,7 +1052,7 @@ class TestConverter(BaseTestPipeline):
     def test_event_to_event_noop(self):
         """Event to Event as a noop."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):  # pylint: disable=missing-docstring
             self.assertEqual(event, self._event)
@@ -1070,7 +1069,7 @@ class TestConverter(BaseTestPipeline):
     def test_tre_to_event(self):
         """TimeRangeEvent to Event conversion."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         # pylint: disable=missing-docstring
 
@@ -1087,7 +1086,7 @@ class TestConverter(BaseTestPipeline):
 
         stream1.add_event(self._tre)
 
-        stream2 = UnboundedIn()
+        stream2 = Stream()
 
         def cback2(event):
             self.assertEqual(ms_from_dt(event.timestamp()), 1426316400000)
@@ -1102,7 +1101,7 @@ class TestConverter(BaseTestPipeline):
 
         stream2.add_event(self._tre)
 
-        stream3 = UnboundedIn()
+        stream3 = Stream()
 
         def cback3(event):
             self.assertEqual(ms_from_dt(event.timestamp()), 1426320000000)
@@ -1120,7 +1119,7 @@ class TestConverter(BaseTestPipeline):
     def test_tre_to_tre_noop(self):
         """TimeRangeEvent -> TimeRangeEvent noop."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):  # pylint: disable=missing-docstring
             self.assertEqual(event, self._tre)
@@ -1137,7 +1136,7 @@ class TestConverter(BaseTestPipeline):
     def test_idxe_to_event(self):
         """IndexedEvent -> Event conversion."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         # pylint: disable=missing-docstring
 
@@ -1154,7 +1153,7 @@ class TestConverter(BaseTestPipeline):
 
         stream1.add_event(self._idxe)
 
-        stream2 = UnboundedIn()
+        stream2 = Stream()
 
         def cback2(event):
             self.assertEqual(ms_from_dt(event.timestamp()), 1426316400000)
@@ -1169,7 +1168,7 @@ class TestConverter(BaseTestPipeline):
 
         stream2.add_event(self._idxe)
 
-        stream3 = UnboundedIn()
+        stream3 = Stream()
 
         def cback3(event):
             self.assertEqual(ms_from_dt(event.timestamp()), 1426320000000)
@@ -1187,7 +1186,7 @@ class TestConverter(BaseTestPipeline):
     def test_idxe_to_tre(self):
         """IndexedEvent -> TimeRangeEvent conversion."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):  # pylint: disable=missing-docstring
             self.assertEqual(ms_from_dt(event.begin()), 1426316400000)
@@ -1206,7 +1205,7 @@ class TestConverter(BaseTestPipeline):
     def test_idxe_to_idxe_noop(self):
         """IndexedEvent -> IndexedEvent noop."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback1(event):  # pylint: disable=missing-docstring
             self.assertEqual(event, self._idxe)
@@ -1241,7 +1240,7 @@ class TestConverter(BaseTestPipeline):
     def test_event_conversion_bad_args(self):
         """test bad args for Event conversion."""
 
-        stream1 = UnboundedIn()
+        stream1 = Stream()
 
         def cback(event):  # pylint: disable=missing-docstring, unused-argument
             pass
@@ -1257,7 +1256,7 @@ class TestConverter(BaseTestPipeline):
         with self.assertRaises(ProcessorException):
             stream1.add_event(self._event)
 
-        stream2 = UnboundedIn()
+        stream2 = Stream()
 
         # bad alignment
         (
@@ -1349,7 +1348,7 @@ class TestOffsetPipeline(BaseTestPipeline):
             global RESULTS2  # pylint: disable=global-statement
             RESULTS2 = collection
 
-        source = UnboundedIn()
+        source = Stream()
 
         pip1 = (
             Pipeline()
@@ -1381,7 +1380,7 @@ class TestOffsetPipeline(BaseTestPipeline):
             global RESULTS  # pylint: disable=global-statement
             RESULTS = collection
 
-        source = UnboundedIn()
+        source = Stream()
 
         (
             Pipeline()
@@ -1408,7 +1407,7 @@ class TestOffsetPipeline(BaseTestPipeline):
             global RESULTS  # pylint: disable=global-statement
             RESULTS = collection
 
-        source = UnboundedIn()
+        source = Stream()
 
         (
             Pipeline()

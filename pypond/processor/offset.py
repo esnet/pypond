@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Simple processor to change the event values by a certain offset.
 
@@ -68,7 +76,7 @@ class Offset(Processor):
             Any of the three event variants.
         """
 
-        self._log('Offset.add_event', event)
+        self._log('Offset.add_event', '{0}', (event,))
 
         if self.has_observers():
             selected = Event.selector(event, self._field_spec)
@@ -80,6 +88,6 @@ class Offset(Processor):
 
             output_event = event.set_data(data)
 
-            self._log('Offset.add_event', 'emitting: {0}'.format(output_event))
+            self._log('Offset.add_event', 'emitting: {0}', (output_event,))
 
             self.emit(output_event)

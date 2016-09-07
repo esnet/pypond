@@ -1,3 +1,11 @@
+#  Copyright (c) 2016, The Regents of the University of California,
+#  through Lawrence Berkeley National Laboratory (subject to receipt
+#  of any required approvals from the U.S. Dept. of Energy).
+#  All rights reserved.
+#
+#  This source code is licensed under the BSD-style license found in the
+#  LICENSE file in the root directory of this source tree.
+
 """
 Collapse the columns and return a new event
 """
@@ -62,5 +70,5 @@ class Collapser(Processor):
                 self._append
             )
 
-        self._log('Collapser.add_event', 'emitting: {0}'.format(evn))
+        self._log('Collapser.add_event', 'emitting: {0}', (evn,))
         self.emit(evn)

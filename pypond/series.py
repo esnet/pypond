@@ -16,7 +16,7 @@ import collections
 import copy
 import json
 
-from pyrsistent import freeze, thaw
+from pyrsistent import pmap, thaw
 
 from .bases import PypondBase
 from .collection import Collection
@@ -197,7 +197,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         if 'utc' in meta and isinstance(meta.get('utc'), bool):
             ret['utc'] = meta.get('utc')
 
-        return freeze(ret)
+        return pmap(ret)
 
     def to_json(self):
         """
@@ -233,7 +233,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
         # fold in the rest of the payload
-        cols_and_points.update(thaw(self._data))
+        cols_and_points.update(self._data)
 
         # Turn the index back into a string for the json representation.
         # The Index object can still be accessed via TimeSeries.index()
@@ -481,6 +481,21 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._data.get('name')
 
+    def set_name(self, name):
+        """Set name and generate a new TimeSeries
+
+        Parameters
+        ----------
+        name : str
+            New name
+
+        Returns
+        -------
+        TimeSeries
+            Return a TimeSeries with a new name.
+        """
+        return self.set_meta('name', name)
+
     def index(self):
         """Get the index.
 
@@ -567,6 +582,26 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             return thaw(self._data)
         else:
             return self._data.get(key)
+
+    def set_meta(self, key, value):
+        """Change the metadata of the TimeSeries
+
+        Parameters
+        ----------
+        key : str
+            The metadata key
+        value : obj
+            The value
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries with new metadata.
+        """
+        new_ts = TimeSeries(self)
+        new_ts._data = new_ts._data.set(key, value)  # pylint: disable=protected-access
+
+        return new_ts
 
     # Access the series itself
 
