@@ -35,7 +35,7 @@ There are three fill options:
 
 * `zero` - the default - will transform any invalid value to a zero.
 * `pad` - replaces an invalid value with the the previous good value: `[1, None, None, 3]` becomes `[1, 1, 1, 3]`.
-* `linear` - interpolate the gaps based on the surrounding good values: `[1, None, None, 3]` becomes `[1, 2, 2.5, 3]`.
+* `linear` - interpolate the gaps based on the surrounding good values: `[1, null, null, null, 3]` becomes `[1, 1.5, 2, 2.5, 3]`.
 
 Neither `pad` or `linear` can fill the first value in a series if it is invalid, and they can't start filling until good value has been seen: `[None, None, None, 1, 2, 3]` would remain unchanged. Similarly, `linear` can not fill the last value in a series.
 
