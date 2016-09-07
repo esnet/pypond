@@ -62,11 +62,11 @@ class In(Observable):
                 raise PipelineIOException('Homogeneous events expected')
 
 
-class BoundedIn(In):
+class Bounded(In):
     """For the pipeline - source of a fixed size - like a collection."""
 
     def __init__(self):
-        super(BoundedIn, self).__init__()
+        super(Bounded, self).__init__()
 
     # pylint: disable=no-self-use, missing-docstring
 

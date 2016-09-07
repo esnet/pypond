@@ -19,7 +19,7 @@ from pyrsistent import thaw, pvector
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions, f_check
-from .pipeline_in import BoundedIn
+from .pipeline_in import Bounded
 from .range import TimeRange
 from .util import (
     _check_dt,
@@ -30,7 +30,7 @@ from .util import (
 )
 
 
-class Collection(BoundedIn):  # pylint: disable=too-many-public-methods
+class Collection(Bounded):  # pylint: disable=too-many-public-methods
     """
     A collection is a list of Events. You can construct one out of either
     another collection, or a list of Events. You can addEvent() to a collection
