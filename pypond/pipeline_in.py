@@ -18,7 +18,7 @@ from .timerange_event import TimeRangeEvent
 from .util import unique_id
 
 
-class In(Observable):
+class PipelineIn(Observable):
     """
     For the pipeline - raise exceptions if an attempt is made to
     add heterogenous types.
@@ -26,7 +26,7 @@ class In(Observable):
 
     def __init__(self):
 
-        super(In, self).__init__()
+        super(PipelineIn, self).__init__()
 
         self._id = unique_id('in-')
         self._type = None
@@ -62,7 +62,7 @@ class In(Observable):
                 raise PipelineIOException('Homogeneous events expected')
 
 
-class Bounded(In):
+class Bounded(PipelineIn):
     """For the pipeline - source of a fixed size - like a collection."""
 
     def __init__(self):
@@ -80,7 +80,7 @@ class Bounded(In):
         raise PipelineIOException('You can not setup a listener to a bounded source')
 
 
-class Stream(In):
+class Stream(PipelineIn):
     """For the pipeline - a source that has no container of its own."""
 
     def __init__(self):
