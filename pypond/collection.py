@@ -19,7 +19,7 @@ from pyrsistent import thaw, pvector
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
 from .functions import Functions, f_check
-from .io import Bounded
+from .io.input import Bounded
 from .range import TimeRange
 from .util import (
     _check_dt,

@@ -11,7 +11,8 @@ from pypond.collection import Collection
 from pypond.event import Event
 from pypond.exceptions import ProcessorException, ProcessorWarning, TimeSeriesException
 from pypond.indexed_event import IndexedEvent
-from pypond.io import CollectionOut, Stream
+from pypond.io.input import Stream
+from pypond.io.output import CollectionOut
 from pypond.pipeline import Pipeline
 from pypond.processor import Filler
 from pypond.series import TimeSeries

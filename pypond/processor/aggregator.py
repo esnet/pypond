@@ -13,7 +13,7 @@ Processor that adds events to collector given windowing and grouping options.
 from .base import Processor
 from ..exceptions import ProcessorException
 from ..indexed_event import IndexedEvent
-from ..io import Collector
+from ..io.output import Collector
 from ..timerange_event import TimeRangeEvent
 from ..util import is_pipeline, Options
 

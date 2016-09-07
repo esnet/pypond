@@ -21,7 +21,8 @@ from .bases import PypondBase
 from .event import Event
 from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
-from .io import Bounded, Stream, CollectionOut, EventOut
+from .io.input import Bounded, Stream
+from .io.output import CollectionOut, EventOut
 from .processor import (
     Aggregator,
     Align,

@@ -20,7 +20,8 @@ from pypond.exceptions import (
 )
 from pypond.functions import Functions
 from pypond.indexed_event import IndexedEvent
-from pypond.io import CollectionOut, EventOut, Stream
+from pypond.io.input import Stream
+from pypond.io.output import CollectionOut, EventOut
 from pypond.pipeline import Pipeline
 from pypond.processor import (
     Aggregator,
