@@ -21,8 +21,7 @@ from .bases import PypondBase
 from .event import Event
 from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
-from .pipeline_out import CollectionOut, EventOut
-from .pipeline_in import Bounded, Stream
+from .io import Bounded, Stream, CollectionOut, EventOut
 from .processor import (
     Aggregator,
     Align,
@@ -649,7 +648,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         if isinstance(src, (Bounded, Stream, TimeSeries)):
             return self._set_in(src)
         else:
-            msg = 'from_source() only takes Pipeline, Bounded or Stream'
+            msg = 'from_source() only takes Pipeline, Bounded or Stream got: {0}'.format(src)
             raise PipelineException(msg)
 
     def to_event_list(self):

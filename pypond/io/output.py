@@ -12,11 +12,11 @@ Objects to handle Pipeline output and event collection.
 
 from collections import OrderedDict
 
-from .bases import PypondBase
-from .collection import Collection
-from .exceptions import PipelineIOException
-from .index import Index
-from .util import unique_id, Options, Capsule
+from ..bases import PypondBase
+from ..collection import Collection
+from ..exceptions import PipelineIOException
+from ..index import Index
+from ..util import unique_id, Options, Capsule
 
 #
 # The collector

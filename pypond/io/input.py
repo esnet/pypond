@@ -10,12 +10,12 @@
 Classes to handle pipeline input.
 """
 
-from .event import Event
-from .bases import Observable
-from .exceptions import PipelineIOException
-from .indexed_event import IndexedEvent
-from .timerange_event import TimeRangeEvent
-from .util import unique_id
+from ..event import Event
+from ..bases import Observable
+from ..exceptions import PipelineIOException
+from ..indexed_event import IndexedEvent
+from ..timerange_event import TimeRangeEvent
+from ..util import unique_id
 
 
 class PipelineIn(Observable):
