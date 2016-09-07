@@ -22,7 +22,7 @@ from .event import Event
 from .exceptions import PipelineException, PipelineWarning
 from .indexed_event import IndexedEvent
 from .pipeline_out import CollectionOut, EventOut
-from .pipeline_in import BoundedIn, UnboundedIn
+from .pipeline_in import BoundedIn, Stream
 from .processor import (
     Aggregator,
     Align,
@@ -351,7 +351,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
             source = pipe_in.collection()
         elif isinstance(pipe_in, BoundedIn):
             mode = 'batch'
-        elif isinstance(pipe_in, UnboundedIn):
+        elif isinstance(pipe_in, Stream):
             mode = 'stream'
         else:  # pragma: no cover
             # .from_source() already bulletproofs against this
@@ -636,7 +636,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        src : BoundedIn, UnboundedIn or Pipeline
+        src : BoundedIn, Stream or Pipeline
             The source for the Pipeline, or another Pipeline.
 
         Returns
@@ -646,10 +646,10 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
         """
         self._log('Pipeline.from_source', 'called with: {0}', (src,))
 
-        if isinstance(src, (BoundedIn, UnboundedIn, TimeSeries)):
+        if isinstance(src, (BoundedIn, Stream, TimeSeries)):
             return self._set_in(src)
         else:
-            msg = 'from_source() only takes Pipeline, BoundedIn or UnboundedIn'
+            msg = 'from_source() only takes Pipeline, BoundedIn or Stream'
             raise PipelineException(msg)
 
     def to_event_list(self):
@@ -840,7 +840,7 @@ class Pipeline(PypondBase):  # pylint: disable=too-many-public-methods
 
         ::
 
-                uin = UnboundedIn()
+                uin = Stream()
 
                 (
                     Pipeline()

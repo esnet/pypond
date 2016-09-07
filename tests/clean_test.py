@@ -12,7 +12,7 @@ from pypond.event import Event
 from pypond.exceptions import ProcessorException, ProcessorWarning, TimeSeriesException
 from pypond.indexed_event import IndexedEvent
 from pypond.pipeline import Pipeline
-from pypond.pipeline_in import UnboundedIn
+from pypond.pipeline_in import Stream
 from pypond.pipeline_out import CollectionOut
 from pypond.processor import Filler
 from pypond.series import TimeSeries
@@ -473,7 +473,7 @@ class TestRenameFill(CleanBase):
             Event(1400425954000, 7),
         ]
 
-        stream = UnboundedIn()
+        stream = Stream()
 
         (
             Pipeline()
@@ -522,7 +522,7 @@ class TestRenameFill(CleanBase):
 
         # error state first - the last 4 events won't be emitted.
 
-        stream = UnboundedIn()
+        stream = Stream()
 
         (
             Pipeline()
@@ -550,7 +550,7 @@ class TestRenameFill(CleanBase):
         # "have not seen a valid value yet" which means that
         # invalid events will be emitted and not cached.
 
-        stream = UnboundedIn()
+        stream = Stream()
 
         (
             Pipeline()

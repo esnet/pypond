@@ -80,11 +80,11 @@ class BoundedIn(In):
         raise PipelineIOException('You can not setup a listener to a bounded source')
 
 
-class UnboundedIn(In):
+class Stream(In):
     """For the pipeline - a source that has no container of its own."""
 
     def __init__(self):
-        super(UnboundedIn, self).__init__()
+        super(Stream, self).__init__()
         self._running = True
 
     def start(self):
