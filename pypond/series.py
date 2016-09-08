@@ -651,16 +651,17 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     # sum/min/max etc
 
-    def sum(self, field_spec=None, filter_func=None):
+    def sum(self, field_path=None, filter_func=None):
         """Get sum
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -673,18 +674,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             Summed values
         """
-        return self._collection.sum(field_spec, filter_func)
+        return self._collection.sum(field_path, filter_func)
 
-    def max(self, field_spec=None, filter_func=None):
+    def max(self, field_path=None, filter_func=None):
         """Get max
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -697,18 +699,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             Max value
         """
-        return self._collection.max(field_spec, filter_func)
+        return self._collection.max(field_path, filter_func)
 
-    def min(self, field_spec=None, filter_func=None):
+    def min(self, field_path=None, filter_func=None):
         """Get min
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -721,18 +724,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             Min value
         """
-        return self._collection.min(field_spec, filter_func)
+        return self._collection.min(field_path, filter_func)
 
     def avg(self, field_spec=None, filter_func=None):
         """Get avg
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -747,16 +751,17 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.avg(field_spec, filter_func)
 
-    def mean(self, field_spec=None, filter_func=None):
+    def mean(self, field_path=None, filter_func=None):
         """Get mean
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -769,18 +774,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             Mean value
         """
-        return self._collection.mean(field_spec, filter_func)
+        return self._collection.mean(field_path, filter_func)
 
-    def median(self, field_spec=None, filter_func=None):
+    def median(self, field_path=None, filter_func=None):
         """Get median
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -793,18 +799,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             Median value
         """
-        return self._collection.median(field_spec, filter_func)
+        return self._collection.median(field_path, filter_func)
 
-    def stdev(self, field_spec=None, filter_func=None):
+    def stdev(self, field_path=None, filter_func=None):
         """Get std dev
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -817,9 +824,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             Standard deviation
         """
-        return self._collection.stdev(field_spec, filter_func)
+        return self._collection.stdev(field_path, filter_func)
 
-    def percentile(self, perc, field_spec, method='linear'):
+    def percentile(self, perc, field_path, method='linear', filter_func=None):
         """Gets percentile perc within the Collection. Numpy under
         the hood.
 
@@ -827,11 +834,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         perc : int
             The percentile (should be between 0 and 100)
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         method : str, optional
             Specifies the interpolation method to use when the desired
             percentile lies between two data points. Options are:
@@ -852,7 +860,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         int or float
             The percentile.
         """
-        return self._collection.percentile(perc, field_spec, method)
+        return self._collection.percentile(perc, field_path, method, filter_func)
 
     def quantile(self, num, field_path=None, method='linear'):
         """Gets num quantiles within the Collection
@@ -886,7 +894,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self._collection.quantile(num, field_path, method)
 
-    def aggregate(self, func, field_spec=None):
+    def aggregate(self, func, field_path=None):
         """Aggregates the events down using a user defined function to
         do the reduction.
 
@@ -894,18 +902,19 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         ----------
         func : function
             Function to pass to map reduce to aggregate.
-        field_spec : str, list, tuple, None
-            Column or columns to aggregate. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this. If None, then
-            all columns will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
 
         Returns
         -------
         dict
             Dict of reduced values
         """
-        return self._collection.aggregate(func, field_spec)
+        return self._collection.aggregate(func, field_path)
 
     def pipeline(self):
         """Returns a new Pipeline with input source being initialized to
