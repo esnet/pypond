@@ -690,7 +690,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         return result.get(fpath)
 
-    def first(self, field_spec=None, filter_func=None):
+    def first(self, field_path=None, filter_func=None):
         """Get first value in the collection for the fspec
 
         Parameters
@@ -712,9 +712,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.first(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.first(f_check(filter_func)), field_path)
 
-    def last(self, field_spec=None, filter_func=None):
+    def last(self, field_path=None, filter_func=None):
         """Get last value in the collection for the fspec
 
         Parameters
@@ -736,9 +736,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         depends on data
             Type varies depending on underlying data
         """
-        return self.aggregate(Functions.last(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.last(f_check(filter_func)), field_path)
 
-    def sum(self, field_spec=None, filter_func=None):
+    def sum(self, field_path=None, filter_func=None):
         """Get sum
 
         Parameters
@@ -760,9 +760,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Summed value.
         """
-        return self.aggregate(Functions.sum(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.sum(f_check(filter_func)), field_path)
 
-    def avg(self, field_spec=None, filter_func=None):
+    def avg(self, field_path=None, filter_func=None):
         """Get avg
 
         Parameters
@@ -784,9 +784,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Average value.
         """
-        return self.aggregate(Functions.avg(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.avg(f_check(filter_func)), field_path)
 
-    def max(self, field_spec=None, filter_func=None):
+    def max(self, field_path=None, filter_func=None):
         """Get max
 
         Parameters
@@ -808,9 +808,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Maximum value.
         """
-        return self.aggregate(Functions.max(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.max(f_check(filter_func)), field_path)
 
-    def min(self, field_spec=None, filter_func=None):
+    def min(self, field_path=None, filter_func=None):
         """Get min
 
         Parameters
@@ -832,9 +832,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Minimum value.
         """
-        return self.aggregate(Functions.min(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.min(f_check(filter_func)), field_path)
 
-    def mean(self, field_spec=None, filter_func=None):
+    def mean(self, field_path=None, filter_func=None):
         """Get mean
 
         Parameters
@@ -856,9 +856,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Mean value (grrr!).
         """
-        return self.avg(field_spec, filter_func)
+        return self.avg(field_path, filter_func)
 
-    def median(self, field_spec=None, filter_func=None):
+    def median(self, field_path=None, filter_func=None):
         """Get median
 
         Parameters
@@ -880,9 +880,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Median value.
         """
-        return self.aggregate(Functions.median(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.median(f_check(filter_func)), field_path)
 
-    def stdev(self, field_spec=None, filter_func=None):
+    def stdev(self, field_path=None, filter_func=None):
         """Get std dev
 
         Parameters
@@ -904,9 +904,9 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             Standard deviation.
         """
-        return self.aggregate(Functions.stddev(f_check(filter_func)), field_spec)
+        return self.aggregate(Functions.stddev(f_check(filter_func)), field_path)
 
-    def percentile(self, perc, field_spec, method='linear'):
+    def percentile(self, perc, field_path, method='linear', filter_func=None):
         """Gets percentile perc within the Collection. This works the same
         way as numpy.
 
@@ -939,7 +939,8 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         int or float
             The percentile.
         """
-        return self.aggregate(Functions.percentile(perc, method), field_spec)
+        return self.aggregate(Functions.percentile(perc, method, f_check(filter_func)),
+                              field_path)
 
     def quantile(self, num, field_path=None, method='linear'):
         """Gets num quantiles within the Collection
