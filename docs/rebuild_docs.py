@@ -32,6 +32,7 @@ README_TOKEN
 
     api
     time
+    columns
     sanitize
     tests
 """

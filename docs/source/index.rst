@@ -47,5 +47,6 @@ also be referred to as a fairly complete set of examples as well.
 
     api
     time
+    columns
     sanitize
     tests
