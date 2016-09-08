@@ -161,7 +161,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_path : str, list, tuple, None, optional
-            Name of value to look up. If None, defaults to ['value'].
+            Name of a single value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
@@ -394,7 +394,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_path : str, list, tuple, None, optional
-            Name of value to look up. If None, defaults to ['value'].
+            Name of a single value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
@@ -570,7 +570,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         field_path : str, list, tuple, None, optional
-            Name of value to look up. If None, defaults to ['value'].
+            Name of a single value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
@@ -649,7 +649,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         func : function
             Function to pass to map reduce to aggregate.
         field_path : str, list, tuple, None, optional
-            Name of value to look up. If None, defaults to ['value'].
+            Name of a single value to look up. If None, defaults to ['value'].
             "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
             or 'deep.value.'
 
@@ -743,11 +743,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -767,11 +768,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -791,11 +793,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -815,11 +818,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -839,11 +843,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -863,11 +868,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -887,11 +893,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         Parameters
         ----------
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         filter_func : function, None
             A function (static method really) from the Filters class in module
             `pypond.functions.Filters`. It will control how bad or missing
@@ -914,11 +921,12 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         ----------
         perc : int
             The percentile (should be between 0 and 100)
-        field_spec : str, list, tuple, None
-            Column or columns to look up. If you need to retrieve multiple deep
-            nested values that ['can.be', 'done.with', 'this.notation'].
-            A single deep value with a string.like.this.  If None, all columns
-            will be operated on.
+        field_path : str, list, tuple, None, optional
+            Name of a single value to look up. If None, defaults to ['value'].
+            "Deep" syntax either ['deep', 'value'], ('deep', 'value',)
+            or 'deep.value.'
+
+            If field_path is None, then ['value'] will be the default.
         method : str, optional
             Specifies the interpolation method to use when the desired
             percentile lies between two data points. Options are:
