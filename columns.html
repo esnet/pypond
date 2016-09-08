@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data columns: field_spec and field_path &mdash; pypond 0.4.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/esnet/esnet.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.4.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pypond 0.4.3 documentation" href="index.html" />
+    <link rel="next" title="Fill and other sanitizing methods" href="sanitize.html" />
+    <link rel="prev" title="Notes on time handling" href="time.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          <!-- LOGO:  _static/ -->
+          pypond</a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Section <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data columns: field_spec and field_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="time.html" title="Previous Chapter: Notes on time handling">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="hidden-sm">
+        Notes on time...
+      </span>
+    </a>
+  </li>
+  <li>
+    <a href="sanitize.html" title="Next Chapter: Fill and other sanitizing methods">
+      <span class="hidden-sm">
+        Fill and othe...
+      </span>
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+  </li>
+              
+            
+            <li class="divider-vertical"></li>
+            
+                <li><a href="genindex.html">Index</a></li>
+                <li><a href="https://www.es.net">ESnet</a></li>
+            
+            <li><a href="https://github.com/esnet/pypond"><img src="_static/esnet/icon-github.png" height="20" width="20"></a></li>
+            
+            
+            
+          </ul>
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Data columns: field_spec and field_path</a><ul>
+<li><a class="reference internal" href="#field-path">field_path</a><ul>
+<li><a class="reference internal" href="#string-variant">String variant</a></li>
+<li><a class="reference internal" href="#list-variant">List variant</a></li>
+<li><a class="reference internal" href="#none"><code class="docutils literal"><span class="pre">None</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#field-spec">field_spec</a><ul>
+<li><a class="reference internal" href="#string-variant">String variant</a></li>
+<li><a class="reference internal" href="#list-variant">List variant</a></li>
+<li><a class="reference internal" href="#none"><code class="docutils literal"><span class="pre">None</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#field-spec-list">field_spec_list</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="data-columns-field-spec-and-field-path">
+<span id="data-columns-field-spec-and-field-path"></span><h1>Data columns: field_spec and field_path<a class="headerlink" href="#data-columns-field-spec-and-field-path" title="Permalink to this headline">¶</a></h1>
+<p>There are some points to note about the nomenclature that the <code class="docutils literal"><span class="pre">pypond</span></code> and <code class="docutils literal"><span class="pre">pond</span></code> code bases use to refer to the &#8220;columns of data&#8221; in the time series event objects. This <code class="docutils literal"><span class="pre">TimeSeries</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DATA</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;traffic&quot;</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">],</span>
+    <span class="n">points</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[</span><span class="mi">1400425947000</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="s2">&quot;ok&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1400425948000</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="s2">&quot;ok&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1400425949000</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="s2">&quot;fail&quot;</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1400425950000</span><span class="p">,</span> <span class="mi">93</span><span class="p">,</span> <span class="s2">&quot;offline&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>contains two columns: <code class="docutils literal"><span class="pre">value</span></code> and <code class="docutils literal"><span class="pre">status</span></code>.</p>
+<p>However this <code class="docutils literal"><span class="pre">TimeSeries</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">DATA_FLOW</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;traffic&quot;</span><span class="p">,</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;direction&quot;</span><span class="p">],</span>
+    <span class="n">points</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[</span><span class="mi">1400425947000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}],</span>
+        <span class="p">[</span><span class="mi">1400425948000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}],</span>
+        <span class="p">[</span><span class="mi">1400425949000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">}],</span>
+        <span class="p">[</span><span class="mi">1400425950000</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}]</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>contains only one column <code class="docutils literal"><span class="pre">direction</span></code>, but that column has two more columns - <code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> - nested under it. In the following examples, these nested columns will be referred to as &#8220;deep paths.&#8221;</p>
+<p>When specifying columns to the methods that set, retrieve and manipulate data, we use two argument types: <code class="docutils literal"><span class="pre">field_spec</span></code> and <code class="docutils literal"><span class="pre">field_path</span></code>. They are similar yet different enough to warrant this document.</p>
+<div class="section" id="field-path">
+<span id="field-path"></span><h2>field_path<a class="headerlink" href="#field-path" title="Permalink to this headline">¶</a></h2>
+<p>A <code class="docutils literal"><span class="pre">field_path</span></code> refers to a <strong>single</strong> column in a series. Any method that takes a <code class="docutils literal"><span class="pre">field_path</span></code> as an argument only acts on one column at a time. The value passed to this argument can be either a string, a list or <code class="docutils literal"><span class="pre">None</span></code>.</p>
+<div class="section" id="string-variant">
+<span id="string-variant"></span><h3>String variant<a class="headerlink" href="#string-variant" title="Permalink to this headline">¶</a></h3>
+<p>When a string is passed, it can be one of the following formats:</p>
+<ul class="simple">
+<li>simple path - the name of a single &#8220;top level&#8221; column. In the <code class="docutils literal"><span class="pre">DATA</span></code> example above, this would be either <code class="docutils literal"><span class="pre">value</span></code> or <code class="docutils literal"><span class="pre">status</span></code>.</li>
+<li>deep path - the path pointing to a single nested columns with each &#8220;segment&#8221; of the path delimited with a period. In the <code class="docutils literal"><span class="pre">DATA_FLOW</span></code> example above, the incoming data could be retrieved with <code class="docutils literal"><span class="pre">direction.in</span></code> as the <code class="docutils literal"><span class="pre">field_path</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="list-variant">
+<span id="list-variant"></span><h3>List variant<a class="headerlink" href="#list-variant" title="Permalink to this headline">¶</a></h3>
+<p>When a <code class="docutils literal"><span class="pre">list</span></code> (or <code class="docutils literal"><span class="pre">tuple</span></code>) is passed as a <code class="docutils literal"><span class="pre">field_path</span></code>, each element in the iterable is <strong>a single segment of the path to a column</strong>. So to compare with the string examples:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">['value']</span></code> would be equivalent to the string <code class="docutils literal"><span class="pre">value</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">['direction',</span> <span class="pre">'in']</span></code> would be equivalent to the string <code class="docutils literal"><span class="pre">direction.in</span></code>.</li>
+</ul>
+<p>This is particularly important to note because <strong>this behavior is different</strong> than passing a list to a <code class="docutils literal"><span class="pre">field_spec</span></code> arg.</p>
+</div>
+<div class="section" id="none">
+<span id="none"></span><h3><code class="docutils literal"><span class="pre">None</span></code><a class="headerlink" href="#none" title="Permalink to this headline">¶</a></h3>
+<p>If no <code class="docutils literal"><span class="pre">field_path</span></code> is specified (defaulting to <code class="docutils literal"><span class="pre">None</span></code>), then the default column <code class="docutils literal"><span class="pre">value</span></code> will be used.</p>
+</div>
+</div>
+<div class="section" id="field-spec">
+<span id="field-spec"></span><h2>field_spec<a class="headerlink" href="#field-spec" title="Permalink to this headline">¶</a></h2>
+<p>A <code class="docutils literal"><span class="pre">field_spec</span></code> refers to <strong>one or more</strong> columns in a series. When a method takes a <code class="docutils literal"><span class="pre">field_spec</span></code>, it may act on multiple columns in a <code class="docutils literal"><span class="pre">TimeSeries</span></code>. The value passed to this argument can be either a string, a list or <code class="docutils literal"><span class="pre">None</span></code>.</p>
+<div class="section" id="string-variant">
+<span id="id1"></span><h3>String variant<a class="headerlink" href="#string-variant" title="Permalink to this headline">¶</a></h3>
+<p>The string variant is essentially identical to the <code class="docutils literal"><span class="pre">field_path</span></code> string variant - it is a path to a single column of one of the following formats:</p>
+<ul class="simple">
+<li>simple path - the name of a single &#8220;top level&#8221; column. In the <code class="docutils literal"><span class="pre">DATA</span></code> example above, this would be either <code class="docutils literal"><span class="pre">value</span></code> or <code class="docutils literal"><span class="pre">status</span></code>.</li>
+<li>deep path - the path pointing to a single nested columns with each &#8220;segment&#8221; of the path delimited with a period. In the <code class="docutils literal"><span class="pre">DATA_FLOW</span></code> example above, the incoming data could be retrieved with <code class="docutils literal"><span class="pre">direction.in</span></code> as the <code class="docutils literal"><span class="pre">field_path</span></code>.</li>
+</ul>
+</div>
+<div class="section" id="list-variant">
+<span id="id2"></span><h3>List variant<a class="headerlink" href="#list-variant" title="Permalink to this headline">¶</a></h3>
+<p>Passing a <code class="docutils literal"><span class="pre">list</span></code> (or <code class="docutils literal"><span class="pre">tuple</span></code>) to <code class="docutils literal"><span class="pre">field_spec</span></code> is different than the aforementioned behavior in that it is explicitly referring to <strong>one or more columns</strong>. Rather than each element being segments of a path, <strong>each element is a full path to a single column</strong>.</p>
+<p>Using the previous examples:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">['in',</span> <span class="pre">'out']</span></code> would act on both the <code class="docutils literal"><span class="pre">in</span></code> and <code class="docutils literal"><span class="pre">out</span></code> columns from the <code class="docutils literal"><span class="pre">DATA</span></code> example.</li>
+<li><code class="docutils literal"><span class="pre">['direction.in',</span> <span class="pre">'direction.out']</span></code> - here each element is a fully formed &#8220;deep path&#8221; to the two data columns in the <code class="docutils literal"><span class="pre">DATA_FLOW</span></code> example.</li>
+</ul>
+<p>The lists do not have to have more than one element: <code class="docutils literal"><span class="pre">['value']</span> <span class="pre">==</span> <span class="pre">'value'</span></code>.</p>
+<p>NOTE: accidentally passing this style of list to an arg that is actually a <code class="docutils literal"><span class="pre">field_path</span></code> will most likely result in an <code class="docutils literal"><span class="pre">EventException</span></code> being raised. Passing something like <code class="docutils literal"><span class="pre">['in',</span> <span class="pre">'out']</span></code> as a <code class="docutils literal"><span class="pre">field_path</span></code> will attempt to retrieve the nested column <code class="docutils literal"><span class="pre">in.out</span></code> which probably doesn&#8217;t exist.</p>
+</div>
+<div class="section" id="none">
+<span id="id3"></span><h3><code class="docutils literal"><span class="pre">None</span></code><a class="headerlink" href="#none" title="Permalink to this headline">¶</a></h3>
+<p>If no <code class="docutils literal"><span class="pre">field_spec</span></code> is specified (defaulting to <code class="docutils literal"><span class="pre">None</span></code>), then the default column <code class="docutils literal"><span class="pre">value</span></code> will be used.</p>
+</div>
+</div>
+<div class="section" id="field-spec-list">
+<span id="field-spec-list"></span><h2>field_spec_list<a class="headerlink" href="#field-spec-list" title="Permalink to this headline">¶</a></h2>
+<p>This is a less common variant of the <code class="docutils literal"><span class="pre">field_spec</span></code>. It is used in the case where the method is going to <strong>specifically act on multiple columns</strong>. Otherwise, it&#8217;s usage is identical to the list variant of <code class="docutils literal"><span class="pre">field_spec</span></code>.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <a href="http://www.es.net/"><img src="_static/esnet/logo-esnet.png" alt="[ESnet]"></a>
+      </div>
+      <div class="col-md-11">
+        <p class="pull-right">
+        <a href="#">Back to top</a>
+        
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/columns.txt"
+     rel="nofollow">Source</a>
+</div>
+        
+        </p>
+        <p>
+            &copy; Copyright 2016, The Regents of the University of California.<br/>
+          Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.1.<br/>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>
