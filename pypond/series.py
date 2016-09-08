@@ -1207,23 +1207,33 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline.
 
         Each window then has an aggregation specification applied as
-        `aggregation`. This specification describes a mapping of fieldNames
-        to aggregation functions. For example::
+        `aggregation`. This specification describes a mapping of output
+        columns to fieldNames to aggregation functions. For example::
 
-            {'in': Functions.avg(), 'out': Functions.avg()}
+            {
+                'in_avg': {'in': Functions.avg()},
+                'out_avg': {'out': Functions.avg()},
+                'in_max': {'in': Functions.max()},
+                'out_max': {'out': Functions.max()},
+            }
 
-        will aggregate both "in" and "out" using the average aggregation
-        function across all events within each hour.
+        will aggregate both the "in" and "out" columns, using the avg
+        aggregation function will perform avg and max aggregations on the
+        in and out columns, across all events within each hour, and the
+        results will be put into the 4 new columns in_avg, out_avg, in_max
+        and out_max.
 
         Example::
 
             timeseries = TimeSeries(data)
-            hourly_max_temp = timeseries.hourly_rollup({'temperature': Functions.max()})
+            hourly_max_temp = timeseries.hourly_rollup(
+                {'max_temp': {'temperature': Functions.max()}}
+            )
 
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max()}
+            The aggregation specification e.g. {'max_temp': {'temperature': Functions.max()}}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -1241,18 +1251,28 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline.
 
         Each window then has an aggregation specification applied as
-        `aggregation`. This specification describes a mapping of fieldNames
-        to aggregation functions. For example::
+        `aggregation`. This specification describes a mapping of output
+        columns to fieldNames to aggregation functions. For example::
 
-            {'in': Functions.avg(), 'out': Functions.avg()}
+            {
+                'in_avg': {'in': Functions.avg()},
+                'out_avg': {'out': Functions.avg()},
+                'in_max': {'in': Functions.max()},
+                'out_max': {'out': Functions.max()},
+            }
 
-        will aggregate both "in" and "out" using the average aggregation
-        function across all events within each day.
+        will aggregate both the "in" and "out" columns, using the avg
+        aggregation function will perform avg and max aggregations on the
+        in and out columns, across all events within each day, and the
+        results will be put into the 4 new columns in_avg, out_avg, in_max
+        and out_max.
 
         Example::
 
             timeseries = TimeSeries(data)
-            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
+            hourly_max_temp = timeseries.daily_rollup(
+                {'max_temp': {'temperature': Functions.max()}}
+            )
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1261,7 +1281,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max()}
+            The aggregation specification e.g. {'max_temp': {'temperature': Functions.max()}}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -1279,18 +1299,28 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline.
 
         Each window then has an aggregation specification applied as
-        `aggregation`. This specification describes a mapping of fieldNames
-        to aggregation functions. For example::
+        `aggregation`. This specification describes a mapping of output
+        columns to fieldNames to aggregation functions. For example::
 
-            {'in': Functions.avg(), 'out': Functions.avg()}
+            {
+                'in_avg': {'in': Functions.avg()},
+                'out_avg': {'out': Functions.avg()},
+                'in_max': {'in': Functions.max()},
+                'out_max': {'out': Functions.max()},
+            }
 
-        will aggregate both "in" and "out" using the average aggregation
-        function across all events within each month.
+        will aggregate both the "in" and "out" columns, using the avg
+        aggregation function will perform avg and max aggregations on the
+        in and out columns, across all events within each month, and the
+        results will be put into the 4 new columns in_avg, out_avg, in_max
+        and out_max.
 
         Example::
 
             timeseries = TimeSeries(data)
-            monthly_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
+            hourly_max_temp = timeseries.monthly_rollup(
+                {'max_temp': {'temperature': Functions.max()}}
+            )
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1299,7 +1329,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max()}
+            The aggregation specification e.g. {'max_temp': {'temperature': Functions.max()}}
         to_event : bool, optional
             Do conversion to Event objects
 
@@ -1317,18 +1347,28 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Pipeline.
 
         Each window then has an aggregation specification applied as
-        `aggregation`. This specification describes a mapping of fieldNames
-        to aggregation functions. For example::
+        `aggregation`. This specification describes a mapping of output
+        columns to fieldNames to aggregation functions. For example::
 
-            {'in': Functions.avg(), 'out': Functions.avg()}
+            {
+                'in_avg': {'in': Functions.avg()},
+                'out_avg': {'out': Functions.avg()},
+                'in_max': {'in': Functions.max()},
+                'out_max': {'out': Functions.max()},
+            }
 
-        will aggregate both "in" and "out" using the average aggregation
-        function across all events within each year.
+        will aggregate both the "in" and "out" columns, using the avg
+        aggregation function will perform avg and max aggregations on the
+        in and out columns, across all events within each year, and the
+        results will be put into the 4 new columns in_avg, out_avg, in_max
+        and out_max.
 
         Example::
 
             timeseries = TimeSeries(data)
-            daily_max_temp = timeseries.daily_rollup({'temperature': Functions.max()})
+            hourly_max_temp = timeseries.monthly_rollup(
+                {'max_temp': {'temperature': Functions.max()}}
+            )
 
         This helper function renders the aggregations in localtime. If you
         want to render in UTC use .fixed_window_rollup() with the appropriate
@@ -1337,7 +1377,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         aggregation : dict
-            The aggregation specification e.g. {'temperature': Functions.max()}
+            The aggregation specification e.g. {'max_temp': {'temperature': Functions.max()}}
         to_event : bool, optional
             Do conversion to Event objects
 

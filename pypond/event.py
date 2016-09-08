@@ -107,8 +107,8 @@ class EventBase(PypondBase):
         try:
             return reduce(PMap.get, fspec, self.data())
         except TypeError:
-            msg = 'Error retrieving deep field_path {0}'.format(field_path)
-            msg += 'all segments other than terminal one must return a pmap'
+            msg = 'Error retrieving deep field_path: {0}'.format(field_path)
+            msg += ' -- all path segments other than terminal one must return a pmap'
             raise EventException(msg)
 
     def value(self, field_path=None):
