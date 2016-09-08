@@ -200,6 +200,12 @@ class TestRegularEventAccess(BaseTestEvent):
             self.canned_event.begin(),
             self.canned_event.end())
 
+    def test_bad_path(self):
+        """make sure get() is handling malformed paths."""
+        evt = self.canned_event
+        with self.assertRaises(EventException):
+            evt.get(['a', 'b'])
+
 
 class TestEventStaticMethods(BaseTestEvent):
     """

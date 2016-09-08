@@ -104,7 +104,12 @@ class EventBase(PypondBase):
 
         fspec = self._field_path_to_array(field_path)
 
-        return reduce(PMap.get, fspec, self.data())
+        try:
+            return reduce(PMap.get, fspec, self.data())
+        except TypeError:
+            msg = 'Error retrieving deep field_path: {0}'.format(fspec)
+            msg += ' -- all path segments other than terminal one must return a pmap'
+            raise EventException(msg)
 
     def value(self, field_path=None):
         """
@@ -368,18 +373,24 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     To specify the data you can supply either:
 
     - a python dict
-    - a pyrsistent.PMap, or
+    - a pyrsistent.PMap created with pyrsistent.freeze(), or
     - a simple type such as an integer. In the case of the simple type
       this is a shorthand for supplying {"value": v}.
 
+    If supplying a PMap for either of the args (rather than supplying
+    a python dict and letting the Event class handle it which is
+    preferred), create it with freeze() and not pmap(). This is because
+    any nested dicts must similarly be made immutable and pmap() will
+    only freeze the "outer" dict.
+
     Parameters
     ----------
-    instance_or_time : Event, pyrsistent.pmap, int, datetime.datetime
+    instance_or_time : Event, pyrsistent.PMap, int, datetime.datetime
         An event for copy constructor, a fully formed and formatted
         immutable data payload, or an int (epoch ms) or a
         datetime.datetime object to create a timestamp from.
     data : None, optional
-        Could be dict/pmap/int/float/str to use for data payload.
+        Could be dict/PMap/int/float/str to use for data payload.
     """
 
     def __init__(self, instance_or_time, data=None):
