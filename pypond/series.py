@@ -25,7 +25,7 @@ from .exceptions import TimeSeriesException
 from .index import Index
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
-from .util import ObjectEncoder
+from .util import ObjectEncoder, ms_from_dt
 
 
 class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
@@ -295,6 +295,28 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             The end time of the underlying time range.
         """
         return self.range().end()
+
+    def begin_timestamp(self):
+        """Gets the earliest time represented in the TimeSeries
+        in epoch ms.
+
+        Returns
+        -------
+        int
+            The begin time of the underlying time range in epoch ms.
+        """
+        return ms_from_dt(self.range().begin())
+
+    def end_timestamp(self):
+        """Gets the latest time represented in the TimeSeries
+        in epoch ms.
+
+        Returns
+        -------
+        int
+            The end time of the underlying time range in epoch ms.
+        """
+        return ms_from_dt(self.range().end())
 
     def at(self, i):  # pylint: disable=invalid-name
         """Access the series events via numeric index

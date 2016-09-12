@@ -364,8 +364,16 @@ class TestTimeSeries(SeriesBase):
             EVENT_LIST[0].timestamp())
 
         self.assertEqual(
+            self._canned_event_series.begin_timestamp(),
+            ms_from_dt(EVENT_LIST[0].timestamp()))
+
+        self.assertEqual(
             self._canned_event_series.end(),
             EVENT_LIST[-1].timestamp())
+
+        self.assertEqual(
+            self._canned_event_series.end_timestamp(),
+            ms_from_dt(EVENT_LIST[-1].timestamp()))
 
         self.assertEqual(
             self._canned_event_series.at(1).to_string(),
