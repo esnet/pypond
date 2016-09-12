@@ -66,6 +66,15 @@ class Filters(object):
 
         return events
 
+    @staticmethod
+    def none_if_empty(events):
+        """Return none if the event list is empty. Could be used to override
+        the default behavior of Functions.avg(), etc"""
+        if len(events) == 0:
+            return None
+        else:
+            return events
+
 
 def f_check(flt):
     """Set the default filter for aggregation operations when no

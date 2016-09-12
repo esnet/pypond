@@ -608,6 +608,9 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(series.median('out', Filters.zero_missing), 2)
         self.assertEqual(series.stdev('out', Filters.zero_missing), 2.494438257849294)
 
+        avg_f = Functions.avg(Filters.none_if_empty)
+        self.assertIsNone(avg_f([]))
+
         def bad_filtering_function():  # pylint: disable=missing-docstring
             pass
 
