@@ -364,8 +364,16 @@ class TestTimeSeries(SeriesBase):
             EVENT_LIST[0].timestamp())
 
         self.assertEqual(
+            self._canned_event_series.begin_timestamp(),
+            ms_from_dt(EVENT_LIST[0].timestamp()))
+
+        self.assertEqual(
             self._canned_event_series.end(),
             EVENT_LIST[-1].timestamp())
+
+        self.assertEqual(
+            self._canned_event_series.end_timestamp(),
+            ms_from_dt(EVENT_LIST[-1].timestamp()))
 
         self.assertEqual(
             self._canned_event_series.at(1).to_string(),
@@ -607,6 +615,9 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(series.mean('out', Filters.ignore_missing), 4)
         self.assertEqual(series.median('out', Filters.zero_missing), 2)
         self.assertEqual(series.stdev('out', Filters.zero_missing), 2.494438257849294)
+
+        avg_f = Functions.avg(Filters.none_if_empty)
+        self.assertIsNone(avg_f([]))
 
         def bad_filtering_function():  # pylint: disable=missing-docstring
             pass

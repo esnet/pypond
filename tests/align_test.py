@@ -8,6 +8,7 @@ import warnings
 
 from pypond.exceptions import ProcessorException, ProcessorWarning
 from pypond.series import TimeSeries
+from pypond.pipeline import Pipeline
 from pypond.processor import Align, Rate
 
 SIMPLE_GAP_DATA = dict(
@@ -437,6 +438,30 @@ class AlignTest(unittest.TestCase):
 
         with self.assertRaises(ProcessorException):
             ts.rate()
+
+    def test_first_point(self):
+        """Make sure the first point is handled right when it is perfectly aligned."""
+
+        data = dict(
+            name="traffic",
+            columns=["time", "value"],
+            points=[
+                [1473490770000, 10],
+                [1473490800000, 20],
+                [1473490830000, 30],
+                [1473490860000, 40]
+            ]
+        )
+
+        base_30_sec = (
+            Pipeline()
+            .from_source(TimeSeries(data))
+            .align(window='30s', method='linear', limit=10)
+            .to_keyed_collections()
+        )
+
+        self.assertEqual(base_30_sec.get('all').size(), 4)
+
 
 if __name__ == '__main__':
     unittest.main()

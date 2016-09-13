@@ -17,6 +17,7 @@ Additionally some boolean test functions and assorted other utility functions.
 import datetime
 import json
 import math
+import time
 import types
 import uuid
 import warnings
@@ -382,7 +383,10 @@ def humanize_duration(delta):
 
 
 def unique_id(prefix=''):
-    """generate a uuid with a prefix - for debugging
+    """generate a uuid with a prefix - for debugging. This probably isn't
+    truly random but it's random enough. Calling uuid.uuid4() was imposing
+    non-trivial drag on performance. The calls to /dev/urandom can block
+    on certain unix-like systems.
 
     Parameters
     ----------
@@ -394,7 +398,7 @@ def unique_id(prefix=''):
     str
         Prefixed uuid.
     """
-    return prefix + str(uuid.uuid4())
+    return prefix + hex(int(time.time() * 10000000))[2:]
 
 
 class ObjectEncoder(json.JSONEncoder):

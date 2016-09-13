@@ -131,6 +131,13 @@ class Align(Processor):
         idx = Index(boundary_index)
         return ms_from_dt(idx.begin())
 
+    def _is_aligned(self, event):
+        """
+        Test to see if an event is perfectly aligned. Used on first event.
+        """
+        bound = Index.get_index_string(self._window, event.timestamp())
+        return bool(self._get_boundary_ms(bound) == ms_from_dt(event.timestamp()))
+
     def _interpolate_hold(self, boundary, set_none=False):
         """
         Generate a new event on the requested boundary and carry over the
@@ -214,9 +221,12 @@ class Align(Processor):
 
         if self.has_observers():
 
+            # first event handling
             if self._previous is None:
                 self._previous = event
-                # takes two to tango so...
+                # If perfectly aligned, emit or it will get lost.
+                if self._is_aligned(event):
+                    self.emit(event)
                 return
 
             boundaries = self._get_interpolation_boundaries(event)
