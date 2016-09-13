@@ -103,7 +103,7 @@ class IndexedEvent(EventBase):
         """
         points = [self.index_as_string()]
 
-        data = thaw(self.data())
+        data = self.data()
 
         if isinstance(cols, list):
             points += [data.get(x, None) for x in cols]
