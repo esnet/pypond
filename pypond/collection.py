@@ -686,7 +686,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
             msg = 'Collection.aggregate() takes a string/list/tuple field_path'
             raise CollectionException(msg)
 
-        result = Event.map_reduce(self.event_list_as_list(), fpath, func)
+        result = Event.map_reduce(self.event_list(), fpath, func)
 
         return result.get(fpath)
 
