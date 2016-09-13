@@ -111,7 +111,7 @@ class TimeRangeEvent(EventBase):
         """
         points = [self.timerange().to_json()]
 
-        data = self.data()
+        data = thaw(self.data())
 
         if isinstance(cols, list):
             points += [data.get(x, None) for x in cols]
