@@ -1180,18 +1180,28 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         about the specific window, just that the data is smaller.
 
         Each window then has an aggregation specification applied as
-        `aggregation`. This specification describes a mapping of fieldNames
-        to aggregation functions. For example:
-        ```
-        {in: avg, out: avg}
-        ```
-        will aggregate both "in" and "out" using the average aggregation
-        function.
+        `aggregation`. This specification describes a mapping of output
+        columns to fieldNames to aggregation functions. For example::
+
+            {
+                'in_avg': {'in': Functions.avg()},
+                'out_avg': {'out': Functions.avg()},
+                'in_max': {'in': Functions.max()},
+                'out_max': {'out': Functions.max()},
+            }
+
+        will aggregate both the "in" and "out" columns, using the avg
+        aggregation function will perform avg and max aggregations on the
+        in and out columns, across all events within each hour, and the
+        results will be put into the 4 new columns in_avg, out_avg, in_max
+        and out_max.
 
         Example::
 
             timeseries = TimeSeries(data)
-            daily_avg = timeseries.fixed_window_rollup('1d', {'value': Functions.avg()})
+            daily_avg = timeseries.fixed_window_rollup('1d',
+                {'value_avg': {'value': Functions.avg()}}
+            )
 
         Parameters
         ----------
@@ -1576,9 +1586,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Takes a list of TimeSeries and sums them together to form a new
         Timeseries.
 
-        const ts1 = new TimeSeries(weather1);
-        const ts2 = new TimeSeries(weather2);
-        const sum = TimeSeries.sum_list({name: "sum"}, [ts1, ts2], ["temp"]);
+        const ts1 = new TimeSeries(weather1)
+        const ts2 = new TimeSeries(weather2)
+        const sum = TimeSeries.timeseries_list_sum({name: "sum"}, [ts1, ts2], ["temp"])
 
         Parameters
         ----------
