@@ -213,7 +213,7 @@ class Align(Processor):
             An Event.
         """
 
-        self._log('Align.add_event', '{0}', (event,))
+        self._log('Align.add_event', 'incoming: {0}', (event,))
 
         if isinstance(event, (TimeRangeEvent, IndexedEvent)):
             msg = 'TimeRangeEvent and IndexedEvent series can not be aligned.'

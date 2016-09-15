@@ -1057,7 +1057,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         else:
             # type not found or None or none - map everything
             for evt in events:
-                for k, v in list(thaw(evt.data()).items()):
+                for k, v in list(evt.data().items()):
                     key_check(k)
                     result[k].append(v)
 
