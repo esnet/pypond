@@ -53,6 +53,7 @@ class EventBase(PypondBase):
         Immutable dict-like object containing the payload for the
         events.
     """
+    __slots__ = ('_d',)
 
     def __init__(self, underscore_d):
         """Constructor for base class.
@@ -392,6 +393,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     data : None, optional
         Could be dict/PMap/int/float/str to use for data payload.
     """
+    __slots__ = ()  # inheriting relevant slots, stil need this
 
     def __init__(self, instance_or_time, data=None):
         """

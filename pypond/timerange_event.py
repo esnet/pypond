@@ -46,6 +46,7 @@ class TimeRangeEvent(EventBase):
     arg2 : dict, pmap, int, float, str, optional
         See above.
     """
+    __slots__ = ()  # inheriting relevant slots, stil need this
 
     def __init__(self, instance_or_args, arg2=None):
         """
