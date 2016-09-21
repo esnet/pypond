@@ -36,6 +36,7 @@ def setup_log(log_path=None):  # pragma: no cover
     logger.setLevel(logging.INFO)
     return logger
 
+
 log = setup_log()  # pylint: disable=invalid-name
 
 
@@ -48,6 +49,7 @@ class PypondBase(object):  # pylint: disable=too-few-public-methods
     Universal base class. Used to provide common functionality (logging, etc)
     to all the other classes.
     """
+    __slots__ = ('_logger',)
 
     def __init__(self):
         """ctor"""
