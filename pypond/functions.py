@@ -11,11 +11,10 @@ Functions to act as reducers/aggregators, etc.
 """
 
 from functools import reduce
-from math import sqrt
+from math import sqrt, floor
+from operator import truediv
 
-from numpy import percentile
-
-from .exceptions import FilterException
+from .exceptions import FilterException, FunctionException
 from .util import is_valid
 
 
@@ -258,7 +257,42 @@ class Functions(object):
             if vals is None:
                 return None  # pragma: no cover
 
-            return round(percentile(vals, perc, interpolation=method), 3)
+            ret = None
+
+            sort_values = sorted(values)
+            size = len(sort_values)
+
+            if perc < 0 or perc > 100:
+                msg = 'percentile must be between 0 and 100'
+                raise FunctionException(msg)
+
+            i = truediv(perc, 100)
+            index = int(floor((size - 1) * i))
+
+            if size == 1 or perc == 0:
+                return sort_values[0]
+
+            if perc == 100:
+                return sort_values[size - 1]
+
+            if index < size - 1:
+                fraction = (size - 1) * i - index
+                # pylint: disable=invalid-name
+                v0 = sort_values[index]
+                v1 = sort_values[index + 1]
+
+                if method == 'lower' or fraction == 0:
+                    ret = v0
+                elif method == 'linear':
+                    ret = v0 + (v1 - v0) * fraction
+                elif method == 'higher':
+                    ret = v1
+                elif method == 'nearest':
+                    ret = v0 if fraction < .5 else v1
+                elif method == 'midpoint':
+                    ret = (v0 + v1) / 2
+
+            return ret
 
         return inner
 
