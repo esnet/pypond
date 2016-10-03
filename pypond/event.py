@@ -252,7 +252,7 @@ class EventBase(PypondBase):
         EventException
             Does not accept unaware datetime objects.
         """
-        if isinstance(arg, int):
+        if isinstance(arg, six.integer_types):
             return dt_from_ms(arg)
         elif isinstance(arg, datetime.datetime):
             if not dt_is_aware(arg):
