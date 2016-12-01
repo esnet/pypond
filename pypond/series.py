@@ -1306,9 +1306,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 {'max_temp': {'temperature': Functions.max()}}
             )
 
-        This helper function renders the aggregations in localtime. If you
-        want to render in UTC use .fixed_window_rollup() with the appropriate
-        window size.
+        This helper function defaults to rendering the aggregations in localtime.
+        The reason for this is that rendering in localtime makes the most sense
+        on the client side - like rendering a timeseries chart. A user looking
+        at a chart in UTC might not make much sense.
+
+        Since this is now being used in servers side applications, the optional
+        arg utc can be set to True to force it to render in UTC instead.
+
+        Probably best to favor using .fixed_window_rollup() when wanting to
+        render in UTC.
 
         Parameters
         ----------
@@ -1354,9 +1361,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 {'max_temp': {'temperature': Functions.max()}}
             )
 
-        This helper function renders the aggregations in localtime. If you
-        want to render in UTC use .fixed_window_rollup() with the appropriate
-        window size.
+        This helper function defaults to rendering the aggregations in localtime.
+        The reason for this is that rendering in localtime makes the most sense
+        on the client side - like rendering a timeseries chart. A user looking
+        at a chart in UTC might not make much sense.
+
+        Since this is now being used in servers side applications, the optional
+        arg utc can be set to True to force it to render in UTC instead.
+
+        Probably best to favor using .fixed_window_rollup() when wanting to
+        render in UTC.
 
         Parameters
         ----------
@@ -1402,9 +1416,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 {'max_temp': {'temperature': Functions.max()}}
             )
 
-        This helper function renders the aggregations in localtime. If you
-        want to render in UTC use .fixed_window_rollup() with the appropriate
-        window size.
+        This helper function defaults to rendering the aggregations in localtime.
+        The reason for this is that rendering in localtime makes the most sense
+        on the client side - like rendering a timeseries chart. A user looking
+        at a chart in UTC might not make much sense.
+
+        Since this is now being used in servers side applications, the optional
+        arg utc can be set to True to force it to render in UTC instead.
+
+        Probably best to favor using .fixed_window_rollup() when wanting to
+        render in UTC.
 
         Parameters
         ----------
