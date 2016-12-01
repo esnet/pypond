@@ -1276,7 +1276,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self.fixed_window_rollup('1h', aggregation, to_events)
 
-    def daily_rollup(self, aggregation, to_events=False):
+    def daily_rollup(self, aggregation, to_events=False, utc=False):
         """
         Builds a new TimeSeries by dividing events into days. The days are
         in either local or UTC time, depending on if utc(true) is set on the
@@ -1329,9 +1329,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('daily', aggregation, to_events, utc=False)
+        return self._rollup('daily', aggregation, to_events, utc=utc)
 
-    def monthly_rollup(self, aggregation, to_events=False):
+    def monthly_rollup(self, aggregation, to_events=False, utc=False):
         """
         Builds a new TimeSeries by dividing events into months. The months are
         in either local or UTC time, depending on if utc(true) is set on the
@@ -1384,9 +1384,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('monthly', aggregation, to_events, utc=False)
+        return self._rollup('monthly', aggregation, to_events, utc=utc)
 
-    def yearly_rollup(self, aggregation, to_events=False):
+    def yearly_rollup(self, aggregation, to_events=False, utc=False):
         """
         Builds a new TimeSeries by dividing events into years. The years are
         in either local or UTC time, depending on if utc(true) is set on the
@@ -1439,7 +1439,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('yearly', aggregation, to_events, utc=False)
+        return self._rollup('yearly', aggregation, to_events, utc=utc)
 
     def _rollup(self, interval, aggregation, to_events=False, utc=True):
 
