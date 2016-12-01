@@ -871,6 +871,10 @@ class TestCollection(SeriesBase):
         ref_dtime = EVENT_LIST[2].timestamp() + datetime.timedelta(seconds=3)
         self.assertTrue(Event.same(col.at_time(ref_dtime), EVENT_LIST[2]))
 
+        # make sure returning index 0 works
+        ref_dtime = EVENT_LIST[0].timestamp() + datetime.timedelta(seconds=3)
+        self.assertTrue(Event.same(col.at_time(ref_dtime), EVENT_LIST[0]))
+
         # hit dead on for coverage
         self.assertEqual(col.at_time(EVENT_LIST[1].timestamp()).get('in'), 3)
 

@@ -228,7 +228,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         """
         pos = self.bisect(time)
 
-        if pos and pos < self.size():
+        if pos is not None and pos < self.size():
             return self.at(pos)
 
     def at_first(self):
