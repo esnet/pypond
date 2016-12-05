@@ -951,7 +951,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             if len(events) == 0:
                 return list()
 
-        event_map = dict()
+        # ordered to retain ordering of events as passed in
+        event_map = collections.OrderedDict()
         type_map = dict()
 
         def group_by_time(event):
@@ -971,8 +972,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             if key not in type_map:
                 type_map[key] = typ
             else:
-                if type_map[key] != type:
-                    msg = 'Events for time {0} are not homogenous'
+                if type_map[key] != typ:
+                    msg = 'Events for time {0} are not homogenous'.format(key)
                     raise EventException(msg)
 
         for i in events:
@@ -1003,7 +1004,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
                 out_events.append(IndexedEvent(key, data))
             elif typ == TimeRangeEvent:
                 args = key.split(',')
-                trange = TimeRange(*args)
+                trange = TimeRange(int(args[0]), int(args[1]))
                 out_events.append(TimeRangeEvent(trange, data))
 
         return out_events

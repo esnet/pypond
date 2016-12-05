@@ -64,7 +64,9 @@ class TestComparisonUtils(BaseTestEvent):
         self.assertEqual(find[0].get('in'), 3)
         self.assertEqual(find[1].get('in'), 4)
 
-        # print(coll.dedup())
+        ddcoll = coll.dedup()
+        self.assertEqual(ddcoll.size(), 3)
+        self.assertEqual(ddcoll.at(1).get('in'), 4)  # the second dup event
 
         # indexed events
 
@@ -73,6 +75,10 @@ class TestComparisonUtils(BaseTestEvent):
         self.assertEqual(len(find), 2)
         self.assertEqual(find[0].get('value'), 43)
         self.assertEqual(find[1].get('value'), 44)
+
+        ddcoll = coll.dedup()
+        self.assertEqual(ddcoll.size(), 3)
+        self.assertEqual(ddcoll.at(1).get('value'), 44)  # the second dup event
 
         # time range events
 
@@ -94,6 +100,10 @@ class TestComparisonUtils(BaseTestEvent):
         self.assertEqual(len(find), 2)
         self.assertEqual(find[0].get('value'), 12)
         self.assertEqual(find[1].get('value'), 13)
+
+        ddcoll = coll.dedup()
+        self.assertEqual(ddcoll.size(), 3)
+        self.assertEqual(ddcoll.at(1).get('value'), 13)  # the second dup event
 
     def test_is_duplicate(self):
         """Test Event.is_duplicate()"""
