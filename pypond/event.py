@@ -15,6 +15,7 @@ http://software.es.net/pond/#/events
 # Sorry pylint, I've abstracted out all I can and there are lots of docstrings.
 # pylint: disable=too-many-lines
 
+import collections
 import copy
 import datetime
 import json
@@ -921,6 +922,91 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             return Event.merge_timerange_events(events)
         elif isinstance(events[0], IndexedEvent):
             return Event.merge_indexed_events(events)
+
+    @staticmethod
+    def merge_new(events):
+        """Summary
+
+        Parameters
+        ----------
+        events : list
+            A list of a homogenous kind of event.
+
+        Returns
+        -------
+        list
+            A list of the merged events.
+
+        Raises
+        ------
+        EventException
+            Raised if event list is not homogenous.
+        """
+        # need to defer import on these static methods to avoid
+        # circular import errors.
+        from .indexed_event import IndexedEvent
+        from .timerange_event import TimeRangeEvent
+
+        if isinstance(events, list) or is_pvector(events):
+            if len(events) == 0:
+                return list()
+
+        event_map = dict()
+        type_map = dict()
+
+        def group_by_time(event):
+            """Group by the time (the key), as well as keeping track
+            of the event types so we can check that for a given key
+            they are homogeneous and also so we can build an output
+            event for this key"""
+
+            typ = event.type()
+            key = event.key()
+
+            if key not in event_map:
+                event_map[key] = list()
+
+            event_map[key].append(event)
+
+            if key not in type_map:
+                type_map[key] = typ
+            else:
+                if type_map[key] != type:
+                    msg = 'Events for time {0} are not homogenous'
+                    raise EventException(msg)
+
+        for i in events:
+            group_by_time(i)
+
+        def dict_merge(dct, merge_dct):
+            """Merge two dicts, dct will be updated with values in merge_dct."""
+            for k, _ in list(merge_dct.items()):
+                if (k in dct and isinstance(dct[k], dict) and
+                        isinstance(merge_dct[k], collections.Mapping)):
+                    dict_merge(dct[k], merge_dct[k])
+                else:
+                    dct[k] = merge_dct[k]
+
+        out_events = list()
+
+        for key, events in list(event_map.items()):
+            data = dict()
+
+            for i in events:
+                dict_merge(data, thaw(i.data()))
+
+            typ = type_map.get(key)
+
+            if typ == Event:
+                out_events.append(Event(key, data))
+            elif typ == IndexedEvent:
+                out_events.append(IndexedEvent(key, data))
+            elif typ == TimeRangeEvent:
+                args = key.split(',')
+                trange = TimeRange(*args)
+                out_events.append(TimeRangeEvent(trange, data))
+
+        return out_events
 
     @staticmethod
     def combine(events, field_spec, reducer):

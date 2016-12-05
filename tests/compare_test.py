@@ -52,8 +52,10 @@ class TestComparisonUtils(BaseTestEvent):
     """Test methods checking for/handling duplicate events and other accessors
     introduced in the 8.0 branch of the JS code."""
 
-    def test_at_key(self):
-        """test Collection.at_key()"""
+    def test_at_key_and_dedup(self):
+        """test Collection.at_key() and dedup()"""
+
+        # events
         coll = Collection(EVENT_LIST_DUP)
 
         key_time = dt_from_ms(1429673460000)
@@ -62,11 +64,17 @@ class TestComparisonUtils(BaseTestEvent):
         self.assertEqual(find[0].get('in'), 3)
         self.assertEqual(find[1].get('in'), 4)
 
+        # print(coll.dedup())
+
+        # indexed events
+
         coll = Collection(IDX_EVENT_DUP)
         find = coll.at_key('1d-12355')
         self.assertEqual(len(find), 2)
         self.assertEqual(find[0].get('value'), 43)
         self.assertEqual(find[1].get('value'), 44)
+
+        # time range events
 
         test_end_ts = aware_utcnow()
         test_begin_ts = test_end_ts - datetime.timedelta(hours=12)

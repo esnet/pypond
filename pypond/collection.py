@@ -411,6 +411,39 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         """
         return thaw(self.event_list())
 
+    def event_list_as_map(self):
+        """Return the events in the collection as a dict of lists where
+        the key is the timestamp, index or timerange and the value
+        is an array of events with that key.
+
+        Returns
+        -------
+        TYPE
+            Description
+        """
+        ret = list()
+
+        for i in self.events():
+            key = i.key()
+            if i.key() not in ret:
+                ret[key] = list()
+            ret[key].append(i)
+
+        return ret
+
+    def dedup(self):
+        """Remove duplicates from the Collection. If duplicates
+        exist in the collection with the same key but with different
+        values, the later event values will be used.
+
+        Returns
+        -------
+        Collection
+            A new collection w/out duplicates.
+        """
+        events = Event.merge(self.event_list_as_list())
+        return Collection(events)
+
     def sort_by_time(self):
         """Return a new instance of this collection after making sure
         that all of the events are sorted by timestamp.
