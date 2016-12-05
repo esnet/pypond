@@ -11,10 +11,13 @@ Implementation of Pond Collection class.
 """
 
 import copy
+import datetime
 import json
 import math
 
 from pyrsistent import thaw, pvector
+
+import six
 
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
@@ -25,6 +28,7 @@ from .util import (
     _check_dt,
     is_function,
     is_pvector,
+    ms_from_dt,
     ObjectEncoder,
     unique_id,
 )
@@ -230,6 +234,38 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
 
         if pos is not None and pos < self.size():
             return self.at(pos)
+
+    def at_key(self, searchkey):
+        """Returns a list of events in the Collection which have
+        the exact key (time, timerange or index) as the key specified
+        by 'at'. Note that this is an O(n) search for the time specified,
+        since collections are an unordered bag of events.
+
+        Parameters
+        ----------
+        key : datetime, str, TimeRange
+            The key of the event
+
+        Returns
+        -------
+        list
+            List of all events at that key.
+        """
+        if isinstance(searchkey, datetime.datetime):
+            key = ms_from_dt(searchkey)
+        elif isinstance(searchkey, six.string_types):
+            key = searchkey
+        elif isinstance(searchkey, TimeRange):
+            # pylint: disable=redefined-variable-type
+            key = '{0},{1}'.format(ms_from_dt(searchkey.begin()), ms_from_dt(searchkey.end()))
+
+        ret = list()
+
+        for i in self.events():
+            if i.key() == key:
+                ret.append(i)
+
+        return ret
 
     def at_first(self):
         """Retrieve the first item in this collection.
