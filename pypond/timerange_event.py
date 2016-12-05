@@ -14,7 +14,7 @@ at a discret time like Event does.
 from pyrsistent import pmap, thaw
 
 from .event import EventBase
-from .util import is_pmap
+from .util import is_pmap, ms_from_dt
 
 
 class TimeRangeEvent(EventBase):
@@ -89,6 +89,27 @@ class TimeRangeEvent(EventBase):
             timerange=self.timerange().to_json(),
             data=thaw(self.data()),
         )
+
+    def key(self):
+        """Returns a range string in the format 'begin,end' as expressed
+        as ms since the epoch.
+
+        Returns
+        -------
+        str
+            The begin and end of the timerange in ms since the epoch.
+        """
+        return '{0},{1}'.format(ms_from_dt(self.begin()), ms_from_dt(self.end()))
+
+    def type(self):  # pylint: disable=no-self-use
+        """Return the type of this event type
+
+        Returns
+        -------
+        class
+            The class of this event type.
+        """
+        return TimeRangeEvent
 
     def to_point(self, cols=None):
         """

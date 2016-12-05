@@ -575,6 +575,26 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         return self.set_data(data)
 
+    def key(self):
+        """Return timestamp as ms since epoch
+
+        Returns
+        -------
+        int
+            ms since epoch.
+        """
+        return ms_from_dt(self.timestamp())
+
+    def type(self):  # pylint: disable=no-self-use
+        """Return type of the event object
+
+        Returns
+        -------
+        class
+            Return the class of thise event type.
+        """
+        return Event
+
     # Static class methods
 
     @staticmethod
