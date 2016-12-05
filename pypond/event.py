@@ -598,6 +598,40 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     # Static class methods
 
     @staticmethod
+    def is_duplicate(event1, event2, ignore_values=True):
+        """Returns if the two supplied events are duplicates
+        of each other. By default, duplicated means that the
+        timestamps are the same. This is the case with incoming events
+        where the second event is either known to be the same (but
+        duplicate) of the first, or supersedes the first. You can
+        also pass in false for ignoreValues and get a full
+        compare.
+
+        Parameters
+        ----------
+        event1 : Event, IndexedEvent or TimeSeriesEvent
+            One of the event variants.
+        event2 : Event, IndexedEvent or TimeSeriesEvent
+            One of the event variants.
+        ignore_values : bool, optional
+            If set to True, the values of the events will be compared
+            as well. The default means only the type and key will
+            be compared.
+
+        Returns
+        -------
+        TYPE
+            Description
+        """
+
+        if ignore_values is True:
+            return bool(event1.type() == event2.type() and
+                        event1.key() == event2.key())
+        else:
+            return bool(event1.type() == event2.type() and
+                        Event.same(event1, event2))
+
+    @staticmethod
     def same(event1, event2):
         """
         Different name for is() which is an invalid method name.
@@ -618,8 +652,28 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             Returns True if the event payloads is the same.
         """
         # pylint: disable=protected-access
-        return bool(is_pmap(event1._d) and is_pmap(event2._d) and
-                    event1._d == event2._d)
+
+        if event1.type() != event2.type():
+            return False
+
+        from .indexed_event import IndexedEvent
+        from .timerange_event import TimeRangeEvent
+
+        extended_map = {
+            IndexedEvent: 'index',
+            TimeRangeEvent: 'range',
+        }
+
+        if event1.type() in extended_map:
+            key_attr = extended_map.get(event1.type())
+            return bool(
+                str(event1.get(key_attr)) == str(event2.get(key_attr)) and
+                event1._d.get('data') == event2._d.get('data')
+            )
+        else:
+            # regular events
+            return bool(is_pmap(event1._d) and is_pmap(event2._d) and
+                        event1._d == event2._d)
 
     @staticmethod
     def is_valid_value(event, field_path=None):
