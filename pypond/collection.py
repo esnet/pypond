@@ -442,7 +442,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
             A new collection w/out duplicates.
         """
         # XXX: switch this to merge when that's all ironed out.
-        events = Event.merge_new(self.event_list_as_list())
+        events = Event.merge(self.event_list_as_list())
         return Collection(events)
 
     def sort_by_time(self):

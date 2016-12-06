@@ -272,19 +272,7 @@ class TestEventStaticMethods(BaseTestEvent):
         ev2 = Event(self.aware_ts, pay2)
 
         merged = Event.merge([ev1, ev2])
-        self.assertEqual(set(thaw(merged.data())), set(dict(pay1, **pay2)))
-
-        # bad, different ts (error), different payloads
-        ev3 = Event(self.aware_ts, pay1)
-        ev4 = Event(self.aware_ts + datetime.timedelta(minutes=1), pay2)
-        with self.assertRaises(EventException):
-            merged = Event.merge([ev3, ev4])
-
-        # bad, same ts, same payloads (error)
-        ev5 = Event(self.aware_ts, pay1)
-        ev6 = Event(self.aware_ts, pay1)
-        with self.assertRaises(EventException):
-            merged = Event.merge([ev5, ev6])
+        self.assertEqual(set(thaw(merged[0].data())), set(dict(pay1, **pay2)))
 
         # type mismach for coverage
         idxe = IndexedEvent('1999', pay1)
@@ -539,29 +527,18 @@ class TestIndexedEvent(BaseTestEvent):
         event2 = IndexedEvent(index, freeze({'c': 2}))  # pmap for coverage
         merged = Event.merge([event1, event2])
 
-        self.assertEqual(merged.get('a'), 5)
-        self.assertEqual(merged.get('b'), 6)
-        self.assertEqual(merged.get('c'), 2)
+        self.assertEqual(merged[0].get('a'), 5)
+        self.assertEqual(merged[0].get('b'), 6)
+        self.assertEqual(merged[0].get('c'), 2)
 
         # bad merges
         # type mismatch
         with self.assertRaises(EventException):
             Event.merge([event1, self.canned_event])
 
-        # different index
-        event3 = IndexedEvent('1h-396207', dict(d=9))
-        with self.assertRaises(EventException):
-            Event.merge([event1, event3])
-
-        # key collision
-        event4 = IndexedEvent(index, dict(b=9))
-        with self.assertRaises(EventException):
-            Event.merge([event1, event4])
-
         # wrong length/etc
-        self.assertIsNone(Event.merge({}))
-        self.assertIsNone(Event.merge([]))
-        self.assertEqual(Event.merge([event4]), event4)
+        self.assertEquals(Event.merge({}), [])
+        self.assertEquals(Event.merge([]), [])
 
     def test_i_event_deep_get(self):
         """test.deep.get"""
@@ -638,26 +615,14 @@ class TestTimeRangeEvent(BaseTestEvent):
 
         merged = Event.merge([tr1, tr2])
 
-        self.assertEqual(merged.get('a'), 5)
-        self.assertEqual(merged.get('b'), 6)
-        self.assertEqual(merged.get('c'), 2)
+        self.assertEqual(merged[0].get('a'), 5)
+        self.assertEqual(merged[0].get('b'), 6)
+        self.assertEqual(merged[0].get('c'), 2)
 
         # bad merges
         # type mismatch
         with self.assertRaises(EventException):
             Event.merge([tr1, self.canned_event])
-
-        # timestamp mismatch
-        bad_range = TimeRange(self.test_begin_ts + datetime.timedelta(seconds=1),
-                              self.test_end_ts)
-        tr3 = TimeRangeEvent(bad_range, dict(d=9))
-        with self.assertRaises(EventException):
-            Event.merge([tr1, tr3])
-
-        # key collision
-        tr4 = TimeRangeEvent(t_range, dict(c=4))
-        with self.assertRaises(EventException):
-            Event.merge([merged, tr4])
 
     def test_ts_getters(self):
         """Test the accessors for the underlying TimeRange."""

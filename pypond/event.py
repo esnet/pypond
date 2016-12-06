@@ -885,7 +885,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         return IndexedEvent(idx_ref, new_data)
 
     @staticmethod
-    def merge(events):
+    def merge_old(events):
         """
         This is an entry point that will grok the what kind of events
         are in the list and call one of the three Event class specific
@@ -924,7 +924,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             return Event.merge_indexed_events(events)
 
     @staticmethod
-    def merge_new(events):
+    def merge(events):
         """Summary
 
         Parameters
