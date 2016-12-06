@@ -274,11 +274,6 @@ class TestEventStaticMethods(BaseTestEvent):
         merged = Event.merge([ev1, ev2])
         self.assertEqual(set(thaw(merged[0].data())), set(dict(pay1, **pay2)))
 
-        # type mismach for coverage
-        idxe = IndexedEvent('1999', pay1)
-        with self.assertRaises(EventException):
-            Event.merge([ev1, idxe])
-
 
 class TestEventMapReduceCombine(BaseTestEvent):
     """Test the map, reduce, and combine transforms."""
@@ -345,40 +340,31 @@ class TestEventMapReduceCombine(BaseTestEvent):
         ]
 
         result = Event.sum(events)
-        self.assertEqual(result.get('a'), 8)
-        self.assertEqual(result.get('b'), 11)
-        self.assertEqual(result.get('c'), 14)
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertEqual(result[0].get('b'), 11)
+        self.assertEqual(result[0].get('c'), 14)
 
         # combine single field
         result = Event.sum(events, 'a')
-        self.assertEqual(result.get('a'), 8)
-        self.assertIsNone(result.get('b'))
-        self.assertIsNone(result.get('c'))
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertIsNone(result[0].get('b'))
+        self.assertIsNone(result[0].get('c'))
 
         # grab multiple fields
         result = Event.sum(events, ['a', 'c'])
-        self.assertEqual(result.get('a'), 8)
-        self.assertIsNone(result.get('b'))
-        self.assertEqual(result.get('c'), 14)
-
-        # raise an exception
-        bad_events = events + [
-            self._create_event(
-                self.aware_ts + datetime.timedelta(seconds=1),
-                {'a': 8, 'b': 9, 'c': 0})
-        ]
-        with self.assertRaises(EventException):
-            Event.sum(bad_events, 'a')
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertIsNone(result[0].get('b'))
+        self.assertEqual(result[0].get('c'), 14)
 
         # average
         result = Event.avg(
             events + [self._create_event(self.aware_ts, {'a': 1, 'b': 1, 'c': 2})],
             'c')
-        self.assertEqual(result.get('c'), 4)
+        self.assertEqual(result[0].get('c'), 4)
 
         # bad arg
-        self.assertIsNone(Event.sum([]))
-        self.assertIsNone(Event.avg([]))
+        self.assertEqual(Event.sum([]), [])
+        self.assertEqual(Event.avg([]), [])
 
         # work the extra reducer functions in Functions module
         result = Event.combine(events, 'c', Functions.max())
@@ -414,16 +400,16 @@ class TestEventMapReduceCombine(BaseTestEvent):
         ]
 
         result = Event.sum(events, filter_func=Filters.zero_missing)
-        self.assertEqual(result.get('a'), 6)
+        self.assertEqual(result[0].get('a'), 6)
 
         result = Event.sum(events, filter_func=Filters.propogate_missing)
-        self.assertIsNone(result.get('a'))
+        self.assertIsNone(result[0].get('a'))
 
         result = Event.avg(events, filter_func=Filters.ignore_missing)
-        self.assertEqual(result.get('b'), 4)
+        self.assertEqual(result[0].get('b'), 4)
 
         result = Event.avg(events, filter_func=Filters.propogate_missing)
-        self.assertIsNone(result.get('b'))
+        self.assertIsNone(result[0].get('b'))
 
     def test_event_collapse(self):
         """test collapse()"""
@@ -532,13 +518,10 @@ class TestIndexedEvent(BaseTestEvent):
         self.assertEqual(merged[0].get('c'), 2)
 
         # bad merges
-        # type mismatch
-        with self.assertRaises(EventException):
-            Event.merge([event1, self.canned_event])
 
         # wrong length/etc
-        self.assertEquals(Event.merge({}), [])
-        self.assertEquals(Event.merge([]), [])
+        self.assertEqual(Event.merge({}), [])
+        self.assertEqual(Event.merge([]), [])
 
     def test_i_event_deep_get(self):
         """test.deep.get"""
@@ -620,9 +603,6 @@ class TestTimeRangeEvent(BaseTestEvent):
         self.assertEqual(merged[0].get('c'), 2)
 
         # bad merges
-        # type mismatch
-        with self.assertRaises(EventException):
-            Event.merge([tr1, self.canned_event])
 
     def test_ts_getters(self):
         """Test the accessors for the underlying TimeRange."""

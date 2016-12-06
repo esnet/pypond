@@ -1010,7 +1010,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         return out_events
 
     @staticmethod
-    def combine(events, field_spec, reducer):
+    def combine_old(events, field_spec, reducer):
         """
         Combines multiple events with the same time together
         to form a new event. Doesn't currently work on IndexedEvents
@@ -1073,6 +1073,85 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         return [Event(x[0], x[1]) for x in list(event_data.items())]
 
+    @staticmethod
+    def combine(events, field_spec, reducer):
+
+        # need to defer import on these static methods to avoid
+        # circular import errors.
+        from .indexed_event import IndexedEvent
+        from .timerange_event import TimeRangeEvent
+
+        if isinstance(events, list) or is_pvector(events):
+            if len(events) == 0:
+                return list()
+
+        field_names = None
+
+        if isinstance(field_spec, str):
+            field_names = [field_spec]
+        elif isinstance(field_spec, (list, tuple)):
+            field_names = field_spec
+
+        # ordered to retain ordering of events as passed in
+        event_map = collections.OrderedDict()
+        type_map = dict()
+
+        def group_by_time(event):
+            """Group by the time (the key), as well as keeping track
+            of the event types so we can check that for a given key
+            they are homogeneous and also so we can build an output
+            event for this key"""
+
+            typ = event.type()
+            key = event.key()
+
+            if key not in event_map:
+                event_map[key] = list()
+
+            event_map[key].append(event)
+
+            if key not in type_map:
+                type_map[key] = typ
+            else:
+                if type_map[key] != typ:
+                    msg = 'Events for time {0} are not homogenous'.format(key)
+                    raise EventException(msg)
+
+        for i in events:
+            group_by_time(i)
+
+        out_events = list()
+
+        for key, events in list(event_map.items()):
+            map_event = dict()
+
+            for event in events:
+
+                if field_names is None:
+                    field_names = list(thaw(event.data()).keys())
+
+                for field in field_names:
+                    if field not in map_event:
+                        map_event[field] = list()
+                    map_event[field].append(event.data().get(field))
+
+            data = dict()
+            for field_name, values in list(map_event.items()):
+                data[field_name] = reducer(values)
+
+            typ = type_map[key]
+
+            if typ == Event:
+                out_events.append(Event(key, data))
+            elif typ == IndexedEvent:
+                out_events.append(IndexedEvent(key, data))
+            elif typ == TimeRangeEvent:
+                args = key.split(',')
+                trange = TimeRange(int(args[0]), int(args[1]))
+                out_events.append(TimeRangeEvent(trange, data))
+
+        return out_events
+
     # these call combine with appropriate reducer
 
     @staticmethod
@@ -1107,22 +1186,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             Raised on mismatching timestamps.
         """
 
-        tstmp = None
-
-        for i in events:
-            if tstmp is None:
-                tstmp = i.timestamp()
-            else:
-                if tstmp != i.timestamp():
-                    msg = 'sum() expects all events to have the same timestamp'
-                    raise EventException(msg)
-
         summ = Event.combine(events, field_spec, Functions.sum(f_check(filter_func)))
 
-        if summ is not None:
-            return summ[0]
-        else:
-            return None
+        return summ
 
     @staticmethod
     def avg(events, field_spec=None, filter_func=None):
@@ -1151,10 +1217,7 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         avg = Event.combine(events, field_spec, Functions.avg(f_check(filter_func)))
 
-        if avg is not None:
-            return avg[0]
-        else:
-            return None
+        return avg
 
     # map, reduce, etc
 

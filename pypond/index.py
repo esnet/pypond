@@ -416,7 +416,7 @@ class Index(PypondBase):
 
             idx_str = Index.get_index_string('5m', dtime)
 
-            self.assertEquals(idx_str, '5m-4754394')
+            self.assertEqual(idx_str, '5m-4754394')
 
         previously: Generator.bucketIndex
 
@@ -450,9 +450,9 @@ class Index(PypondBase):
 
             idx_list = Index.get_index_string_list('5m', TimeRange(dtime_1, dtime_2))
 
-            self.assertEquals(len(idx_list), 12)
-            self.assertEquals(idx_list[0], '5m-4754394')
-            self.assertEquals(idx_list[-1], '5m-4754405')
+            self.assertEqual(len(idx_list), 12)
+            self.assertEqual(idx_list[0], '5m-4754394')
+            self.assertEqual(idx_list[-1], '5m-4754405')
 
         previously: Generator.bucketIndexList
 
