@@ -885,47 +885,17 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         return IndexedEvent(idx_ref, new_data)
 
     @staticmethod
-    def merge_old(events):
-        """
-        This is an entry point that will grok the what kind of events
-        are in the list and call one of the three Event class specific
-        methods.
-
-        Parameters
-        ----------
-        events : list
-            List of Events types
-
-        Returns
-        -------
-        Event, TimeRangeEvent, IndexedEvent
-            New event type returned from appropriate merge method.
-        """
-        if not isinstance(events, list):
-            # need to be a list
-            return
-        elif len(events) < 1:
-            # nothing to process
-            return
-        elif len(events) == 1:
-            # just one, return it.
-            return events[0]
-
-        # need to defer import on these static methods to avoid
-        # circular import errors.
-        from .indexed_event import IndexedEvent
-        from .timerange_event import TimeRangeEvent
-
-        if isinstance(events[0], Event):
-            return Event.merge_events(events)
-        elif isinstance(events[0], TimeRangeEvent):
-            return Event.merge_timerange_events(events)
-        elif isinstance(events[0], IndexedEvent):
-            return Event.merge_indexed_events(events)
-
-    @staticmethod
     def merge(events):
-        """Summary
+        """Merges multiple `events` together into a new array of events, one
+        for each time/index/timerange of the source events. Merging is done on
+        the data of each event. Values from later events in the list overwrite
+        early values if fields conflict.
+
+        Common use cases:
+
+        * append events of different timestamps
+        * merge in events with one field to events with another
+        * merge in events that supersede the previous events
 
         Parameters
         ----------
@@ -1010,71 +980,31 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
         return out_events
 
     @staticmethod
-    def combine_old(events, field_spec, reducer):
-        """
-        Combines multiple events with the same time together
-        to form a new event. Doesn't currently work on IndexedEvents
-        or TimeRangeEvents.
+    def combine(events, field_spec, reducer):  # pylint: disable=too-many-locals, too-many-branches
+        """Summary
 
         Parameters
         ----------
         events : list
             List of Event objects
-        field_spec : list, str, None, optional
+        field_spec : string, list
             Column or columns to look up. If you need to retrieve multiple deep
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
         reducer : function
-            Reducer function to apply to column data.
+            Reducer function to apply to column data
 
         Returns
         -------
         list
-            A list of Event objects.
+            List of new events
+
+        Raises
+        ------
+        EventException
+            Raised if illegal input is received.
         """
-        if len(events) < 1:
-            return None
-
-        def combine_mapper(event):
-            """mapper function to make ts::k => value dicts"""
-            map_event = dict()
-
-            field_names = list()
-
-            if field_spec is None:
-                field_names = list(thaw(event.data()).keys())
-            elif isinstance(field_spec, str):
-                field_names = [field_spec]
-            elif isinstance(field_spec, (list, tuple)):
-                field_names = field_spec
-
-            for i in field_names:
-                map_event['{ts}::{fn}'.format(ts=ms_from_dt(event.timestamp()),
-                                              fn=i)] = event.get(i)
-
-            # return {ts::k => val, ts::k2 => val, ts::k3 => val}
-            return map_event
-
-        # dict w/ts::k => [val, val, val]
-        mapped = Event.map(events, combine_mapper)
-
-        event_data = dict()
-
-        for k, v in list(Event.reduce(mapped, reducer).items()):
-            # ts::k with single reduced value
-            tstamp, field = k.split('::')
-            tstamp = int(tstamp)
-            if tstamp not in event_data:
-                event_data[tstamp] = dict()
-            event_data[tstamp][field] = v
-
-        # event_data 2 level dict {'1459283734515': {'a': 8, 'c': 14, 'b': 11}}
-
-        return [Event(x[0], x[1]) for x in list(event_data.items())]
-
-    @staticmethod
-    def combine(events, field_spec, reducer):
 
         # need to defer import on these static methods to avoid
         # circular import errors.
@@ -1177,8 +1107,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Returns
         -------
-        int, float or None
-            The summed value.
+        list
+            A list containing the summed events.
 
         Raises
         ------
@@ -1212,8 +1142,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Returns
         -------
-        int, float or None
-            The averaged value."""
+        list
+            A list containing the averaged events.
+        """
 
         avg = Event.combine(events, field_spec, Functions.avg(f_check(filter_func)))
 

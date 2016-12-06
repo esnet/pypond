@@ -1525,8 +1525,12 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
     @staticmethod
-    def timeseries_list_reduce_old(data, series_list, reducer, field_spec=None):
-        """for each series, map events to the same timestamp/index
+    def timeseries_list_reduce(data, series_list, reducer, field_spec=None):
+        """Reduces a list of TimeSeries objects using a reducer function. This works
+        by taking each event in each TimeSeries and collecting them together
+        based on timestamp. All events for a given time are then merged together
+        using the reducer function to produce a new Event. Those Events are then
+        collected together to form a new TimeSeries.
 
         Parameters
         ----------
@@ -1548,43 +1552,6 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             New time series containing the mapped events.
         """
-
-        event_map = collections.OrderedDict()
-
-        # sort on the begin times which might be out of order. this
-        # ensures that the event map wil be generated chronologically.
-        series_list = sorted(series_list, key=lambda x: x.begin())
-
-        for i in series_list:
-            for evn in i.events():
-                key = None
-                if isinstance(evn, Event):
-                    key = evn.timestamp()
-                elif isinstance(evn, IndexedEvent):
-                    key = evn.index_as_string()
-                elif isinstance(evn, TimeRangeEvent):
-                    key = evn.timerange().to_utc_string()
-
-                if key not in event_map:
-                    # keep keys in insert order
-                    event_map.update({key: list()})
-
-                event_map[key].append(evn)
-
-        events = list()
-
-        for v in list(event_map.values()):
-            if field_spec is None:
-                event = reducer(v)
-            else:
-                event = reducer(v, field_spec)
-
-            events.append(event)
-
-        return TimeSeries(dict(events=events, **data))
-
-    @staticmethod
-    def timeseries_list_reduce(data, series_list, reducer, field_spec=None):
 
         if not isinstance(series_list, list):
             msg = 'A list of TimeSeries must be supplied to reduce'
@@ -1613,7 +1580,6 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         ret = TimeSeries(dict(data=data, collection=coll))
 
         return ret
-
 
     @staticmethod
     def timeseries_list_merge(data, series_list):
