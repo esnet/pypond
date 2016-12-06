@@ -421,7 +421,7 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         TYPE
             Description
         """
-        ret = list()
+        ret = dict()
 
         for i in self.events():
             key = i.key()
