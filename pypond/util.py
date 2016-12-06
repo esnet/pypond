@@ -19,7 +19,6 @@ import json
 import math
 import time
 import types
-import uuid
 import warnings
 
 import humanize

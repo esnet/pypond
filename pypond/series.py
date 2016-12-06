@@ -25,7 +25,7 @@ from .exceptions import TimeSeriesException
 from .index import Index
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
-from .util import ObjectEncoder, ms_from_dt
+from .util import ObjectEncoder, ms_from_dt, is_function
 
 
 class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
@@ -1525,7 +1525,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         )
 
     @staticmethod
-    def timeseries_list_reduce(data, series_list, reducer, field_spec=None):
+    def timeseries_list_reduce_old(data, series_list, reducer, field_spec=None):
         """for each series, map events to the same timestamp/index
 
         Parameters
@@ -1582,6 +1582,38 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             events.append(event)
 
         return TimeSeries(dict(events=events, **data))
+
+    @staticmethod
+    def timeseries_list_reduce(data, series_list, reducer, field_spec=None):
+
+        if not isinstance(series_list, list):
+            msg = 'A list of TimeSeries must be supplied to reduce'
+            raise TimeSeriesException(msg)
+
+        if not is_function(reducer):
+            msg = 'reducer function must be supplied, for example, avg()'
+            raise TimeSeriesException(msg)
+
+        event_list = list()
+
+        for i in series_list:
+            for ii in i.events():
+                event_list.append(ii)
+
+        if field_spec is not None:
+            events = reducer(event_list, field_spec)
+        else:
+            # like when calling Event.merge()
+            events = reducer(event_list)
+
+        coll = Collection(events)
+        if coll.is_chronological() is False:
+            coll = coll.sort_by_time()
+
+        ret = TimeSeries(dict(data=data, collection=coll))
+
+        return ret
+
 
     @staticmethod
     def timeseries_list_merge(data, series_list):
