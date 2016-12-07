@@ -844,7 +844,22 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def combine(events, field_spec, reducer):  # pylint: disable=too-many-locals, too-many-branches
-        """Summary
+        """Combines multiple `events` together into a new array of events, one
+        for each time/index/timerange of the source events. The list of
+        events may be specified as an array or `Immutable.List`. Combining acts
+        on the fields specified in the `fieldSpec` and uses the reducer
+        function to take the multiple values and reducer them down to one.
+
+        The return result will be an of the same form as the input. If you
+        pass in an array of events, you will get an array of events back. If
+        you pass an `Immutable.List` of events then you will get an
+        `Immutable.List` of events back.
+
+        This is the general version of `Event.sum()` and `Event.avg()`. If those
+        common use cases are what you want, just use those functions. If you
+        want to specify your own reducer you can use this function.
+
+        See also: `TimeSeries.timeSeriesListSum()`
 
         Parameters
         ----------
