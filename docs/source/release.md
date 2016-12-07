@@ -21,7 +21,7 @@ NOTE: `key` means "the specific timestamp, index or time range an event object e
 #### Additions:
 
 * `Collection.at_key()` retrieves all the events in a `Collection` at a specified key.
-* `Collection.dedup()` removes duplicate (events at the key) Event objects from a `Collection`.
+* `Collection.dedup()` removes duplicate (events at the same key) Event objects from a `Collection`.
 * `Collection.event_list_as_map()` returns the Event objects in a `Collection` as a `dict` of `list` where the key is the `key` and the list contains the events at that `key`.
 * `Event.key()` and `Event.type()` have been added but are mostly used internally. Have been added to all three event variants.
 * `Event.is_duplicate()` compares two events and returns `True` if they are of the same time and exist at the same key. Can also be used to compare payload values as well with an optional flag.
