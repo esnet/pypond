@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; pypond 0.4.5 documentation</title>
+    <title>Index &mdash; pypond 0.5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4.5',
+        VERSION:     '0.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -31,7 +31,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.4.5 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.5.0 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -71,6 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="columns.html">Data columns: field_spec and field_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Release notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
 </ul>
 </ul>
@@ -334,6 +335,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="pypond.html#pypond.collection.Collection.at_key">at_key() (pypond.collection.Collection method)</a>
+  </dt>
+
       
   <dt><a href="pypond.html#pypond.collection.Collection.at_last">at_last() (pypond.collection.Collection method)</a>
   </dt>
@@ -647,6 +652,10 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.collection.Collection.dedup">dedup() (pypond.collection.Collection method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.util.ObjectEncoder.default">default() (pypond.util.ObjectEncoder method)</a>
   </dt>
 
@@ -757,6 +766,10 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.collection.Collection.event_list_as_map">event_list_as_map() (pypond.collection.Collection method)</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.series.TimeSeries.event_type_map">event_type_map (pypond.series.TimeSeries attribute)</a>, <a href="pypond.html#pypond.series.TimeSeries.event_type_map">[1]</a>
   </dt>
 
@@ -844,8 +857,6 @@
   <dt><a href="pypond.html#pypond.exceptions.FilterWarning">FilterWarning</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.collection.Collection.first">first() (pypond.collection.Collection method)</a>
   </dt>
@@ -860,6 +871,8 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.series.TimeSeries.fixed_window_rollup">fixed_window_rollup() (pypond.series.TimeSeries method)</a>
   </dt>
@@ -903,7 +916,15 @@
   </dt>
 
       
+  <dt><a href="pypond.html#pypond.exceptions.FunctionException">FunctionException</a>
+  </dt>
+
+      
   <dt><a href="pypond.html#pypond.functions.Functions">Functions (class in pypond.functions)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.exceptions.FunctionWarning">FunctionWarning</a>
   </dt>
 
   </dl></td>
@@ -1066,14 +1087,18 @@
   <dt><a href="pypond.html#pypond.pipeline.Pipeline.input">input() (pypond.pipeline.Pipeline method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.range.TimeRange.intersection">intersection() (pypond.range.TimeRange method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.collection.Collection.is_chronological">is_chronological() (pypond.collection.Collection method)</a>
+  </dt>
+
+      
+  <dt><a href="pypond.html#pypond.event.Event.is_duplicate">is_duplicate() (pypond.event.Event static method)</a>
   </dt>
 
       
@@ -1118,12 +1143,26 @@
   <dt><a href="pypond.html#pypond.functions.Functions.keep">keep() (pypond.functions.Functions static method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pypond.html#pypond.functions.Filters.keep_missing">keep_missing() (pypond.functions.Filters static method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pypond.html#pypond.event.Event.key">key() (pypond.event.Event method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.indexed_event.IndexedEvent.key">(pypond.indexed_event.IndexedEvent method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.timerange_event.TimeRangeEvent.key">(pypond.timerange_event.TimeRangeEvent method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -1248,20 +1287,8 @@
   <dt><a href="pypond.html#pypond.event.Event.merge">merge() (pypond.event.Event static method)</a>
   </dt>
 
-      
-  <dt><a href="pypond.html#pypond.event.Event.merge_events">merge_events() (pypond.event.Event static method)</a>
-  </dt>
-
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
-      
-  <dt><a href="pypond.html#pypond.event.Event.merge_indexed_events">merge_indexed_events() (pypond.event.Event static method)</a>
-  </dt>
-
-      
-  <dt><a href="pypond.html#pypond.event.Event.merge_timerange_events">merge_timerange_events() (pypond.event.Event static method)</a>
-  </dt>
-
       
   <dt><a href="pypond.html#pypond.series.TimeSeries.meta">meta() (pypond.series.TimeSeries method)</a>
   </dt>
@@ -2072,6 +2099,20 @@
   <dt><a href="pypond.html#pypond.collection.Collection.type">type() (pypond.collection.Collection method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="pypond.html#pypond.event.Event.type">(pypond.event.Event method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.indexed_event.IndexedEvent.type">(pypond.indexed_event.IndexedEvent method)</a>
+  </dt>
+
+        
+  <dt><a href="pypond.html#pypond.timerange_event.TimeRangeEvent.type">(pypond.timerange_event.TimeRangeEvent method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 

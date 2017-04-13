@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Release notes &mdash; pypond 0.5.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/esnet/esnet.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.5.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pypond 0.5.0 documentation" href="index.html" />
+    <link rel="next" title="Running the tests" href="tests.html" />
+    <link rel="prev" title="Fill and other sanitizing methods" href="sanitize.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          <!-- LOGO:  _static/ -->
+          pypond</a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Section <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption"><span class="caption-text">Developer Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="columns.html">Data columns: field_spec and field_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="sanitize.html" title="Previous Chapter: Fill and other sanitizing methods">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+      <span class="hidden-sm">
+        Fill and othe...
+      </span>
+    </a>
+  </li>
+  <li>
+    <a href="tests.html" title="Next Chapter: Running the tests">
+      <span class="hidden-sm">
+        Running the t...
+      </span>
+      <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+  </li>
+              
+            
+            <li class="divider-vertical"></li>
+            
+                <li><a href="genindex.html">Index</a></li>
+                <li><a href="https://www.es.net">ESnet</a></li>
+            
+            <li><a href="https://github.com/esnet/pypond"><img src="_static/esnet/icon-github.png" height="20" width="20"></a></li>
+            
+            
+            
+          </ul>
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Release notes</a><ul>
+<li><a class="reference internal" href="#">0.4</a></li>
+<li><a class="reference internal" href="#">0.5</a><ul>
+<li><a class="reference internal" href="#">0.5.0</a><ul>
+<li><a class="reference internal" href="#major-changes">Major changes:</a></li>
+<li><a class="reference internal" href="#additions">Additions:</a></li>
+<li><a class="reference internal" href="#various">Various:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="release-notes">
+<span id="release-notes"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
+<p>Notes about releases, API changes, etc.</p>
+<div class="section" id="">
+<span id="id1"></span><h2>0.4<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h2>
+<p>First stable release with full feature parity with the Pond JS code base.</p>
+</div>
+<div class="section" id="">
+<span id="id2"></span><h2>0.5<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="">
+<span id="id3"></span><h3>0.5.0<a class="headerlink" href="#" title="Permalink to this headline">¶</a></h3>
+<p>NOTE: <code class="docutils literal"><span class="pre">key</span></code> means &#8220;the specific timestamp, index or time range an event object exists at.&#8221;</p>
+<div class="section" id="major-changes">
+<span id="major-changes"></span><h4>Major changes:<a class="headerlink" href="#major-changes" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Event.merge()</span></code> has been changed and is not backwards compatible with the 0.4 version. Previously it took a list of Event objects at the same key and returns a single, merged Event. Now it takes a list of Event objects that can be of differing keys and returns a list of Events where the events at the same key have their values merged into a single event. To wit: <code class="docutils literal"><span class="pre">[e(1,</span> <span class="pre">{'a':</span> <span class="pre">1}),</span> <span class="pre">e(1,</span> <span class="pre">{'b':</span> <span class="pre">2}),</span> <span class="pre">e(2,</span> <span class="pre">{'a':</span> <span class="pre">3}),</span> <span class="pre">e(2,</span> <span class="pre">{'b':</span> <span class="pre">4})]</span> <span class="pre">-&gt;</span> <span class="pre">[e(1,</span> <span class="pre">{'a':</span> <span class="pre">1,</span> <span class="pre">'b':</span> <span class="pre">2}),</span> <span class="pre">e(2,</span> <span class="pre">{'a':</span> <span class="pre">3,</span> <span class="pre">'b':</span> <span class="pre">4})]</span></code></li>
+<li><code class="docutils literal"><span class="pre">Event.combine()</span></code> has been re-worked to accommodate this, but this is mostly for performance and should be transparent to the user.</li>
+<li><code class="docutils literal"><span class="pre">Event.avg()</span></code> and <code class="docutils literal"><span class="pre">Event.sum()</span></code> (which are helper functions that use <code class="docutils literal"><span class="pre">Event.combine()</span></code>) now behave like <code class="docutils literal"><span class="pre">Event.merge()</span></code> and return a list of summed/averaged events, rather than a single event at one key.</li>
+</ul>
+</div>
+<div class="section" id="additions">
+<span id="additions"></span><h4>Additions:<a class="headerlink" href="#additions" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Collection.at_key()</span></code> retrieves all the events in a <code class="docutils literal"><span class="pre">Collection</span></code> at a specified key.</li>
+<li><code class="docutils literal"><span class="pre">Collection.dedup()</span></code> removes duplicate (events at the same key) Event objects from a <code class="docutils literal"><span class="pre">Collection</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">Collection.event_list_as_map()</span></code> returns the Event objects in a <code class="docutils literal"><span class="pre">Collection</span></code> as a <code class="docutils literal"><span class="pre">dict</span></code> of <code class="docutils literal"><span class="pre">list</span></code> where the key is the <code class="docutils literal"><span class="pre">key</span></code> and the list contains the events at that <code class="docutils literal"><span class="pre">key</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">Event.key()</span></code> and <code class="docutils literal"><span class="pre">Event.type()</span></code> have been added but are mostly used internally. Have been added to all three event variants.</li>
+<li><code class="docutils literal"><span class="pre">Event.is_duplicate()</span></code> compares two events and returns <code class="docutils literal"><span class="pre">True</span></code> if they are of the same time and exist at the same key. Can also be used to compare payload values as well with an optional flag.</li>
+</ul>
+</div>
+<div class="section" id="various">
+<span id="various"></span><h4>Various:<a class="headerlink" href="#various" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Added a boolean flag to allow <code class="docutils literal"><span class="pre">TimeSeries.daily_rollup()</span></code> <code class="docutils literal"><span class="pre">.monthly_rollup()</span></code> and <code class="docutils literal"><span class="pre">.yearly_rollup()</span></code> to render results in UTC rather than localtime. They default to rendering in localtime due to client-side concerns (like rendering a chart), but can now render in UTC since it is being used in server-side applications.</li>
+<li>Fixed a bug that impacted <code class="docutils literal"><span class="pre">TimeSeries/Collection.at_time()</span></code> when the first event should be returned.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-1">
+        <a href="http://www.es.net/"><img src="_static/esnet/logo-esnet.png" alt="[ESnet]"></a>
+      </div>
+      <div class="col-md-11">
+        <p class="pull-right">
+        <a href="#">Back to top</a>
+        
+        <br/>
+        
+<div id="sourcelink">
+  <a href="_sources/release.txt"
+     rel="nofollow">Source</a>
+</div>
+        
+        </p>
+        <p>
+            &copy; Copyright 2016, The Regents of the University of California.<br/>
+          Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.1.<br/>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+  </body>
+</html>

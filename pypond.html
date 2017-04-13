@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>pypond package &mdash; pypond 0.4.5 documentation</title>
+    <title>pypond package &mdash; pypond 0.5.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.4.5',
+        VERSION:     '0.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -30,7 +30,7 @@
     <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-    <link rel="top" title="pypond 0.4.5 documentation" href="index.html" />
+    <link rel="top" title="pypond 0.5.0 documentation" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="time.html">Notes on time handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="columns.html">Data columns: field_spec and field_path</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sanitize.html">Fill and other sanitizing methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release.html">Release notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">Running the tests</a></li>
 </ul>
 </ul>
@@ -364,6 +365,27 @@ of data are being handled/aggregation being done.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.collection.Collection.at_key">
+<code class="descname">at_key</code><span class="sig-paren">(</span><em>searchkey</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.at_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of events in the Collection which have
+the exact key (time, timerange or index) as the key specified
+by &#8216;at&#8217;. Note that this is an O(n) search for the time specified,
+since collections are an unordered bag of events.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<em>datetime, str, TimeRange</em>) &#8211; The key of the event</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of all events at that key.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.collection.Collection.at_last">
 <code class="descname">at_last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.at_last" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the last event item in this collection.</p>
@@ -550,6 +572,24 @@ only that column.</li>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="pypond.collection.Collection.dedup">
+<code class="descname">dedup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.dedup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove duplicates from the Collection. If duplicates
+exist in the collection with the same key but with different
+values, the later event values will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A new collection w/out duplicates.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.collection.Collection" title="pypond.collection.Collection">Collection</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="staticmethod">
 <dt id="pypond.collection.Collection.equal">
 <em class="property">static </em><code class="descname">equal</code><span class="sig-paren">(</span><em>coll1</em>, <em>coll2</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.equal" title="Permalink to this definition">¶</a></dt>
@@ -601,6 +641,24 @@ only that column.</li>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Thawed version of internal immutable data structure.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.collection.Collection.event_list_as_map">
+<code class="descname">event_list_as_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.collection.Collection.event_list_as_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the events in the collection as a dict of lists where
+the key is the timestamp, index or timerange and the value
+is an array of events with that key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Description</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">TYPE</td>
 </tr>
 </tbody>
 </table>
@@ -1317,10 +1375,10 @@ values will be retained which will potentially cause errors.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The averaged value.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list containing the averaged events.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int, float or None</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -1377,27 +1435,40 @@ a new Event with just the collapsed data.</li>
 <dl class="staticmethod">
 <dt id="pypond.event.Event.combine">
 <em class="property">static </em><code class="descname">combine</code><span class="sig-paren">(</span><em>events</em>, <em>field_spec</em>, <em>reducer</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.combine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Combines multiple events with the same time together
-to form a new event. Doesn&#8217;t currently work on IndexedEvents
-or TimeRangeEvents.</p>
+<dd><p>Combines multiple <cite>events</cite> together into a new array of events, one
+for each time/index/timerange of the source events. The list of
+events may be specified as an array or <cite>Immutable.List</cite>. Combining acts
+on the fields specified in the <cite>fieldSpec</cite> and uses the reducer
+function to take the multiple values and reducer them down to one.</p>
+<p>The return result will be an of the same form as the input. If you
+pass in an array of events, you will get an array of events back. If
+you pass an <cite>Immutable.List</cite> of events then you will get an
+<cite>Immutable.List</cite> of events back.</p>
+<p>This is the general version of <cite>Event.sum()</cite> and <cite>Event.avg()</cite>. If those
+common use cases are what you want, just use those functions. If you
+want to specify your own reducer you can use this function.</p>
+<p>See also: <cite>TimeSeries.timeSeriesListSum()</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>events</strong> (<em>list</em>) &#8211; List of Event objects</li>
-<li><strong>field_spec</strong> (<em>list, str, None, optional</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
+<li><strong>field_spec</strong> (<em>string, list</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
 A single deep value with a string.like.this.  If None, all columns
 will be operated on.</li>
-<li><strong>reducer</strong> (<em>function</em>) &#8211; Reducer function to apply to column data.</li>
+<li><strong>reducer</strong> (<em>function</em>) &#8211; Reducer function to apply to column data</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of Event objects.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of new events</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">EventException</span></code> &#8211; Raised if illegal input is received.</p>
 </td>
 </tr>
 </tbody>
@@ -1415,6 +1486,39 @@ will be operated on.</li>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Datetime object</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">datetime.datetime</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pypond.event.Event.is_duplicate">
+<em class="property">static </em><code class="descname">is_duplicate</code><span class="sig-paren">(</span><em>event1</em>, <em>event2</em>, <em>ignore_values=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.is_duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if the two supplied events are duplicates
+of each other. By default, duplicated means that the
+timestamps are the same. This is the case with incoming events
+where the second event is either known to be the same (but
+duplicate) of the first, or supersedes the first. You can
+also pass in false for ignoreValues and get a full
+compare.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>event1</strong> (<em>Event, IndexedEvent or TimeSeriesEvent</em>) &#8211; One of the event variants.</li>
+<li><strong>event2</strong> (<em>Event, IndexedEvent or TimeSeriesEvent</em>) &#8211; One of the event variants.</li>
+<li><strong>ignore_values</strong> (<em>bool, optional</em>) &#8211; If set to True, the values of the events will be compared
+as well. The default means only the type and key will
+be compared.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Description</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">TYPE</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1444,6 +1548,22 @@ or &#8216;deep.value.&#8217;</p>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.event.Event.key">
+<code class="descname">key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return timestamp as ms since epoch</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">ms since epoch.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
 </tr>
 </tbody>
 </table>
@@ -1523,87 +1643,27 @@ all columns will be mapped.</li>
 <dl class="staticmethod">
 <dt id="pypond.event.Event.merge">
 <em class="property">static </em><code class="descname">merge</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.merge" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is an entry point that will grok the what kind of events
-are in the list and call one of the three Event class specific
-methods.</p>
+<dd><p>Merges multiple <cite>events</cite> together into a new array of events, one
+for each time/index/timerange of the source events. Merging is done on
+the data of each event. Values from later events in the list overwrite
+early values if fields conflict.</p>
+<p>Common use cases:</p>
+<ul class="simple">
+<li>append events of different timestamps</li>
+<li>merge in events with one field to events with another</li>
+<li>merge in events that supersede the previous events</li>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>list</em>) &#8211; List of Events types</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>list</em>) &#8211; A list of a homogenous kind of event.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New event type returned from appropriate merge method.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of the merged events.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Event, TimeRangeEvent, IndexedEvent</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
 </tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pypond.event.Event.merge_events">
-<em class="property">static </em><code class="descname">merge_events</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.merge_events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Merge a list of regular Event objects in to a single new Event.</p>
-<p>The events being merged must have the same type and must have the
-same timestamp.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>list</em>) &#8211; A list of Event object to merge.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new event object.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.event.Event" title="pypond.event.Event">Event</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">EventException</span></code> &#8211; Raised if the events are not the same type, have the same timestamp
-or have the same key.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pypond.event.Event.merge_indexed_events">
-<em class="property">static </em><code class="descname">merge_indexed_events</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.merge_indexed_events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Merge a list of IndexedEvent objects.</p>
-<p>The events being merged must have the same type and must have the
-same timestamp.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>list</em>) &#8211; A list of IndexedEvent objects.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">New indexed event object.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.indexed_event.IndexedEvent" title="pypond.indexed_event.IndexedEvent">IndexedEvent</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">EventException</span></code> &#8211; Raised if the events are not the same type, have the same timestamp
-or have the same key.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pypond.event.Event.merge_timerange_events">
-<em class="property">static </em><code class="descname">merge_timerange_events</code><span class="sig-paren">(</span><em>events</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.merge_timerange_events" title="Permalink to this definition">¶</a></dt>
-<dd><p>Merge a list of TimeRangeEvent objects.</p>
-<p>The events being merged must have the same type and must have the
-same timestamp.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>events</strong> (<em>list</em>) &#8211; List of TimeRangeEvents to merge</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A new time range event object.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.timerange_event.TimeRangeEvent" title="pypond.timerange_event.TimeRangeEvent">TimeRangeEvent</a></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">EventException</span></code> &#8211; Raised if the events are not the same type, have the same timestamp
-or have the same key.</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">EventException</span></code> &#8211; Raised if event list is not homogenous.</td>
 </tr>
 </tbody>
 </table>
@@ -1741,10 +1801,10 @@ values will be retained which will potentially cause errors.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The summed value.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list containing the summed events.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">int, float or None</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">list</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">EventException</span></code> &#8211; Raised on mismatching timestamps.</p>
@@ -1841,6 +1901,22 @@ to return it in.</td>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Epoch ms followed by points.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.event.Event.type">
+<code class="descname">type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.event.Event.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return type of the event object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Return the class of thise event type.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">class</td>
 </tr>
 </tbody>
 </table>
@@ -2196,6 +2272,20 @@ or &#8216;deep.value.&#8217;</p>
 <em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">FilterWarning</code><a class="headerlink" href="#pypond.exceptions.FilterWarning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
 <p>Custom Filter warning</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pypond.exceptions.FunctionException">
+<em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">FunctionException</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.exceptions.FunctionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Custom Function exception</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pypond.exceptions.FunctionWarning">
+<em class="property">exception </em><code class="descclassname">pypond.exceptions.</code><code class="descname">FunctionWarning</code><a class="headerlink" href="#pypond.exceptions.FunctionWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Warning</span></code></p>
+<p>Custom Function warning</p>
 </dd></dl>
 
 <dl class="exception">
@@ -2590,7 +2680,7 @@ object. Example usage follows.</p>
 
 <span class="n">idx_str</span> <span class="o">=</span> <span class="n">Index</span><span class="o">.</span><span class="n">get_index_string</span><span class="p">(</span><span class="s1">&#39;5m&#39;</span><span class="p">,</span> <span class="n">dtime</span><span class="p">)</span>
 
-<span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">idx_str</span><span class="p">,</span> <span class="s1">&#39;5m-4754394&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">idx_str</span><span class="p">,</span> <span class="s1">&#39;5m-4754394&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>previously: Generator.bucketIndex</p>
@@ -2627,9 +2717,9 @@ every &lt;prefix&gt; tick. Example usage follows (from test suite).</p>
 
 <span class="n">idx_list</span> <span class="o">=</span> <span class="n">Index</span><span class="o">.</span><span class="n">get_index_string_list</span><span class="p">(</span><span class="s1">&#39;5m&#39;</span><span class="p">,</span> <span class="n">TimeRange</span><span class="p">(</span><span class="n">dtime_1</span><span class="p">,</span> <span class="n">dtime_2</span><span class="p">))</span>
 
-<span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_list</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">idx_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;5m-4754394&#39;</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">assertEquals</span><span class="p">(</span><span class="n">idx_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;5m-4754405&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_list</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">idx_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;5m-4754394&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">idx_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;5m-4754405&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>previously: Generator.bucketIndexList</p>
@@ -2962,6 +3052,22 @@ Yes, that&#8217;s a double negative.</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="pypond.indexed_event.IndexedEvent.key">
+<code class="descname">key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.indexed_event.IndexedEvent.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the index string of this object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The index of this object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#pypond.index.Index" title="pypond.index.Index">Index</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pypond.indexed_event.IndexedEvent.set_data">
 <code class="descname">set_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.indexed_event.IndexedEvent.set_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the data portion of the event and returns a new IndexedEvent.</p>
@@ -3088,6 +3194,22 @@ wire format is rendered corectly.</td>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Epoch ms followed by points.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.indexed_event.IndexedEvent.type">
+<code class="descname">type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.indexed_event.IndexedEvent.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the class of this event type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The class of this event type.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">class</td>
 </tr>
 </tbody>
 </table>
@@ -4962,7 +5084,7 @@ a new TimeSeries</p>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.daily_rollup">
-<code class="descname">daily_rollup</code><span class="sig-paren">(</span><em>aggregation</em>, <em>to_events=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.daily_rollup" title="Permalink to this definition">¶</a></dt>
+<code class="descname">daily_rollup</code><span class="sig-paren">(</span><em>aggregation</em>, <em>to_events=False</em>, <em>utc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.daily_rollup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a new TimeSeries by dividing events into days. The days are
 in either local or UTC time, depending on if utc(true) is set on the
 Pipeline.</p>
@@ -4989,9 +5111,14 @@ and out_max.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>This helper function renders the aggregations in localtime. If you
-want to render in UTC use .fixed_window_rollup() with the appropriate
-window size.</p>
+<p>This helper function defaults to rendering the aggregations in localtime.
+The reason for this is that rendering in localtime makes the most sense
+on the client side - like rendering a timeseries chart. A user looking
+at a chart in UTC might not make much sense.</p>
+<p>Since this is now being used in servers side applications, the optional
+arg utc can be set to True to force it to render in UTC instead.</p>
+<p>Probably best to favor using .fixed_window_rollup() when wanting to
+render in UTC.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -5453,7 +5580,7 @@ values will be retained which will potentially cause errors.</li>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.monthly_rollup">
-<code class="descname">monthly_rollup</code><span class="sig-paren">(</span><em>aggregation</em>, <em>to_events=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.monthly_rollup" title="Permalink to this definition">¶</a></dt>
+<code class="descname">monthly_rollup</code><span class="sig-paren">(</span><em>aggregation</em>, <em>to_events=False</em>, <em>utc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.monthly_rollup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a new TimeSeries by dividing events into months. The months are
 in either local or UTC time, depending on if utc(true) is set on the
 Pipeline.</p>
@@ -5480,9 +5607,14 @@ and out_max.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>This helper function renders the aggregations in localtime. If you
-want to render in UTC use .fixed_window_rollup() with the appropriate
-window size.</p>
+<p>This helper function defaults to rendering the aggregations in localtime.
+The reason for this is that rendering in localtime makes the most sense
+on the client side - like rendering a timeseries chart. A user looking
+at a chart in UTC might not make much sense.</p>
+<p>Since this is now being used in servers side applications, the optional
+arg utc can be set to True to force it to render in UTC instead.</p>
+<p>Probably best to favor using .fixed_window_rollup() when wanting to
+render in UTC.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -5942,7 +6074,11 @@ values will be retained which will potentially cause errors.</li>
 <dl class="staticmethod">
 <dt id="pypond.series.TimeSeries.timeseries_list_reduce">
 <em class="property">static </em><code class="descname">timeseries_list_reduce</code><span class="sig-paren">(</span><em>data</em>, <em>series_list</em>, <em>reducer</em>, <em>field_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.timeseries_list_reduce" title="Permalink to this definition">¶</a></dt>
-<dd><p>for each series, map events to the same timestamp/index</p>
+<dd><p>Reduces a list of TimeSeries objects using a reducer function. This works
+by taking each event in each TimeSeries and collecting them together
+based on timestamp. All events for a given time are then merged together
+using the reducer function to produce a new Event. Those Events are then
+collected together to form a new TimeSeries.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -6038,7 +6174,7 @@ actual vanilla data structure.</p>
 
 <dl class="method">
 <dt id="pypond.series.TimeSeries.yearly_rollup">
-<code class="descname">yearly_rollup</code><span class="sig-paren">(</span><em>aggregation</em>, <em>to_events=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.yearly_rollup" title="Permalink to this definition">¶</a></dt>
+<code class="descname">yearly_rollup</code><span class="sig-paren">(</span><em>aggregation</em>, <em>to_events=False</em>, <em>utc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pypond.series.TimeSeries.yearly_rollup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a new TimeSeries by dividing events into years. The years are
 in either local or UTC time, depending on if utc(true) is set on the
 Pipeline.</p>
@@ -6065,9 +6201,14 @@ and out_max.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>This helper function renders the aggregations in localtime. If you
-want to render in UTC use .fixed_window_rollup() with the appropriate
-window size.</p>
+<p>This helper function defaults to rendering the aggregations in localtime.
+The reason for this is that rendering in localtime makes the most sense
+on the client side - like rendering a timeseries chart. A user looking
+at a chart in UTC might not make much sense.</p>
+<p>Since this is now being used in servers side applications, the optional
+arg utc can be set to True to force it to render in UTC instead.</p>
+<p>Probably best to favor using .fixed_window_rollup() when wanting to
+render in UTC.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -6170,6 +6311,23 @@ this is a shorthand for supplying {&#8220;value&#8221;: v}.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Humanized string of the time range.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.timerange_event.TimeRangeEvent.key">
+<code class="descname">key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.timerange_event.TimeRangeEvent.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a range string in the format &#8216;begin,end&#8217; as expressed
+as ms since the epoch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The begin and end of the timerange in ms since the epoch.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
@@ -6309,6 +6467,22 @@ to return it in.</td>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Epoch ms followed by points.</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pypond.timerange_event.TimeRangeEvent.type">
+<code class="descname">type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pypond.timerange_event.TimeRangeEvent.type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the type of this event type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The class of this event type.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">class</td>
 </tr>
 </tbody>
 </table>
