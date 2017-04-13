@@ -15,6 +15,7 @@ http://software.es.net/pond/#/events
 # Sorry pylint, I've abstracted out all I can and there are lots of docstrings.
 # pylint: disable=too-many-lines
 
+import collections
 import copy
 import datetime
 import json
@@ -575,7 +576,61 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         return self.set_data(data)
 
+    def key(self):
+        """Return timestamp as ms since epoch
+
+        Returns
+        -------
+        int
+            ms since epoch.
+        """
+        return ms_from_dt(self.timestamp())
+
+    def type(self):  # pylint: disable=no-self-use
+        """Return type of the event object
+
+        Returns
+        -------
+        class
+            Return the class of thise event type.
+        """
+        return Event
+
     # Static class methods
+
+    @staticmethod
+    def is_duplicate(event1, event2, ignore_values=True):
+        """Returns if the two supplied events are duplicates
+        of each other. By default, duplicated means that the
+        timestamps are the same. This is the case with incoming events
+        where the second event is either known to be the same (but
+        duplicate) of the first, or supersedes the first. You can
+        also pass in false for ignoreValues and get a full
+        compare.
+
+        Parameters
+        ----------
+        event1 : Event, IndexedEvent or TimeSeriesEvent
+            One of the event variants.
+        event2 : Event, IndexedEvent or TimeSeriesEvent
+            One of the event variants.
+        ignore_values : bool, optional
+            If set to True, the values of the events will be compared
+            as well. The default means only the type and key will
+            be compared.
+
+        Returns
+        -------
+        TYPE
+            Description
+        """
+
+        if ignore_values is True:
+            return bool(event1.type() == event2.type() and
+                        event1.key() == event2.key())
+        else:
+            return bool(event1.type() == event2.type() and
+                        Event.same(event1, event2))
 
     @staticmethod
     def same(event1, event2):
@@ -598,8 +653,28 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             Returns True if the event payloads is the same.
         """
         # pylint: disable=protected-access
-        return bool(is_pmap(event1._d) and is_pmap(event2._d) and
-                    event1._d == event2._d)
+
+        if event1.type() != event2.type():
+            return False
+
+        from .indexed_event import IndexedEvent
+        from .timerange_event import TimeRangeEvent
+
+        extended_map = {
+            IndexedEvent: 'index',
+            TimeRangeEvent: 'range',
+        }
+
+        if event1.type() in extended_map:
+            key_attr = extended_map.get(event1.type())
+            return bool(
+                str(event1.get(key_attr)) == str(event2.get(key_attr)) and
+                event1._d.get('data') == event2._d.get('data')
+            )
+        else:
+            # regular events
+            return bool(is_pmap(event1._d) and is_pmap(event2._d) and
+                        event1._d == event2._d)
 
     @staticmethod
     def is_valid_value(event, field_path=None):
@@ -673,244 +748,217 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
     # merge methods (deal in lists of events)
 
     @staticmethod
-    def merge_events(events):
-        """
-        Merge a list of regular Event objects in to a single new Event.
-
-        The events being merged must have the same type and must have the
-        same timestamp.
-
-        Parameters
-        ----------
-        events : list
-            A list of Event object to merge.
-
-        Returns
-        -------
-        Event
-            A new event object.
-
-        Raises
-        ------
-        EventException
-            Raised if the events are not the same type, have the same timestamp
-            or have the same key.
-        """
-        ts_ref = events[0].timestamp()
-        new_data = dict()
-
-        for i in events:
-            if not isinstance(i, Event):
-                raise EventException('Events being merged must have the same type.')
-
-            if ts_ref != i.timestamp():
-                raise EventException('Events being merged need the same timestamp.')
-
-            for k, v in list(i.data().items()):
-                if k in new_data:
-                    raise EventException(
-                        'Events being merged may not have the same key: {k}'.format(k=k))
-                new_data[k] = v
-
-        return Event(ts_ref, new_data)
-
-    @staticmethod
-    def merge_timerange_events(events):
-        """
-        Merge a list of TimeRangeEvent objects.
-
-        The events being merged must have the same type and must have the
-        same timestamp.
-
-        Parameters
-        ----------
-        events : list
-            List of TimeRangeEvents to merge
-
-        Returns
-        -------
-        TimeRangeEvent
-            A new time range event object.
-
-        Raises
-        ------
-        EventException
-            Raised if the events are not the same type, have the same timestamp
-            or have the same key.
-        """
-
-        ts_ref = events[0].timerange()
-        new_data = dict()
-
-        # need to defer import on these static methods to avoid
-        # circular import errors.
-        from .timerange_event import TimeRangeEvent
-
-        for i in events:
-            if not isinstance(i, TimeRangeEvent):
-                raise EventException('Events being merged must have the same type.')
-
-            if i.timerange() != ts_ref:
-                raise EventException('Events being merged need the same timestamp.')
-
-            for k, v in list(i.data().items()):
-                if k in new_data:
-                    raise EventException(
-                        'Events being merged can not have the same key {key}'.format(key=k))
-                new_data[k] = v
-
-        return TimeRangeEvent(ts_ref, new_data)
-
-    @staticmethod
-    def merge_indexed_events(events):
-        """
-        Merge a list of IndexedEvent objects.
-
-        The events being merged must have the same type and must have the
-        same timestamp.
-
-        Parameters
-        ----------
-        events : list
-            A list of IndexedEvent objects.
-
-        Returns
-        -------
-        IndexedEvent
-            New indexed event object.
-
-        raises
-        ------
-        EventException
-            Raised if the events are not the same type, have the same timestamp
-            or have the same key.
-        """
-
-        # need to defer import on these static methods to avoid
-        # circular import errors.
-        from .indexed_event import IndexedEvent
-
-        idx_ref = events[0].index_as_string()
-        new_data = dict()
-
-        for i in events:
-            if not isinstance(i, IndexedEvent):
-                raise EventException('Events being merged must have the same type.')
-
-            if idx_ref != i.index_as_string():
-                raise EventException('Events being merged need the same index.')
-
-            for k, v in list(i.to_json().get('data').items()):
-                if k in new_data:
-                    raise EventException(
-                        'Events being merged can not have the same key {key}'.format(key=k))
-
-                new_data[k] = v
-
-        return IndexedEvent(idx_ref, new_data)
-
-    @staticmethod
     def merge(events):
-        """
-        This is an entry point that will grok the what kind of events
-        are in the list and call one of the three Event class specific
-        methods.
+        """Merges multiple `events` together into a new array of events, one
+        for each time/index/timerange of the source events. Merging is done on
+        the data of each event. Values from later events in the list overwrite
+        early values if fields conflict.
+
+        Common use cases:
+
+        * append events of different timestamps
+        * merge in events with one field to events with another
+        * merge in events that supersede the previous events
 
         Parameters
         ----------
         events : list
-            List of Events types
+            A list of a homogenous kind of event.
 
         Returns
         -------
-        Event, TimeRangeEvent, IndexedEvent
-            New event type returned from appropriate merge method.
-        """
-        if not isinstance(events, list):
-            # need to be a list
-            return
-        elif len(events) < 1:
-            # nothing to process
-            return
-        elif len(events) == 1:
-            # just one, return it.
-            return events[0]
+        list
+            A list of the merged events.
 
+        Raises
+        ------
+        EventException
+            Raised if event list is not homogenous.
+        """
         # need to defer import on these static methods to avoid
         # circular import errors.
         from .indexed_event import IndexedEvent
         from .timerange_event import TimeRangeEvent
 
-        if isinstance(events[0], Event):
-            return Event.merge_events(events)
-        elif isinstance(events[0], TimeRangeEvent):
-            return Event.merge_timerange_events(events)
-        elif isinstance(events[0], IndexedEvent):
-            return Event.merge_indexed_events(events)
+        if isinstance(events, list) or is_pvector(events):
+            if len(events) == 0:
+                return list()
+
+        # ordered to retain ordering of events as passed in
+        event_map = collections.OrderedDict()
+        type_map = dict()
+
+        def group_by_time(event):
+            """Group by the time (the key), as well as keeping track
+            of the event types so we can check that for a given key
+            they are homogeneous and also so we can build an output
+            event for this key"""
+
+            typ = event.type()
+            key = event.key()
+
+            if key not in event_map:
+                event_map[key] = list()
+
+            event_map[key].append(event)
+
+            if key not in type_map:
+                type_map[key] = typ
+            else:
+                if type_map[key] != typ:
+                    msg = 'Events for time {0} are not homogenous'.format(key)
+                    raise EventException(msg)
+
+        for i in events:
+            group_by_time(i)
+
+        def dict_merge(dct, merge_dct):
+            """Merge two dicts, dct will be updated with values in merge_dct."""
+            for k, _ in list(merge_dct.items()):
+                if (k in dct and isinstance(dct[k], dict) and
+                        isinstance(merge_dct[k], collections.Mapping)):
+                    dict_merge(dct[k], merge_dct[k])
+                else:
+                    dct[k] = merge_dct[k]
+
+        out_events = list()
+
+        for key, events in list(event_map.items()):
+            data = dict()
+
+            for i in events:
+                dict_merge(data, thaw(i.data()))
+
+            typ = type_map.get(key)
+
+            if typ == Event:
+                out_events.append(Event(key, data))
+            elif typ == IndexedEvent:
+                out_events.append(IndexedEvent(key, data))
+            elif typ == TimeRangeEvent:
+                args = key.split(',')
+                trange = TimeRange(int(args[0]), int(args[1]))
+                out_events.append(TimeRangeEvent(trange, data))
+
+        return out_events
 
     @staticmethod
-    def combine(events, field_spec, reducer):
-        """
-        Combines multiple events with the same time together
-        to form a new event. Doesn't currently work on IndexedEvents
-        or TimeRangeEvents.
+    def combine(events, field_spec, reducer):  # pylint: disable=too-many-locals, too-many-branches
+        """Combines multiple `events` together into a new array of events, one
+        for each time/index/timerange of the source events. The list of
+        events may be specified as an array or `Immutable.List`. Combining acts
+        on the fields specified in the `fieldSpec` and uses the reducer
+        function to take the multiple values and reducer them down to one.
+
+        The return result will be an of the same form as the input. If you
+        pass in an array of events, you will get an array of events back. If
+        you pass an `Immutable.List` of events then you will get an
+        `Immutable.List` of events back.
+
+        This is the general version of `Event.sum()` and `Event.avg()`. If those
+        common use cases are what you want, just use those functions. If you
+        want to specify your own reducer you can use this function.
+
+        See also: `TimeSeries.timeSeriesListSum()`
 
         Parameters
         ----------
         events : list
             List of Event objects
-        field_spec : list, str, None, optional
+        field_spec : string, list
             Column or columns to look up. If you need to retrieve multiple deep
             nested values that ['can.be', 'done.with', 'this.notation'].
             A single deep value with a string.like.this.  If None, all columns
             will be operated on.
         reducer : function
-            Reducer function to apply to column data.
+            Reducer function to apply to column data
 
         Returns
         -------
         list
-            A list of Event objects.
-        """
-        if len(events) < 1:
-            return None
+            List of new events
 
-        def combine_mapper(event):
-            """mapper function to make ts::k => value dicts"""
+        Raises
+        ------
+        EventException
+            Raised if illegal input is received.
+        """
+
+        # need to defer import on these static methods to avoid
+        # circular import errors.
+        from .indexed_event import IndexedEvent
+        from .timerange_event import TimeRangeEvent
+
+        if isinstance(events, list) or is_pvector(events):
+            if len(events) == 0:
+                return list()
+
+        field_names = None
+
+        if isinstance(field_spec, str):
+            field_names = [field_spec]
+        elif isinstance(field_spec, (list, tuple)):
+            field_names = field_spec
+
+        # ordered to retain ordering of events as passed in
+        event_map = collections.OrderedDict()
+        type_map = dict()
+
+        def group_by_time(event):
+            """Group by the time (the key), as well as keeping track
+            of the event types so we can check that for a given key
+            they are homogeneous and also so we can build an output
+            event for this key"""
+
+            typ = event.type()
+            key = event.key()
+
+            if key not in event_map:
+                event_map[key] = list()
+
+            event_map[key].append(event)
+
+            if key not in type_map:
+                type_map[key] = typ
+            else:
+                if type_map[key] != typ:
+                    msg = 'Events for time {0} are not homogenous'.format(key)
+                    raise EventException(msg)
+
+        for i in events:
+            group_by_time(i)
+
+        out_events = list()
+
+        for key, events in list(event_map.items()):
             map_event = dict()
 
-            field_names = list()
+            for event in events:
 
-            if field_spec is None:
-                field_names = list(thaw(event.data()).keys())
-            elif isinstance(field_spec, str):
-                field_names = [field_spec]
-            elif isinstance(field_spec, (list, tuple)):
-                field_names = field_spec
+                if field_names is None:
+                    field_names = list(thaw(event.data()).keys())
 
-            for i in field_names:
-                map_event['{ts}::{fn}'.format(ts=ms_from_dt(event.timestamp()),
-                                              fn=i)] = event.get(i)
+                for field in field_names:
+                    if field not in map_event:
+                        map_event[field] = list()
+                    map_event[field].append(event.data().get(field))
 
-            # return {ts::k => val, ts::k2 => val, ts::k3 => val}
-            return map_event
+            data = dict()
+            for field_name, values in list(map_event.items()):
+                data[field_name] = reducer(values)
 
-        # dict w/ts::k => [val, val, val]
-        mapped = Event.map(events, combine_mapper)
+            typ = type_map[key]
 
-        event_data = dict()
+            if typ == Event:
+                out_events.append(Event(key, data))
+            elif typ == IndexedEvent:
+                out_events.append(IndexedEvent(key, data))
+            elif typ == TimeRangeEvent:
+                args = key.split(',')
+                trange = TimeRange(int(args[0]), int(args[1]))
+                out_events.append(TimeRangeEvent(trange, data))
 
-        for k, v in list(Event.reduce(mapped, reducer).items()):
-            # ts::k with single reduced value
-            tstamp, field = k.split('::')
-            tstamp = int(tstamp)
-            if tstamp not in event_data:
-                event_data[tstamp] = dict()
-            event_data[tstamp][field] = v
-
-        # event_data 2 level dict {'1459283734515': {'a': 8, 'c': 14, 'b': 11}}
-
-        return [Event(x[0], x[1]) for x in list(event_data.items())]
+        return out_events
 
     # these call combine with appropriate reducer
 
@@ -937,8 +985,8 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Returns
         -------
-        int, float or None
-            The summed value.
+        list
+            A list containing the summed events.
 
         Raises
         ------
@@ -946,22 +994,9 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
             Raised on mismatching timestamps.
         """
 
-        tstmp = None
-
-        for i in events:
-            if tstmp is None:
-                tstmp = i.timestamp()
-            else:
-                if tstmp != i.timestamp():
-                    msg = 'sum() expects all events to have the same timestamp'
-                    raise EventException(msg)
-
         summ = Event.combine(events, field_spec, Functions.sum(f_check(filter_func)))
 
-        if summ is not None:
-            return summ[0]
-        else:
-            return None
+        return summ
 
     @staticmethod
     def avg(events, field_spec=None, filter_func=None):
@@ -985,15 +1020,13 @@ class Event(EventBase):  # pylint: disable=too-many-public-methods
 
         Returns
         -------
-        int, float or None
-            The averaged value."""
+        list
+            A list containing the averaged events.
+        """
 
         avg = Event.combine(events, field_spec, Functions.avg(f_check(filter_func)))
 
-        if avg is not None:
-            return avg[0]
-        else:
-            return None
+        return avg
 
     # map, reduce, etc
 

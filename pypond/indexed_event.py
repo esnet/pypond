@@ -83,6 +83,26 @@ class IndexedEvent(EventBase):
             data=thaw(self.data())
         )
 
+    def key(self):
+        """Return the index string of this object.
+
+        Returns
+        -------
+        Index
+            The index of this object.
+        """
+        return self.index().to_string()
+
+    def type(self):  # pylint: disable=no-self-use
+        """Return the class of this event type.
+
+        Returns
+        -------
+        class
+            The class of this event type.
+        """
+        return IndexedEvent
+
     def to_point(self, cols=None):
         """
         Returns a flat array starting with the timestamp, followed by the values.

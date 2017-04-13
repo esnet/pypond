@@ -11,10 +11,13 @@ Implementation of Pond Collection class.
 """
 
 import copy
+import datetime
 import json
 import math
 
 from pyrsistent import thaw, pvector
+
+import six
 
 from .event import Event
 from .exceptions import CollectionException, CollectionWarning, UtilityException
@@ -25,6 +28,7 @@ from .util import (
     _check_dt,
     is_function,
     is_pvector,
+    ms_from_dt,
     ObjectEncoder,
     unique_id,
 )
@@ -228,8 +232,40 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
         """
         pos = self.bisect(time)
 
-        if pos and pos < self.size():
+        if pos is not None and pos < self.size():
             return self.at(pos)
+
+    def at_key(self, searchkey):
+        """Returns a list of events in the Collection which have
+        the exact key (time, timerange or index) as the key specified
+        by 'at'. Note that this is an O(n) search for the time specified,
+        since collections are an unordered bag of events.
+
+        Parameters
+        ----------
+        key : datetime, str, TimeRange
+            The key of the event
+
+        Returns
+        -------
+        list
+            List of all events at that key.
+        """
+        if isinstance(searchkey, datetime.datetime):
+            key = ms_from_dt(searchkey)
+        elif isinstance(searchkey, six.string_types):
+            key = searchkey
+        elif isinstance(searchkey, TimeRange):
+            # pylint: disable=redefined-variable-type
+            key = '{0},{1}'.format(ms_from_dt(searchkey.begin()), ms_from_dt(searchkey.end()))
+
+        ret = list()
+
+        for i in self.events():
+            if i.key() == key:
+                ret.append(i)
+
+        return ret
 
     def at_first(self):
         """Retrieve the first item in this collection.
@@ -374,6 +410,39 @@ class Collection(Bounded):  # pylint: disable=too-many-public-methods
             Thawed version of internal immutable data structure.
         """
         return thaw(self.event_list())
+
+    def event_list_as_map(self):
+        """Return the events in the collection as a dict of lists where
+        the key is the timestamp, index or timerange and the value
+        is an array of events with that key.
+
+        Returns
+        -------
+        TYPE
+            Description
+        """
+        ret = dict()
+
+        for i in self.events():
+            key = i.key()
+            if i.key() not in ret:
+                ret[key] = list()
+            ret[key].append(i)
+
+        return ret
+
+    def dedup(self):
+        """Remove duplicates from the Collection. If duplicates
+        exist in the collection with the same key but with different
+        values, the later event values will be used.
+
+        Returns
+        -------
+        Collection
+            A new collection w/out duplicates.
+        """
+        events = Event.merge(self.event_list_as_list())
+        return Collection(events)
 
     def sort_by_time(self):
         """Return a new instance of this collection after making sure

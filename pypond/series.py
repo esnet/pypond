@@ -25,7 +25,7 @@ from .exceptions import TimeSeriesException
 from .index import Index
 from .indexed_event import IndexedEvent
 from .timerange_event import TimeRangeEvent
-from .util import ObjectEncoder, ms_from_dt
+from .util import ObjectEncoder, ms_from_dt, is_function
 
 
 class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
@@ -1276,7 +1276,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         """
         return self.fixed_window_rollup('1h', aggregation, to_events)
 
-    def daily_rollup(self, aggregation, to_events=False):
+    def daily_rollup(self, aggregation, to_events=False, utc=False):
         """
         Builds a new TimeSeries by dividing events into days. The days are
         in either local or UTC time, depending on if utc(true) is set on the
@@ -1306,9 +1306,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 {'max_temp': {'temperature': Functions.max()}}
             )
 
-        This helper function renders the aggregations in localtime. If you
-        want to render in UTC use .fixed_window_rollup() with the appropriate
-        window size.
+        This helper function defaults to rendering the aggregations in localtime.
+        The reason for this is that rendering in localtime makes the most sense
+        on the client side - like rendering a timeseries chart. A user looking
+        at a chart in UTC might not make much sense.
+
+        Since this is now being used in servers side applications, the optional
+        arg utc can be set to True to force it to render in UTC instead.
+
+        Probably best to favor using .fixed_window_rollup() when wanting to
+        render in UTC.
 
         Parameters
         ----------
@@ -1322,9 +1329,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('daily', aggregation, to_events, utc=False)
+        return self._rollup('daily', aggregation, to_events, utc=utc)
 
-    def monthly_rollup(self, aggregation, to_events=False):
+    def monthly_rollup(self, aggregation, to_events=False, utc=False):
         """
         Builds a new TimeSeries by dividing events into months. The months are
         in either local or UTC time, depending on if utc(true) is set on the
@@ -1354,9 +1361,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 {'max_temp': {'temperature': Functions.max()}}
             )
 
-        This helper function renders the aggregations in localtime. If you
-        want to render in UTC use .fixed_window_rollup() with the appropriate
-        window size.
+        This helper function defaults to rendering the aggregations in localtime.
+        The reason for this is that rendering in localtime makes the most sense
+        on the client side - like rendering a timeseries chart. A user looking
+        at a chart in UTC might not make much sense.
+
+        Since this is now being used in servers side applications, the optional
+        arg utc can be set to True to force it to render in UTC instead.
+
+        Probably best to favor using .fixed_window_rollup() when wanting to
+        render in UTC.
 
         Parameters
         ----------
@@ -1370,9 +1384,9 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('monthly', aggregation, to_events, utc=False)
+        return self._rollup('monthly', aggregation, to_events, utc=utc)
 
-    def yearly_rollup(self, aggregation, to_events=False):
+    def yearly_rollup(self, aggregation, to_events=False, utc=False):
         """
         Builds a new TimeSeries by dividing events into years. The years are
         in either local or UTC time, depending on if utc(true) is set on the
@@ -1402,9 +1416,16 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
                 {'max_temp': {'temperature': Functions.max()}}
             )
 
-        This helper function renders the aggregations in localtime. If you
-        want to render in UTC use .fixed_window_rollup() with the appropriate
-        window size.
+        This helper function defaults to rendering the aggregations in localtime.
+        The reason for this is that rendering in localtime makes the most sense
+        on the client side - like rendering a timeseries chart. A user looking
+        at a chart in UTC might not make much sense.
+
+        Since this is now being used in servers side applications, the optional
+        arg utc can be set to True to force it to render in UTC instead.
+
+        Probably best to favor using .fixed_window_rollup() when wanting to
+        render in UTC.
 
         Parameters
         ----------
@@ -1418,7 +1439,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         TimeSeries
             The resulting rolled up TimeSeries.
         """
-        return self._rollup('yearly', aggregation, to_events, utc=False)
+        return self._rollup('yearly', aggregation, to_events, utc=utc)
 
     def _rollup(self, interval, aggregation, to_events=False, utc=True):
 
@@ -1505,7 +1526,11 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def timeseries_list_reduce(data, series_list, reducer, field_spec=None):
-        """for each series, map events to the same timestamp/index
+        """Reduces a list of TimeSeries objects using a reducer function. This works
+        by taking each event in each TimeSeries and collecting them together
+        based on timestamp. All events for a given time are then merged together
+        using the reducer function to produce a new Event. Those Events are then
+        collected together to form a new TimeSeries.
 
         Parameters
         ----------
@@ -1528,39 +1553,33 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
             New time series containing the mapped events.
         """
 
-        event_map = collections.OrderedDict()
+        if not isinstance(series_list, list):
+            msg = 'A list of TimeSeries must be supplied to reduce'
+            raise TimeSeriesException(msg)
 
-        # sort on the begin times which might be out of order. this
-        # ensures that the event map wil be generated chronologically.
-        series_list = sorted(series_list, key=lambda x: x.begin())
+        if not is_function(reducer):
+            msg = 'reducer function must be supplied, for example, avg()'
+            raise TimeSeriesException(msg)
+
+        event_list = list()
 
         for i in series_list:
-            for evn in i.events():
-                key = None
-                if isinstance(evn, Event):
-                    key = evn.timestamp()
-                elif isinstance(evn, IndexedEvent):
-                    key = evn.index_as_string()
-                elif isinstance(evn, TimeRangeEvent):
-                    key = evn.timerange().to_utc_string()
+            for ii in i.events():
+                event_list.append(ii)
 
-                if key not in event_map:
-                    # keep keys in insert order
-                    event_map.update({key: list()})
+        if field_spec is not None:
+            events = reducer(event_list, field_spec)
+        else:
+            # like when calling Event.merge()
+            events = reducer(event_list)
 
-                event_map[key].append(evn)
+        coll = Collection(events)
+        if coll.is_chronological() is False:
+            coll = coll.sort_by_time()
 
-        events = list()
+        ret = TimeSeries(dict(data=data, collection=coll))
 
-        for v in list(event_map.values()):
-            if field_spec is None:
-                event = reducer(v)
-            else:
-                event = reducer(v, field_spec)
-
-            events.append(event)
-
-        return TimeSeries(dict(events=events, **data))
+        return ret
 
     @staticmethod
     def timeseries_list_merge(data, series_list):

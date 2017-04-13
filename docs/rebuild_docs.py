@@ -34,6 +34,7 @@ README_TOKEN
     time
     columns
     sanitize
+    release
     tests
 """
 

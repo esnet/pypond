@@ -272,24 +272,7 @@ class TestEventStaticMethods(BaseTestEvent):
         ev2 = Event(self.aware_ts, pay2)
 
         merged = Event.merge([ev1, ev2])
-        self.assertEqual(set(thaw(merged.data())), set(dict(pay1, **pay2)))
-
-        # bad, different ts (error), different payloads
-        ev3 = Event(self.aware_ts, pay1)
-        ev4 = Event(self.aware_ts + datetime.timedelta(minutes=1), pay2)
-        with self.assertRaises(EventException):
-            merged = Event.merge([ev3, ev4])
-
-        # bad, same ts, same payloads (error)
-        ev5 = Event(self.aware_ts, pay1)
-        ev6 = Event(self.aware_ts, pay1)
-        with self.assertRaises(EventException):
-            merged = Event.merge([ev5, ev6])
-
-        # type mismach for coverage
-        idxe = IndexedEvent('1999', pay1)
-        with self.assertRaises(EventException):
-            Event.merge([ev1, idxe])
+        self.assertEqual(set(thaw(merged[0].data())), set(dict(pay1, **pay2)))
 
 
 class TestEventMapReduceCombine(BaseTestEvent):
@@ -357,40 +340,31 @@ class TestEventMapReduceCombine(BaseTestEvent):
         ]
 
         result = Event.sum(events)
-        self.assertEqual(result.get('a'), 8)
-        self.assertEqual(result.get('b'), 11)
-        self.assertEqual(result.get('c'), 14)
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertEqual(result[0].get('b'), 11)
+        self.assertEqual(result[0].get('c'), 14)
 
         # combine single field
         result = Event.sum(events, 'a')
-        self.assertEqual(result.get('a'), 8)
-        self.assertIsNone(result.get('b'))
-        self.assertIsNone(result.get('c'))
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertIsNone(result[0].get('b'))
+        self.assertIsNone(result[0].get('c'))
 
         # grab multiple fields
         result = Event.sum(events, ['a', 'c'])
-        self.assertEqual(result.get('a'), 8)
-        self.assertIsNone(result.get('b'))
-        self.assertEqual(result.get('c'), 14)
-
-        # raise an exception
-        bad_events = events + [
-            self._create_event(
-                self.aware_ts + datetime.timedelta(seconds=1),
-                {'a': 8, 'b': 9, 'c': 0})
-        ]
-        with self.assertRaises(EventException):
-            Event.sum(bad_events, 'a')
+        self.assertEqual(result[0].get('a'), 8)
+        self.assertIsNone(result[0].get('b'))
+        self.assertEqual(result[0].get('c'), 14)
 
         # average
         result = Event.avg(
             events + [self._create_event(self.aware_ts, {'a': 1, 'b': 1, 'c': 2})],
             'c')
-        self.assertEqual(result.get('c'), 4)
+        self.assertEqual(result[0].get('c'), 4)
 
         # bad arg
-        self.assertIsNone(Event.sum([]))
-        self.assertIsNone(Event.avg([]))
+        self.assertEqual(Event.sum([]), [])
+        self.assertEqual(Event.avg([]), [])
 
         # work the extra reducer functions in Functions module
         result = Event.combine(events, 'c', Functions.max())
@@ -426,16 +400,16 @@ class TestEventMapReduceCombine(BaseTestEvent):
         ]
 
         result = Event.sum(events, filter_func=Filters.zero_missing)
-        self.assertEqual(result.get('a'), 6)
+        self.assertEqual(result[0].get('a'), 6)
 
         result = Event.sum(events, filter_func=Filters.propogate_missing)
-        self.assertIsNone(result.get('a'))
+        self.assertIsNone(result[0].get('a'))
 
         result = Event.avg(events, filter_func=Filters.ignore_missing)
-        self.assertEqual(result.get('b'), 4)
+        self.assertEqual(result[0].get('b'), 4)
 
         result = Event.avg(events, filter_func=Filters.propogate_missing)
-        self.assertIsNone(result.get('b'))
+        self.assertIsNone(result[0].get('b'))
 
     def test_event_collapse(self):
         """test collapse()"""
@@ -539,29 +513,15 @@ class TestIndexedEvent(BaseTestEvent):
         event2 = IndexedEvent(index, freeze({'c': 2}))  # pmap for coverage
         merged = Event.merge([event1, event2])
 
-        self.assertEqual(merged.get('a'), 5)
-        self.assertEqual(merged.get('b'), 6)
-        self.assertEqual(merged.get('c'), 2)
+        self.assertEqual(merged[0].get('a'), 5)
+        self.assertEqual(merged[0].get('b'), 6)
+        self.assertEqual(merged[0].get('c'), 2)
 
         # bad merges
-        # type mismatch
-        with self.assertRaises(EventException):
-            Event.merge([event1, self.canned_event])
-
-        # different index
-        event3 = IndexedEvent('1h-396207', dict(d=9))
-        with self.assertRaises(EventException):
-            Event.merge([event1, event3])
-
-        # key collision
-        event4 = IndexedEvent(index, dict(b=9))
-        with self.assertRaises(EventException):
-            Event.merge([event1, event4])
 
         # wrong length/etc
-        self.assertIsNone(Event.merge({}))
-        self.assertIsNone(Event.merge([]))
-        self.assertEqual(Event.merge([event4]), event4)
+        self.assertEqual(Event.merge({}), [])
+        self.assertEqual(Event.merge([]), [])
 
     def test_i_event_deep_get(self):
         """test.deep.get"""
@@ -638,26 +598,11 @@ class TestTimeRangeEvent(BaseTestEvent):
 
         merged = Event.merge([tr1, tr2])
 
-        self.assertEqual(merged.get('a'), 5)
-        self.assertEqual(merged.get('b'), 6)
-        self.assertEqual(merged.get('c'), 2)
+        self.assertEqual(merged[0].get('a'), 5)
+        self.assertEqual(merged[0].get('b'), 6)
+        self.assertEqual(merged[0].get('c'), 2)
 
         # bad merges
-        # type mismatch
-        with self.assertRaises(EventException):
-            Event.merge([tr1, self.canned_event])
-
-        # timestamp mismatch
-        bad_range = TimeRange(self.test_begin_ts + datetime.timedelta(seconds=1),
-                              self.test_end_ts)
-        tr3 = TimeRangeEvent(bad_range, dict(d=9))
-        with self.assertRaises(EventException):
-            Event.merge([tr1, tr3])
-
-        # key collision
-        tr4 = TimeRangeEvent(t_range, dict(c=4))
-        with self.assertRaises(EventException):
-            Event.merge([merged, tr4])
 
     def test_ts_getters(self):
         """Test the accessors for the underlying TimeRange."""
