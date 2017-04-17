@@ -518,6 +518,7 @@ class TestTimeSeries(SeriesBase):
 
         self.assertEqual(t_merged.at(2).get('in'), 26)
         self.assertEqual(t_merged.at(2).get('out'), 67)
+        self.assertEqual(t_merged.name(), 'traffic')
 
         t_summed = TimeSeries.timeseries_list_sum(
             dict(name='traffic'), [t_in, t_in], 'in')

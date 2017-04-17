@@ -12,7 +12,6 @@ Implements the Pond TimeSeries class.
 http://software.es.net/pond/#/timeseries
 """
 
-import collections
 import copy
 import json
 
@@ -1535,7 +1534,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         data : dict or pmap
-            Data payload
+            Metadata to set in new TimeSeries.
         series_list : list
             List of TimeSeries objects.
         reducer : function
@@ -1588,7 +1587,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         data : dict or pvector
-            Data payload
+            Metadata to set in new TimeSeries.
         series_list : list
             List of TimeSeries instances.
 
@@ -1612,7 +1611,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         Parameters
         ----------
         data : dict
-            Data payload
+            Metadata to set in new TimeSeries.
         series_list : list
             List of TimeSeries objects
         field_spec : list, str, None, optional
