@@ -6056,7 +6056,7 @@ values will be retained which will potentially cause errors.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<em>dict or pvector</em>) &#8211; Data payload</li>
+<li><strong>data</strong> (<em>dict or pvector</em>) &#8211; Metadata to set in new TimeSeries.</li>
 <li><strong>series_list</strong> (<em>list</em>) &#8211; List of TimeSeries instances.</li>
 </ul>
 </td>
@@ -6084,7 +6084,7 @@ collected together to form a new TimeSeries.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<em>dict or pmap</em>) &#8211; Data payload</li>
+<li><strong>data</strong> (<em>dict or pmap</em>) &#8211; Metadata to set in new TimeSeries.</li>
 <li><strong>series_list</strong> (<em>list</em>) &#8211; List of TimeSeries objects.</li>
 <li><strong>reducer</strong> (<em>function</em>) &#8211; reducer function</li>
 <li><strong>field_spec</strong> (<em>list, str, None, optional</em>) &#8211; <p>Column or columns to look up. If you need to retrieve multiple deep
@@ -6118,7 +6118,7 @@ const sum = TimeSeries.timeseries_list_sum({name: &#8220;sum&#8221;}, [ts1, ts2]
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<em>dict</em>) &#8211; Data payload</li>
+<li><strong>data</strong> (<em>dict</em>) &#8211; Metadata to set in new TimeSeries.</li>
 <li><strong>series_list</strong> (<em>list</em>) &#8211; List of TimeSeries objects</li>
 <li><strong>field_spec</strong> (<em>list, str, None, optional</em>) &#8211; Column or columns to look up. If you need to retrieve multiple deep
 nested values that [&#8216;can.be&#8217;, &#8216;done.with&#8217;, &#8216;this.notation&#8217;].
