@@ -1577,7 +1577,7 @@ class TimeSeries(PypondBase):  # pylint: disable=too-many-public-methods
         if coll.is_chronological() is False:
             coll = coll.sort_by_time()
 
-        ret = TimeSeries(dict(data=data, collection=coll))
+        ret = TimeSeries(dict(collection=coll, **data))
 
         return ret
 
