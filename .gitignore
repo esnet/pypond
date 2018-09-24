@@ -7,3 +7,6 @@ dist/
 build
 _build
 _templates
+.noseids
+nosetests.xml
+.vscode
