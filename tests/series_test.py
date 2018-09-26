@@ -612,7 +612,7 @@ class TestTimeSeries(SeriesBase):
         self.assertEqual(series.sum('out', Filters.ignore_missing), 8)
         self.assertEqual(series.avg('out', Filters.ignore_missing), 4)
         self.assertEqual(series.min('out', Filters.zero_missing), 0)
-        self.assertEqual(series.max('out', Filters.propogate_missing), None)
+        self.assertEqual(series.max('out', Filters.propagate_missing), None)
         self.assertEqual(series.mean('out', Filters.ignore_missing), 4)
         self.assertEqual(series.median('out', Filters.zero_missing), 2)
         self.assertEqual(series.stdev('out', Filters.zero_missing), 2.494438257849294)
@@ -965,8 +965,8 @@ class TestCollection(SeriesBase):
 
         self.assertEqual(coll.aggregate(Functions.sum(), 'in'), 6)
 
-        self.assertEqual(coll.aggregate(Functions.sum(Filters.propogate_missing), 'in'), 6)
-        self.assertEqual(coll.aggregate(Functions.sum(Filters.propogate_missing), 'out'), None)
+        self.assertEqual(coll.aggregate(Functions.sum(Filters.propagate_missing), 'in'), 6)
+        self.assertEqual(coll.aggregate(Functions.sum(Filters.propagate_missing), 'out'), None)
 
         self.assertEqual(coll.aggregate(Functions.avg(Filters.ignore_missing), 'in'), 2)
         self.assertEqual(coll.aggregate(Functions.avg(Filters.ignore_missing), 'out'), 3)

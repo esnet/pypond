@@ -57,7 +57,7 @@ class Filters(object):
         return filled
 
     @staticmethod
-    def propogate_missing(events):
+    def propagate_missing(events):
         """It's all bad if there are missing values - return None if so."""
         for i in events:
             if not is_valid(i):
@@ -106,7 +106,7 @@ class Functions(object):
 
         timeseries.aggregate(Functions.sum, 'in')
 
-    Now it is a factory to return the acutal function::
+    Now it is a factory to return the actual function::
 
         timeseries.aggregate(Functions.sum(), 'in')
 
@@ -117,7 +117,7 @@ class Functions(object):
     """
 
     # pylint: disable=missing-docstring
-    # skipping coverage on all the propogate_missing logic because
+    # skipping coverage on all the propagate_missing logic because
     # those don't need specific tests.
 
     @staticmethod
