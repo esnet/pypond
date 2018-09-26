@@ -98,7 +98,7 @@ class TestRegularEventCreation(BaseTestEvent):
         event = self._create_event(self.aware_ts, data)
         self._base_checks(event, data, dtime=self.aware_ts)
 
-        # Now try to creat one with a naive datetime
+        # Now try to create one with a naive datetime
         ts = datetime.datetime.utcnow()
         with self.assertRaises(EventException):
             self._create_event(ts, data)
@@ -402,13 +402,13 @@ class TestEventMapReduceCombine(BaseTestEvent):
         result = Event.sum(events, filter_func=Filters.zero_missing)
         self.assertEqual(result[0].get('a'), 6)
 
-        result = Event.sum(events, filter_func=Filters.propogate_missing)
+        result = Event.sum(events, filter_func=Filters.propagate_missing)
         self.assertIsNone(result[0].get('a'))
 
         result = Event.avg(events, filter_func=Filters.ignore_missing)
         self.assertEqual(result[0].get('b'), 4)
 
-        result = Event.avg(events, filter_func=Filters.propogate_missing)
+        result = Event.avg(events, filter_func=Filters.propagate_missing)
         self.assertIsNone(result[0].get('b'))
 
     def test_event_collapse(self):
