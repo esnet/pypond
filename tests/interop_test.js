@@ -4,7 +4,7 @@
 // back to the calling code to see if that can be instantiated
 // and checked against the origianl data structure.
 
-var pond = require('../../pond')
+var pond = require('pondjs')
 var myArgs = process.argv.slice(2);
 
 var wire;
