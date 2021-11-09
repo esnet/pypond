@@ -1,0 +1,23 @@
+{
+  "name": "pypond",
+  "version": "0.5.1",
+  "description": "PyPond is a Python implementation of the JavaScript Pond timeseries library. At a very high level, both implementations offer classes and structures to collect, manipulate and transmit timeseries data. Time series transmission is done via a JSON-based wire format.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkafader-esnet/pypond.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jkafader-esnet/pypond/issues"
+  },
+  "homepage": "https://github.com/jkafader-esnet/pypond#readme"
+}
