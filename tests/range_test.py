@@ -209,7 +209,10 @@ class TestTimeRangeOutput(BaseTestTimeRange):
         self.assertEqual(rang.relative_string(), 'a day ago to now')
 
         rang = TimeRange.last_seven_days()
-        self.assertEqual(rang.relative_string(), '7 days ago to now')
+        # due to the using UTC offsets, this date can appear to be either 6, 7, or 8 days ago
+        # 6 for negative offsets, 7 for UTC, 8 for positive offsets
+        # unless the local machine clock _happens_ to be set to UTC.
+        self.assertTrue(rang.relative_string() in ['7 days ago to now', '6 days ago to now', '8 days ago to now'])
 
         rang = TimeRange.last_thirty_days()
         # this can return ambiguous results

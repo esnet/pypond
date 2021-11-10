@@ -1,17 +1,21 @@
 language: python
 python:
   - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "3.5-dev"
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.9"
   - "nightly"
+matrix:
+  allow_failures:
+    python: "nightly"
 # command to install dependencies
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
   - nvm use stable
   - npm install
+  - npm install -g typescript
   - python setup.py install
   - pip install coveralls
 # command to run tests
@@ -20,7 +24,7 @@ script:
   - git clone https://github.com/esnet/pond.git ../pond/
   - cd ../pond
   - npm install
-  - npm run build
+  - npm run build || true
   - cd ../pypond
   - nosetests --with-coverage --cover-package=pypond
 after_success:

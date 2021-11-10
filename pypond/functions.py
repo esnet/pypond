@@ -164,7 +164,7 @@ class Functions(object):
             if vals is None:
                 return None  # pragma: no cover
 
-            if len(vals) is 0:
+            if len(vals) == 0:
                 return 0
 
             return float(Functions.sum()(vals)) / len(vals)
