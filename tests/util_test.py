@@ -163,6 +163,10 @@ class TestTime(unittest.TestCase):
         datetime.datetime. So all of the attrs will be the same between the
         UTC and local version.
         """
+        local_offset = datetime.datetime.utcnow() - datetime.datetime.now()
+        if local_offset.total_seconds() < 1:
+            # if our local clock is UTC, this test will fail. skip it.
+            return
         dtime = aware_dt_from_args(
             dict(year=2015, month=3, day=14, hour=7, minute=32, second=22))
 
@@ -181,6 +185,10 @@ class TestTime(unittest.TestCase):
 
     def test_bad_args(self):
         """Trigger errors for coverage."""
+        local_offset = datetime.datetime.utcnow() - datetime.datetime.now()
+        if local_offset.total_seconds() < 1:
+            # if our local clock is UTC, this test will fail. skip it.
+            return
         with self.assertRaises(UtilityException):
             aware_dt_from_args(('year', 2015))
 
