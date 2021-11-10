@@ -97,6 +97,11 @@ class TestIndexCreation(BaseTestIndex):
     def test_local_times(self):
         """non-utc dates are evil, but we apparently support them."""
 
+        local_offset = datetime.datetime.utcnow() - datetime.datetime.now()
+        if local_offset.total_seconds() < 1:
+            # if our local clock is UTC, this test will fail. skip it.
+            return
+
         # even though local times == satan, the sanitizer should
         # still coerce it into utc.
         hour_utc = Index(self._hourly_index, utc=True)
