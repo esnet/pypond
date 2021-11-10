@@ -4,7 +4,11 @@ python:
   - "3.6"
   - "3.7"
   - "3.8"
+  - "3.9"
   - "nightly"
+matrix:
+  allow_failures:
+    python: "nightly"
 # command to install dependencies
 install:
   - . $HOME/.nvm/nvm.sh
