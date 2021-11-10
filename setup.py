@@ -26,13 +26,13 @@ setup(
     description='Python implementation of the Pond JavaScript timeseries library (https://github.com/esnet/pond).',  # pylint: disable=line-too-long
     long_description=DESCRIPTION,
     author='Monte M. Goode',
-    author_email='MMGoode@lbl.gov',
+    author_email='tools@es.net',
     url='https://github.com/esnet/pypond',
     packages=['pypond', 'pypond.processor', 'pypond.io'],
     scripts=[],
     install_requires=[
         'pyrsistent==0.11.13',
-        'pytz==2016.4',
+        'pytz>=2016.4',
         'tzlocal==1.2.2',
         'humanize==0.5.1',
         'six>=1.10.0',
