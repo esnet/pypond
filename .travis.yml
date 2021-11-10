@@ -24,7 +24,7 @@ script:
   - git clone https://github.com/esnet/pond.git ../pond/
   - cd ../pond
   - npm install
-  - npm run build
+  - npm run build || true
   - cd ../pypond
   - nosetests --with-coverage --cover-package=pypond
 after_success:
