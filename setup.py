@@ -22,7 +22,7 @@ if sys.version_info[0] == 3 and sys.version_info[1] < 3:
 
 setup(
     name='pypond',
-    version='0.5.2',
+    version='0.5.3',
     description='Python implementation of the Pond JavaScript timeseries library (https://github.com/esnet/pond).',  # pylint: disable=line-too-long
     long_description=DESCRIPTION,
     author='Monte M. Goode',
@@ -31,14 +31,14 @@ setup(
     packages=['pypond', 'pypond.processor', 'pypond.io'],
     scripts=[],
     install_requires=[
-        'pyrsistent==0.11.13',
+        'pyrsistent==0.20.0',
         'pytz>=2016.4',
-        'tzlocal==1.2.2',
-        'humanize==0.5.1',
+        'tzlocal==5.3',
+        'humanize==4.12.1',
         'six>=1.10.0',
         # these are for read the docs builds
-        'sphinxcontrib-napoleon==0.5.1',
-        'recommonmark==0.4.0',
+        'sphinxcontrib-napoleon==0.7',
+        'recommonmark==0.7.1',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -52,6 +52,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: JavaScript',
         'Topic :: Software Development :: Libraries',
     ],

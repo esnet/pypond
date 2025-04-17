@@ -10,3 +10,4 @@ _templates
 .noseids
 nosetests.xml
 .vscode
+node_modules
